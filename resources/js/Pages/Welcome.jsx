@@ -48,20 +48,20 @@ export default function Welcome() {
     ];
 
     const techStack = [
-        { name: "Laravel 12", color: "bg-red-500" },
-        { name: "Inertia.js", color: "bg-purple-500" },
-        { name: "React", color: "bg-cyan-500" },
-        { name: "TailwindCSS", color: "bg-sky-500" },
-        { name: "MySQL", color: "bg-orange-500" },
+        { name: "Laravel 12", color: "bg-primary-700" },
+        { name: "Inertia.js", color: "bg-primary-500" },
+        { name: "React", color: "bg-primary-400" },
+        { name: "TailwindCSS", color: "bg-primary-600" },
+        { name: "MySQL", color: "bg-primary-300" },
     ];
 
     return (
         <>
             <Head title="Aplikasi Kasir - Point of Sale Modern" />
 
-            <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+            <div className="min-h-screen bg-wellness-soft text-wellness-text">
                 {/* Navbar */}
-                <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800">
+                <nav className="fixed top-0 left-0 right-0 z-50 bg-wellness-brown/95 backdrop-blur-xl border-b border-primary-700">
                     <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
@@ -70,7 +70,7 @@ export default function Welcome() {
                                     className="text-white"
                                 />
                             </div>
-                            <span className="text-xl font-bold text-slate-900 dark:text-white">
+                            <span className="text-xl font-bold text-white">
                                 Aplikasi Kasir
                             </span>
                         </div>
@@ -78,19 +78,19 @@ export default function Welcome() {
                         <div className="hidden md:flex items-center gap-8">
                             <a
                                 href="#features"
-                                className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors"
+                                className="text-sm text-primary-100 hover:text-white transition-colors"
                             >
                                 Fitur
                             </a>
                             <a
                                 href="#tech"
-                                className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors"
+                                className="text-sm text-primary-100 hover:text-white transition-colors"
                             >
                                 Teknologi
                             </a>
                             <a
                                 href="#install"
-                                className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors"
+                                className="text-sm text-primary-100 hover:text-white transition-colors"
                             >
                                 Instalasi
                             </a>
@@ -99,13 +99,13 @@ export default function Welcome() {
                         <div className="flex items-center gap-3">
                             <Link
                                 href="/login"
-                                className="px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-primary-500 transition-colors"
+                                className="px-5 py-2.5 text-sm font-medium text-primary-100 hover:text-white transition-colors"
                             >
                                 Masuk
                             </Link>
                             <Link
                                 href="/register"
-                                className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700 shadow-lg shadow-primary-500/25 transition-all"
+                                className="px-5 py-2.5 text-sm font-semibold text-white bg-primary-500 rounded-xl hover:bg-primary-600 shadow-lg shadow-primary-800/20 transition-all"
                             >
                                 Daftar Gratis
                             </Link>
@@ -114,22 +114,22 @@ export default function Welcome() {
                 </nav>
 
                 {/* Hero Section */}
-                <section className="pt-32 pb-20 px-6">
+                <section className="pt-32 pb-20 px-6 hero-wellness-gradient">
                     <div className="max-w-7xl mx-auto">
                         <div className="text-center max-w-4xl mx-auto">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 dark:bg-primary-950/50 text-primary-600 dark:text-primary-400 text-sm font-medium mb-6">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-6">
                                 <IconDeviceMobile size={16} />
                                 Responsive & Mobile-Friendly
                             </div>
 
-                            <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight">
+                            <h1 className="text-5xl md:text-6xl font-extrabold text-wellness-text leading-tight">
                                 Sistem Point of Sale
-                                <span className="block mt-2 bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent">
+                                <span className="block mt-2 bg-gradient-to-r from-primary-500 to-primary-700 bg-clip-text text-transparent">
                                     Modern & Mudah Digunakan
                                 </span>
                             </h1>
 
-                            <p className="mt-6 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                            <p className="mt-6 text-lg text-wellness-muted max-w-2xl mx-auto">
                                 Aplikasi kasir berbasis web untuk warung & toko
                                 kecil–menengah. Mendukung pencatatan transaksi,
                                 laporan, manajemen produk, pelanggan, dan banyak
@@ -139,7 +139,7 @@ export default function Welcome() {
                             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                                 <Link
                                     href="/register"
-                                    className="w-full sm:w-auto px-8 py-4 text-base font-semibold text-white bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl hover:from-primary-600 hover:to-primary-700 shadow-xl shadow-primary-500/30 transition-all flex items-center justify-center gap-2"
+                                    className="w-full sm:w-auto px-8 py-4 text-base font-semibold text-white bg-primary-500 rounded-2xl hover:bg-primary-600 shadow-xl shadow-primary-900/25 transition-all flex items-center justify-center gap-2"
                                 >
                                     Mulai Sekarang
                                     <IconArrowRight size={20} />
@@ -147,7 +147,7 @@ export default function Welcome() {
                                 <a
                                     href="https://github.com/aryadwiputra/point-of-sales"
                                     target="_blank"
-                                    className="w-full sm:w-auto px-8 py-4 text-base font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-primary-300 dark:hover:border-primary-700 transition-all flex items-center justify-center gap-2"
+                                    className="w-full sm:w-auto px-8 py-4 text-base font-semibold text-wellness-text bg-wellness-soft border border-primary-200 rounded-2xl hover:border-primary-500 transition-all flex items-center justify-center gap-2"
                                 >
                                     <IconBrandGithub size={20} />
                                     View Repository
@@ -157,15 +157,15 @@ export default function Welcome() {
 
                         {/* Dashboard Preview */}
                         <div className="mt-16 relative">
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-50 dark:from-slate-950 to-transparent z-10 pointer-events-none h-32 bottom-0 top-auto" />
-                            <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-2xl bg-white dark:bg-slate-900">
-                                <div className="bg-slate-100 dark:bg-slate-800 px-4 py-3 flex items-center gap-2">
+                            <div className="absolute inset-0 bg-gradient-to-t from-wellness-soft to-transparent z-10 pointer-events-none h-32 bottom-0 top-auto" />
+                            <div className="rounded-2xl overflow-hidden border border-primary-200 shadow-2xl bg-wellness-soft">
+                                <div className="bg-wellness-greige px-4 py-3 flex items-center gap-2">
                                     <div className="flex gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-red-400" />
+                                        <div className="w-3 h-3 rounded-full bg-primary-300" />
                                         <div className="w-3 h-3 rounded-full bg-yellow-400" />
                                         <div className="w-3 h-3 rounded-full bg-green-400" />
                                     </div>
-                                    <div className="flex-1 text-center text-xs text-slate-500">
+                                    <div className="flex-1 text-center text-xs text-wellness-muted">
                                         dashboard.aplikasikasir.com
                                     </div>
                                 </div>
@@ -180,17 +180,17 @@ export default function Welcome() {
                 </section>
 
                 {/* Version Comparison */}
-                <section className="py-20 px-6 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800">
+                <section className="py-20 px-6 bg-wellness-greige">
                     <div className="max-w-7xl mx-auto">
                         <div className="text-center mb-12">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 dark:bg-primary-950 text-primary-600 dark:text-primary-400 text-sm font-medium mb-4">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-4">
                                 <IconArrowRight size={16} />
                                 Before & After
                             </div>
-                            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+                            <h2 className="text-3xl md:text-4xl font-bold text-wellness-text">
                                 Perjalanan Evolusi
                             </h2>
-                            <p className="mt-4 text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                            <p className="mt-4 text-wellness-muted max-w-2xl mx-auto">
                                 Dari versi pertama hingga redesign modern dengan
                                 UI/UX yang lebih baik
                             </p>
@@ -200,19 +200,19 @@ export default function Welcome() {
                         <div className="grid md:grid-cols-2 gap-8">
                             {/* V1 */}
                             <div className="space-y-4">
-                                <div className="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
-                                    <span className="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded-full text-sm font-medium">
+                                <div className="flex items-center justify-center gap-2 text-wellness-muted">
+                                    <span className="px-3 py-1 bg-primary-100 rounded-full text-sm font-medium text-primary-700">
                                         Version 1.0
                                     </span>
                                 </div>
-                                <div className="rounded-xl overflow-hidden border border-slate-300 dark:border-slate-600 shadow-lg">
+                                <div className="rounded-xl overflow-hidden border border-primary-200 shadow-lg">
                                     <img
                                         src="/media/readme-pos.png"
                                         alt="POS V1"
                                         className="w-full"
                                     />
                                 </div>
-                                <div className="rounded-xl overflow-hidden border border-slate-300 dark:border-slate-600 shadow-lg">
+                                <div className="rounded-xl overflow-hidden border border-primary-200 shadow-lg">
                                     <img
                                         src="/media/readme-dashboard.png"
                                         alt="Dashboard V1"
@@ -224,18 +224,18 @@ export default function Welcome() {
                             {/* Revamp */}
                             <div className="space-y-4">
                                 <div className="flex items-center justify-center gap-2">
-                                    <span className="px-3 py-1 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full text-sm font-medium">
+                                    <span className="px-3 py-1 bg-primary-500 text-white rounded-full text-sm font-medium">
                                         ✨ Revamp 2.0
                                     </span>
                                 </div>
-                                <div className="rounded-xl overflow-hidden border-2 border-primary-500 shadow-lg shadow-primary-500/20">
+                                <div className="rounded-xl overflow-hidden border-2 border-primary-500 shadow-lg shadow-primary-900/20">
                                     <img
                                         src="/media/revamp-pos.png"
                                         alt="POS Revamp"
                                         className="w-full"
                                     />
                                 </div>
-                                <div className="rounded-xl overflow-hidden border-2 border-primary-500 shadow-lg shadow-primary-500/20">
+                                <div className="rounded-xl overflow-hidden border-2 border-primary-500 shadow-lg shadow-primary-900/20">
                                     <img
                                         src="/media/revamp-dashboard.png"
                                         alt="Dashboard Revamp"
@@ -250,14 +250,14 @@ export default function Welcome() {
                 {/* Features Section */}
                 <section
                     id="features"
-                    className="py-20 px-6 bg-white dark:bg-slate-900"
+                    className="py-20 px-6 bg-wellness-soft"
                 >
                     <div className="max-w-7xl mx-auto">
                         <div className="text-center mb-16">
-                            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+                            <h2 className="text-3xl md:text-4xl font-bold text-wellness-text">
                                 Fitur Lengkap
                             </h2>
-                            <p className="mt-4 text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                            <p className="mt-4 text-wellness-muted max-w-2xl mx-auto">
                                 Semua yang Anda butuhkan untuk mengelola bisnis
                                 retail dalam satu aplikasi
                             </p>
@@ -267,7 +267,7 @@ export default function Welcome() {
                             {features.map((feature, i) => (
                                 <div
                                     key={i}
-                                    className="group p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 hover:border-primary-200 dark:hover:border-primary-800 transition-all"
+                                    className="group p-6 rounded-2xl bg-white border border-primary-100 hover:border-primary-300 transition-all"
                                 >
                                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                         <feature.icon
@@ -275,10 +275,10 @@ export default function Welcome() {
                                             className="text-white"
                                         />
                                     </div>
-                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                                    <h3 className="text-lg font-semibold text-wellness-text mb-2">
                                         {feature.title}
                                     </h3>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                                    <p className="text-sm text-wellness-muted">
                                         {feature.desc}
                                     </p>
                                 </div>
@@ -288,12 +288,12 @@ export default function Welcome() {
                 </section>
 
                 {/* Tech Stack */}
-                <section id="tech" className="py-20 px-6">
+                <section id="tech" className="py-20 px-6 bg-wellness-greige">
                     <div className="max-w-7xl mx-auto text-center">
-                        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
+                        <h2 className="text-3xl md:text-4xl font-bold text-wellness-text mb-4">
                             Tech Stack
                         </h2>
-                        <p className="text-slate-600 dark:text-slate-400 mb-12">
+                        <p className="text-wellness-muted mb-12">
                             Dibangun dengan teknologi modern yang cepat dan
                             stabil
                         </p>
@@ -302,12 +302,12 @@ export default function Welcome() {
                             {techStack.map((tech, i) => (
                                 <div
                                     key={i}
-                                    className="flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700"
+                                    className="flex items-center gap-3 px-6 py-3 bg-wellness-soft rounded-xl border border-primary-200"
                                 >
                                     <div
                                         className={`w-3 h-3 rounded-full ${tech.color}`}
                                     />
-                                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                                    <span className="font-medium text-wellness-text">
                                         {tech.name}
                                     </span>
                                 </div>
@@ -319,21 +319,21 @@ export default function Welcome() {
                 {/* Installation */}
                 <section
                     id="install"
-                    className="py-20 px-6 bg-white dark:bg-slate-900"
+                    className="py-20 px-6 bg-wellness-soft"
                 >
                     <div className="max-w-4xl mx-auto">
                         <div className="text-center mb-12">
-                            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+                            <h2 className="text-3xl md:text-4xl font-bold text-wellness-text">
                                 Panduan Instalasi
                             </h2>
-                            <p className="mt-4 text-slate-600 dark:text-slate-400">
+                            <p className="mt-4 text-wellness-muted">
                                 Clone repository dan jalankan dalam hitungan
                                 menit
                             </p>
                         </div>
 
-                        <div className="bg-slate-900 dark:bg-slate-800 rounded-2xl p-6 overflow-hidden">
-                            <pre className="text-sm text-slate-300 font-mono overflow-x-auto">
+                        <div className="bg-wellness-brown rounded-2xl p-6 overflow-hidden">
+                            <pre className="text-sm text-primary-100 font-mono overflow-x-auto">
                                 {`git clone https://github.com/aryadwiputra/point-of-sales
 cd point-of-sales
 composer install
@@ -365,7 +365,7 @@ php artisan serve`}
                             </p>
                             <Link
                                 href="/register"
-                                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary-600 font-semibold rounded-2xl hover:bg-slate-50 transition-colors"
+                                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary-700 font-semibold rounded-2xl hover:bg-primary-50 transition-colors"
                             >
                                 Daftar Gratis Sekarang
                                 <IconArrowRight size={20} />
@@ -375,20 +375,20 @@ php artisan serve`}
                 </section>
 
                 {/* Footer */}
-                <footer className="py-8 px-6 border-t border-slate-200 dark:border-slate-800">
+                <footer className="py-8 px-6 border-t border-primary-700 bg-wellness-brown">
                     <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center">
                                 <IconShoppingCart
                                     size={16}
                                     className="text-white"
                                 />
                             </div>
-                            <span className="font-semibold text-slate-700 dark:text-slate-300">
+                            <span className="font-semibold text-primary-50">
                                 Aplikasi Kasir
                             </span>
                         </div>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-primary-200">
                             © {new Date().getFullYear()} Dibuat oleh Arya Dwi
                             Putra
                         </p>
