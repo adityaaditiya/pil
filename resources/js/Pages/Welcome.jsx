@@ -1,397 +1,443 @@
 import { Head, Link } from "@inertiajs/react";
 import {
-    IconShoppingCart,
-    IconReceipt,
-    IconUsers,
-    IconChartBar,
-    IconBox,
-    IconBrandGithub,
-    IconArrowRight,
+    IconAward,
     IconCheck,
-    IconDeviceMobile,
-    IconCloudLock,
-    IconReportMoney,
+    IconClock,
+    IconFlower,
+    IconHeartHandshake,
+    IconBrandInstagram,
+    IconMapPin,
+    IconMenu2,
+    IconPhone,
+    IconShieldCheck,
+    IconSparkles,
+    IconStretching,
+    IconYoga,
 } from "@tabler/icons-react";
+import Button from "@/Components/Landing/Button";
+import Card from "@/Components/Landing/Card";
+import SectionTitle from "@/Components/Landing/SectionTitle";
 
 export default function Welcome() {
-    const features = [
+    const navItems = [
+        "Home",
+        "About",
+        "Classes",
+        "Schedule",
+        "Pricing",
+        "Trainers",
+        "Testimonials",
+        "Contact",
+    ];
+
+    const trustBadges = ["Certified Trainers", "Small Group", "Beginner Friendly"];
+
+    const benefits = [
         {
-            icon: IconShoppingCart,
-            title: "Transaksi Cepat",
-            desc: "Proses jual beli dalam hitungan detik",
+            icon: IconSparkles,
+            title: "Postur Lebih Seimbang",
+            desc: "Latihan terarah membantu alignment tubuh agar lebih tegap dan nyaman sepanjang hari.",
         },
         {
-            icon: IconReceipt,
-            title: "Cetak Struk",
-            desc: "Print thermal 58mm, 80mm, dan invoice",
+            icon: IconShieldCheck,
+            title: "Core Lebih Kuat",
+            desc: "Program kami menargetkan otot inti untuk mendukung stabilitas, keseimbangan, dan performa.",
         },
         {
-            icon: IconUsers,
-            title: "Pelanggan & History",
-            desc: "Kelola data pelanggan dan riwayat",
+            icon: IconStretching,
+            title: "Fleksibilitas Meningkat",
+            desc: "Gerakan mindful untuk membuka rentang gerak dengan aman, lembut, dan progresif.",
         },
         {
-            icon: IconBox,
-            title: "Inventori Produk",
-            desc: "Stok, kategori, dan barcode scanner",
-        },
-        {
-            icon: IconChartBar,
-            title: "Laporan Lengkap",
-            desc: "Penjualan, keuntungan, dan grafik",
-        },
-        {
-            icon: IconReportMoney,
-            title: "Multi Payment",
-            desc: "Tunai, QRIS, dan Midtrans",
+            icon: IconFlower,
+            title: "Stress Relief",
+            desc: "Rasakan sesi yang menenangkan dengan ritme napas, fokus, dan suasana studio yang hangat.",
         },
     ];
 
-    const techStack = [
-        { name: "Laravel 12", color: "bg-primary-700" },
-        { name: "Inertia.js", color: "bg-primary-500" },
-        { name: "React", color: "bg-primary-400" },
-        { name: "TailwindCSS", color: "bg-primary-600" },
-        { name: "MySQL", color: "bg-primary-300" },
+    const classTypes = [
+        {
+            title: "Reformer Pilates",
+            desc: "Latihan dengan reformer machine untuk membangun kekuatan dan kontrol gerakan presisi.",
+            duration: "55 menit",
+            level: "All Levels",
+        },
+        {
+            title: "Mat Pilates",
+            desc: "Kelas dasar hingga intermediate yang berfokus pada teknik inti dan mobilitas tubuh.",
+            duration: "50 menit",
+            level: "Beginner - Intermediate",
+        },
+        {
+            title: "Private Session",
+            desc: "Pendampingan 1-on-1 dengan program personal sesuai tujuan kebugaran Anda.",
+            duration: "60 menit",
+            level: "Personalized",
+        },
+        {
+            title: "Recovery & Stretch",
+            desc: "Sesi pemulihan untuk melepas ketegangan otot dan memperbaiki kualitas gerak.",
+            duration: "45 menit",
+            level: "Beginner Friendly",
+        },
+    ];
+
+    const scheduleRows = [
+        { day: "Senin", morning: "07:00 Reformer", evening: "18:30 Mat Flow" },
+        { day: "Selasa", morning: "08:00 Private", evening: "19:00 Recovery" },
+        { day: "Rabu", morning: "07:30 Mat Core", evening: "18:30 Reformer" },
+        { day: "Kamis", morning: "08:00 Recovery", evening: "19:00 Private" },
+        { day: "Jumat", morning: "07:00 Reformer", evening: "18:00 Mat Basics" },
+        { day: "Sabtu", morning: "09:00 Signature Class", evening: "16:30 Recovery" },
+    ];
+
+    const prices = [
+        {
+            plan: "Trial",
+            price: "Rp150.000",
+            note: "1x kelas untuk member baru",
+            popular: false,
+        },
+        {
+            plan: "Monthly Unlimited",
+            price: "Rp1.450.000",
+            note: "Akses semua kelas selama 30 hari",
+            popular: true,
+        },
+        {
+            plan: "10 Class Pack",
+            price: "Rp1.250.000",
+            note: "Masa aktif 2 bulan, fleksibel",
+            popular: false,
+        },
+        {
+            plan: "Private",
+            price: "Rp450.000",
+            note: "Sesi personal per pertemuan",
+            popular: false,
+        },
+    ];
+
+    const trainers = [
+        { name: "Nadia Putri", specialty: "Posture & Rehabilitation" },
+        { name: "Alya Prameswari", specialty: "Prenatal Pilates" },
+        { name: "Shinta Maheswari", specialty: "Strength & Mobility" },
+    ];
+
+    const testimonials = [
+        {
+            quote: "Studio-nya tenang dan instruktur sangat detail. Postur saya jauh membaik dalam 6 minggu.",
+            name: "Cecilia, 32",
+        },
+        {
+            quote: "Saya pemula total, tapi kelasnya ramah dan progresnya terasa konsisten setiap minggu.",
+            name: "Vina, 28",
+        },
+        {
+            quote: "Program private session membantu recovery punggung saya lebih cepat dan aman.",
+            name: "Monica, 37",
+        },
+    ];
+
+    const faqs = [
+        {
+            q: "Apakah cocok untuk pemula?",
+            a: "Ya. Kami menyediakan kelas beginner friendly dengan instruktur bersertifikasi yang membimbing teknik dari dasar.",
+        },
+        {
+            q: "Apa yang perlu dibawa saat kelas?",
+            a: "Kenakan pakaian olahraga nyaman, kaus kaki grip, dan bawa botol minum. Mat disediakan oleh studio.",
+        },
+        {
+            q: "Bagaimana kebijakan cancel atau refund?",
+            a: "Pembatalan dapat dilakukan maksimal 8 jam sebelum kelas. Trial tidak dapat refund, paket lain mengikuti syarat member.",
+        },
+        {
+            q: "Apakah ada kelas private?",
+            a: "Tersedia private session 1-on-1 dengan program personal sesuai kebutuhan kebugaran atau pemulihan Anda.",
+        },
     ];
 
     return (
         <>
-            <Head title="Aplikasi Kasir - Point of Sale Modern" />
+            <Head title="Pilates Studio | Move Better. Feel Stronger." />
 
-            <div className="min-h-screen bg-wellness-soft text-wellness-text">
-                {/* Navbar */}
-                <nav className="fixed top-0 left-0 right-0 z-50 bg-wellness-brown/95 backdrop-blur-xl border-b border-primary-700">
-                    <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="min-h-screen bg-wellness-beige text-wellness-text">
+                <div className="bg-primary-600 px-4 py-2 text-center text-xs font-medium text-white md:text-sm">
+                    Free Trial Class this week — Slot terbatas, reservasi sekarang.
+                </div>
+
+                <nav className="sticky top-0 z-50 border-b border-primary-100 bg-wellness-soft/95 backdrop-blur">
+                    <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-                                <IconShoppingCart
-                                    size={22}
-                                    className="text-white"
-                                />
+                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary-500 text-white shadow-md shadow-primary-700/20">
+                                <IconYoga size={20} />
                             </div>
-                            <span className="text-xl font-bold text-white">
-                                Aplikasi Kasir
-                            </span>
+                            <div>
+                                <p className="text-base font-semibold">Aurora Pilates Studio</p>
+                                <p className="text-xs text-wellness-muted">Wellness & Movement</p>
+                            </div>
                         </div>
 
-                        <div className="hidden md:flex items-center gap-8">
-                            <a
-                                href="#features"
-                                className="text-sm text-primary-100 hover:text-white transition-colors"
-                            >
-                                Fitur
-                            </a>
-                            <a
-                                href="#tech"
-                                className="text-sm text-primary-100 hover:text-white transition-colors"
-                            >
-                                Teknologi
-                            </a>
-                            <a
-                                href="#install"
-                                className="text-sm text-primary-100 hover:text-white transition-colors"
-                            >
-                                Instalasi
-                            </a>
+                        <div className="hidden items-center gap-7 lg:flex">
+                            {navItems.map((item) => (
+                                <a key={item} href="#" className="text-sm text-wellness-muted transition hover:text-primary-600">
+                                    {item}
+                                </a>
+                            ))}
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Link
-                                href="/login"
-                                className="px-5 py-2.5 text-sm font-medium text-primary-100 hover:text-white transition-colors"
-                            >
-                                Masuk
-                            </Link>
-                            <Link
-                                href="/register"
-                                className="px-5 py-2.5 text-sm font-semibold text-white bg-primary-500 rounded-xl hover:bg-primary-600 shadow-lg shadow-primary-800/20 transition-all"
-                            >
-                                Daftar Gratis
-                            </Link>
+                            <Button as={Link} href="#" className="hidden md:inline-flex">
+                                Booking Kelas
+                            </Button>
+                            <button className="rounded-xl border border-primary-200 p-2.5 text-wellness-text lg:hidden" type="button">
+                                <IconMenu2 size={20} />
+                            </button>
                         </div>
                     </div>
                 </nav>
 
-                {/* Hero Section */}
-                <section className="pt-32 pb-20 px-6 hero-wellness-gradient">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="text-center max-w-4xl mx-auto">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-6">
-                                <IconDeviceMobile size={16} />
-                                Responsive & Mobile-Friendly
-                            </div>
-
-                            <h1 className="text-5xl md:text-6xl font-extrabold text-wellness-text leading-tight">
-                                Sistem Point of Sale
-                                <span className="block mt-2 bg-gradient-to-r from-primary-500 to-primary-700 bg-clip-text text-transparent">
-                                    Modern & Mudah Digunakan
-                                </span>
-                            </h1>
-
-                            <p className="mt-6 text-lg text-wellness-muted max-w-2xl mx-auto">
-                                Aplikasi kasir berbasis web untuk warung & toko
-                                kecil–menengah. Mendukung pencatatan transaksi,
-                                laporan, manajemen produk, pelanggan, dan banyak
-                                lagi.
+                <section className="bg-gradient-to-br from-wellness-beige via-wellness-soft to-wellness-greige px-4 pb-20 pt-16 md:px-6 md:pt-20">
+                    <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">Pilates Studio Premium</p>
+                            <h1 className="mt-5 text-4xl font-semibold leading-tight md:text-6xl">Move Better. Feel Stronger.</h1>
+                            <p className="mt-6 max-w-xl text-base leading-relaxed text-wellness-muted md:text-lg">
+                                Tingkatkan postur, kekuatan core, dan mobilitas melalui kelas pilates yang personal, elegan, dan menenangkan.
                             </p>
 
-                            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                                <Link
-                                    href="/register"
-                                    className="w-full sm:w-auto px-8 py-4 text-base font-semibold text-white bg-primary-500 rounded-2xl hover:bg-primary-600 shadow-xl shadow-primary-900/25 transition-all flex items-center justify-center gap-2"
-                                >
-                                    Mulai Sekarang
-                                    <IconArrowRight size={20} />
-                                </Link>
-                                <a
-                                    href="https://github.com/aryadwiputra/point-of-sales"
-                                    target="_blank"
-                                    className="w-full sm:w-auto px-8 py-4 text-base font-semibold text-wellness-text bg-wellness-soft border border-primary-200 rounded-2xl hover:border-primary-500 transition-all flex items-center justify-center gap-2"
-                                >
-                                    <IconBrandGithub size={20} />
-                                    View Repository
+                            <div className="mt-10 flex flex-wrap gap-4">
+                                <Button as={Link} href="#">Coba Trial</Button>
+                                <Button as={Link} href="#" variant="secondary">Lihat Jadwal</Button>
+                            </div>
+
+                            <div className="mt-10 flex flex-wrap gap-3">
+                                {trustBadges.map((badge) => (
+                                    <span key={badge} className="inline-flex items-center gap-2 rounded-full border border-primary-200 bg-white/80 px-4 py-2 text-sm text-wellness-muted">
+                                        <IconCheck size={14} className="text-primary-600" />
+                                        {badge}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <Card className="overflow-hidden p-0">
+                            <img
+                                src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80"
+                                alt="Pilates class"
+                                className="h-full min-h-[420px] w-full object-cover"
+                            />
+                        </Card>
+                    </div>
+                </section>
+
+                <section className="px-4 py-20 md:px-6">
+                    <div className="mx-auto max-w-7xl">
+                        <SectionTitle
+                            eyebrow="Benefits"
+                            title="Rasakan manfaat nyata di setiap sesi"
+                            description="Program pilates kami dirancang untuk mendukung kualitas hidup yang lebih seimbang, kuat, dan mindful."
+                        />
+                        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                            {benefits.map(({ icon: Icon, title, desc }) => (
+                                <Card key={title}>
+                                    <div className="mb-5 inline-flex rounded-2xl bg-primary-100 p-3 text-primary-600">
+                                        <Icon size={22} />
+                                    </div>
+                                    <h3 className="text-lg font-semibold">{title}</h3>
+                                    <p className="mt-3 text-sm leading-relaxed text-wellness-muted">{desc}</p>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <section className="bg-wellness-soft px-4 py-20 md:px-6">
+                    <div className="mx-auto max-w-7xl">
+                        <SectionTitle
+                            eyebrow="Classes"
+                            title="Pilihan kelas sesuai ritme Anda"
+                            description="Mulai dari basic hingga sesi personal, semua kelas dipandu instruktur profesional bersertifikat."
+                        />
+                        <div className="mt-12 grid gap-6 md:grid-cols-2">
+                            {classTypes.map((item) => (
+                                <Card key={item.title}>
+                                    <h3 className="text-xl font-semibold">{item.title}</h3>
+                                    <p className="mt-3 text-sm text-wellness-muted">{item.desc}</p>
+                                    <div className="mt-6 flex flex-wrap gap-3 text-xs text-wellness-muted">
+                                        <span className="rounded-full bg-primary-50 px-3 py-1.5">Durasi: {item.duration}</span>
+                                        <span className="rounded-full bg-primary-50 px-3 py-1.5">Level: {item.level}</span>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <section className="px-4 py-20 md:px-6">
+                    <div className="mx-auto max-w-7xl">
+                        <SectionTitle
+                            eyebrow="Schedule"
+                            title="Preview jadwal mingguan"
+                            description="Atur waktu latihan Anda dengan jadwal yang fleksibel untuk pagi dan malam."
+                        />
+                        <Card className="mt-10 p-0 overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full text-left text-sm">
+                                    <thead className="bg-primary-50 text-wellness-text">
+                                        <tr>
+                                            <th className="px-6 py-4 font-semibold">Hari</th>
+                                            <th className="px-6 py-4 font-semibold">Pagi</th>
+                                            <th className="px-6 py-4 font-semibold">Sore / Malam</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {scheduleRows.map((row) => (
+                                            <tr key={row.day} className="border-t border-primary-100 text-wellness-muted">
+                                                <td className="px-6 py-4 font-medium text-wellness-text">{row.day}</td>
+                                                <td className="px-6 py-4">{row.morning}</td>
+                                                <td className="px-6 py-4">{row.evening}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </Card>
+                    </div>
+                </section>
+
+                <section className="bg-wellness-soft px-4 py-20 md:px-6">
+                    <div className="mx-auto max-w-7xl">
+                        <SectionTitle
+                            eyebrow="Pricing"
+                            title="Paket membership sederhana & transparan"
+                            description="Pilih paket yang paling sesuai dengan gaya hidup dan target kebugaran Anda."
+                        />
+                        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                            {prices.map((item) => (
+                                <Card key={item.plan} className={item.popular ? "border-primary-500 ring-2 ring-primary-500/20" : ""}>
+                                    {item.popular && (
+                                        <span className="rounded-full bg-primary-500 px-3 py-1 text-xs font-semibold text-white">Most Popular</span>
+                                    )}
+                                    <h3 className="mt-4 text-xl font-semibold">{item.plan}</h3>
+                                    <p className="mt-3 text-3xl font-semibold text-primary-600">{item.price}</p>
+                                    <p className="mt-2 text-sm text-wellness-muted">{item.note}</p>
+                                    <Button as={Link} href="#" variant={item.popular ? "primary" : "secondary"} className="mt-6 w-full">
+                                        Booking Kelas
+                                    </Button>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <section className="px-4 py-20 md:px-6">
+                    <div className="mx-auto max-w-7xl">
+                        <SectionTitle
+                            eyebrow="Trainers"
+                            title="Dipandu instruktur berpengalaman"
+                            description="Tim kami menghadirkan pendekatan personal agar setiap gerakan terasa aman, efektif, dan menyenangkan."
+                        />
+                        <div className="mt-12 grid gap-6 md:grid-cols-3">
+                            {trainers.map((trainer) => (
+                                <Card key={trainer.name} className="text-center">
+                                    <img
+                                        src="https://images.unsplash.com/photo-1595079835353-fb3cf0f83f20?auto=format&fit=crop&w=500&q=80"
+                                        alt={trainer.name}
+                                        className="mx-auto h-44 w-full rounded-2xl object-cover"
+                                    />
+                                    <h3 className="mt-5 text-xl font-semibold">{trainer.name}</h3>
+                                    <p className="mt-2 text-sm text-wellness-muted">{trainer.specialty}</p>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <section className="bg-wellness-soft px-4 py-20 md:px-6">
+                    <div className="mx-auto max-w-7xl">
+                        <SectionTitle
+                            eyebrow="Testimonials"
+                            title="Apa kata member kami"
+                            description="Cerita pengalaman nyata dari member yang merasakan perubahan tubuh dan kualitas hidup."
+                        />
+                        <div className="mt-12 grid gap-6 md:grid-cols-3">
+                            {testimonials.map((item) => (
+                                <Card key={item.name}>
+                                    <p className="text-sm leading-relaxed text-wellness-muted">“{item.quote}”</p>
+                                    <p className="mt-6 font-semibold">{item.name}</p>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <section className="px-4 py-20 md:px-6">
+                    <div className="mx-auto max-w-5xl">
+                        <SectionTitle
+                            eyebrow="FAQ"
+                            title="Pertanyaan yang sering diajukan"
+                            description="Jika Anda masih ragu memulai, temukan jawaban singkatnya di sini."
+                        />
+                        <div className="mt-10 space-y-4">
+                            {faqs.map((item) => (
+                                <details key={item.q} className="rounded-3xl border border-primary-100 bg-white p-6">
+                                    <summary className="cursor-pointer list-none text-base font-semibold text-wellness-text">
+                                        {item.q}
+                                    </summary>
+                                    <p className="mt-3 text-sm leading-relaxed text-wellness-muted">{item.a}</p>
+                                </details>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <footer className="bg-primary-600 px-4 py-14 text-primary-50 md:px-6">
+                    <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-4">
+                        <div className="md:col-span-2">
+                            <p className="text-xl font-semibold text-white">Aurora Pilates Studio</p>
+                            <p className="mt-4 max-w-md text-sm text-primary-100">
+                                Studio pilates modern untuk Anda yang ingin bergerak lebih baik, merasa lebih kuat, dan hidup lebih mindful.
+                            </p>
+                            <div className="mt-5 space-y-2 text-sm text-primary-100">
+                                <p className="flex items-center gap-2"><IconMapPin size={16} /> Jl. Kemang Raya No. 25, Jakarta Selatan</p>
+                                <p className="flex items-center gap-2"><IconClock size={16} /> Senin - Sabtu, 07:00 - 20:00</p>
+                                <p className="flex items-center gap-2"><IconPhone size={16} /> +62 812-3456-7890</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p className="font-semibold text-white">Quick Links</p>
+                            <ul className="mt-4 space-y-2 text-sm text-primary-100">
+                                {navItems.map((item) => (
+                                    <li key={item}>
+                                        <a href="#" className="hover:text-white">{item}</a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div>
+                            <p className="font-semibold text-white">Follow Us</p>
+                            <div className="mt-4 flex items-center gap-3">
+                                <a href="#" className="rounded-xl border border-primary-400 p-2 hover:bg-primary-500">
+                                    <IconBrandInstagram size={18} />
+                                </a>
+                                <a href="#" className="rounded-xl border border-primary-400 p-2 hover:bg-primary-500">
+                                    <IconAward size={18} />
+                                </a>
+                                <a href="#" className="rounded-xl border border-primary-400 p-2 hover:bg-primary-500">
+                                    <IconHeartHandshake size={18} />
                                 </a>
                             </div>
-                        </div>
-
-                        {/* Dashboard Preview */}
-                        <div className="mt-16 relative">
-                            <div className="absolute inset-0 bg-gradient-to-t from-wellness-soft to-transparent z-10 pointer-events-none h-32 bottom-0 top-auto" />
-                            <div className="rounded-2xl overflow-hidden border border-primary-200 shadow-2xl bg-wellness-soft">
-                                <div className="bg-wellness-greige px-4 py-3 flex items-center gap-2">
-                                    <div className="flex gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-primary-300" />
-                                        <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                                        <div className="w-3 h-3 rounded-full bg-green-400" />
-                                    </div>
-                                    <div className="flex-1 text-center text-xs text-wellness-muted">
-                                        dashboard.aplikasikasir.com
-                                    </div>
-                                </div>
-                                <img
-                                    src="/media/revamp-pos.png"
-                                    alt="Preview POS Dashboard"
-                                    className="w-full"
-                                />
-                            </div>
+                            <Button as={Link} href="#" className="mt-6 w-full bg-white text-primary-700 hover:bg-primary-50">
+                                Booking Kelas
+                            </Button>
                         </div>
                     </div>
-                </section>
-
-                {/* Version Comparison */}
-                <section className="py-20 px-6 bg-wellness-greige">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="text-center mb-12">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-4">
-                                <IconArrowRight size={16} />
-                                Before & After
-                            </div>
-                            <h2 className="text-3xl md:text-4xl font-bold text-wellness-text">
-                                Perjalanan Evolusi
-                            </h2>
-                            <p className="mt-4 text-wellness-muted max-w-2xl mx-auto">
-                                Dari versi pertama hingga redesign modern dengan
-                                UI/UX yang lebih baik
-                            </p>
-                        </div>
-
-                        {/* Comparison Grid */}
-                        <div className="grid md:grid-cols-2 gap-8">
-                            {/* V1 */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-center gap-2 text-wellness-muted">
-                                    <span className="px-3 py-1 bg-primary-100 rounded-full text-sm font-medium text-primary-700">
-                                        Version 1.0
-                                    </span>
-                                </div>
-                                <div className="rounded-xl overflow-hidden border border-primary-200 shadow-lg">
-                                    <img
-                                        src="/media/readme-pos.png"
-                                        alt="POS V1"
-                                        className="w-full"
-                                    />
-                                </div>
-                                <div className="rounded-xl overflow-hidden border border-primary-200 shadow-lg">
-                                    <img
-                                        src="/media/readme-dashboard.png"
-                                        alt="Dashboard V1"
-                                        className="w-full"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Revamp */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-center gap-2">
-                                    <span className="px-3 py-1 bg-primary-500 text-white rounded-full text-sm font-medium">
-                                        ✨ Revamp 2.0
-                                    </span>
-                                </div>
-                                <div className="rounded-xl overflow-hidden border-2 border-primary-500 shadow-lg shadow-primary-900/20">
-                                    <img
-                                        src="/media/revamp-pos.png"
-                                        alt="POS Revamp"
-                                        className="w-full"
-                                    />
-                                </div>
-                                <div className="rounded-xl overflow-hidden border-2 border-primary-500 shadow-lg shadow-primary-900/20">
-                                    <img
-                                        src="/media/revamp-dashboard.png"
-                                        alt="Dashboard Revamp"
-                                        className="w-full"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Features Section */}
-                <section
-                    id="features"
-                    className="py-20 px-6 bg-wellness-soft"
-                >
-                    <div className="max-w-7xl mx-auto">
-                        <div className="text-center mb-16">
-                            <h2 className="text-3xl md:text-4xl font-bold text-wellness-text">
-                                Fitur Lengkap
-                            </h2>
-                            <p className="mt-4 text-wellness-muted max-w-2xl mx-auto">
-                                Semua yang Anda butuhkan untuk mengelola bisnis
-                                retail dalam satu aplikasi
-                            </p>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {features.map((feature, i) => (
-                                <div
-                                    key={i}
-                                    className="group p-6 rounded-2xl bg-white border border-primary-100 hover:border-primary-300 transition-all"
-                                >
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <feature.icon
-                                            size={24}
-                                            className="text-white"
-                                        />
-                                    </div>
-                                    <h3 className="text-lg font-semibold text-wellness-text mb-2">
-                                        {feature.title}
-                                    </h3>
-                                    <p className="text-sm text-wellness-muted">
-                                        {feature.desc}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* Tech Stack */}
-                <section id="tech" className="py-20 px-6 bg-wellness-greige">
-                    <div className="max-w-7xl mx-auto text-center">
-                        <h2 className="text-3xl md:text-4xl font-bold text-wellness-text mb-4">
-                            Tech Stack
-                        </h2>
-                        <p className="text-wellness-muted mb-12">
-                            Dibangun dengan teknologi modern yang cepat dan
-                            stabil
-                        </p>
-
-                        <div className="flex flex-wrap justify-center gap-4">
-                            {techStack.map((tech, i) => (
-                                <div
-                                    key={i}
-                                    className="flex items-center gap-3 px-6 py-3 bg-wellness-soft rounded-xl border border-primary-200"
-                                >
-                                    <div
-                                        className={`w-3 h-3 rounded-full ${tech.color}`}
-                                    />
-                                    <span className="font-medium text-wellness-text">
-                                        {tech.name}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* Installation */}
-                <section
-                    id="install"
-                    className="py-20 px-6 bg-wellness-soft"
-                >
-                    <div className="max-w-4xl mx-auto">
-                        <div className="text-center mb-12">
-                            <h2 className="text-3xl md:text-4xl font-bold text-wellness-text">
-                                Panduan Instalasi
-                            </h2>
-                            <p className="mt-4 text-wellness-muted">
-                                Clone repository dan jalankan dalam hitungan
-                                menit
-                            </p>
-                        </div>
-
-                        <div className="bg-wellness-brown rounded-2xl p-6 overflow-hidden">
-                            <pre className="text-sm text-primary-100 font-mono overflow-x-auto">
-                                {`git clone https://github.com/aryadwiputra/point-of-sales
-cd point-of-sales
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-
-# Setup database di .env
-
-php artisan migrate --seed
-php artisan storage:link
-npm run dev
-php artisan serve`}
-                            </pre>
-                        </div>
-                    </div>
-                </section>
-
-                {/* CTA */}
-                <section className="py-20 px-6">
-                    <div className="max-w-4xl mx-auto text-center">
-                        <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-3xl p-12 text-white">
-                            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                                Siap Memulai?
-                            </h2>
-                            <p className="text-lg opacity-90 mb-8">
-                                Daftarkan bisnis Anda sekarang dan rasakan
-                                kemudahannya
-                            </p>
-                            <Link
-                                href="/register"
-                                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary-700 font-semibold rounded-2xl hover:bg-primary-50 transition-colors"
-                            >
-                                Daftar Gratis Sekarang
-                                <IconArrowRight size={20} />
-                            </Link>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Footer */}
-                <footer className="py-8 px-6 border-t border-primary-700 bg-wellness-brown">
-                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center">
-                                <IconShoppingCart
-                                    size={16}
-                                    className="text-white"
-                                />
-                            </div>
-                            <span className="font-semibold text-primary-50">
-                                Aplikasi Kasir
-                            </span>
-                        </div>
-                        <p className="text-sm text-primary-200">
-                            © {new Date().getFullYear()} Dibuat oleh Arya Dwi
-                            Putra
-                        </p>
+                    <div className="mx-auto mt-10 max-w-7xl border-t border-primary-500 pt-6 text-center text-sm text-primary-100">
+                        © {new Date().getFullYear()} Aurora Pilates Studio. All rights reserved.
                     </div>
                 </footer>
             </div>
