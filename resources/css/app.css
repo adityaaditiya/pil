@@ -7,3 +7,22 @@
 @import 'tailwindcss/utilities';
 
 /* Google Fonts - loaded via HTML head for better performance */
+
+:root {
+    --warm-gold: #A8743B;
+    --warm-brown: #8C5E2E;
+    --warm-beige: #E9DED2;
+    --soft-beige: #F4EFE6;
+    --light-greige: #EAE6E1;
+    --text-primary: #3A2E2A;
+    --text-secondary: #6B5E57;
+}
+
+body {
+    color: var(--text-primary);
+    background-color: var(--soft-beige);
+}
+
+.hero-wellness-gradient {
+    background: linear-gradient(145deg, var(--warm-beige) 0%, #f2e8dc 55%, var(--soft-beige) 100%);
+}
