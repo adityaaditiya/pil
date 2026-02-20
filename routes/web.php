@@ -15,6 +15,7 @@ use App\Http\Controllers\Reports\CashReportController;
 use App\Http\Controllers\Reports\SalesReportController;
 use App\Http\Controllers\Reports\SoldItemsReportController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StudioPageController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -27,7 +28,9 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion'     => PHP_VERSION,
     ]);
-});
+})->name('welcome');
+
+Route::get('/welcome/{key}', [StudioPageController::class, 'showByKey'])->name('welcome.page');
 
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'permission:dashboard-access'])->name('dashboard');
@@ -69,6 +72,10 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     //route customer store via AJAX (no redirect)
     Route::post('/customers/store-ajax', [CustomerController::class, 'storeAjax'])->middleware('permission:customers-create')->name('customers.storeAjax');
 
+
+    Route::resource('studio-pages', StudioPageController::class)
+        ->except(['show'])
+        ->middleware('permission:dashboard-access');
     //route transaction
     Route::get('/transactions', [TransactionController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.index');
     Route::get('/transactions/customers/search', [TransactionController::class, 'searchCustomers'])->middleware('permission:transactions-access')->name('transactions.customers.search');

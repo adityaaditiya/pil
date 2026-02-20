@@ -20,14 +20,14 @@ import SectionTitle from "@/Components/Landing/SectionTitle";
 
 export default function Welcome() {
     const navItems = [
-        "Home",
-        "About",
-        "Classes",
-        "Schedule",
-        "Pricing",
-        "Trainers",
-        "Testimonials",
-        "Contact",
+        { name: "Home", key: "home" },
+        { name: "About", key: "about" },
+        { name: "Classes", key: "classes" },
+        { name: "Schedule", key: "schedule" },
+        { name: "Pricing", key: "pricing" },
+        { name: "Trainers", key: "trainers" },
+        { name: "Testimonials", key: "testimonials" },
+        { name: "Contact", key: "contact" },
     ];
 
     const trustBadges = ["Certified Trainers", "Small Group", "Beginner Friendly"];
@@ -181,14 +181,14 @@ export default function Welcome() {
 
                         <div className="hidden items-center gap-7 lg:flex">
                             {navItems.map((item) => (
-                                <a key={item} href="#" className="text-sm text-wellness-muted transition hover:text-primary-600">
-                                    {item}
-                                </a>
+                                <Link key={item.key} href={route("welcome.page", item.key)} className="text-sm text-wellness-muted transition hover:text-primary-600">
+                                    {item.name}
+                                </Link>
                             ))}
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Button as={Link} href="#" className="hidden md:inline-flex">
+                            <Button as={Link} href={route("welcome.page", "contact")} className="hidden md:inline-flex">
                                 Booking Kelas
                             </Button>
                             <button className="rounded-xl border border-primary-200 p-2.5 text-wellness-text lg:hidden" type="button">
@@ -208,8 +208,8 @@ export default function Welcome() {
                             </p>
 
                             <div className="mt-10 flex flex-wrap gap-4">
-                                <Button as={Link} href="#">Coba Trial</Button>
-                                <Button as={Link} href="#" variant="secondary">Lihat Jadwal</Button>
+                                <Button as={Link} href={route("welcome.page", "pricing")}>Coba Trial</Button>
+                                <Button as={Link} href={route("welcome.page", "schedule")} variant="secondary">Lihat Jadwal</Button>
                             </div>
 
                             <div className="mt-10 flex flex-wrap gap-3">
@@ -323,7 +323,7 @@ export default function Welcome() {
                                     <h3 className="mt-4 text-xl font-semibold">{item.plan}</h3>
                                     <p className="mt-3 text-3xl font-semibold text-primary-600">{item.price}</p>
                                     <p className="mt-2 text-sm text-wellness-muted">{item.note}</p>
-                                    <Button as={Link} href="#" variant={item.popular ? "primary" : "secondary"} className="mt-6 w-full">
+                                    <Button as={Link} href={route("welcome.page", "contact")} variant={item.popular ? "primary" : "secondary"} className="mt-6 w-full">
                                         Booking Kelas
                                     </Button>
                                 </Card>
@@ -411,8 +411,8 @@ export default function Welcome() {
                             <p className="font-semibold text-white">Quick Links</p>
                             <ul className="mt-4 space-y-2 text-sm text-primary-100">
                                 {navItems.map((item) => (
-                                    <li key={item}>
-                                        <a href="#" className="hover:text-white">{item}</a>
+                                    <li key={item.key}>
+                                        <Link href={route("welcome.page", item.key)} className="hover:text-white">{item.name}</Link>
                                     </li>
                                 ))}
                             </ul>
@@ -431,7 +431,7 @@ export default function Welcome() {
                                     <IconHeartHandshake size={18} />
                                 </a>
                             </div>
-                            <Button as={Link} href="#" className="mt-6 w-full bg-white text-primary-700 hover:bg-primary-50">
+                            <Button as={Link} href={route("welcome.page", "contact")} className="mt-6 w-full bg-white text-primary-700 hover:bg-primary-50">
                                 Booking Kelas
                             </Button>
                         </div>
