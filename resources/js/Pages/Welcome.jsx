@@ -174,7 +174,7 @@ export default function Welcome() {
                                 <IconYoga size={20} />
                             </div>
                             <div>
-                                <p className="text-base font-semibold">Aurora Pilates Studio</p>
+                                <p className="text-base font-semibold">ORO Pilates Studio</p>
                                 <p className="text-xs text-wellness-muted">Wellness & Movement</p>
                             </div>
                         </div>
@@ -396,7 +396,7 @@ export default function Welcome() {
                 <footer className="bg-primary-600 px-4 py-14 text-primary-50 md:px-6">
                     <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-4">
                         <div className="md:col-span-2">
-                            <p className="text-xl font-semibold text-white">Aurora Pilates Studio</p>
+                            <p className="text-xl font-semibold text-white">ORO Pilates Studio</p>
                             <p className="mt-4 max-w-md text-sm text-primary-100">
                                 Studio pilates modern untuk Anda yang ingin bergerak lebih baik, merasa lebih kuat, dan hidup lebih mindful.
                             </p>
@@ -437,7 +437,7 @@ export default function Welcome() {
                         </div>
                     </div>
                     <div className="mx-auto mt-10 max-w-7xl border-t border-primary-500 pt-6 text-center text-sm text-primary-100">
-                        © {new Date().getFullYear()} Aurora Pilates Studio. All rights reserved.
+                        © {new Date().getFullYear()} ORO Pilates Studio. All rights reserved.
                     </div>
                 </footer>
             </div>
