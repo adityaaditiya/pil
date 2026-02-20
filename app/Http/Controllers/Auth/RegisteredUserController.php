@@ -2,12 +2,14 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -36,18 +38,29 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        $user = DB::transaction(function () use ($request) {
+            $user = User::create([
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
 
-        // Assign default role for self-registration users
-        if (Role::where('name', 'customer')->exists()) {
-            $user->assignRole('customer');
-        } else {
-            $user->givePermissionTo('my-transactions-access');
-        }
+            Customer::create([
+                'user_id'  => $user->id,
+                'name'     => $request->name,
+                'no_telp'  => 0,
+                'address'  => '-',
+            ]);
+
+            // Assign default role for self-registration users
+            if (Role::where('name', 'customer')->exists()) {
+                $user->assignRole('customer');
+            } else {
+                $user->givePermissionTo('my-transactions-access');
+            }
+
+            return $user;
+        });
 
         event(new Registered($user));
 
