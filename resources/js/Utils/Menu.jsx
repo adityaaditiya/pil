@@ -14,6 +14,7 @@ import {
     IconFolder,
     IconHome2,
     IconLayout2,
+    IconReceipt,
     IconSchool,
     IconShoppingCart,
     IconTable,
@@ -99,6 +100,13 @@ function Menu() {
                     active: url === "/dashboard/transactions/history" ? true : false,
                     icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["transactions-access"]),
+                },
+                {
+                    title: "Transaksi Saya",
+                    href: route("transactions.my"),
+                    active: url === "/dashboard/transactions/my" ? true : false,
+                    icon: <IconReceipt size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["my-transactions-access"]),
                 },
                 {
                     title: "Uang Kas",

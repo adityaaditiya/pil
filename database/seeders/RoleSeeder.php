@@ -35,6 +35,12 @@ class RoleSeeder extends Seeder
             'customers-create',
         ])->get();
         $cashierRole->givePermissionTo($cashierPermissions);
+        $customerRole = Role::create(['name' => 'customer']);
+        $customerPermissions = Permission::whereIn('name', [
+            'my-transactions-access',
+        ])->get();
+        $customerRole->givePermissionTo($customerPermissions);
+
     }
 
     private function createRoleWithPermissions($roleName, $permissionNamePattern)

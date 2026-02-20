@@ -15,7 +15,10 @@ export default function AddCustomerModal({ isOpen, onClose, onSuccess }) {
     const [form, setForm] = useState({
         name: "",
         no_telp: "",
+        email: "",
         address: "",
+        password: "",
+        password_confirmation: "",
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +39,15 @@ export default function AddCustomerModal({ isOpen, onClose, onSuccess }) {
         const newErrors = {};
         if (!form.name.trim()) newErrors.name = "Nama wajib diisi";
         if (!form.no_telp.trim()) newErrors.no_telp = "No. telepon wajib diisi";
+        if (!form.email.trim()) newErrors.email = "Email wajib diisi";
         if (!form.address.trim()) newErrors.address = "Alamat wajib diisi";
+        if (!form.password.trim()) newErrors.password = "Password wajib diisi";
+        if (form.password.length > 0 && form.password.length < 8) {
+            newErrors.password = "Password minimal 8 karakter";
+        }
+        if (form.password !== form.password_confirmation) {
+            newErrors.password_confirmation = "Konfirmasi password tidak sama";
+        }
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -53,7 +64,14 @@ export default function AddCustomerModal({ isOpen, onClose, onSuccess }) {
 
             if (response.data.success) {
                 toast.success("Pelanggan berhasil ditambahkan");
-                setForm({ name: "", no_telp: "", address: "" });
+                setForm({
+                    name: "",
+                    no_telp: "",
+                    email: "",
+                    address: "",
+                    password: "",
+                    password_confirmation: "",
+                });
                 setIsSubmitting(false);
                 onSuccess?.(response.data.customer);
                 onClose();
@@ -77,7 +95,14 @@ export default function AddCustomerModal({ isOpen, onClose, onSuccess }) {
     };
 
     const handleClose = () => {
-        setForm({ name: "", no_telp: "", address: "" });
+        setForm({
+            name: "",
+            no_telp: "",
+            email: "",
+            address: "",
+            password: "",
+            password_confirmation: "",
+        });
         setErrors({});
         onClose();
     };
@@ -166,6 +191,29 @@ export default function AddCustomerModal({ isOpen, onClose, onSuccess }) {
                     {/* Address */}
                     <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                            Email <span className="text-danger-500">*</span>
+                        </label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={form.email}
+                            onChange={handleChange}
+                            placeholder="nama@email.com"
+                            className={`w-full h-11 px-4 rounded-xl border ${
+                                errors.email
+                                    ? "border-danger-500 focus:ring-danger-500/20"
+                                    : "border-slate-200 dark:border-slate-700 focus:ring-primary-500/20"
+                            } bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-4 focus:border-primary-500 transition-all`}
+                        />
+                        {errors.email && (
+                            <p className="mt-1 text-xs text-danger-500">
+                                {errors.email}
+                            </p>
+                        )}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                             Alamat <span className="text-danger-500">*</span>
                         </label>
                         <textarea
@@ -183,6 +231,52 @@ export default function AddCustomerModal({ isOpen, onClose, onSuccess }) {
                         {errors.address && (
                             <p className="mt-1 text-xs text-danger-500">
                                 {errors.address}
+                            </p>
+                        )}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                            Password <span className="text-danger-500">*</span>
+                        </label>
+                        <input
+                            type="password"
+                            name="password"
+                            value={form.password}
+                            onChange={handleChange}
+                            placeholder="Minimal 8 karakter"
+                            className={`w-full h-11 px-4 rounded-xl border ${
+                                errors.password
+                                    ? "border-danger-500 focus:ring-danger-500/20"
+                                    : "border-slate-200 dark:border-slate-700 focus:ring-primary-500/20"
+                            } bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-4 focus:border-primary-500 transition-all`}
+                        />
+                        {errors.password && (
+                            <p className="mt-1 text-xs text-danger-500">
+                                {errors.password}
+                            </p>
+                        )}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                            Konfirmasi Password <span className="text-danger-500">*</span>
+                        </label>
+                        <input
+                            type="password"
+                            name="password_confirmation"
+                            value={form.password_confirmation}
+                            onChange={handleChange}
+                            placeholder="Ulangi password"
+                            className={`w-full h-11 px-4 rounded-xl border ${
+                                errors.password_confirmation
+                                    ? "border-danger-500 focus:ring-danger-500/20"
+                                    : "border-slate-200 dark:border-slate-700 focus:ring-primary-500/20"
+                            } bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-4 focus:border-primary-500 transition-all`}
+                        />
+                        {errors.password_confirmation && (
+                            <p className="mt-1 text-xs text-danger-500">
+                                {errors.password_confirmation}
                             </p>
                         )}
                     </div>

@@ -12,6 +12,7 @@ import {
     IconUser,
     IconPhone,
     IconMapPin,
+    IconMail,
 } from "@tabler/icons-react";
 import Search from "@/Components/Dashboard/Search";
 import Table from "@/Components/Dashboard/Table";
@@ -41,6 +42,12 @@ function CustomerCard({ customer }) {
                     <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                         <IconPhone size={16} />
                         <span>{customer.no_telp}</span>
+                    </div>
+                )}
+                {customer.user?.email && (
+                    <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                        <IconMail size={16} />
+                        <span>{customer.user.email}</span>
                     </div>
                 )}
                 {customer.address && (
@@ -164,6 +171,7 @@ export default function Index({ customers }) {
                                     <Table.Th className="w-10">No</Table.Th>
                                     <Table.Th>Pelanggan</Table.Th>
                                     <Table.Th>No. Telepon</Table.Th>
+                                    <Table.Th>Email</Table.Th>
                                     <Table.Th>Alamat</Table.Th>
                                     <Table.Th></Table.Th>
                                 </tr>
@@ -194,6 +202,11 @@ export default function Index({ customers }) {
                                         <Table.Td>
                                             <span className="text-sm text-slate-600 dark:text-slate-400">
                                                 {customer.no_telp || "-"}
+                                            </span>
+                                        </Table.Td>
+                                        <Table.Td>
+                                            <span className="text-sm text-slate-600 dark:text-slate-400">
+                                                {customer.user?.email || "-"}
                                             </span>
                                         </Table.Td>
                                         <Table.Td>

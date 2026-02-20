@@ -42,18 +42,17 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Assign default role to new user
-        // Try 'cashier' first, if not exists try 'user', otherwise no role
-        if (Role::where('name', 'cashier')->exists()) {
-            $user->assignRole('cashier');
-        } elseif (Role::where('name', 'user')->exists()) {
-            $user->assignRole('user');
+        // Assign default role for self-registration users
+        if (Role::where('name', 'customer')->exists()) {
+            $user->assignRole('customer');
+        } else {
+            $user->givePermissionTo('my-transactions-access');
         }
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('transactions.my', absolute: false));
     }
 }

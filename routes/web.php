@@ -102,6 +102,7 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::post('/transactions/store', [TransactionController::class, 'store'])->middleware('permission:transactions-access')->name('transactions.store');
     Route::get('/transactions/{invoice}/print', [TransactionController::class, 'print'])->middleware('permission:transactions-access')->name('transactions.print');
     Route::get('/transactions/history', [TransactionController::class, 'history'])->middleware('permission:transactions-access')->name('transactions.history');
+    Route::get('/transactions/my', [TransactionController::class, 'myTransactions'])->middleware('permission:my-transactions-access')->name('transactions.my');
     Route::delete('/transactions/{transaction}/cancel', [TransactionController::class, 'cancel'])->middleware('permission:transactions-access')->name('transactions.cancel');
     Route::get('/transactions/cash', [CashEntryController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.cash.index');
     Route::post('/transactions/cash', [CashEntryController::class, 'store'])->middleware('permission:transactions-access')->name('transactions.cash.store');
