@@ -20,6 +20,7 @@ export default function Create() {
         email: "",
         no_telp: "",
         address: "",
+        credit: "0",
         password: "",
         password_confirmation: "",
     });
@@ -102,6 +103,16 @@ export default function Create() {
                                     value={data.password}
                                 />
                             </div>
+                            <Input
+                                type="number"
+                                label="Credit"
+                                placeholder="0"
+                                errors={errors.credit}
+                                onChange={(e) =>
+                                    setData("credit", e.target.value)
+                                }
+                                value={data.credit}
+                            />
                             <Input
                                 type="password"
                                 label="Konfirmasi Password"

@@ -8,6 +8,7 @@ use App\Http\Controllers\Apps\ProductController;
 use App\Http\Controllers\Apps\TransactionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PilatesClassController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Reports\ProfitReportController;
 use App\Http\Controllers\Reports\AuthorizationReportController;
@@ -74,6 +75,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
 
 
     Route::resource('studio-pages', StudioPageController::class)
+        ->except(['show'])
+        ->middleware('permission:dashboard-access');
+    Route::resource('classes', PilatesClassController::class)
         ->except(['show'])
         ->middleware('permission:dashboard-access');
     //route transaction

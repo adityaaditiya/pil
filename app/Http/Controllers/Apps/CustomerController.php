@@ -66,6 +66,7 @@ class CustomerController extends Controller
             'name'    => 'required',
             'no_telp' => 'required|unique:customers',
             'address' => 'required',
+            'credit'  => 'required|numeric|min:0',
             'email'   => 'required|email|unique:users,email',
             'password'=> 'required|string|min:8|confirmed',
         ]);
@@ -88,6 +89,7 @@ class CustomerController extends Controller
                 'name'     => $request->name,
                 'no_telp'  => $request->no_telp,
                 'address'  => $request->address,
+                'credit'   => $request->credit,
             ]);
         });
 
@@ -107,6 +109,7 @@ class CustomerController extends Controller
             'name'    => 'required|string|max:255',
             'no_telp' => 'required|string|unique:customers,no_telp',
             'address' => 'required|string',
+            'credit'  => 'required|numeric|min:0',
             'email'   => 'required|email|unique:users,email',
             'password'=> 'required|string|min:8|confirmed',
         ]);
@@ -130,6 +133,7 @@ class CustomerController extends Controller
                     'name'     => $validated['name'],
                     'no_telp'  => $validated['no_telp'],
                     'address'  => $validated['address'],
+                    'credit'   => $validated['credit'],
                 ]);
             });
 
@@ -142,6 +146,7 @@ class CustomerController extends Controller
                     'email'   => $customer->user?->email,
                     'phone'   => $customer->no_telp,
                     'address' => $customer->address,
+                    'credit'  => $customer->credit,
                 ],
             ]);
         } catch (\Exception $e) {
@@ -184,6 +189,7 @@ class CustomerController extends Controller
             'name'    => 'required',
             'no_telp' => 'required|unique:customers,no_telp,' . $customer->id,
             'address' => 'required',
+            'credit'  => 'required|numeric|min:0',
             'email'   => 'required|email|unique:users,email,' . $customer->user_id,
             'password'=> 'nullable|string|min:8|confirmed',
         ]);
@@ -218,6 +224,7 @@ class CustomerController extends Controller
                 'name'     => $request->name,
                 'no_telp'  => $request->no_telp,
                 'address'  => $request->address,
+                'credit'   => $request->credit,
             ]);
         });
 

@@ -82,6 +82,13 @@ function Menu() {
                     icon: <IconHome2 size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["dashboard-access"]),
                 },
+                {
+                    title: "Classes",
+                    href: route("classes.index"),
+                    active: url.startsWith("/dashboard/classes"),
+                    icon: <IconSchool size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["dashboard-access"]),
+                },
             ],
         },
         {

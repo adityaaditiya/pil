@@ -173,6 +173,7 @@ export default function Index({ customers }) {
                                     <Table.Th>No. Telepon</Table.Th>
                                     <Table.Th>Email</Table.Th>
                                     <Table.Th>Alamat</Table.Th>
+                                    <Table.Th>Credit</Table.Th>
                                     <Table.Th></Table.Th>
                                 </tr>
                             </Table.Thead>
@@ -213,6 +214,11 @@ export default function Index({ customers }) {
                                             <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1">
                                                 {customer.address || "-"}
                                             </p>
+                                        </Table.Td>
+                                        <Table.Td>
+                                            <span className="text-sm text-slate-600 dark:text-slate-400">
+                                                {customer.credit || "0"}
+                                            </span>
                                         </Table.Td>
                                         <Table.Td>
                                             <div className="flex gap-2">
