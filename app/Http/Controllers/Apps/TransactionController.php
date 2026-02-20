@@ -55,7 +55,8 @@ class TransactionController extends Controller
             ->values();
 
         //get 30 latest customers for initial dropdown
-        $customers = Customer::select('id', 'name', 'no_telp', 'address')
+        $customers = Customer::with('user:id,email')
+            ->select('id', 'user_id', 'name', 'no_telp', 'address')
             ->latest()
             ->take(30)
             ->get();
@@ -139,7 +140,8 @@ class TransactionController extends Controller
             ]);
         }
 
-        $customers = Customer::select('id', 'name', 'no_telp', 'address')
+        $customers = Customer::with('user:id,email')
+            ->select('id', 'user_id', 'name', 'no_telp', 'address')
             ->where(function (Builder $query) use ($search) {
                 $query->where('name', 'like', '%' . $search . '%')
                     ->orWhere('no_telp', 'like', '%' . $search . '%')
