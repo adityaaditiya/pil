@@ -21,6 +21,7 @@ export default function Edit({ customer }) {
         email: customer.user?.email || "",
         no_telp: customer.no_telp,
         address: customer.address,
+        credit: customer.credit ?? "0",
         password: "",
         password_confirmation: "",
         _method: "PUT",
@@ -113,6 +114,16 @@ export default function Edit({ customer }) {
                                     setData("password_confirmation", e.target.value)
                                 }
                                 value={data.password_confirmation}
+                            />
+                            <Input
+                                type="number"
+                                label="Credit"
+                                placeholder="0"
+                                errors={errors.credit}
+                                onChange={(e) =>
+                                    setData("credit", e.target.value)
+                                }
+                                value={data.credit}
                             />
                             <Textarea
                                 label="Alamat"

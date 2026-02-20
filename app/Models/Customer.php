@@ -16,7 +16,7 @@ class Customer extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'name', 'no_telp', 'address'
+        'user_id', 'name', 'no_telp', 'address', 'credit'
     ];
 
     public function user(): BelongsTo
