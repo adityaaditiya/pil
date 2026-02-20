@@ -222,13 +222,13 @@ export default function Welcome() {
                             </div>
                         </div>
 
-                        <Card className="overflow-hidden p-0">
+                        <div className="overflow-hidden p-0">
                             <img
                                 src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80"
                                 alt="Pilates class"
                                 className="h-full min-h-[420px] w-full object-cover"
                             />
-                        </Card>
+                        </div>
                     </div>
                 </section>
 

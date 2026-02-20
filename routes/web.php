@@ -16,10 +16,17 @@ use App\Http\Controllers\Reports\SalesReportController;
 use App\Http\Controllers\Reports\SoldItemsReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return Inertia::render('Welcome', [
+        'canLogin'       => Route::has('login'),
+        'canRegister'    => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion'     => PHP_VERSION,
+    ]);
 });
 
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
