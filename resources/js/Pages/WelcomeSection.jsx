@@ -23,7 +23,7 @@ export default function WelcomeSection({ page, menuItems }) {
 
                 <section className="mx-auto max-w-4xl px-4 py-20">
                     <Link href={route("welcome")} className="mb-8 inline-flex items-center gap-2 text-sm text-primary-600">
-                        <IconArrowLeft size={16} /> Kembali ke Welcome
+                        <IconArrowLeft size={16} /> Kembali ke Beranda
                     </Link>
                     <h1 className="text-4xl font-bold">{page.title}</h1>
                     <p className="mt-6 text-lg text-wellness-muted leading-relaxed">{page.content}</p>

@@ -164,7 +164,7 @@ export default function Welcome() {
 
             <div className="min-h-screen bg-wellness-beige text-wellness-text">
                 <div className="bg-primary-600 px-4 py-2 text-center text-xs font-medium text-white md:text-sm">
-                    Free Trial Class this week — Slot terbatas, reservasi sekarang.
+                    30% Off Class this week — Slot terbatas, reservasi sekarang.
                 </div>
 
                 <nav className="sticky top-0 z-50 border-b border-primary-100 bg-wellness-soft/95 backdrop-blur">

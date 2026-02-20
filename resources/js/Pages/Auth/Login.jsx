@@ -10,6 +10,8 @@ import {
 } from "@tabler/icons-react";
 import { useState } from "react";
 
+import { IconArrowLeft, IconYoga } from "@tabler/icons-react";
+
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: "",
@@ -42,13 +44,13 @@ export default function Login({ status, canResetPassword }) {
                                 className="inline-flex items-center gap-3 mb-6"
                             >
                                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-                                    <IconShoppingCart
+                                    <IconYoga
                                         size={24}
                                         className="text-white"
                                     />
                                 </div>
                                 <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                                    ORO STATION
+                                    ORO Pilates Studio Premium
                                 </span>
                             </Link>
                             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
@@ -192,7 +194,7 @@ export default function Login({ status, canResetPassword }) {
                             </button>
 
                             {/* Register Link */}
-                            {/* <p className="text-center text-sm text-slate-600 dark:text-slate-400">
+                            <p className="text-center text-sm text-slate-600 dark:text-slate-400">
                                 Belum punya akun?{" "}
                                 <Link
                                     href="/register"
@@ -200,7 +202,7 @@ export default function Login({ status, canResetPassword }) {
                                 >
                                     Daftar Sekarang
                                 </Link>
-                            </p> */}
+                            </p>
                         </form>
                     </div>
                 </div>
@@ -209,7 +211,7 @@ export default function Login({ status, canResetPassword }) {
                 <div className="hidden lg:flex flex-1 bg-gradient-to-br from-primary-500 to-primary-700 items-center justify-center p-12">
                     <div className="max-w-md text-center text-white">
                         <div className="w-24 h-24 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-8">
-                            <IconShoppingCart size={48} />
+                            <IconYoga size={48} />
                         </div>
                         {/* <h2 className="text-3xl font-bold mb-4">
                             Kelola Bisnis Anda dengan Mudah
@@ -220,18 +222,16 @@ export default function Login({ status, canResetPassword }) {
                             dengan efisien.
                         </p> */}
                         <h2 className="text-3xl font-bold mb-4">
-                            ORO STATION
+                            ORO Pilates Studio Premium
                         </h2>
                         <p className="text-lg opacity-90">
-                            Aplikasi
-                            Kelola transaksi, inventori, dan laporan keuangan
-                            dengan efisien.
+                            Move Better. Feel Stronger.
                         </p>
                         <div className="mt-8 flex flex-wrap justify-center gap-3">
                             {[
-                                "Transaksi Cepat",
-                                "Laporan Real-time",
-                                "Multi User",
+                                "Certified Trainers",
+                                "Small Group Classes",
+                                "Beginner Friendly",
                             ].map((feature, i) => (
                                 <span
                                     key={i}

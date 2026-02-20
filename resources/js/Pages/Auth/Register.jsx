@@ -11,6 +11,8 @@ import {
     IconCheck,
 } from "@tabler/icons-react";
 
+import { IconArrowLeft, IconYoga } from "@tabler/icons-react";
+
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: "",
@@ -39,19 +41,18 @@ export default function Register() {
                 <div className="hidden lg:flex flex-1 bg-gradient-to-br from-primary-500 to-primary-700 items-center justify-center p-12">
                     <div className="max-w-md text-center text-white">
                         <div className="w-24 h-24 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-8">
-                            <IconShoppingCart size={48} />
+                            <IconYoga size={48} />
                         </div>
                         <h2 className="text-3xl font-bold mb-4">
                             Bergabung Bersama Kami
                         </h2>
                         <p className="text-lg opacity-90">
-                            Mulai kelola bisnis Anda dengan sistem Point of Sale
-                            yang modern, cepat, dan mudah digunakan.
+                            Studio pilates modern untuk Anda yang ingin bergerak lebih baik, merasa lebih kuat, dan hidup lebih mindful.
                         </p>
                         <div className="mt-8 space-y-3">
                             {[
-                                "Gratis untuk memulai",
-                                "Setup dalam 5 menit",
+                                "Gratis untuk memulai daftar",
+                                "Reservarsi Mudah",
                                 "Dukungan penuh",
                             ].map((feature, i) => (
                                 <div
@@ -79,20 +80,20 @@ export default function Register() {
                                 className="inline-flex items-center gap-3 mb-6"
                             >
                                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-                                    <IconShoppingCart
+                                    <IconYoga
                                         size={24}
                                         className="text-white"
                                     />
                                 </div>
                                 <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                                    Aplikasi Kasir
+                                    ORO Pilates Studio Premium
                                 </span>
                             </Link>
                             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
                                 Buat Akun Baru
                             </h1>
                             <p className="mt-2 text-slate-600 dark:text-slate-400">
-                                Daftarkan bisnis Anda sekarang
+                                Daftar studio pilates sekarang
                             </p>
                         </div>
 
