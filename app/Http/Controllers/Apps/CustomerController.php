@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class CustomerController extends Controller
 {
@@ -76,7 +77,11 @@ class CustomerController extends Controller
                 'password' => $request->password,
             ]);
 
-            $user->givePermissionTo('customers-access');
+            if (Role::where('name', 'customer')->exists()) {
+                $user->assignRole('customer');
+            } else {
+                $user->givePermissionTo('my-transactions-access');
+            }
 
             Customer::create([
                 'user_id'  => $user->id,
@@ -114,7 +119,11 @@ class CustomerController extends Controller
                     'password' => $validated['password'],
                 ]);
 
-                $user->givePermissionTo('customers-access');
+                if (Role::where('name', 'customer')->exists()) {
+                    $user->assignRole('customer');
+                } else {
+                    $user->givePermissionTo('my-transactions-access');
+                }
 
                 return Customer::create([
                     'user_id'  => $user->id,
@@ -188,7 +197,11 @@ class CustomerController extends Controller
                     'email'    => $request->email,
                     'password' => $request->filled('password') ? $request->password : Str::random(16),
                 ]);
-                $user->givePermissionTo('customers-access');
+                if (Role::where('name', 'customer')->exists()) {
+                    $user->assignRole('customer');
+                } else {
+                    $user->givePermissionTo('my-transactions-access');
+                }
             } else {
                 $user->name  = $request->name;
                 $user->email = $request->email;

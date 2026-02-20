@@ -586,6 +586,48 @@ class TransactionController extends Controller
         return Inertia::render('Dashboard/Transactions/History', [
             'transactions' => $transactions,
             'filters'      => $filters,
+            'isMyTransactions' => false,
+        ]);
+    }
+
+
+    /**
+     * Display transaction history for logged in customer.
+     */
+    public function myTransactions(Request $request)
+    {
+        $defaultDate = Carbon::today()->toDateString();
+        $filters = [
+            'invoice'    => $request->input('invoice'),
+            'start_date' => $request->input('start_date') ?: $defaultDate,
+            'end_date'   => $request->input('end_date') ?: $defaultDate,
+        ];
+
+        $query = Transaction::query()
+            ->with(['cashier:id,name', 'customer:id,name,user_id'])
+            ->withSum('details as total_items', 'qty')
+            ->orderByDesc('created_at')
+            ->whereHas('customer', function (Builder $builder) use ($request) {
+                $builder->where('user_id', $request->user()->id);
+            });
+
+        $query
+            ->when($filters['invoice'], function (Builder $builder, $invoice) {
+                $builder->where('invoice', 'like', '%' . $invoice . '%');
+            })
+            ->when($filters['start_date'], function (Builder $builder, $date) {
+                $builder->whereDate('created_at', '>=', $date);
+            })
+            ->when($filters['end_date'], function (Builder $builder, $date) {
+                $builder->whereDate('created_at', '<=', $date);
+            });
+
+        $transactions = $query->paginate(10)->withQueryString();
+
+        return Inertia::render('Dashboard/Transactions/History', [
+            'transactions' => $transactions,
+            'filters'      => $filters,
+            'isMyTransactions' => true,
         ]);
     }
 

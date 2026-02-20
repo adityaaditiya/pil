@@ -36,7 +36,7 @@ const formatPaymentMethod = (value = "") => {
         .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-const History = ({ transactions, filters }) => {
+const History = ({ transactions, filters, isMyTransactions = false }) => {
     const [filterData, setFilterData] = useState({
         ...defaultFilters,
         ...filters,
@@ -59,7 +59,7 @@ const History = ({ transactions, filters }) => {
 
     const applyFilters = (event) => {
         event.preventDefault();
-        router.get(route("transactions.history"), filterData, {
+        router.get(route(isMyTransactions ? "transactions.my" : "transactions.history"), filterData, {
             preserveScroll: true,
             preserveState: true,
         });
@@ -68,7 +68,7 @@ const History = ({ transactions, filters }) => {
 
     const resetFilters = () => {
         setFilterData(defaultFilters);
-        router.get(route("transactions.history"), defaultFilters, {
+        router.get(route(isMyTransactions ? "transactions.my" : "transactions.history"), defaultFilters, {
             preserveScroll: true,
             preserveState: true,
             replace: true,
@@ -164,7 +164,7 @@ const History = ({ transactions, filters }) => {
 
     return (
         <>
-            <Head title="Riwayat Transaksi" />
+            <Head title={isMyTransactions ? "Transaksi Saya" : "Riwayat Transaksi"} />
 
             <div className="space-y-6">
                 {/* Header */}
@@ -175,7 +175,7 @@ const History = ({ transactions, filters }) => {
                                 size={28}
                                 className="text-primary-500"
                             />
-                            Riwayat Transaksi
+                            {isMyTransactions ? "Transaksi Saya" : "Riwayat Transaksi"}
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
                             {transactions?.total || 0} transaksi tercatat
@@ -196,13 +196,15 @@ const History = ({ transactions, filters }) => {
                                 <span className="w-2 h-2 rounded-full bg-primary-500"></span>
                             )}
                         </button>
-                        <Link
-                            href={route("transactions.index")}
-                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium transition-colors shadow-lg shadow-primary-500/30"
-                        >
-                            <IconReceipt size={18} />
-                            <span>Transaksi Baru</span>
-                        </Link>
+                        {!isMyTransactions && (
+                            <Link
+                                href={route("transactions.index")}
+                                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium transition-colors shadow-lg shadow-primary-500/30"
+                            >
+                                <IconReceipt size={18} />
+                                <span>Transaksi Baru</span>
+                            </Link>
+                        )}
                     </div>
                 </div>
 
@@ -392,40 +394,42 @@ const History = ({ transactions, filters }) => {
                                                 )}
                                             </td> */}
                                             <td className="px-4 py-4 text-center">
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <Link
-                                                        href={route(
-                                                            "transactions.print",
-                                                            transaction.invoice
-                                                        )}
-                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/50 transition-colors"
-                                                        title="Cetak Struk"
-                                                    >
-                                                        <IconPrinter
-                                                            size={18}
-                                                        />
-                                                    </Link>
-                                                    {transaction.canceled_at ? (
-                                                        <span className="px-2 py-1 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-md">
-                                                            Dibatalkan
-                                                        </span>
-                                                    ) : (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                handleCancel(
-                                                                    transaction
-                                                                )
-                                                            }
-                                                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-danger-600 hover:bg-danger-50 dark:hover:bg-danger-950/50 transition-colors"
-                                                            title="Batalkan Transaksi"
+                                                {!isMyTransactions && (
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <Link
+                                                            href={route(
+                                                                "transactions.print",
+                                                                transaction.invoice
+                                                            )}
+                                                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/50 transition-colors"
+                                                            title="Cetak Struk"
                                                         >
-                                                            <IconBan
+                                                            <IconPrinter
                                                                 size={18}
                                                             />
-                                                        </button>
-                                                    )}
-                                                </div>
+                                                        </Link>
+                                                        {transaction.canceled_at ? (
+                                                            <span className="px-2 py-1 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-md">
+                                                                Dibatalkan
+                                                            </span>
+                                                        ) : (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    handleCancel(
+                                                                        transaction
+                                                                    )
+                                                                }
+                                                                className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-danger-600 hover:bg-danger-50 dark:hover:bg-danger-950/50 transition-colors"
+                                                                title="Batalkan Transaksi"
+                                                            >
+                                                                <IconBan
+                                                                    size={18}
+                                                                />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </td>
                                         </tr>
                                     ))
