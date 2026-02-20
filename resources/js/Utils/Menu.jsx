@@ -12,6 +12,7 @@ import {
     IconFileCertificate,
     IconFileDescription,
     IconFolder,
+    IconHome2,
     IconLayout2,
     IconSchool,
     IconShoppingCart,
@@ -67,6 +68,18 @@ function Menu() {
                     active: url === "/dashboard/customers" ? true : false, // Update comparison here
                     icon: <IconUsersPlus size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["customers-access"]),
+                },
+            ],
+        },
+        {
+            title: "Pilates Studio Control",
+            details: [
+                {
+                    title: "Kelola Menu Welcome",
+                    href: route("studio-pages.index"),
+                    active: url.startsWith("/dashboard/studio-pages"),
+                    icon: <IconHome2 size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["dashboard-access"]),
                 },
             ],
         },
