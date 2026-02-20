@@ -8,6 +8,8 @@ import {
     IconUsers,
     IconDeviceFloppy,
     IconArrowLeft,
+    IconMail,
+    IconLock,
 } from "@tabler/icons-react";
 
 export default function Edit({ customer }) {
@@ -16,8 +18,11 @@ export default function Edit({ customer }) {
     const { data, setData, post, processing } = useForm({
         id: customer.id,
         name: customer.name,
+        email: customer.user?.email || "",
         no_telp: customer.no_telp,
         address: customer.address,
+        password: "",
+        password_confirmation: "",
         _method: "PUT",
     });
 
@@ -74,6 +79,41 @@ export default function Edit({ customer }) {
                                     value={data.no_telp}
                                 />
                             </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Input
+                                    type="email"
+                                    label="Email"
+                                    icon={<IconMail size={18} strokeWidth={1.5} />}
+                                    placeholder="nama@email.com"
+                                    errors={errors.email}
+                                    onChange={(e) =>
+                                        setData("email", e.target.value)
+                                    }
+                                    value={data.email}
+                                />
+                                <Input
+                                    type="password"
+                                    label="Password Baru (opsional)"
+                                    icon={<IconLock size={18} strokeWidth={1.5} />}
+                                    placeholder="Kosongkan jika tidak diubah"
+                                    errors={errors.password}
+                                    onChange={(e) =>
+                                        setData("password", e.target.value)
+                                    }
+                                    value={data.password}
+                                />
+                            </div>
+                            <Input
+                                type="password"
+                                label="Konfirmasi Password Baru"
+                                icon={<IconLock size={18} strokeWidth={1.5} />}
+                                placeholder="Ulangi password baru"
+                                errors={errors.password_confirmation}
+                                onChange={(e) =>
+                                    setData("password_confirmation", e.target.value)
+                                }
+                                value={data.password_confirmation}
+                            />
                             <Textarea
                                 label="Alamat"
                                 placeholder="Alamat lengkap"

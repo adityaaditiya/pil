@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Apps;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class CustomerController extends Controller
@@ -18,8 +22,17 @@ class CustomerController extends Controller
     {
         //get customers
         $customers = Customer::when(request()->search, function ($customers) {
-            $customers = $customers->where('name', 'like', '%' . request()->search . '%');
-        })->latest()->paginate(5);
+            $search = request()->search;
+
+            $customers = $customers->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('no_telp', 'like', '%' . $search . '%')
+                    ->orWhere('address', 'like', '%' . $search . '%')
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('email', 'like', '%' . $search . '%');
+                    });
+            });
+        })->with('user:id,email')->latest()->paginate(5);
 
         //return inertia
         return Inertia::render('Dashboard/Customers/Index', [
@@ -52,14 +65,26 @@ class CustomerController extends Controller
             'name'    => 'required',
             'no_telp' => 'required|unique:customers',
             'address' => 'required',
+            'email'   => 'required|email|unique:users,email',
+            'password'=> 'required|string|min:8|confirmed',
         ]);
 
-        //create customer
-        Customer::create([
-            'name'    => $request->name,
-            'no_telp' => $request->no_telp,
-            'address' => $request->address,
-        ]);
+        DB::transaction(function () use ($request) {
+            $user = User::create([
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'password' => $request->password,
+            ]);
+
+            $user->givePermissionTo('customers-access');
+
+            Customer::create([
+                'user_id'  => $user->id,
+                'name'     => $request->name,
+                'no_telp'  => $request->no_telp,
+                'address'  => $request->address,
+            ]);
+        });
 
         //redirect
         return to_route('customers.index');
@@ -77,14 +102,27 @@ class CustomerController extends Controller
             'name'    => 'required|string|max:255',
             'no_telp' => 'required|string|unique:customers,no_telp',
             'address' => 'required|string',
+            'email'   => 'required|email|unique:users,email',
+            'password'=> 'required|string|min:8|confirmed',
         ]);
 
         try {
-            $customer = Customer::create([
-                'name'    => $validated['name'],
-                'no_telp' => $validated['no_telp'],
-                'address' => $validated['address'],
-            ]);
+            $customer = DB::transaction(function () use ($validated) {
+                $user = User::create([
+                    'name'     => $validated['name'],
+                    'email'    => $validated['email'],
+                    'password' => $validated['password'],
+                ]);
+
+                $user->givePermissionTo('customers-access');
+
+                return Customer::create([
+                    'user_id'  => $user->id,
+                    'name'     => $validated['name'],
+                    'no_telp'  => $validated['no_telp'],
+                    'address'  => $validated['address'],
+                ]);
+            });
 
             return response()->json([
                 'success'  => true,
@@ -92,6 +130,7 @@ class CustomerController extends Controller
                 'customer' => [
                     'id'      => $customer->id,
                     'name'    => $customer->name,
+                    'email'   => $customer->user?->email,
                     'phone'   => $customer->no_telp,
                     'address' => $customer->address,
                 ],
@@ -113,6 +152,8 @@ class CustomerController extends Controller
      */
     public function edit(Customer $customer)
     {
+        $customer->load('user:id,email');
+
         return Inertia::render('Dashboard/Customers/Edit', [
             'customer' => $customer,
         ]);
@@ -134,14 +175,38 @@ class CustomerController extends Controller
             'name'    => 'required',
             'no_telp' => 'required|unique:customers,no_telp,' . $customer->id,
             'address' => 'required',
+            'email'   => 'required|email|unique:users,email,' . $customer->user_id,
+            'password'=> 'nullable|string|min:8|confirmed',
         ]);
 
-        //update customer
-        $customer->update([
-            'name'    => $request->name,
-            'no_telp' => $request->no_telp,
-            'address' => $request->address,
-        ]);
+        DB::transaction(function () use ($request, $customer) {
+            $user = $customer->user;
+
+            if (! $user) {
+                $user = User::create([
+                    'name'     => $request->name,
+                    'email'    => $request->email,
+                    'password' => $request->filled('password') ? $request->password : Str::random(16),
+                ]);
+                $user->givePermissionTo('customers-access');
+            } else {
+                $user->name  = $request->name;
+                $user->email = $request->email;
+
+                if ($request->filled('password')) {
+                    $user->password = Hash::make($request->password);
+                }
+
+                $user->save();
+            }
+
+            $customer->update([
+                'user_id'  => $user->id,
+                'name'     => $request->name,
+                'no_telp'  => $request->no_telp,
+                'address'  => $request->address,
+            ]);
+        });
 
         //redirect
         return to_route('customers.index');
@@ -156,10 +221,14 @@ class CustomerController extends Controller
     public function destroy($id)
     {
         //find customer by ID
-        $customer = Customer::findOrFail($id);
+        $customer = Customer::with('user')->findOrFail($id);
 
         //delete customer
         $customer->delete();
+
+        if ($customer->user) {
+            $customer->user->delete();
+        }
 
         //redirect
         return back();
