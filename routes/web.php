@@ -95,6 +95,15 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::post('timetable', [PilatesTimetableController::class, 'store'])
         ->middleware('permission:dashboard-access')
         ->name('timetable.store');
+    Route::get('timetable/{timetable}/edit', [PilatesTimetableController::class, 'edit'])
+        ->middleware('permission:dashboard-access')
+        ->name('timetable.edit');
+    Route::put('timetable/{timetable}', [PilatesTimetableController::class, 'update'])
+        ->middleware('permission:dashboard-access')
+        ->name('timetable.update');
+    Route::delete('timetable/{timetable}', [PilatesTimetableController::class, 'destroy'])
+        ->middleware('permission:dashboard-access')
+        ->name('timetable.destroy');
     Route::get('bookings/create', [BookingController::class, 'create'])->name('bookings.create');
     Route::post('bookings', [BookingController::class, 'store'])->name('bookings.store');
     //route transaction
