@@ -95,8 +95,8 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::post('timetable', [PilatesTimetableController::class, 'store'])
         ->middleware('permission:dashboard-access')
         ->name('timetable.store');
-    Route::post('bookings', [BookingController::class, 'store'])
-        ->name('bookings.store');
+    Route::get('bookings/create', [BookingController::class, 'create'])->name('bookings.create');
+    Route::post('bookings', [BookingController::class, 'store'])->name('bookings.store');
     //route transaction
     Route::get('/transactions', [TransactionController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.index');
     Route::get('/transactions/customers/search', [TransactionController::class, 'searchCustomers'])->middleware('permission:transactions-access')->name('transactions.customers.search');

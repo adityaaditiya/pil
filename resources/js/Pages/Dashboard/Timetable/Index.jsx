@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Modal from "@/Components/Dashboard/Modal";
-import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import { IconCalendarEvent, IconClock, IconPlus, IconUser, IconUsers } from "@tabler/icons-react";
-import toast from "react-hot-toast";
 
 const statusClasses = {
     scheduled: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -16,9 +15,6 @@ export default function Index({ sessions = [], selectedDate, canBook }) {
     const canManageTimetable = Boolean(auth?.super || auth?.permissions?.["dashboard-access"]);
     const [date, setDate] = useState(selectedDate);
     const [selectedSession, setSelectedSession] = useState(null);
-    const { data, setData, post, processing } = useForm({
-        timetable_id: null,
-    });
 
     const hasSessions = useMemo(() => sessions.length > 0, [sessions]);
 
@@ -29,27 +25,10 @@ export default function Index({ sessions = [], selectedDate, canBook }) {
 
     const openSession = (session) => {
         setSelectedSession(session);
-        setData("timetable_id", session.id);
     };
 
     const closeModal = () => {
         setSelectedSession(null);
-        setData("timetable_id", null);
-    };
-
-    const submitBooking = () => {
-        post(route("bookings.store"), {
-            preserveScroll: true,
-            onSuccess: () => {
-                toast.success("Booking confirmed");
-                closeModal();
-                router.get(route("timetable.index"), { date }, { preserveState: true, replace: true });
-            },
-            onError: (errors) => {
-                const firstError = Object.values(errors)[0];
-                toast.error(firstError || "Gagal melakukan booking.");
-            },
-        });
     };
 
     return (
@@ -155,15 +134,13 @@ export default function Index({ sessions = [], selectedDate, canBook }) {
 
                         <button
                             type="button"
-                            onClick={submitBooking}
-                            disabled={!canBook || processing || selectedSession.status !== "scheduled" || selectedSession.remaining_slots <= 0}
+                            onClick={() => router.get(route("bookings.create"), { timetable_id: selectedSession.id })}
+                            disabled={!canBook || selectedSession.status !== "scheduled" || selectedSession.remaining_slots <= 0}
                             className="w-full rounded-2xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-400"
                         >
                             {!canBook
                                 ? "Login Required"
-                                : processing
-                                  ? "Booking..."
-                                  : "Book Now"}
+                                : "Book Now"}
                         </button>
                     </div>
                 )}
