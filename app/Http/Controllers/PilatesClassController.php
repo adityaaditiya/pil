@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PilatesClass;
+use App\Models\Trainer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,19 +15,26 @@ class PilatesClassController extends Controller
     public function index(): Response
     {
         return Inertia::render('Dashboard/Classes/Index', [
-            'classes' => PilatesClass::when(request()->search, function ($query) {
-                $search = request()->search;
+            'classes' => PilatesClass::with('trainers')
+                ->when(request()->search, function ($query) {
+                    $search = request()->search;
 
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('trainers', 'like', "%{$search}%")
-                    ->orWhere('difficulty_level', 'like', "%{$search}%");
-            })->latest()->paginate(10),
+                    $query->where(function ($subQuery) use ($search) {
+                        $subQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('difficulty_level', 'like', "%{$search}%")
+                            ->orWhereHas('trainers', fn ($trainerQuery) => $trainerQuery->where('name', 'like', "%{$search}%"));
+                    });
+                })
+                ->latest()
+                ->paginate(10),
         ]);
     }
 
     public function create(): Response
     {
-        return Inertia::render('Dashboard/Classes/Create');
+        return Inertia::render('Dashboard/Classes/Create', [
+            'trainers' => Trainer::orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -34,13 +42,12 @@ class PilatesClassController extends Controller
         $data = $request->validate([
             'image' => 'required|image|max:2048',
             'name' => 'required|string|max:255',
-            'scheduled_at' => 'required|date',
-            'slot' => 'required|integer|min:1',
             'duration' => 'required|integer|min:1',
             'difficulty_level' => 'required|in:Beginner,Intermediate,Advanced,Open to all',
             'about' => 'required|string',
             'equipment' => 'required|string',
-            'trainers' => 'required|string|max:255',
+            'trainer_ids' => 'required|array|min:1',
+            'trainer_ids.*' => 'required|exists:trainers,id',
             'credit' => 'required|numeric|min:0',
             'price' => 'required|numeric|min:0',
         ]);
@@ -49,7 +56,11 @@ class PilatesClassController extends Controller
         $image->storeAs('public/classes', $image->hashName());
         $data['image'] = $image->hashName();
 
-        PilatesClass::create($data);
+        $trainerIds = $data['trainer_ids'];
+        unset($data['trainer_ids']);
+
+        $class = PilatesClass::create($data);
+        $class->trainers()->sync($trainerIds);
 
         return to_route('classes.index');
     }
@@ -57,7 +68,8 @@ class PilatesClassController extends Controller
     public function edit(PilatesClass $class): Response
     {
         return Inertia::render('Dashboard/Classes/Edit', [
-            'classItem' => $class,
+            'classItem' => $class->load('trainers:id,name'),
+            'trainers' => Trainer::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -66,13 +78,12 @@ class PilatesClassController extends Controller
         $data = $request->validate([
             'image' => 'nullable|image|max:2048',
             'name' => 'required|string|max:255',
-            'scheduled_at' => 'required|date',
-            'slot' => 'required|integer|min:1',
             'duration' => 'required|integer|min:1',
             'difficulty_level' => 'required|in:Beginner,Intermediate,Advanced,Open to all',
             'about' => 'required|string',
             'equipment' => 'required|string',
-            'trainers' => 'required|string|max:255',
+            'trainer_ids' => 'required|array|min:1',
+            'trainer_ids.*' => 'required|exists:trainers,id',
             'credit' => 'required|numeric|min:0',
             'price' => 'required|numeric|min:0',
         ]);
@@ -85,7 +96,11 @@ class PilatesClassController extends Controller
             $data['image'] = $image->hashName();
         }
 
+        $trainerIds = $data['trainer_ids'];
+        unset($data['trainer_ids']);
+
         $class->update($data);
+        $class->trainers()->sync($trainerIds);
 
         return to_route('classes.index');
     }
