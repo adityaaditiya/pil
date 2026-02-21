@@ -97,6 +97,13 @@ function Menu() {
                     icon: <IconCalendarEvent size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["dashboard-access"]),
                 },
+                {
+                    title: "Trainer",
+                    href: route("trainers.index"),
+                    active: url.startsWith("/dashboard/trainers"),
+                    icon: <IconUserSquare size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["dashboard-access"]),
+                },
             ],
         },
         {

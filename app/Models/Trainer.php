@@ -11,6 +11,10 @@ class Trainer extends Model
 
     protected $fillable = [
         'name',
+        'photo',
+        'age',
+        'gender',
+        'address',
     ];
 
     public function pilatesClasses()
