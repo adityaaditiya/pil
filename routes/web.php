@@ -9,6 +9,7 @@ use App\Http\Controllers\Apps\TransactionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PilatesClassController;
+use App\Http\Controllers\PilatesTimetableController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Reports\ProfitReportController;
 use App\Http\Controllers\Reports\AuthorizationReportController;
@@ -80,6 +81,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::resource('classes', PilatesClassController::class)
         ->except(['show'])
         ->middleware('permission:dashboard-access');
+    Route::get('timetable', [PilatesTimetableController::class, 'index'])
+        ->middleware('permission:dashboard-access')
+        ->name('timetable.index');
     //route transaction
     Route::get('/transactions', [TransactionController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.index');
     Route::get('/transactions/customers/search', [TransactionController::class, 'searchCustomers'])->middleware('permission:transactions-access')->name('transactions.customers.search');

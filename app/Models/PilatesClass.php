@@ -12,22 +12,28 @@ class PilatesClass extends Model
     protected $fillable = [
         'image',
         'name',
-        'scheduled_at',
-        'slot',
         'duration',
         'difficulty_level',
         'about',
         'equipment',
-        'trainers',
         'credit',
         'price',
     ];
 
     protected $casts = [
-        'scheduled_at' => 'datetime',
-        'slot' => 'integer',
         'duration' => 'integer',
         'credit' => 'decimal:2',
         'price' => 'decimal:2',
     ];
+
+    public function trainers()
+    {
+        return $this->belongsToMany(Trainer::class, 'pilates_class_trainer')
+            ->withTimestamps();
+    }
+
+    public function timetables()
+    {
+        return $this->hasMany(PilatesTimetable::class);
+    }
 }
