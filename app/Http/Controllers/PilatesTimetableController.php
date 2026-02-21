@@ -2,14 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PilatesClass;
 use App\Models\PilatesTimetable;
+use App\Models\Trainer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class PilatesTimetableController extends Controller
 {
+    public function create(): Response
+    {
+        return Inertia::render('Timetable/Create', [
+            'classes' => PilatesClass::query()->select('id', 'name')->orderBy('name')->get(),
+            'trainers' => Trainer::query()->select('id', 'name')->orderBy('name')->get(),
+        ]);
+    }
+
     public function index(Request $request): Response
     {
         $selectedDate = $request->string('date')->toString();
@@ -67,5 +78,22 @@ class PilatesTimetableController extends Controller
             'sessions' => $sessions,
             'canBook' => $request->user() !== null,
         ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'pilates_class_id' => ['required', 'exists:pilates_classes,id'],
+            'trainer_id' => ['required', 'exists:trainers,id'],
+            'start_at' => ['required', 'date'],
+            'capacity' => ['required', 'integer', 'min:1'],
+            'status' => ['required', 'in:scheduled,cancelled,closed'],
+        ]);
+
+        $session = PilatesTimetable::query()->create($validated);
+
+        return redirect()
+            ->route('timetable.index', ['date' => $session->start_at->timezone('Asia/Jakarta')->toDateString()])
+            ->with('success', 'Session berhasil ditambahkan.');
     }
 }

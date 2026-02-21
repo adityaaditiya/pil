@@ -89,6 +89,12 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('timetable', [PilatesTimetableController::class, 'index'])
         ->middleware('permission:dashboard-access')
         ->name('timetable.index');
+    Route::get('timetable/create', [PilatesTimetableController::class, 'create'])
+        ->middleware('permission:dashboard-access')
+        ->name('timetable.create');
+    Route::post('timetable', [PilatesTimetableController::class, 'store'])
+        ->middleware('permission:dashboard-access')
+        ->name('timetable.store');
     Route::post('bookings', [BookingController::class, 'store'])
         ->name('bookings.store');
     //route transaction
