@@ -108,7 +108,7 @@ export default function Booking({ session, customers = [], paymentGateways = [] 
                                         <select
                                             value={data.payment_method}
                                             onChange={(e) => setData("payment_method", e.target.value)}
-                                            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                                            className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm"
                                         >
                                             {gatewayOptions.map((gateway) => (
                                                 <option key={gateway.value} value={gateway.value}>{gateway.label}</option>

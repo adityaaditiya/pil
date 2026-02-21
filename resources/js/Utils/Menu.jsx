@@ -25,6 +25,7 @@ import {
     IconUserSquare,
     IconUsers,
     IconUsersPlus,
+    IconYoga,
 } from "@tabler/icons-react";
 import hasAnyPermission from "./Permission";
 import React from "react";
@@ -87,7 +88,7 @@ function Menu() {
                     title: "Classes",
                     href: route("classes.index"),
                     active: url.startsWith("/dashboard/classes"),
-                    icon: <IconSchool size={20} strokeWidth={1.5} />,
+                    icon: <IconYoga size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["dashboard-access"]),
                 },
                 {

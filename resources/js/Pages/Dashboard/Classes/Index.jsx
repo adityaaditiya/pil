@@ -5,7 +5,7 @@ import Table from "@/Components/Dashboard/Table";
 import Search from "@/Components/Dashboard/Search";
 import Pagination from "@/Components/Dashboard/Pagination";
 import Button from "@/Components/Dashboard/Button";
-import { IconCirclePlus, IconPencilCog, IconSchool, IconTrash } from "@tabler/icons-react";
+import { IconCirclePlus, IconPencilCog, IconSchool, IconTrash, IconYoga } from "@tabler/icons-react";
 
 export default function Index({ classes }) {
     return (
@@ -14,7 +14,7 @@ export default function Index({ classes }) {
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <IconSchool size={28} className="text-primary-500" /> Classes
+                        <IconYoga size={28} className="text-primary-500" /> Classes
                     </h1>
                     <p className="text-sm text-slate-500 mt-1">Kelola master class studio pilates.</p>
                 </div>
