@@ -21,15 +21,45 @@ class PilatesTimetableController extends Controller
         ]);
     }
 
+    public function edit(PilatesTimetable $timetable): Response
+    {
+        return Inertia::render('Timetable/Edit', [
+            'classes' => PilatesClass::query()->select('id', 'name')->orderBy('name')->get(),
+            'trainers' => Trainer::query()->select('id', 'name')->orderBy('name')->get(),
+            'session' => [
+                'id' => $timetable->id,
+                'pilates_class_id' => $timetable->pilates_class_id,
+                'trainer_id' => $timetable->trainer_id,
+                'start_at' => $timetable->start_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i'),
+                'capacity' => $timetable->capacity,
+                'status' => $timetable->status,
+            ],
+        ]);
+    }
+
     public function index(Request $request): Response
     {
-        $selectedDate = $request->string('date')->toString();
+        $startDateInput = $request->string('start_date')->toString();
+        $endDateInput = $request->string('end_date')->toString();
 
-        if (! $selectedDate) {
-            $selectedDate = now('Asia/Jakarta')->toDateString();
+        if (! $endDateInput) {
+            $endDateInput = $request->string('date')->toString();
         }
 
-        $parsedDate = Carbon::createFromFormat('Y-m-d', $selectedDate, 'Asia/Jakarta');
+        if (! $endDateInput) {
+            $endDateInput = now('Asia/Jakarta')->toDateString();
+        }
+
+        if (! $startDateInput) {
+            $startDateInput = $endDateInput;
+        }
+
+        $startDate = Carbon::createFromFormat('Y-m-d', $startDateInput, 'Asia/Jakarta')->startOfDay();
+        $endDate = Carbon::createFromFormat('Y-m-d', $endDateInput, 'Asia/Jakarta')->endOfDay();
+
+        if ($startDate->gt($endDate)) {
+            [$startDate, $endDate] = [$endDate->copy()->startOfDay(), $startDate->copy()->endOfDay()];
+        }
 
         $sessions = PilatesTimetable::query()
             ->with([
@@ -37,7 +67,7 @@ class PilatesTimetableController extends Controller
                 'trainer:id,name',
             ])
             ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
-            ->whereDate('start_at', $parsedDate->toDateString())
+            ->whereBetween('start_at', [$startDate->clone()->timezone('UTC'), $endDate->clone()->timezone('UTC')])
             ->orderBy('start_at')
             ->get()
             ->map(function (PilatesTimetable $session) {
@@ -73,7 +103,8 @@ class PilatesTimetableController extends Controller
             ->values();
 
         return Inertia::render('Dashboard/Timetable/Index', [
-            'selectedDate' => $parsedDate->toDateString(),
+            'selectedStartDate' => $startDate->toDateString(),
+            'selectedEndDate' => $endDate->toDateString(),
             'sessions' => $sessions,
             'canBook' => $request->user() !== null,
         ]);
@@ -92,7 +123,36 @@ class PilatesTimetableController extends Controller
         $session = PilatesTimetable::query()->create($validated);
 
         return redirect()
-            ->route('timetable.index', ['date' => $session->start_at->timezone('Asia/Jakarta')->toDateString()])
+            ->route('timetable.index', ['start_date' => $session->start_at->timezone('Asia/Jakarta')->toDateString(), 'end_date' => $session->start_at->timezone('Asia/Jakarta')->toDateString()])
             ->with('success', 'Session berhasil ditambahkan.');
+    }
+
+    public function update(Request $request, PilatesTimetable $timetable): RedirectResponse
+    {
+        $validated = $request->validate([
+            'pilates_class_id' => ['required', 'exists:pilates_classes,id'],
+            'trainer_id' => ['required', 'exists:trainers,id'],
+            'start_at' => ['required', 'date'],
+            'capacity' => ['required', 'integer', 'min:1'],
+            'status' => ['required', 'in:scheduled,cancelled,closed'],
+        ]);
+
+        $timetable->update($validated);
+
+        $date = $timetable->start_at?->timezone('Asia/Jakarta')->toDateString();
+
+        return redirect()
+            ->route('timetable.index', ['start_date' => $date, 'end_date' => $date])
+            ->with('success', 'Session berhasil diperbarui.');
+    }
+
+    public function destroy(PilatesTimetable $timetable): RedirectResponse
+    {
+        $date = $timetable->start_at?->timezone('Asia/Jakarta')->toDateString();
+        $timetable->delete();
+
+        return redirect()
+            ->route('timetable.index', ['start_date' => $date, 'end_date' => $date])
+            ->with('success', 'Session berhasil dihapus.');
     }
 }

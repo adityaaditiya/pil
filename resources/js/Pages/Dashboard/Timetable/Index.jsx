@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Modal from "@/Components/Dashboard/Modal";
 import { Head, Link, router, usePage } from "@inertiajs/react";
-import { IconCalendarEvent, IconClock, IconPlus, IconUser, IconUsers } from "@tabler/icons-react";
+import { IconCalendarEvent, IconClock, IconPencil, IconPlus, IconTrash, IconUser, IconUsers } from "@tabler/icons-react";
 
 const statusClasses = {
     scheduled: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -10,17 +10,31 @@ const statusClasses = {
     closed: "bg-slate-100 text-slate-700 border-slate-200",
 };
 
-export default function Index({ sessions = [], selectedDate, canBook }) {
+export default function Index({ sessions = [], selectedStartDate, selectedEndDate, canBook }) {
     const { auth } = usePage().props;
     const canManageTimetable = Boolean(auth?.super || auth?.permissions?.["dashboard-access"]);
-    const [date, setDate] = useState(selectedDate);
+    const [startDate, setStartDate] = useState(selectedStartDate);
+    const [endDate, setEndDate] = useState(selectedEndDate);
     const [selectedSession, setSelectedSession] = useState(null);
 
     const hasSessions = useMemo(() => sessions.length > 0, [sessions]);
 
-    const onDateChange = (value) => {
-        setDate(value);
-        router.get(route("timetable.index"), { date: value }, { preserveState: true, replace: true });
+    const applyDateFilter = (nextStartDate, nextEndDate) => {
+        router.get(
+            route("timetable.index"),
+            { start_date: nextStartDate, end_date: nextEndDate },
+            { preserveState: true, replace: true }
+        );
+    };
+
+    const onStartDateChange = (value) => {
+        setStartDate(value);
+        applyDateFilter(value, endDate);
+    };
+
+    const onEndDateChange = (value) => {
+        setEndDate(value);
+        applyDateFilter(startDate, value);
     };
 
     const openSession = (session) => {
@@ -29,6 +43,17 @@ export default function Index({ sessions = [], selectedDate, canBook }) {
 
     const closeModal = () => {
         setSelectedSession(null);
+    };
+
+    const handleDelete = (sessionId) => {
+        if (!window.confirm("Yakin ingin menghapus session ini?")) {
+            return;
+        }
+
+        router.delete(route("timetable.destroy", sessionId), {
+            data: { start_date: startDate, end_date: endDate },
+            preserveScroll: true,
+        });
     };
 
     return (
@@ -41,19 +66,29 @@ export default function Index({ sessions = [], selectedDate, canBook }) {
                             <h1 className="flex items-center gap-2 text-2xl font-semibold text-slate-900 dark:text-white">
                                 <IconCalendarEvent className="text-primary-500" size={28} /> Schedule Booking
                             </h1>
-                            <p className="mt-1 text-sm text-slate-500">Pilih tanggal lalu reservasi sesi pilates favorit Anda.</p>
+                            <p className="mt-1 text-sm text-slate-500">Pilih rentang tanggal lalu reservasi sesi pilates favorit Anda.</p>
                         </div>
                         <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-end md:gap-4">
-                            
                             <div className="w-full md:w-auto">
-                                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">Tanggal Sesi</label>
+                                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">Tanggal Mulai</label>
                                 <input
                                     type="date"
-                                    value={date}
-                                    onChange={(event) => onDateChange(event.target.value)}
+                                    value={startDate}
+                                    onChange={(event) => onStartDateChange(event.target.value)}
                                     className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800"
                                 />
                             </div>
+
+                            <div className="w-full md:w-auto">
+                                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">Tanggal Akhir</label>
+                                <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(event) => onEndDateChange(event.target.value)}
+                                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800"
+                                />
+                            </div>
+
                             {canManageTimetable && (
                                 <Link
                                     href={route("timetable.create")}
@@ -70,12 +105,11 @@ export default function Index({ sessions = [], selectedDate, canBook }) {
                     <section className="grid gap-4 lg:grid-cols-2">
                         {sessions.map((session) => {
                             const disabled = session.status !== "scheduled" || session.remaining_slots <= 0;
+
                             return (
-                                <button
+                                <div
                                     key={session.id}
-                                    type="button"
-                                    onClick={() => openSession(session)}
-                                    className="rounded-3xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-800 dark:bg-slate-900"
+                                    className="rounded-3xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
@@ -89,19 +123,46 @@ export default function Index({ sessions = [], selectedDate, canBook }) {
                                         </span>
                                     </div>
 
-                                    <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-600 dark:text-slate-300">
+                                    <div className="mt-4 grid grid-cols-1 gap-3 text-sm text-slate-600 dark:text-slate-300 sm:grid-cols-2">
                                         <p className="flex items-center gap-2"><IconClock size={16} /> {session.start_at_label} - {session.end_at_label}</p>
                                         <p className="flex items-center gap-2"><IconUsers size={16} /> {session.remaining_slots}/{session.capacity} slots</p>
                                     </div>
-                                    <p className="mt-3 text-sm font-medium text-primary-600">{disabled ? "Sesi tidak tersedia" : "View Details"}</p>
-                                </button>
+
+                                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => openSession(session)}
+                                            className="rounded-xl border border-primary-200 px-3 py-2 text-sm font-medium text-primary-600 transition hover:bg-primary-50"
+                                        >
+                                            {disabled ? "Sesi tidak tersedia" : "View Details"}
+                                        </button>
+
+                                        {canManageTimetable && (
+                                            <>
+                                                <Link
+                                                    href={route("timetable.edit", session.id)}
+                                                    className="inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                                                >
+                                                    <IconPencil size={15} /> Ubah
+                                                </Link>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDelete(session.id)}
+                                                    className="inline-flex items-center gap-1 rounded-xl border border-rose-200 px-3 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50"
+                                                >
+                                                    <IconTrash size={15} /> Hapus
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
                             );
                         })}
                     </section>
                 ) : (
                     <section className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
-                        <p className="text-lg font-semibold text-slate-800 dark:text-white">Belum ada sesi pada tanggal ini.</p>
-                        <p className="mt-2 text-sm text-slate-500">Coba pilih tanggal lain untuk melihat jadwal yang tersedia.</p>
+                        <p className="text-lg font-semibold text-slate-800 dark:text-white">Belum ada sesi pada rentang tanggal ini.</p>
+                        <p className="mt-2 text-sm text-slate-500">Coba pilih rentang tanggal lain untuk melihat jadwal yang tersedia.</p>
                     </section>
                 )}
             </div>
