@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Apps\CategoryController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Apps\CashEntryController;
 use App\Http\Controllers\Apps\CustomerController;
 use App\Http\Controllers\Apps\PaymentSettingController;
@@ -88,6 +89,8 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('timetable', [PilatesTimetableController::class, 'index'])
         ->middleware('permission:dashboard-access')
         ->name('timetable.index');
+    Route::post('bookings', [BookingController::class, 'store'])
+        ->name('bookings.store');
     //route transaction
     Route::get('/transactions', [TransactionController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.index');
     Route::get('/transactions/customers/search', [TransactionController::class, 'searchCustomers'])->middleware('permission:transactions-access')->name('transactions.customers.search');

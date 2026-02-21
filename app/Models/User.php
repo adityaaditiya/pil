@@ -46,6 +46,12 @@ class User extends Authenticatable
         ];
     }
 
+
+    public function pilatesBookings()
+    {
+        return $this->hasMany(PilatesBooking::class, 'user_id');
+    }
+
     /**
      *  get all permissions users
      */
