@@ -401,9 +401,9 @@ export default function Welcome() {
                                 Studio pilates modern untuk Anda yang ingin bergerak lebih baik, merasa lebih kuat, dan hidup lebih mindful.
                             </p>
                             <div className="mt-5 space-y-2 text-sm text-primary-100">
-                                <p className="flex items-center gap-2"><IconMapPin size={16} /> Jl. Kemang Raya No. 25, Jakarta Selatan</p>
+                                <p className="flex items-center gap-2"><IconMapPin size={16} /> Jl. Layur No. 08, Kota Tegal</p>
                                 <p className="flex items-center gap-2"><IconClock size={16} /> Senin - Sabtu, 07:00 - 20:00</p>
-                                <p className="flex items-center gap-2"><IconPhone size={16} /> +62 812-3456-7890</p>
+                                <p className="flex items-center gap-2"><IconPhone size={16} /> +62 823-2692-3196</p>
                             </div>
                         </div>
 
@@ -431,7 +431,7 @@ export default function Welcome() {
                                     <IconHeartHandshake size={18} />
                                 </a>
                             </div>
-                            <Button as={Link} href={route("welcome.page", "contact")} className="mt-6 w-full bg-white text-primary-700 hover:bg-primary-50">
+                            <Button as={Link} href={route("welcome.page", "contact")} className="mt-6 w-full bg-primary-500 text-white hover:bg-primary-700">
                                 Booking Kelas
                             </Button>
                         </div>

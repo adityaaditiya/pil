@@ -35,7 +35,7 @@ export default function Index({ trainers }) {
                             <Table.Th>Foto</Table.Th>
                             <Table.Th>Nama</Table.Th>
                             <Table.Th>Usia</Table.Th>
-                            <Table.Th>Jenis Kelamin</Table.Th>
+                            <Table.Th>Gender</Table.Th>
                             <Table.Th>Alamat</Table.Th>
                             <Table.Th></Table.Th>
                         </tr>

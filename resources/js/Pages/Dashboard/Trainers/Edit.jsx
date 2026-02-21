@@ -40,7 +40,7 @@ export default function Edit({ trainer }) {
                     <Input type="text" label="Nama" value={data.name} errors={errors.name} onChange={(e) => setData("name", e.target.value)} />
                     <Input type="number" label="Usia" value={data.age} errors={errors.age} onChange={(e) => setData("age", e.target.value)} />
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Jenis Kelamin</label>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Gender</label>
                         <select value={data.gender} onChange={(e) => setData("gender", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                             <option value="Laki-laki">Laki-laki</option>
                             <option value="Perempuan">Perempuan</option>
