@@ -18,6 +18,7 @@ use App\Http\Controllers\Reports\SalesReportController;
 use App\Http\Controllers\Reports\SoldItemsReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StudioPageController;
+use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -79,6 +80,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         ->except(['show'])
         ->middleware('permission:dashboard-access');
     Route::resource('classes', PilatesClassController::class)
+        ->except(['show'])
+        ->middleware('permission:dashboard-access');
+    Route::resource('trainers', TrainerController::class)
         ->except(['show'])
         ->middleware('permission:dashboard-access');
     Route::get('timetable', [PilatesTimetableController::class, 'index'])
