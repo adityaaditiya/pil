@@ -3,38 +3,62 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePilatesBookingRequest;
+use App\Models\Customer;
+use App\Models\PaymentSetting;
 use App\Models\PilatesBooking;
 use App\Models\PilatesTimetable;
 use Illuminate\Database\QueryException;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class BookingController extends Controller
 {
-    public function index(Request $request): Response
+    public function create(Request $request): Response
     {
-        $bookings = PilatesBooking::query()
-            ->with(['timetable.pilatesClass:id,name', 'timetable.trainer:id,name'])
-            ->where('user_id', $request->user()->id)
-            ->latest('booked_at')
-            ->paginate(10);
+        $timetable = PilatesTimetable::query()
+            ->with(['pilatesClass:id,name,price,credit,duration,difficulty_level', 'trainer:id,name'])
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
+            ->findOrFail($request->integer('timetable_id'));
 
-        return Inertia::render('Dashboard/Bookings/Index', [
-            'bookings' => $bookings,
+        $bookedSlots = (int) ($timetable->booked_slots ?? 0);
+        $remainingSlots = max(0, $timetable->capacity - $bookedSlots);
+
+        $customers = Customer::query()
+            ->select('id', 'user_id', 'name', 'no_telp', 'address', 'credit')
+            ->latest()
+            ->take(30)
+            ->get();
+
+        $paymentSetting = PaymentSetting::first();
+
+        return Inertia::render('Dashboard/Timetable/Booking', [
+            'session' => [
+                'id' => $timetable->id,
+                'status' => $timetable->status,
+                'class_name' => $timetable->pilatesClass?->name,
+                'trainer_name' => $timetable->trainer?->name,
+                'start_at_label' => $timetable->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
+                'end_at_label' => $timetable->start_at?->clone()->timezone('Asia/Jakarta')->addMinutes($timetable->duration_minutes ?: ($timetable->pilatesClass?->duration ?? 0))->format('H:i'),
+                'price' => $timetable->price_override ?? $timetable->pilatesClass?->price,
+                'credit' => $timetable->credit_override ?? $timetable->pilatesClass?->credit,
+                'capacity' => $timetable->capacity,
+                'remaining_slots' => $remainingSlots,
+                'difficulty_level' => $timetable->pilatesClass?->difficulty_level,
+            ],
+            'customers' => $customers,
+            'paymentGateways' => $paymentSetting?->enabledGateways() ?? [],
         ]);
     }
 
-    public function store(StorePilatesBookingRequest $request): JsonResponse|RedirectResponse
+    public function store(StorePilatesBookingRequest $request): RedirectResponse
     {
         $timetable = PilatesTimetable::query()
             ->with(['pilatesClass:id,name,price,credit'])
-            ->withCount([
-                'bookings as confirmed_bookings_count' => fn ($query) => $query->where('status', 'confirmed'),
-            ])
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
             ->findOrFail($request->integer('timetable_id'));
 
         if ($timetable->status !== 'scheduled') {
@@ -43,53 +67,76 @@ class BookingController extends Controller
             ]);
         }
 
-        if ($timetable->confirmed_bookings_count >= $timetable->capacity) {
+        $customer = Customer::query()->findOrFail($request->integer('customer_id'));
+
+        if (! $customer->user_id) {
             throw ValidationException::withMessages([
-                'timetable_id' => 'Slot sesi sudah penuh.',
+                'customer_id' => 'Pelanggan ini belum terhubung ke akun user.',
+            ]);
+        }
+
+        $participants = $request->integer('participants');
+        $bookedSlots = (int) ($timetable->booked_slots ?? 0);
+        $remainingSlots = max(0, $timetable->capacity - $bookedSlots);
+
+        if ($participants > $remainingSlots) {
+            throw ValidationException::withMessages([
+                'participants' => 'Jumlah peserta melebihi sisa slot kelas.',
             ]);
         }
 
         $alreadyBooked = PilatesBooking::query()
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', $customer->user_id)
             ->where('timetable_id', $timetable->id)
             ->exists();
 
         if ($alreadyBooked) {
             throw ValidationException::withMessages([
-                'timetable_id' => 'Anda sudah melakukan booking pada sesi ini.',
+                'customer_id' => 'Pelanggan sudah melakukan booking pada sesi ini.',
             ]);
         }
 
-        $paymentType = $request->string('payment_type')->toString() ?: null;
-        $priceAmount = $timetable->price_override ?? $timetable->pilatesClass?->price;
-        $creditUsed = $timetable->credit_override ?? $timetable->pilatesClass?->credit;
+        $paymentType = $request->string('payment_type')->toString();
+        $paymentMethod = $paymentType === 'credit' ? 'credits' : ($request->string('payment_method')->toString() ?: 'cash');
+
+        $priceAmount = (float) ($timetable->price_override ?? $timetable->pilatesClass?->price ?? 0);
+        $creditUsed = (float) ($timetable->credit_override ?? $timetable->pilatesClass?->credit ?? 0);
+
+        if ($paymentType === 'credit') {
+            $neededCredits = $creditUsed * $participants;
+            if ((float) $customer->credit < $neededCredits) {
+                throw ValidationException::withMessages([
+                    'payment_type' => 'Credit pelanggan tidak cukup untuk jumlah peserta yang dipilih.',
+                ]);
+            }
+        }
 
         try {
-            $booking = PilatesBooking::create([
-                'user_id' => $request->user()->id,
-                'timetable_id' => $timetable->id,
-                'status' => 'confirmed',
-                'booked_at' => now(),
-                'payment_type' => $paymentType,
-                'price_amount' => $priceAmount,
-                'credit_used' => $creditUsed,
-            ]);
-        } catch (QueryException $exception) {
+            DB::transaction(function () use ($customer, $timetable, $participants, $paymentType, $paymentMethod, $priceAmount, $creditUsed) {
+                PilatesBooking::create([
+                    'user_id' => $customer->user_id,
+                    'timetable_id' => $timetable->id,
+                    'participants' => $participants,
+                    'status' => 'confirmed',
+                    'booked_at' => now(),
+                    'payment_type' => $paymentType,
+                    'payment_method' => $paymentMethod,
+                    'price_amount' => $paymentType === 'drop_in' ? $priceAmount * $participants : 0,
+                    'credit_used' => $paymentType === 'credit' ? $creditUsed * $participants : 0,
+                ]);
+
+                if ($paymentType === 'credit') {
+                    $customer->decrement('credit', $creditUsed * $participants);
+                }
+            });
+        } catch (QueryException) {
             throw ValidationException::withMessages([
-                'timetable_id' => 'Anda sudah melakukan booking pada sesi ini.',
+                'customer_id' => 'Pelanggan sudah melakukan booking pada sesi ini.',
             ]);
         }
 
-        $remainingSlots = max(0, $timetable->capacity - ($timetable->confirmed_bookings_count + 1));
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'message' => 'Booking confirmed',
-                'booking_id' => $booking->id,
-                'remaining_slots' => $remainingSlots,
-            ]);
-        }
-
-        return back(303);
+        return redirect()
+            ->route('timetable.index', ['date' => $timetable->start_at?->timezone('Asia/Jakarta')->toDateString()])
+            ->with('success', 'Booking berhasil disimpan.');
     }
 }

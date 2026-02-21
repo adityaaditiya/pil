@@ -15,7 +15,10 @@ class StorePilatesBookingRequest extends FormRequest
     {
         return [
             'timetable_id' => ['required', 'integer', 'exists:pilates_timetables,id'],
-            'payment_type' => ['nullable', 'in:drop_in,credit'],
+            'customer_id' => ['required', 'integer', 'exists:customers,id'],
+            'participants' => ['required', 'integer', 'min:1'],
+            'payment_type' => ['required', 'in:drop_in,credit'],
+            'payment_method' => ['nullable', 'string', 'max:50'],
         ];
     }
 }

@@ -36,14 +36,13 @@ class PilatesTimetableController extends Controller
                 'pilatesClass:id,name,difficulty_level,duration,about,equipment,price,credit',
                 'trainer:id,name',
             ])
-            ->withCount([
-                'bookings as confirmed_bookings_count' => fn ($query) => $query->where('status', 'confirmed'),
-            ])
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
             ->whereDate('start_at', $parsedDate->toDateString())
             ->orderBy('start_at')
             ->get()
             ->map(function (PilatesTimetable $session) {
-                $remainingSlots = max(0, $session->capacity - $session->confirmed_bookings_count);
+                $bookedSlots = (int) ($session->booked_slots ?? 0);
+                $remainingSlots = max(0, $session->capacity - $bookedSlots);
 
                 return [
                     'id' => $session->id,
@@ -52,7 +51,7 @@ class PilatesTimetableController extends Controller
                     'start_at_label' => $session->start_at?->clone()->timezone('Asia/Jakarta')->format('d M Y, H:i'),
                     'end_at_label' => $session->start_at?->clone()->timezone('Asia/Jakarta')->addMinutes($session->duration_minutes ?: ($session->pilatesClass?->duration ?? 0))->format('H:i'),
                     'capacity' => $session->capacity,
-                    'confirmed_bookings_count' => $session->confirmed_bookings_count,
+                    'confirmed_bookings_count' => $bookedSlots,
                     'remaining_slots' => $remainingSlots,
                     'duration_minutes' => $session->duration_minutes ?: $session->pilatesClass?->duration,
                     'price_drop_in' => $session->price_override ?? $session->pilatesClass?->price,

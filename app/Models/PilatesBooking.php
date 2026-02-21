@@ -12,15 +12,18 @@ class PilatesBooking extends Model
     protected $fillable = [
         'user_id',
         'timetable_id',
+        'participants',
         'status',
         'booked_at',
         'payment_type',
+        'payment_method',
         'price_amount',
         'credit_used',
     ];
 
     protected $casts = [
         'booked_at' => 'datetime',
+        'participants' => 'integer',
         'price_amount' => 'decimal:2',
         'credit_used' => 'decimal:2',
     ];
