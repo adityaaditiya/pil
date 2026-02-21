@@ -77,7 +77,7 @@ function Menu() {
             title: "Pilates Studio Control",
             details: [
                 {
-                    title: "Kelola Menu Welcome",
+                    title: "Kelola Menu Studio",
                     href: route("studio-pages.index"),
                     active: url.startsWith("/dashboard/studio-pages"),
                     icon: <IconHome2 size={20} strokeWidth={1.5} />,

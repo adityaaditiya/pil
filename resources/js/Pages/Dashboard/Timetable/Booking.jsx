@@ -89,14 +89,14 @@ export default function Booking({ session, customers = [], paymentGateways = [] 
                                     </div>
                                 </label>
 
-                                <label className="space-y-2 rounded-xl border p-3">
+                                <br />                               
                                     <div className="flex items-center gap-3">
                                         <input
                                             type="radio"
                                             checked={data.payment_type === "drop_in"}
                                             onChange={() => setData("payment_type", "drop_in")}
                                         />
-                                        <p className="text-sm font-semibold">Tunai / Payment Gateway</p>
+                                        <p className="text-sm font-semibold">Drop-in</p>
                                     </div>
                                     {data.payment_type === "drop_in" && (
                                         <select
@@ -109,7 +109,7 @@ export default function Booking({ session, customers = [], paymentGateways = [] 
                                             ))}
                                         </select>
                                     )}
-                                </label>
+                                
                             </div>
                             {errors.payment_type && <p className="mt-1 text-xs text-red-500">{errors.payment_type}</p>}
                         </div>

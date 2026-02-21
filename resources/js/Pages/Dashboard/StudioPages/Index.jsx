@@ -9,11 +9,11 @@ import { IconCirclePlus, IconPencilCog, IconTrash } from "@tabler/icons-react";
 export default function Index({ studioPages }) {
     return (
         <>
-            <Head title="Kelola Menu Welcome" />
+            <Head title="Kelola Menu Studio" />
 
             <div className="mb-6 flex items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Kelola Menu Welcome</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Kelola Menu Studio</h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400">CRUD halaman Home, About, Classes, Schedule, Pricing, Trainers, Testimonials, Contact</p>
                 </div>
                 <Button
