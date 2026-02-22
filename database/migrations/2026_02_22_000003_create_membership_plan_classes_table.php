@@ -15,7 +15,7 @@ return new class extends Migration
             $table->integer('credit_cost')->default(1);
             $table->timestamps();
 
-            $table->unique(['membership_plan_id', 'pilates_class_id']);
+            $table->unique(['membership_plan_id', 'pilates_class_id'], 'mpc_plan_class_uq');
         });
     }
 

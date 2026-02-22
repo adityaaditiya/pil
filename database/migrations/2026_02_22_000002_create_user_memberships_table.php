@@ -19,8 +19,8 @@ return new class extends Migration
             $table->enum('status', ['active', 'expired', 'cancelled'])->default('active');
             $table->timestamps();
 
-            $table->unique(['user_id', 'membership_plan_id', 'starts_at']);
-            $table->index(['user_id', 'status']);
+            $table->unique(['user_id', 'membership_plan_id', 'starts_at'], 'um_user_plan_start_uq');
+            $table->index(['user_id', 'status'], 'um_user_status_idx');
         });
     }
 
