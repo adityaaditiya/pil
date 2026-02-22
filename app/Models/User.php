@@ -52,6 +52,11 @@ class User extends Authenticatable
         return $this->hasMany(PilatesBooking::class, 'user_id');
     }
 
+    public function memberships()
+    {
+        return $this->hasMany(UserMembership::class);
+    }
+
     /**
      *  get all permissions users
      */

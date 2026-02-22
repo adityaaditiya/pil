@@ -36,4 +36,11 @@ class PilatesClass extends Model
     {
         return $this->hasMany(PilatesTimetable::class);
     }
+
+    public function membershipPlans()
+    {
+        return $this->belongsToMany(MembershipPlan::class, 'membership_plan_classes')
+            ->withPivot('credit_cost')
+            ->withTimestamps();
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePilatesBookingRequest;
 use App\Models\Customer;
 use App\Models\PaymentSetting;
+use App\Models\UserMembership;
 use App\Models\PilatesBooking;
 use App\Models\PilatesTimetable;
 use Illuminate\Database\QueryException;
@@ -35,6 +36,31 @@ class BookingController extends Controller
 
         $paymentSetting = PaymentSetting::first();
 
+        $availableMemberships = UserMembership::query()
+            ->with(['plan.classRules' => fn ($query) => $query->where('pilates_class_id', $timetable->pilates_class_id)])
+            ->where('status', 'active')
+            ->where('credits_remaining', '>', 0)
+            ->where(function ($query) {
+                $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->get()
+            ->filter(function (UserMembership $membership) use ($timetable) {
+                return $membership->plan?->classRules->contains('pilates_class_id', $timetable->pilates_class_id);
+            })
+            ->map(function (UserMembership $membership) {
+                $rule = $membership->plan?->classRules->first();
+
+                return [
+                    'id' => $membership->id,
+                    'plan_name' => $membership->plan?->name,
+                    'user_id' => $membership->user_id,
+                    'credits_remaining' => $membership->credits_remaining,
+                    'credit_cost' => $rule?->credit_cost ?? 1,
+                    'expires_at' => $membership->expires_at?->timezone('Asia/Jakarta')?->format('d M Y H:i'),
+                ];
+            })
+            ->values();
+
         return Inertia::render('Dashboard/Timetable/Booking', [
             'session' => [
                 'id' => $timetable->id,
@@ -51,6 +77,7 @@ class BookingController extends Controller
             ],
             'customers' => $customers,
             'paymentGateways' => $paymentSetting?->enabledGateways() ?? [],
+            'availableMemberships' => $availableMemberships,
         ]);
     }
 
@@ -101,22 +128,45 @@ class BookingController extends Controller
 
         $priceAmount = (float) ($timetable->price_override ?? $timetable->pilatesClass?->price ?? 0);
         $creditUsed = (float) ($timetable->credit_override ?? $timetable->pilatesClass?->credit ?? 0);
+        $selectedMembership = null;
 
         if ($paymentType === 'credit') {
-            $neededCredits = $creditUsed * $participants;
-            if ((float) $customer->credit < $neededCredits) {
+            $selectedMembership = UserMembership::query()
+                ->with(['plan.classRules' => fn ($query) => $query->where('pilates_class_id', $timetable->pilates_class_id)])
+                ->where('id', $request->integer('user_membership_id'))
+                ->where('user_id', $customer->user_id)
+                ->where('status', 'active')
+                ->where(function ($query) {
+                    $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+                })
+                ->first();
+
+            $rule = $selectedMembership?->plan?->classRules?->first();
+
+            if (! $selectedMembership || ! $rule) {
                 throw ValidationException::withMessages([
-                    'payment_type' => 'Credit pelanggan tidak cukup untuk jumlah peserta yang dipilih.',
+                    'user_membership_id' => 'Membership tidak valid untuk kelas ini.',
+                ]);
+            }
+
+            $creditUsed = (float) $rule->credit_cost;
+            $neededCredits = $creditUsed * $participants;
+
+            if ((int) $selectedMembership->credits_remaining < $neededCredits) {
+                throw ValidationException::withMessages([
+                    'payment_type' => 'Credit membership tidak cukup untuk jumlah peserta yang dipilih.',
                 ]);
             }
         }
 
         try {
-            DB::transaction(function () use ($customer, $timetable, $participants, $paymentType, $paymentMethod, $priceAmount, $creditUsed) {
+            DB::transaction(function () use ($customer, $timetable, $participants, $paymentType, $paymentMethod, $priceAmount, $creditUsed, $selectedMembership) {
                 PilatesBooking::create([
                     'user_id' => $customer->user_id,
                     'timetable_id' => $timetable->id,
                     'participants' => $participants,
+                    'user_membership_id' => $selectedMembership?->id,
+                    'membership_plan_id' => $selectedMembership?->membership_plan_id,
                     'status' => 'confirmed',
                     'booked_at' => now(),
                     'payment_type' => $paymentType,
@@ -125,8 +175,8 @@ class BookingController extends Controller
                     'credit_used' => $paymentType === 'credit' ? $creditUsed * $participants : 0,
                 ]);
 
-                if ($paymentType === 'credit') {
-                    $customer->decrement('credit', $creditUsed * $participants);
+                if ($paymentType === 'credit' && $selectedMembership) {
+                    $selectedMembership->decrement('credits_remaining', (int) ($creditUsed * $participants));
                 }
             });
         } catch (QueryException) {

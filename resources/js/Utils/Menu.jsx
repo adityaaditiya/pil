@@ -25,6 +25,7 @@ import {
     IconUserSquare,
     IconUsers,
     IconUsersPlus,
+    IconBadge,
     IconYoga,
 } from "@tabler/icons-react";
 import hasAnyPermission from "./Permission";
@@ -71,6 +72,13 @@ function Menu() {
                     active: url === "/dashboard/customers" ? true : false, // Update comparison here
                     icon: <IconUsersPlus size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["customers-access"]),
+                },
+                {
+                    title: "Membership Plans",
+                    href: route("membership-plans.index"),
+                    active: url.startsWith("/dashboard/membership-plans"),
+                    icon: <IconBadge size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["dashboard-access"]),
                 },
             ],
         },
@@ -226,6 +234,26 @@ function Menu() {
                             permissions: hasAnyPermission(["users-create"]),
                         },
                     ],
+                },
+            ],
+        },
+
+        {
+            title: "Membership",
+            details: [
+                {
+                    title: "Membership",
+                    href: route("memberships.plans"),
+                    active: url === "/dashboard/memberships/plans",
+                    icon: <IconBadge size={20} strokeWidth={1.5} />,
+                    permissions: true,
+                },
+                {
+                    title: "My Memberships",
+                    href: route("memberships.my"),
+                    active: url === "/dashboard/memberships/my",
+                    icon: <IconFileDescription size={20} strokeWidth={1.5} />,
+                    permissions: true,
                 },
             ],
         },

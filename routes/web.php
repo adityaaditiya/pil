@@ -8,6 +8,7 @@ use App\Http\Controllers\Apps\PaymentSettingController;
 use App\Http\Controllers\Apps\ProductController;
 use App\Http\Controllers\Apps\TransactionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MembershipPlanController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PilatesClassController;
 use App\Http\Controllers\PilatesTimetableController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StudioPageController;
 use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserMembershipController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -105,6 +107,14 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         ->middleware('permission:dashboard-access')
         ->name('timetable.destroy');
     Route::get('bookings/create', [BookingController::class, 'create'])->name('bookings.create');
+
+    Route::resource('membership-plans', MembershipPlanController::class)
+        ->except(['show'])
+        ->middleware('permission:dashboard-access');
+
+    Route::get('memberships/plans', [UserMembershipController::class, 'plans'])->name('memberships.plans');
+    Route::post('memberships/plans/{membershipPlan}/activate', [UserMembershipController::class, 'activate'])->name('memberships.activate');
+    Route::get('memberships/my', [UserMembershipController::class, 'myMemberships'])->name('memberships.my');
     Route::post('bookings', [BookingController::class, 'store'])->name('bookings.store');
     //route transaction
     Route::get('/transactions', [TransactionController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.index');
