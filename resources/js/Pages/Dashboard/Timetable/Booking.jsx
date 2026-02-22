@@ -6,7 +6,7 @@ import { IconArrowLeft } from "@tabler/icons-react";
 
 const formatCurrency = (value) => `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 
-export default function Booking({ session, customers = [], paymentGateways = [] }) {
+export default function Booking({ session, customers = [], paymentGateways = [], availableMemberships = [] }) {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [discountInput, setDiscountInput] = useState("");
     const [cashInput, setCashInput] = useState("");
@@ -21,6 +21,7 @@ export default function Booking({ session, customers = [], paymentGateways = [] 
         participants: 1,
         payment_type: "drop_in",
         payment_method: "cash",
+        user_membership_id: "",
     });
 
     const pricePerClass = Number(session?.price || 0);
@@ -31,8 +32,15 @@ export default function Booking({ session, customers = [], paymentGateways = [] 
     const payable = Math.max(0, totalPrice - discount);
     const cash = Number(cashInput || 0);
     const change = Math.max(0, cash - payable);
-    const neededCredits = creditPerClass * participants;
+    const neededCredits = Number(selectedMembership?.credit_cost || creditPerClass) * participants;
     const customerCredit = Number(selectedCustomer?.credit || 0);
+
+    const customerMemberships = useMemo(() => {
+        if (!selectedCustomer?.user_id) return [];
+        return availableMemberships.filter((item) => item.user_id === selectedCustomer.user_id);
+    }, [availableMemberships, selectedCustomer]);
+
+    const selectedMembership = customerMemberships.find((item) => Number(item.id) === Number(data.user_membership_id));
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -91,16 +99,30 @@ export default function Booking({ session, customers = [], paymentGateways = [] 
                                     />
                                     <div>
                                         <p className="text-sm font-semibold">Credits Pelanggan</p>
-                                        <p className="text-xs text-slate-500">Sisa credit: {customerCredit}</p>
+                                        <p className="text-xs text-slate-500">Sisa credit lama: {customerCredit}</p>
                                     </div>
                                 </label>
 
-                                <br />                               
-                                    <div className="flex items-center gap-3">
+                                {data.payment_type === "credit" && (
+                                    <select
+                                        value={data.user_membership_id}
+                                        onChange={(e) => setData("user_membership_id", e.target.value)}
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm"
+                                    >
+                                        <option value="">Pilih membership</option>
+                                        {customerMemberships.map((membership) => (
+                                            <option key={membership.id} value={membership.id}>
+                                                {membership.plan_name} - sisa {membership.credits_remaining} (biaya {membership.credit_cost}/kelas)
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+
+                                <div className="flex items-center gap-3">
                                         <input
                                             type="radio"
                                             checked={data.payment_type === "drop_in"}
-                                            onChange={() => setData("payment_type", "drop_in")}
+                                            onChange={() => { setData("payment_type", "drop_in"); setData("user_membership_id", ""); }}
                                         />
                                         <p className="text-sm font-semibold">Drop-in</p>
                                     </div>
@@ -118,6 +140,7 @@ export default function Booking({ session, customers = [], paymentGateways = [] 
                                 
                             </div>
                             {errors.payment_type && <p className="mt-1 text-xs text-red-500">{errors.payment_type}</p>}
+                            {errors.user_membership_id && <p className="mt-1 text-xs text-red-500">{errors.user_membership_id}</p>}
                         </div>
                     </div>
 
