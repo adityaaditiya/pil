@@ -12,6 +12,8 @@ class PilatesBooking extends Model
     protected $fillable = [
         'user_id',
         'timetable_id',
+        'user_membership_id',
+        'membership_plan_id',
         'participants',
         'status',
         'booked_at',
@@ -36,5 +38,15 @@ class PilatesBooking extends Model
     public function timetable()
     {
         return $this->belongsTo(PilatesTimetable::class, 'timetable_id');
+    }
+
+    public function userMembership()
+    {
+        return $this->belongsTo(UserMembership::class);
+    }
+
+    public function membershipPlan()
+    {
+        return $this->belongsTo(MembershipPlan::class);
     }
 }
