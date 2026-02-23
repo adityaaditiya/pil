@@ -113,6 +113,8 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         ->middleware('permission:dashboard-access');
 
     Route::get('memberships/plans', [UserMembershipController::class, 'plans'])->name('memberships.plans');
+    Route::get('memberships/plans/{membershipPlan}/checkout', [UserMembershipController::class, 'checkout'])->name('memberships.checkout');
+    Route::get('memberships/customers/search', [UserMembershipController::class, 'searchCustomers'])->name('memberships.customers.search');
     Route::post('memberships/plans/{membershipPlan}/activate', [UserMembershipController::class, 'activate'])->name('memberships.activate');
     Route::get('memberships/my', [UserMembershipController::class, 'myMemberships'])->name('memberships.my');
     Route::post('bookings', [BookingController::class, 'store'])->name('bookings.store');
