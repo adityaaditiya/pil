@@ -7,6 +7,7 @@ import { IconArrowLeft } from "@tabler/icons-react";
 const formatCurrency = (value) => `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 
 export default function Booking({ session, customers = [], paymentGateways = [], availableMemberships = [] }) {
+    const allowDropIn = Boolean(session?.allow_drop_in);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [discountInput, setDiscountInput] = useState("");
     const [cashInput, setCashInput] = useState("");
@@ -19,34 +20,34 @@ export default function Booking({ session, customers = [], paymentGateways = [],
         timetable_id: session?.id,
         customer_id: "",
         participants: 1,
-        payment_type: "drop_in",
-        payment_method: "cash",
+        payment_type: allowDropIn ? "drop_in" : "credit",
+        payment_method: allowDropIn ? "cash" : "credits",
         user_membership_id: "",
     });
 
     const pricePerClass = Number(session?.price || 0);
-const creditPerClass = Number(session?.credit || 0);
-const participants = Number(data.participants || 1);
+    const creditPerClass = Number(session?.credit || 0);
+    const participants = Number(data.participants || 1);
 
-const totalPrice = pricePerClass * participants;
-const discount = Math.min(Number(discountInput || 0), totalPrice);
-const payable = Math.max(0, totalPrice - discount);
-const cash = Number(cashInput || 0);
-const change = Math.max(0, cash - payable);
+    const totalPrice = pricePerClass * participants;
+    const discount = Math.min(Number(discountInput || 0), totalPrice);
+    const payable = Math.max(0, totalPrice - discount);
+    const cash = Number(cashInput || 0);
+    const change = Math.max(0, cash - payable);
 
-const customerCredit = Number(selectedCustomer?.credit || 0);
+    const customerCredit = Number(selectedCustomer?.credit || 0);
 
-const customerMemberships = useMemo(() => {
-  if (!selectedCustomer?.user_id) return [];
-  return availableMemberships.filter((item) => item.user_id === selectedCustomer.user_id);
-}, [availableMemberships, selectedCustomer]);
+    const customerMemberships = useMemo(() => {
+        if (!selectedCustomer?.user_id) return [];
+        return availableMemberships.filter((item) => item.user_id === selectedCustomer.user_id);
+    }, [availableMemberships, selectedCustomer]);
 
-const selectedMembership = useMemo(() => {
-  return customerMemberships.find((item) => Number(item.id) === Number(data.user_membership_id));
-}, [customerMemberships, data.user_membership_id]);
+    const selectedMembership = useMemo(() => {
+        return customerMemberships.find((item) => Number(item.id) === Number(data.user_membership_id));
+    }, [customerMemberships, data.user_membership_id]);
 
-const neededCredits =
-  Number(selectedMembership?.credit_cost ?? creditPerClass) * participants;
+    const neededCredits =
+        Number(selectedMembership?.credit_cost ?? creditPerClass) * participants;
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -124,25 +125,31 @@ const neededCredits =
                                     </select>
                                 )}
 
-                                <div className="flex items-center gap-3">
-                                        <input
-                                            type="radio"
-                                            checked={data.payment_type === "drop_in"}
-                                            onChange={() => { setData("payment_type", "drop_in"); setData("user_membership_id", ""); }}
-                                        />
-                                        <p className="text-sm font-semibold">Drop-in</p>
-                                    </div>
-                                    {data.payment_type === "drop_in" && (
-                                        <select
-                                            value={data.payment_method}
-                                            onChange={(e) => setData("payment_method", e.target.value)}
-                                            className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm"
-                                        >
-                                            {gatewayOptions.map((gateway) => (
-                                                <option key={gateway.value} value={gateway.value}>{gateway.label}</option>
-                                            ))}
-                                        </select>
-                                    )}
+                                {allowDropIn ? (
+                                    <>
+                                        <div className="flex items-center gap-3">
+                                            <input
+                                                type="radio"
+                                                checked={data.payment_type === "drop_in"}
+                                                onChange={() => { setData("payment_type", "drop_in"); setData("user_membership_id", ""); }}
+                                            />
+                                            <p className="text-sm font-semibold">Drop-in</p>
+                                        </div>
+                                        {data.payment_type === "drop_in" && (
+                                            <select
+                                                value={data.payment_method}
+                                                onChange={(e) => setData("payment_method", e.target.value)}
+                                                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm"
+                                            >
+                                                {gatewayOptions.map((gateway) => (
+                                                    <option key={gateway.value} value={gateway.value}>{gateway.label}</option>
+                                                ))}
+                                            </select>
+                                        )}
+                                    </>
+                                ) : (
+                                    <p className="text-xs text-slate-500">Sesi ini hanya menerima pembayaran credit membership.</p>
+                                )}
                                 
                             </div>
                             {errors.payment_type && <p className="mt-1 text-xs text-red-500">{errors.payment_type}</p>}
@@ -153,7 +160,7 @@ const neededCredits =
                     <div className="space-y-3 rounded-2xl border bg-white p-5 h-fit">
                         <p className="font-semibold">Ringkasan Kelas</p>
                         <p className="text-sm">Sisa Slot: <span className="font-medium">{session?.remaining_slots}</span></p>
-                        <p className="text-sm">Harga Kelas: <span className="font-medium">{formatCurrency(pricePerClass)}</span></p>
+                        <p className="text-sm">Harga Kelas: <span className="font-medium">{allowDropIn ? formatCurrency(pricePerClass) : "-"}</span></p>
                         <p className="text-sm">Credit / Kelas: <span className="font-medium">{creditPerClass}</span></p>
                         {data.payment_type === "drop_in" ? (
                             <>

@@ -32,6 +32,9 @@ class PilatesTimetableController extends Controller
                 'trainer_id' => $timetable->trainer_id,
                 'start_at' => $timetable->start_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i'),
                 'capacity' => $timetable->capacity,
+                'credit_override' => $timetable->credit_override,
+                'price_override' => $timetable->price_override,
+                'allow_drop_in' => $timetable->allow_drop_in,
                 'status' => $timetable->status,
             ],
         ]);
@@ -63,7 +66,7 @@ class PilatesTimetableController extends Controller
 
         $sessions = PilatesTimetable::query()
             ->with([
-                'pilatesClass:id,name,difficulty_level,duration,about,equipment,price,credit',
+                'pilatesClass:id,name,difficulty_level,duration,about,equipment',
                 'trainer:id,name',
             ])
             ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
@@ -84,8 +87,9 @@ class PilatesTimetableController extends Controller
                     'confirmed_bookings_count' => $bookedSlots,
                     'remaining_slots' => $remainingSlots,
                     'duration_minutes' => $session->duration_minutes ?: $session->pilatesClass?->duration,
-                    'price_drop_in' => $session->price_override ?? $session->pilatesClass?->price,
-                    'credit_membership' => $session->credit_override ?? $session->pilatesClass?->credit,
+                    'price_drop_in' => $session->price_override,
+                    'credit_membership' => $session->credit_override,
+                    'allow_drop_in' => (bool) $session->allow_drop_in,
                     'trainer' => [
                         'name' => $session->trainer?->name,
                     ],
@@ -95,8 +99,6 @@ class PilatesTimetableController extends Controller
                         'about' => $session->pilatesClass?->about,
                         'equipment' => $session->pilatesClass?->equipment,
                         'duration' => $session->pilatesClass?->duration,
-                        'price_default' => $session->pilatesClass?->price,
-                        'credit_default' => $session->pilatesClass?->credit,
                     ],
                 ];
             })
@@ -117,8 +119,15 @@ class PilatesTimetableController extends Controller
             'trainer_id' => ['required', 'exists:trainers,id'],
             'start_at' => ['required', 'date'],
             'capacity' => ['required', 'integer', 'min:1'],
+            'credit_override' => ['required', 'numeric', 'min:0'],
+            'price_override' => ['nullable', 'numeric', 'min:0', 'required_if:allow_drop_in,1'],
+            'allow_drop_in' => ['required', 'boolean'],
             'status' => ['required', 'in:scheduled,cancelled,closed'],
         ]);
+
+        if (! (bool) $validated['allow_drop_in']) {
+            $validated['price_override'] = null;
+        }
 
         $session = PilatesTimetable::query()->create($validated);
 
@@ -134,8 +143,15 @@ class PilatesTimetableController extends Controller
             'trainer_id' => ['required', 'exists:trainers,id'],
             'start_at' => ['required', 'date'],
             'capacity' => ['required', 'integer', 'min:1'],
+            'credit_override' => ['required', 'numeric', 'min:0'],
+            'price_override' => ['nullable', 'numeric', 'min:0', 'required_if:allow_drop_in,1'],
+            'allow_drop_in' => ['required', 'boolean'],
             'status' => ['required', 'in:scheduled,cancelled,closed'],
         ]);
+
+        if (! (bool) $validated['allow_drop_in']) {
+            $validated['price_override'] = null;
+        }
 
         $timetable->update($validated);
 

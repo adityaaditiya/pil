@@ -17,6 +17,7 @@ class PilatesTimetable extends Model
         'duration_minutes',
         'price_override',
         'credit_override',
+        'allow_drop_in',
         'status',
     ];
 
@@ -26,6 +27,7 @@ class PilatesTimetable extends Model
         'duration_minutes' => 'integer',
         'price_override' => 'decimal:2',
         'credit_override' => 'decimal:2',
+        'allow_drop_in' => 'boolean',
     ];
 
     public function pilatesClass()

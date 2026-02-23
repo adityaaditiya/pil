@@ -48,8 +48,6 @@ class PilatesClassController extends Controller
             'equipment' => 'required|string',
             'trainer_ids' => 'required|array|min:1',
             'trainer_ids.*' => 'required|exists:trainers,id',
-            'credit' => 'required|numeric|min:0',
-            'price' => 'required|numeric|min:0',
         ]);
 
         $image = $request->file('image');
@@ -84,8 +82,6 @@ class PilatesClassController extends Controller
             'equipment' => 'required|string',
             'trainer_ids' => 'required|array|min:1',
             'trainer_ids.*' => 'required|exists:trainers,id',
-            'credit' => 'required|numeric|min:0',
-            'price' => 'required|numeric|min:0',
         ]);
 
         if ($request->file('image')) {

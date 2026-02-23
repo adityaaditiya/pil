@@ -21,7 +21,7 @@ class BookingController extends Controller
     public function create(Request $request): Response
     {
         $timetable = PilatesTimetable::query()
-            ->with(['pilatesClass:id,name,price,credit,duration,difficulty_level', 'trainer:id,name'])
+            ->with(['pilatesClass:id,name,duration,difficulty_level', 'trainer:id,name'])
             ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
             ->findOrFail($request->integer('timetable_id'));
 
@@ -69,8 +69,9 @@ class BookingController extends Controller
                 'trainer_name' => $timetable->trainer?->name,
                 'start_at_label' => $timetable->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
                 'end_at_label' => $timetable->start_at?->clone()->timezone('Asia/Jakarta')->addMinutes($timetable->duration_minutes ?: ($timetable->pilatesClass?->duration ?? 0))->format('H:i'),
-                'price' => $timetable->price_override ?? $timetable->pilatesClass?->price,
-                'credit' => $timetable->credit_override ?? $timetable->pilatesClass?->credit,
+                'price' => $timetable->price_override,
+                'credit' => $timetable->credit_override,
+                'allow_drop_in' => (bool) $timetable->allow_drop_in,
                 'capacity' => $timetable->capacity,
                 'remaining_slots' => $remainingSlots,
                 'difficulty_level' => $timetable->pilatesClass?->difficulty_level,
@@ -84,7 +85,7 @@ class BookingController extends Controller
     public function store(StorePilatesBookingRequest $request): RedirectResponse
     {
         $timetable = PilatesTimetable::query()
-            ->with(['pilatesClass:id,name,price,credit'])
+            ->with(['pilatesClass:id,name'])
             ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
             ->findOrFail($request->integer('timetable_id'));
 
@@ -124,10 +125,17 @@ class BookingController extends Controller
         }
 
         $paymentType = $request->string('payment_type')->toString();
+
+        if (! $timetable->allow_drop_in && $paymentType === 'drop_in') {
+            throw ValidationException::withMessages([
+                'payment_type' => 'Sesi ini hanya bisa dibayar menggunakan credit membership.',
+            ]);
+        }
+
         $paymentMethod = $paymentType === 'credit' ? 'credits' : ($request->string('payment_method')->toString() ?: 'cash');
 
-        $priceAmount = (float) ($timetable->price_override ?? $timetable->pilatesClass?->price ?? 0);
-        $creditUsed = (float) ($timetable->credit_override ?? $timetable->pilatesClass?->credit ?? 0);
+        $priceAmount = (float) ($timetable->price_override ?? 0);
+        $creditUsed = (float) ($timetable->credit_override ?? 0);
         $selectedMembership = null;
 
         if ($paymentType === 'credit') {
