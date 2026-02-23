@@ -5,6 +5,14 @@ import Table from "@/Components/Dashboard/Table";
 import Button from "@/Components/Dashboard/Button";
 
 export default function Index({ plans }) {
+    const formatRupiah = (value) => {
+        if (!value || Number(value) === 0) {
+            return "Rp 0";
+        }
+
+        return `Rp ${new Intl.NumberFormat("id-ID").format(Number(value))}`;
+    };
+
     return (
         <>
             <Head title="Membership Plans" />
@@ -18,8 +26,23 @@ export default function Index({ plans }) {
                     <Table.Tbody>
                         {plans.data.map((plan) => (
                             <tr key={plan.id}>
-                                <Table.Td>{plan.name}</Table.Td><Table.Td>{plan.credits}</Table.Td><Table.Td>{plan.price}</Table.Td><Table.Td>{plan.class_rules_count}</Table.Td><Table.Td>{plan.is_active ? "Aktif" : "Nonaktif"}</Table.Td>
-                                <Table.Td><div className="flex gap-2"><Button type="edit" href={route("membership-plans.edit", plan.id)} /><Button type="delete" url={route("membership-plans.destroy", plan.id)} /></div></Table.Td>
+                                <Table.Td>{plan.name}</Table.Td><Table.Td>{plan.credits}</Table.Td><Table.Td>{formatRupiah(plan.price)}</Table.Td><Table.Td>{plan.class_rules_count}</Table.Td><Table.Td>{plan.is_active ? "Aktif" : "Nonaktif"}</Table.Td>
+                                <Table.Td>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            type="link"
+                                            href={route("membership-plans.edit", plan.id)}
+                                            label="Ubah"
+                                            className="bg-amber-500 px-3 py-2 text-xs text-white"
+                                        />
+                                        <Button
+                                            type="delete"
+                                            url={route("membership-plans.destroy", plan.id)}
+                                            label="Hapus"
+                                            className="bg-rose-500 px-3 py-2 text-xs text-white"
+                                        />
+                                    </div>
+                                </Table.Td>
                             </tr>
                         ))}
                     </Table.Tbody>

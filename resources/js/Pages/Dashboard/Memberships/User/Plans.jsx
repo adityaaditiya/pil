@@ -3,6 +3,14 @@ import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, router } from "@inertiajs/react";
 
 export default function Plans({ plans }) {
+    const formatRupiah = (value) => {
+        if (!value || Number(value) === 0) {
+            return "Rp 0";
+        }
+
+        return `Rp ${new Intl.NumberFormat("id-ID").format(Number(value))}`;
+    };
+
     return (
         <>
             <Head title="Membership" />
@@ -11,7 +19,7 @@ export default function Plans({ plans }) {
                 {plans.map((plan) => (
                     <div key={plan.id} className="rounded-xl border p-4">
                         <h2 className="font-semibold">{plan.name}</h2>
-                        <p>{plan.credits} credits • Rp {plan.price}</p>
+                        <p>{plan.credits} credits • {formatRupiah(plan.price)}</p>
                         <p className="text-sm text-slate-500">Class: {plan.classes.map((c) => c.name).join(", ")}</p>
                         <button className="mt-3 rounded-lg bg-primary-500 px-3 py-2 text-sm text-white" onClick={() => router.post(route("memberships.activate", plan.id))}>Buy / Activate</button>
                     </div>
