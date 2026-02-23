@@ -19,6 +19,7 @@ export default function CustomerSelect({
     error,
     label,
     onCustomerAdded,
+    searchRoute = "transactions.customers.search",
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState("");
@@ -76,7 +77,7 @@ export default function CustomerSelect({
         const timeoutId = setTimeout(async () => {
             try {
                 const response = await axios.get(
-                    route("transactions.customers.search"),
+                    route(searchRoute),
                     {
                         params: {
                             search: trimmedSearch,
@@ -101,7 +102,7 @@ export default function CustomerSelect({
             isActive = false;
             clearTimeout(timeoutId);
         };
-    }, [trimmedSearch, isOpen]);
+    }, [trimmedSearch, isOpen, searchRoute]);
 
     const handleSelect = (customer) => {
         onSelect(customer);

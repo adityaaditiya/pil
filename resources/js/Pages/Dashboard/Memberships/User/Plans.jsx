@@ -1,6 +1,6 @@
 import React from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, router } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 
 export default function Plans({ plans }) {
     const formatRupiah = (value) => {
@@ -21,7 +21,7 @@ export default function Plans({ plans }) {
                         <h2 className="font-semibold">{plan.name}</h2>
                         <p>{plan.credits} credits • {formatRupiah(plan.price)}</p>
                         <p className="text-sm text-slate-500">Class: {plan.classes.map((c) => c.name).join(", ")}</p>
-                        <button className="mt-3 rounded-lg bg-primary-500 px-3 py-2 text-sm text-white" onClick={() => router.post(route("memberships.activate", plan.id))}>Buy / Activate</button>
+                        <Link href={route("memberships.checkout", plan.id)} className="mt-3 inline-block rounded-lg bg-primary-500 px-3 py-2 text-sm text-white">Buy / Activate</Link>
                     </div>
                 ))}
             </div>
