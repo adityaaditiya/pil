@@ -17,8 +17,6 @@ export default function Create({ trainers }) {
         about: "",
         equipment: "",
         trainer_ids: [],
-        credit: "0",
-        price: "0",
     });
 
     const toggleTrainer = (trainerId) => {
@@ -78,10 +76,6 @@ export default function Create({ trainers }) {
                         {errors.trainer_ids && <small className="text-xs text-danger-500">{errors.trainer_ids}</small>}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input type="number" label="Credit Default" value={data.credit} errors={errors.credit} onChange={(e) => setData("credit", e.target.value)} />
-                        <Input type="number" label="Harga Default" value={data.price} errors={errors.price} onChange={(e) => setData("price", e.target.value)} />
-                    </div>
                     <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                         <Link href={route("classes.index")} className="px-5 py-2.5 rounded-xl border border-slate-200">Batal</Link>
                         <button type="submit" disabled={processing} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-500 text-white">

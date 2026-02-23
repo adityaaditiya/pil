@@ -15,6 +15,9 @@ export default function Create({ classes = [], trainers = [] }) {
         trainer_id: "",
         start_at: "",
         capacity: "",
+        credit_override: "0",
+        price_override: "0",
+        allow_drop_in: true,
         status: "scheduled",
     });
 
@@ -97,6 +100,52 @@ export default function Create({ classes = [], trainers = [] }) {
                                 placeholder="Contoh: 12"
                             />
                             {errors.capacity && <p className="text-xs text-rose-500">{errors.capacity}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Credit / Kelas</label>
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={data.credit_override}
+                                onChange={(event) => setData("credit_override", event.target.value)}
+                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800"
+                            />
+                            {errors.credit_override && <p className="text-xs text-rose-500">{errors.credit_override}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Harga Drop-in</label>
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={data.price_override}
+                                disabled={!data.allow_drop_in}
+                                onChange={(event) => setData("price_override", event.target.value)}
+                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 disabled:cursor-not-allowed disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-800"
+                            />
+                            {errors.price_override && <p className="text-xs text-rose-500">{errors.price_override}</p>}
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Metode Pembayaran</label>
+                            <select
+                                value={data.allow_drop_in ? "allow_drop_in" : "credit_only"}
+                                onChange={(event) => {
+                                    const allowDropIn = event.target.value === "allow_drop_in";
+                                    setData("allow_drop_in", allowDropIn);
+                                    if (!allowDropIn) {
+                                        setData("price_override", "0");
+                                    }
+                                }}
+                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800"
+                            >
+                                <option value="allow_drop_in">Bisa pakai credit atau drop-in</option>
+                                <option value="credit_only">Hanya bisa pakai credits</option>
+                            </select>
+                            {errors.allow_drop_in && <p className="text-xs text-rose-500">{errors.allow_drop_in}</p>}
                         </div>
 
                         <div className="space-y-2 md:col-span-2">

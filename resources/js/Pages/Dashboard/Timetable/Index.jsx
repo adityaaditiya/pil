@@ -182,8 +182,9 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                             <p>Level: {selectedSession.class?.level || "-"}</p>
                             <p>Durasi: {selectedSession.duration_minutes || selectedSession.class?.duration || 0} menit</p>
                             <p>Equipment: {selectedSession.class?.equipment || "-"}</p>
-                            <p>Drop-in Price: Rp {Number(selectedSession.price_drop_in || 0).toLocaleString("id-ID")}</p>
+                            <p>Drop-in Price: {selectedSession.allow_drop_in ? `Rp ${Number(selectedSession.price_drop_in || 0).toLocaleString("id-ID")}` : "Tidak tersedia"}</p>
                             <p>Membership Credit: {selectedSession.credit_membership || 0}</p>
+                            <p>Metode Pembayaran: {selectedSession.allow_drop_in ? "Credit atau Drop-in" : "Hanya Credit"}</p>
                         </div>
 
                         {selectedSession.class?.about && (
