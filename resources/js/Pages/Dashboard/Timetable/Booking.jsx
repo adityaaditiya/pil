@@ -25,22 +25,28 @@ export default function Booking({ session, customers = [], paymentGateways = [],
     });
 
     const pricePerClass = Number(session?.price || 0);
-    const creditPerClass = Number(session?.credit || 0);
-    const participants = Number(data.participants || 1);
-    const totalPrice = pricePerClass * participants;
-    const discount = Math.min(Number(discountInput || 0), totalPrice);
-    const payable = Math.max(0, totalPrice - discount);
-    const cash = Number(cashInput || 0);
-    const change = Math.max(0, cash - payable);
-    const neededCredits = Number(selectedMembership?.credit_cost || creditPerClass) * participants;
-    const customerCredit = Number(selectedCustomer?.credit || 0);
+const creditPerClass = Number(session?.credit || 0);
+const participants = Number(data.participants || 1);
 
-    const customerMemberships = useMemo(() => {
-        if (!selectedCustomer?.user_id) return [];
-        return availableMemberships.filter((item) => item.user_id === selectedCustomer.user_id);
-    }, [availableMemberships, selectedCustomer]);
+const totalPrice = pricePerClass * participants;
+const discount = Math.min(Number(discountInput || 0), totalPrice);
+const payable = Math.max(0, totalPrice - discount);
+const cash = Number(cashInput || 0);
+const change = Math.max(0, cash - payable);
 
-    const selectedMembership = customerMemberships.find((item) => Number(item.id) === Number(data.user_membership_id));
+const customerCredit = Number(selectedCustomer?.credit || 0);
+
+const customerMemberships = useMemo(() => {
+  if (!selectedCustomer?.user_id) return [];
+  return availableMemberships.filter((item) => item.user_id === selectedCustomer.user_id);
+}, [availableMemberships, selectedCustomer]);
+
+const selectedMembership = useMemo(() => {
+  return customerMemberships.find((item) => Number(item.id) === Number(data.user_membership_id));
+}, [customerMemberships, data.user_membership_id]);
+
+const neededCredits =
+  Number(selectedMembership?.credit_cost ?? creditPerClass) * participants;
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -112,7 +118,7 @@ export default function Booking({ session, customers = [], paymentGateways = [],
                                         <option value="">Pilih membership</option>
                                         {customerMemberships.map((membership) => (
                                             <option key={membership.id} value={membership.id}>
-                                                {membership.plan_name} - sisa {membership.credits_remaining} (biaya {membership.credit_cost}/kelas)
+                                                {membership.plan_name} - sisa {membership.credits_remaining} credits (biaya {membership.credit_cost}/kelas)
                                             </option>
                                         ))}
                                     </select>
