@@ -61,7 +61,7 @@ export default function Form({ data, setData, errors, classes = [] }) {
                 <FieldLabel required>Nama Paket</FieldLabel>
                 <input
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition focus:border-slate-300 focus:ring-4 focus:ring-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-slate-800"
-                    placeholder="Contoh: Premium 10 Credits"
+                    placeholder="Contoh: Advanced - Full body integration"
                     value={data.name || ""}
                     onChange={(e) => setData("name", e.target.value)}
                 />
@@ -152,7 +152,7 @@ export default function Form({ data, setData, errors, classes = [] }) {
                         Rule Class yang Diizinkan
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Centang class yang boleh ditukar dengan paket ini, lalu set biaya credit-nya.
+                        Centang class yang boleh ditukar dengan paket ini.
                     </p>
                 </div>
 
