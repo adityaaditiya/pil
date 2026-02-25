@@ -102,6 +102,11 @@ export default function Checkout({ plan, customers = [], paymentGateways = [] })
                             </div>
                         </div>
 
+                        
+                    </div>
+
+                    <div className="rounded-xl border bg-white p-4">
+                        <h3 className="mb-3 font-semibold">Ringkasan Pembayaran</h3>
                         {isCashPayment && (
                             <>
                                 <div>
@@ -146,10 +151,6 @@ export default function Checkout({ plan, customers = [], paymentGateways = [] })
                                 </div>
                             </>
                         )}
-                    </div>
-
-                    <div className="rounded-xl border bg-white p-4">
-                        <h3 className="mb-3 font-semibold">Ringkasan Pembayaran</h3>
                         <div className="space-y-2 text-sm">
                             <div className="flex items-center justify-between">
                                 <span className="text-slate-500">Subtotal</span>
