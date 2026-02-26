@@ -14,7 +14,7 @@ export default function Index({ studioPages }) {
             <div className="mb-6 flex items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Kelola Menu Studio</h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">CRUD halaman Home, About, Classes, Schedule, Pricing, Trainers, Testimonials, Contact</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Kelola halaman Home, About, Classes, Schedule, Pricing, Trainers, Testimonials, Contact</p>
                 </div>
                 <Button
                     type="link"

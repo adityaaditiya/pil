@@ -29,7 +29,7 @@ export default function Sidebar({ sidebarOpen }) {
                             </span>
                         </div>
                         <span className="text-xl font-bold text-slate-800 dark:text-white">
-                            ORO STATION
+                            ORO PILATES STUDIO
                         </span>
                     </div>
                 ) : (

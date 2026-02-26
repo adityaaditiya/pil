@@ -60,7 +60,7 @@ export default function Navbar({ toggleSidebar, themeSwitcher, darkMode }) {
                         <span className="text-white font-bold text-xs">O</span>
                     </div>
                     <span className="text-lg font-bold text-slate-800 dark:text-white">
-                        ORO STATION
+                        ORO PILATES STUDIO
                     </span>
                 </div>
 

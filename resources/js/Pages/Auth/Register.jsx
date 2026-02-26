@@ -86,7 +86,7 @@ export default function Register() {
                                     />
                                 </div>
                                 <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                                    ORO Pilates Studio Premium
+                                    ORO Pilates Studio
                                 </span>
                             </Link>
                             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">

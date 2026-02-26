@@ -50,7 +50,7 @@ export default function Login({ status, canResetPassword }) {
                                     />
                                 </div>
                                 <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                                    ORO Pilates Studio Premium
+                                    ORO Pilates Studio
                                 </span>
                             </Link>
                             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
@@ -222,7 +222,7 @@ export default function Login({ status, canResetPassword }) {
                             dengan efisien.
                         </p> */}
                         <h2 className="text-3xl font-bold mb-4">
-                            ORO Pilates Studio Premium
+                            ORO Pilates Studio
                         </h2>
                         <p className="text-lg opacity-90">
                             Move Better. Feel Stronger.

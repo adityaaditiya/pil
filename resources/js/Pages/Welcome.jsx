@@ -150,7 +150,7 @@ export default function Welcome() {
         },
         {
             q: "Bagaimana kebijakan cancel atau refund?",
-            a: "Pembatalan dapat dilakukan maksimal 8 jam sebelum kelas. Trial tidak dapat refund, paket lain mengikuti syarat member.",
+            a: "Pembatalan dapat dilakukan maksimal 1 Hari sebelum kelas. Lebih dari itu tidak dapat refund, paket lain mengikuti syarat member.",
         },
         {
             q: "Apakah ada kelas private?",
@@ -189,7 +189,7 @@ export default function Welcome() {
 
                         <div className="flex items-center gap-3">
                             <Button as={Link} href={route("welcome.page", "contact")} className="hidden md:inline-flex">
-                                Booking Kelas
+                                Login/Registrasi
                             </Button>
                             <button className="rounded-xl border border-primary-200 p-2.5 text-wellness-text lg:hidden" type="button">
                                 <IconMenu2 size={20} />
@@ -208,7 +208,7 @@ export default function Welcome() {
                             </p>
 
                             <div className="mt-10 flex flex-wrap gap-4">
-                                <Button as={Link} href={route("welcome.page", "pricing")}>Coba Trial</Button>
+                                <Button as={Link} href={route("welcome.page", "pricing")}>Booking Kelas</Button>
                                 <Button as={Link} href={route("welcome.page", "schedule")} variant="secondary">Lihat Jadwal</Button>
                             </div>
 
@@ -324,7 +324,7 @@ export default function Welcome() {
                                     <p className="mt-3 text-3xl font-semibold text-primary-600">{item.price}</p>
                                     <p className="mt-2 text-sm text-wellness-muted">{item.note}</p>
                                     <Button as={Link} href={route("welcome.page", "contact")} variant={item.popular ? "primary" : "secondary"} className="mt-6 w-full">
-                                        Booking Kelas
+                                        Daftar Sekarang
                                     </Button>
                                 </Card>
                             ))}
