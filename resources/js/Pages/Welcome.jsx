@@ -25,7 +25,7 @@ export default function Welcome() {
         { name: "Classes", key: "classes" },
         { name: "Schedule", key: "schedule" },
         { name: "Pricing", key: "pricing" },
-        { name: "Trainers", key: "trainers" },
+        { name: "Trainer", key: "trainer" },
         { name: "Testimonials", key: "testimonials" },
         { name: "Contact", key: "contact" },
     ];
@@ -181,15 +181,15 @@ export default function Welcome() {
 
                         <div className="hidden items-center gap-7 lg:flex">
                             {navItems.map((item) => (
-                                <Link key={item.key} href={route("welcome.page", item.key)} className="text-sm text-wellness-muted transition hover:text-primary-600">
+                                <Link key={item.key} href={item.key === "home" ? route("welcome") : route("welcome.page", item.key)} className="text-sm text-wellness-muted transition hover:text-primary-600">
                                     {item.name}
                                 </Link>
                             ))}
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Button as={Link} href={route("welcome.page", "contact")} className="hidden md:inline-flex">
-                                Login/Registrasi
+                            <Button as={Link} href={route("login")} className="hidden md:inline-flex">
+                                Login
                             </Button>
                             <button className="rounded-xl border border-primary-200 p-2.5 text-wellness-text lg:hidden" type="button">
                                 <IconMenu2 size={20} />
@@ -412,7 +412,7 @@ export default function Welcome() {
                             <ul className="mt-4 space-y-2 text-sm text-primary-100">
                                 {navItems.map((item) => (
                                     <li key={item.key}>
-                                        <Link href={route("welcome.page", item.key)} className="hover:text-white">{item.name}</Link>
+                                        <Link href={item.key === "home" ? route("welcome") : route("welcome.page", item.key)} className="hover:text-white">{item.name}</Link>
                                     </li>
                                 ))}
                             </ul>
