@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MembershipPlan;
+use App\Models\PilatesClass;
+use App\Models\PilatesTimetable;
 use App\Models\StudioPage;
+use App\Models\Trainer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -69,12 +73,32 @@ class StudioPageController extends Controller
 
     public function showByKey(string $key): Response
     {
-        $page = StudioPage::where('key', $key)->firstOrFail();
+        $normalizedKey = $key === 'trainer' ? 'trainers' : $key;
+
+        $page = StudioPage::where('key', $normalizedKey)->first();
         $menuItems = StudioPage::orderBy('id')->get(['name', 'key']);
 
         return Inertia::render('WelcomeSection', [
             'page' => $page,
+            'pageKey' => $normalizedKey,
             'menuItems' => $menuItems,
+            'classes' => $normalizedKey === 'classes'
+                ? PilatesClass::with('trainers:id,name')->latest()->get(['id', 'image', 'name', 'duration', 'difficulty_level', 'about', 'equipment', 'price'])
+                : [],
+            'schedules' => $normalizedKey === 'schedule'
+                ? PilatesTimetable::with(['pilatesClass:id,name,image', 'trainer:id,name'])
+                    ->where('status', 'scheduled')
+                    ->orderBy('start_at')
+                    ->get(['id', 'pilates_class_id', 'trainer_id', 'start_at', 'capacity', 'duration_minutes', 'price_override', 'allow_drop_in'])
+                : [],
+            'memberships' => $normalizedKey === 'pricing'
+                ? MembershipPlan::where('is_active', true)
+                    ->orderBy('price')
+                    ->get(['id', 'name', 'credits', 'price', 'valid_days', 'description'])
+                : [],
+            'trainers' => $normalizedKey === 'trainers'
+                ? Trainer::latest()->get(['id', 'name', 'photo', 'age', 'gender', 'address'])
+                : [],
         ]);
     }
 }
