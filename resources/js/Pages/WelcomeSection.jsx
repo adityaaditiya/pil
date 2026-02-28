@@ -76,26 +76,42 @@ export default function WelcomeSection({
             <Head title={`${meta.name} | ORO Pilates Studio`} />
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
                 <nav className="sticky top-0 z-40 border-b border-primary-100 bg-white/90 backdrop-blur">
-                    <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
-                        <Link href={route("welcome")} className="flex items-center gap-2 font-semibold text-primary-700">
-                            <IconYoga size={20} /> ORO Pilates Studio
-                        </Link>
-                        <div className="flex flex-wrap items-center gap-3 text-sm text-wellness-muted">
-                            {[{ name: "Home", key: "home" }, ...menuItems].map((item) => (
-                                <Link
-                                    key={`${item.key}-${item.name}`}
-                                    href={menuHref(item.key)}
-                                    className={item.key === pageKey ? "rounded-full bg-primary-100 px-3 py-1.5 font-medium text-primary-700" : "px-2 py-1 hover:text-primary-600"}
-                                >
-                                    {item.name}
-                                </Link>
-                            ))}
-                            <Link href={route("login")} className="rounded-full bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700">
-                                Login
-                            </Link>
-                        </div>
-                    </div>
-                </nav>
+    <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
+        <Link
+            href={route("welcome")}
+            className="flex items-center gap-2 font-semibold text-primary-700"
+        >
+            <IconYoga size={20} /> ORO Pilates Studio
+        </Link>
+
+        <div className="flex flex-wrap items-center gap-3 text-sm text-wellness-muted">
+
+            {[
+                { name: "Home", key: "home" },
+                ...menuItems.filter((item) => item.key !== "home"),
+            ].map((item) => (
+                <Link
+                    key={item.key}
+                    href={menuHref(item.key)}
+                    className={
+                        item.key === pageKey
+                            ? "rounded-full bg-primary-100 px-3 py-1.5 font-medium text-primary-700"
+                            : "px-2 py-1 hover:text-primary-600"
+                    }
+                >
+                    {item.name}
+                </Link>
+            ))}
+
+            <Link
+                href={route("login")}
+                className="rounded-full bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700"
+            >
+                Login
+            </Link>
+        </div>
+    </div>
+</nav>
 
                 <section className="mx-auto max-w-6xl px-4 py-12">
                     <Link href={route("welcome")} className="mb-8 inline-flex items-center gap-2 text-sm text-primary-600">
@@ -144,7 +160,7 @@ export default function WelcomeSection({
                                         </span>
                                     </div>
                                     <div className="mt-3 grid gap-2 text-sm text-wellness-muted md:grid-cols-2">
-                                        <p className="inline-flex items-center gap-2"><IconCalendarEvent size={16} /> {formatDateTime(item.start_at)}</p>
+                                        <p className="inline-flex items-center gap-2"><IconCalendarEvent size={16} /> {formatDateTime(item.start_at)} WIB</p>
                                         <p className="inline-flex items-center gap-2"><IconUser size={16} /> {item.trainer?.name || "Trainer"}</p>
                                         <p className="inline-flex items-center gap-2"><IconClock size={16} /> Durasi {item.duration_minutes} menit</p>
                                         <p className="inline-flex items-center gap-2"><IconUsers size={16} /> Kapasitas {item.capacity} peserta</p>
@@ -167,8 +183,8 @@ export default function WelcomeSection({
                                 <p className="mt-2 text-3xl font-bold text-primary-600">{formatRupiah(membership.price)}</p>
                                 <div className="mt-4 space-y-2 text-sm text-wellness-muted">
                                     <p className="inline-flex items-center gap-2"><IconStar size={16} /> {membership.credits} kredit kelas</p>
-                                    <p className="inline-flex items-center gap-2"><IconClock size={16} /> Berlaku {membership.valid_days || "-"} hari</p>
-                                    <p className="inline-flex items-center gap-2"><IconCurrencyDollar size={16} /> Aktivasi cepat & fleksibel</p>
+                                    <br/><p className="inline-flex items-center gap-2"><IconClock size={16} /> Berlaku {membership.valid_days || "-"} hari</p>
+                                    <br /><p className="inline-flex items-center gap-2"><IconCurrencyDollar size={16} /> Aktivasi cepat & fleksibel</p>
                                 </div>
                                 <p className="mt-4 text-sm text-wellness-muted">{membership.description || "Paket membership untuk latihan konsisten."}</p>
                             </article>
@@ -184,7 +200,7 @@ export default function WelcomeSection({
                                 {trainer.photo && <img src={imageUrl("trainers", trainer.photo)} alt={trainer.name} className="h-64 w-full object-cover" />}
                                 <div className="space-y-2 p-6">
                                     <h3 className="text-xl font-semibold">{trainer.name}</h3>
-                                    <p className="text-sm text-wellness-muted">{trainer.gender}, {trainer.age} tahun</p>
+                                    {/* <p className="text-sm text-wellness-muted">{trainer.gender}, {trainer.age} tahun</p> */}
                                     <p className="inline-flex items-start gap-2 text-sm text-wellness-muted">
                                         <IconMapPin size={16} className="mt-0.5" /> {trainer.address}
                                     </p>
