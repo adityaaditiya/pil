@@ -1,5 +1,5 @@
 import { Head, Link } from "@inertiajs/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     IconArrowLeft,
     IconCalendarEvent,
@@ -66,10 +66,13 @@ export default function WelcomeSection({
     schedules = [],
     memberships = [],
     trainers = [],
+    initialFilters = {},
 }) {
     const [showFilters, setShowFilters] = useState(false);
-    const [classNameFilter, setClassNameFilter] = useState("");
-    const [difficultyFilter, setDifficultyFilter] = useState("");
+    const [classNameFilter, setClassNameFilter] = useState(initialFilters.className || "");
+    const [difficultyFilter, setDifficultyFilter] = useState(initialFilters.difficulty || "");
+    const [trainerFilter, setTrainerFilter] = useState(initialFilters.trainer || "");
+    const [classCategoryFilter, setClassCategoryFilter] = useState(initialFilters.classCategory || "");
 
     const meta = page || fallbackMeta[pageKey] || {
         name: "Welcome",
@@ -78,6 +81,12 @@ export default function WelcomeSection({
     };
 
     const shouldShowFilter = pageKey === "classes" || pageKey === "schedule";
+
+    useEffect(() => {
+        if (shouldShowFilter && (initialFilters.className || initialFilters.difficulty || initialFilters.trainer || initialFilters.classCategory)) {
+            setShowFilters(true);
+        }
+    }, [shouldShowFilter, initialFilters.className, initialFilters.difficulty, initialFilters.trainer, initialFilters.classCategory]);
 
     const difficultyOptions = useMemo(() => {
         const source = pageKey === "classes" ? classes : schedules;
@@ -92,13 +101,30 @@ export default function WelcomeSection({
         )];
     }, [pageKey, classes, schedules]);
 
-    const hasActiveFilters = Boolean(classNameFilter.trim() || difficultyFilter);
+    const classNameOptions = useMemo(() => {
+        const source = pageKey === "classes" ? classes : schedules;
+        return [...new Set(
+            source
+                .map((item) => (pageKey === "classes" ? item.name : item.pilates_class?.name))
+                .filter(Boolean)
+        )];
+    }, [pageKey, classes, schedules]);
+
+    const trainerOptions = useMemo(
+        () => [...new Set(schedules.map((item) => item.trainer?.name).filter(Boolean))],
+        [schedules]
+    );
+
+    const classCategoryOptions = useMemo(
+        () => [...new Set(schedules.map((item) => item.pilates_class?.class_category?.name).filter(Boolean))],
+        [schedules]
+    );
+
+    const hasActiveFilters = Boolean(classNameFilter || difficultyFilter || trainerFilter || classCategoryFilter);
 
     const filteredClasses = useMemo(() => {
-        const keyword = classNameFilter.toLowerCase().trim();
-
         return classes.filter((classItem) => {
-            const matchClassName = !keyword || classItem.name?.toLowerCase().includes(keyword);
+            const matchClassName = !classNameFilter || classItem.name === classNameFilter;
             const matchDifficulty = !difficultyFilter || classItem.difficulty_level === difficultyFilter;
 
             return matchClassName && matchDifficulty;
@@ -106,17 +132,19 @@ export default function WelcomeSection({
     }, [classes, classNameFilter, difficultyFilter]);
 
     const filteredSchedules = useMemo(() => {
-        const keyword = classNameFilter.toLowerCase().trim();
-
         return schedules.filter((item) => {
             const className = item.pilates_class?.name || "";
             const difficultyLevel = item.pilates_class?.difficulty_level || "";
-            const matchClassName = !keyword || className.toLowerCase().includes(keyword);
+            const trainerName = item.trainer?.name || "";
+            const classCategory = item.pilates_class?.class_category?.name || "";
+            const matchClassName = !classNameFilter || className === classNameFilter;
             const matchDifficulty = !difficultyFilter || difficultyLevel === difficultyFilter;
+            const matchTrainer = !trainerFilter || trainerName === trainerFilter;
+            const matchClassCategory = !classCategoryFilter || classCategory === classCategoryFilter;
 
-            return matchClassName && matchDifficulty;
+            return matchClassName && matchDifficulty && matchTrainer && matchClassCategory;
         });
-    }, [schedules, classNameFilter, difficultyFilter]);
+    }, [schedules, classNameFilter, difficultyFilter, trainerFilter, classCategoryFilter]);
 
     return (
         <>
@@ -191,16 +219,21 @@ export default function WelcomeSection({
 
                         {shouldShowFilter && showFilters && (
                             <div className="mt-6 rounded-2xl border border-primary-100 bg-primary-50/40 p-4">
-                                <div className="grid gap-4 md:grid-cols-2">
+                                <div className={`grid gap-4 ${pageKey === "schedule" ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-2"}`}>
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-slate-700">Nama Kelas</label>
-                                        <input
-                                            type="text"
+                                        <select
                                             value={classNameFilter}
                                             onChange={(event) => setClassNameFilter(event.target.value)}
-                                            placeholder="Cari nama kelas"
                                             className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-slate-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
-                                        />
+                                        >
+                                            <option value="">Semua kelas</option>
+                                            {classNameOptions.map((name) => (
+                                                <option key={name} value={name}>
+                                                    {name}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-slate-700">Difficulty Level</label>
@@ -217,6 +250,40 @@ export default function WelcomeSection({
                                             ))}
                                         </select>
                                     </div>
+                                    {pageKey === "schedule" && (
+                                        <>
+                                            <div>
+                                                <label className="mb-2 block text-sm font-medium text-slate-700">Trainer</label>
+                                                <select
+                                                    value={trainerFilter}
+                                                    onChange={(event) => setTrainerFilter(event.target.value)}
+                                                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-slate-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
+                                                >
+                                                    <option value="">Semua trainer</option>
+                                                    {trainerOptions.map((trainer) => (
+                                                        <option key={trainer} value={trainer}>
+                                                            {trainer}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="mb-2 block text-sm font-medium text-slate-700">Kategori Kelas</label>
+                                                <select
+                                                    value={classCategoryFilter}
+                                                    onChange={(event) => setClassCategoryFilter(event.target.value)}
+                                                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-slate-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
+                                                >
+                                                    <option value="">Semua kategori</option>
+                                                    {classCategoryOptions.map((category) => (
+                                                        <option key={category} value={category}>
+                                                            {category}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -241,6 +308,12 @@ export default function WelcomeSection({
                                     {/* <p className="text-sm text-wellness-muted">Trainer: {classItem.trainers.map((trainer) => trainer.name).join(", ") || "-"}</p> */}
                                     {/* <p className="font-semibold text-primary-600">{formatRupiah(classItem.price)}</p> */}
                                     <p className="text-sm text-wellness-muted">{classItem.about}</p>
+                                    <Link
+                                        href={route("welcome.class-detail", classItem.id)}
+                                        className="inline-flex items-center rounded-full bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700"
+                                    >
+                                        Lihat selengkapnya
+                                    </Link>
                                 </div>
                             </article>
                         ))}
