@@ -5,6 +5,7 @@ import {
     IconCalendarEvent,
     IconClock,
     IconCurrencyDollar,
+    IconFilter,
     IconMapPin,
     IconSparkles,
     IconStar,
@@ -317,9 +318,61 @@ export default function WelcomeSection({
                         <IconArrowLeft size={16} /> Kembali ke Beranda
                     </Link>
                     <div className="rounded-3xl border border-primary-100 bg-white p-8 shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">ORO Pilates Studio</p>
-                        <h1 className="mt-4 text-3xl font-bold md:text-4xl">{meta.title}</h1>
-                        <p className="mt-4 max-w-3xl text-wellness-muted">{meta.content}</p>
+                        <div className="flex flex-wrap items-start justify-between gap-4">
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">ORO Pilates Studio</p>
+                                <h1 className="mt-4 text-3xl font-bold md:text-4xl">{meta.title}</h1>
+                                <p className="mt-4 max-w-3xl text-wellness-muted">{meta.content}</p>
+                            </div>
+
+                            {shouldShowFilter && (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowFilters((prev) => !prev)}
+                                    className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors ${
+                                        showFilters || hasActiveFilters
+                                            ? "border-primary-200 bg-primary-50 text-primary-700"
+                                            : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                                    }`}
+                                >
+                                    <IconFilter size={18} />
+                                    <span>Filter</span>
+                                    {hasActiveFilters && <span className="h-2 w-2 rounded-full bg-primary-500" />}
+                                </button>
+                            )}
+                        </div>
+
+                        {shouldShowFilter && showFilters && (
+                            <div className="mt-6 rounded-2xl border border-primary-100 bg-primary-50/40 p-4">
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-slate-700">Nama Kelas</label>
+                                        <input
+                                            type="text"
+                                            value={classNameFilter}
+                                            onChange={(event) => setClassNameFilter(event.target.value)}
+                                            placeholder="Cari nama kelas"
+                                            className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-slate-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-slate-700">Difficulty Level</label>
+                                        <select
+                                            value={difficultyFilter}
+                                            onChange={(event) => setDifficultyFilter(event.target.value)}
+                                            className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-slate-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
+                                        >
+                                            <option value="">Semua level</option>
+                                            {difficultyOptions.map((level) => (
+                                                <option key={level} value={level}>
+                                                    {level}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </section>
 

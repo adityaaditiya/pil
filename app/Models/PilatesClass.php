@@ -10,6 +10,7 @@ class PilatesClass extends Model
     use HasFactory;
 
     protected $fillable = [
+        'class_category_id',
         'image',
         'name',
         'duration',
@@ -25,6 +26,11 @@ class PilatesClass extends Model
         'credit' => 'decimal:2',
         'price' => 'decimal:2',
     ];
+
+    public function classCategory()
+    {
+        return $this->belongsTo(ClassCategory::class);
+    }
 
     public function trainers()
     {

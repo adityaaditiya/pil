@@ -74,6 +74,13 @@ function Menu() {
                     permissions: hasAnyPermission(["customers-access"]),
                 },
                 {
+                    title: "Kategori Kelas",
+                    href: route("class-categories.index"),
+                    active: url.startsWith("/dashboard/class-categories"),
+                    icon: <IconCategory size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["class-categories-access"]),
+                },
+                {
                     title: "Membership Plans",
                     href: route("membership-plans.index"),
                     active: url.startsWith("/dashboard/membership-plans"),
