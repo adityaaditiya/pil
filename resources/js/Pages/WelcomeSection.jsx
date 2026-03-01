@@ -1,9 +1,11 @@
 import { Head, Link } from "@inertiajs/react";
+import { useMemo, useState } from "react";
 import {
     IconArrowLeft,
     IconCalendarEvent,
     IconClock,
     IconCurrencyDollar,
+    IconFilter,
     IconMapPin,
     IconSparkles,
     IconStar,
@@ -65,11 +67,56 @@ export default function WelcomeSection({
     memberships = [],
     trainers = [],
 }) {
+    const [showFilters, setShowFilters] = useState(false);
+    const [classNameFilter, setClassNameFilter] = useState("");
+    const [difficultyFilter, setDifficultyFilter] = useState("");
+
     const meta = page || fallbackMeta[pageKey] || {
         name: "Welcome",
         title: "ORO Pilates Studio",
         content: "Selamat datang di ORO Pilates Studio.",
     };
+
+    const shouldShowFilter = pageKey === "classes" || pageKey === "schedule";
+
+    const difficultyOptions = useMemo(() => {
+        const source = pageKey === "classes" ? classes : schedules;
+        return [...new Set(
+            source
+                .map((item) =>
+                    pageKey === "classes"
+                        ? item.difficulty_level
+                        : item.pilates_class?.difficulty_level
+                )
+                .filter(Boolean)
+        )];
+    }, [pageKey, classes, schedules]);
+
+    const hasActiveFilters = Boolean(classNameFilter.trim() || difficultyFilter);
+
+    const filteredClasses = useMemo(() => {
+        const keyword = classNameFilter.toLowerCase().trim();
+
+        return classes.filter((classItem) => {
+            const matchClassName = !keyword || classItem.name?.toLowerCase().includes(keyword);
+            const matchDifficulty = !difficultyFilter || classItem.difficulty_level === difficultyFilter;
+
+            return matchClassName && matchDifficulty;
+        });
+    }, [classes, classNameFilter, difficultyFilter]);
+
+    const filteredSchedules = useMemo(() => {
+        const keyword = classNameFilter.toLowerCase().trim();
+
+        return schedules.filter((item) => {
+            const className = item.pilates_class?.name || "";
+            const difficultyLevel = item.pilates_class?.difficulty_level || "";
+            const matchClassName = !keyword || className.toLowerCase().includes(keyword);
+            const matchDifficulty = !difficultyFilter || difficultyLevel === difficultyFilter;
+
+            return matchClassName && matchDifficulty;
+        });
+    }, [schedules, classNameFilter, difficultyFilter]);
 
     return (
         <>
@@ -118,16 +165,68 @@ export default function WelcomeSection({
                         <IconArrowLeft size={16} /> Kembali ke Beranda
                     </Link>
                     <div className="rounded-3xl border border-primary-100 bg-white p-8 shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">ORO Pilates Studio</p>
-                        <h1 className="mt-4 text-3xl font-bold md:text-4xl">{meta.title}</h1>
-                        <p className="mt-4 max-w-3xl text-wellness-muted">{meta.content}</p>
+                        <div className="flex flex-wrap items-start justify-between gap-4">
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">ORO Pilates Studio</p>
+                                <h1 className="mt-4 text-3xl font-bold md:text-4xl">{meta.title}</h1>
+                                <p className="mt-4 max-w-3xl text-wellness-muted">{meta.content}</p>
+                            </div>
+
+                            {shouldShowFilter && (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowFilters((prev) => !prev)}
+                                    className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors ${
+                                        showFilters || hasActiveFilters
+                                            ? "border-primary-200 bg-primary-50 text-primary-700"
+                                            : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                                    }`}
+                                >
+                                    <IconFilter size={18} />
+                                    <span>Filter</span>
+                                    {hasActiveFilters && <span className="h-2 w-2 rounded-full bg-primary-500" />}
+                                </button>
+                            )}
+                        </div>
+
+                        {shouldShowFilter && showFilters && (
+                            <div className="mt-6 rounded-2xl border border-primary-100 bg-primary-50/40 p-4">
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-slate-700">Nama Kelas</label>
+                                        <input
+                                            type="text"
+                                            value={classNameFilter}
+                                            onChange={(event) => setClassNameFilter(event.target.value)}
+                                            placeholder="Cari nama kelas"
+                                            className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-slate-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-slate-700">Difficulty Level</label>
+                                        <select
+                                            value={difficultyFilter}
+                                            onChange={(event) => setDifficultyFilter(event.target.value)}
+                                            className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-slate-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
+                                        >
+                                            <option value="">Semua level</option>
+                                            {difficultyOptions.map((level) => (
+                                                <option key={level} value={level}>
+                                                    {level}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </section>
 
                 {pageKey === "classes" && (
                     <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-16 md:grid-cols-2 lg:grid-cols-3">
-                        {classes.length === 0 && <p className="text-wellness-muted">Belum ada data classes.</p>}
-                        {classes.map((classItem) => (
+                        {filteredClasses.length === 0 && <p className="text-wellness-muted">Tidak ada data classes sesuai filter.</p>}
+                        {filteredClasses.map((classItem) => (
                             <article key={classItem.id} className="overflow-hidden rounded-3xl border border-primary-100 bg-white shadow-sm">
                                 {classItem.image && (
                                     <img src={imageUrl("classes", classItem.image)} alt={classItem.name} className="h-52 w-full object-cover" />
@@ -151,8 +250,8 @@ export default function WelcomeSection({
                 {pageKey === "schedule" && (
                     <section className="mx-auto max-w-6xl px-4 pb-16">
                         <div className="grid gap-4">
-                            {schedules.length === 0 && <p className="text-wellness-muted">Belum ada data schedule.</p>}
-                            {schedules.map((item) => (
+                            {filteredSchedules.length === 0 && <p className="text-wellness-muted">Tidak ada data schedule sesuai filter.</p>}
+                            {filteredSchedules.map((item) => (
                                 <article key={item.id} className="rounded-2xl border border-primary-100 bg-white p-5 shadow-sm">
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <h3 className="text-lg font-semibold">{item.pilates_class?.name || "Kelas"}</h3>
