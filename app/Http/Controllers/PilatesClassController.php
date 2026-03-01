@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PilatesClass;
+use App\Models\ClassCategory;
 use App\Models\Trainer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,13 +16,14 @@ class PilatesClassController extends Controller
     public function index(): Response
     {
         return Inertia::render('Dashboard/Classes/Index', [
-            'classes' => PilatesClass::with('trainers')
+            'classes' => PilatesClass::with(['trainers', 'classCategory'])
                 ->when(request()->search, function ($query) {
                     $search = request()->search;
 
                     $query->where(function ($subQuery) use ($search) {
                         $subQuery->where('name', 'like', "%{$search}%")
                             ->orWhere('difficulty_level', 'like', "%{$search}%")
+                            ->orWhereHas('classCategory', fn ($categoryQuery) => $categoryQuery->where('name', 'like', "%{$search}%"))
                             ->orWhereHas('trainers', fn ($trainerQuery) => $trainerQuery->where('name', 'like', "%{$search}%"));
                     });
                 })
@@ -34,6 +36,7 @@ class PilatesClassController extends Controller
     {
         return Inertia::render('Dashboard/Classes/Create', [
             'trainers' => Trainer::orderBy('name')->get(['id', 'name']),
+            'classCategories' => ClassCategory::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -41,6 +44,7 @@ class PilatesClassController extends Controller
     {
         $data = $request->validate([
             'image' => 'required|image|max:2048',
+            'class_category_id' => 'required|exists:class_categories,id',
             'name' => 'required|string|max:255',
             'duration' => 'required|integer|min:1',
             'difficulty_level' => 'required|in:Beginner,Intermediate,Advanced,Open to all',
@@ -68,6 +72,7 @@ class PilatesClassController extends Controller
         return Inertia::render('Dashboard/Classes/Edit', [
             'classItem' => $class->load('trainers:id,name'),
             'trainers' => Trainer::orderBy('name')->get(['id', 'name']),
+            'classCategories' => ClassCategory::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -75,6 +80,7 @@ class PilatesClassController extends Controller
     {
         $data = $request->validate([
             'image' => 'nullable|image|max:2048',
+            'class_category_id' => 'required|exists:class_categories,id',
             'name' => 'required|string|max:255',
             'duration' => 'required|integer|min:1',
             'difficulty_level' => 'required|in:Beginner,Intermediate,Advanced,Open to all',

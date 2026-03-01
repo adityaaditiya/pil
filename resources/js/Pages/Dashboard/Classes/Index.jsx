@@ -33,6 +33,7 @@ export default function Index({ classes }) {
                         <tr>
                             <Table.Th>Gambar</Table.Th>
                             <Table.Th>Nama Kelas</Table.Th>
+                            <Table.Th>Kategori Kelas</Table.Th>
                             <Table.Th>Durasi</Table.Th>
                             <Table.Th>Difficulty</Table.Th>
                             <Table.Th>About</Table.Th>
@@ -48,6 +49,7 @@ export default function Index({ classes }) {
                                     <img src={`/storage/classes/${item.image}`} alt={item.name} className="h-12 w-12 rounded-lg object-cover" />
                                 </Table.Td>
                                 <Table.Td>{item.name}</Table.Td>
+                                <Table.Td>{item.class_category?.name || "-"}</Table.Td>
                                 <Table.Td>{item.duration} menit</Table.Td>
                                 <Table.Td>{item.difficulty_level}</Table.Td>
                                 <Table.Td><p className="max-w-[220px] line-clamp-2">{item.about}</p></Table.Td>

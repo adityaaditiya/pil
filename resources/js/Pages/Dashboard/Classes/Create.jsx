@@ -7,10 +7,11 @@ import { IconArrowLeft, IconDeviceFloppy, IconSchool } from "@tabler/icons-react
 
 const difficultyLevels = ["Beginner", "Intermediate", "Advanced", "Open to all"];
 
-export default function Create({ trainers }) {
+export default function Create({ trainers, classCategories }) {
     const { errors } = usePage().props;
     const { data, setData, post, processing } = useForm({
         image: null,
+        class_category_id: "",
         name: "",
         duration: "",
         difficulty_level: "Beginner",
@@ -49,6 +50,16 @@ export default function Create({ trainers }) {
             <form onSubmit={submit}>
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-w-4xl">
                     <Input type="file" label="Gambar" errors={errors.image} onChange={(e) => setData("image", e.target.files[0])} />
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Kategori Kelas</label>
+                        <select value={data.class_category_id} onChange={(e) => setData("class_category_id", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                            <option value="">Pilih kategori kelas</option>
+                            {classCategories.map((category) => (
+                                <option key={category.id} value={category.id}>{category.name}</option>
+                            ))}
+                        </select>
+                        {errors.class_category_id && <small className="text-xs text-danger-500">{errors.class_category_id}</small>}
+                    </div>
                     <Input type="text" label="Nama Kelas" value={data.name} errors={errors.name} onChange={(e) => setData("name", e.target.value)} />
                     <Input type="number" label="Durasi (menit)" value={data.duration} errors={errors.duration} onChange={(e) => setData("duration", e.target.value)} />
                     <div className="flex flex-col gap-2">
