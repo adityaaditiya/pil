@@ -1,0 +1,159 @@
+import { Head, Link } from "@inertiajs/react";
+import {
+    IconArrowLeft,
+    IconCalendarEvent,
+    IconClock,
+    IconCreditCard,
+    IconMapPin,
+    IconStar,
+    IconUser,
+    IconUsers,
+    IconYoga,
+} from "@tabler/icons-react";
+
+const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
+const menuHref = (key) => (key === "home" ? route("welcome") : route("welcome.page", key));
+
+const formatRupiah = (value) =>
+    new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0,
+    }).format(Number(value || 0));
+
+const formatDateTime = (date) =>
+    date
+        ? new Intl.DateTimeFormat("id-ID", {
+              weekday: "long",
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+          }).format(new Date(date))
+        : "-";
+
+export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
+    const detailRows = [
+        { label: "Nama Kelas", value: classItem.name || "-" },
+        { label: "Kategori Kelas", value: classItem.class_category?.name || "-" },
+        { label: "Difficulty Level", value: classItem.difficulty_level || "-" },
+        { label: "Durasi", value: classItem.duration ? `${classItem.duration} menit` : "-" },
+        { label: "Slot", value: classItem.slot ?? "-" },
+        { label: "Credit", value: classItem.credit ?? "-" },
+        { label: "Harga", value: formatRupiah(classItem.price) },
+        { label: "Jadwal Default", value: formatDateTime(classItem.scheduled_at) },
+        { label: "Tentang Kelas", value: classItem.about || "-" },
+        { label: "Peralatan", value: classItem.equipment || "-" },
+        { label: "Created At", value: formatDateTime(classItem.created_at) },
+        { label: "Updated At", value: formatDateTime(classItem.updated_at) },
+    ];
+
+    return (
+        <>
+            <Head title={`${classItem.name} | Detail Kelas`} />
+            <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
+                <nav className="sticky top-0 z-40 border-b border-primary-100 bg-white/90 backdrop-blur">
+                    <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
+                        <Link href={route("welcome")} className="flex items-center gap-2 font-semibold text-primary-700">
+                            <IconYoga size={20} /> ORO Pilates Studio
+                        </Link>
+
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-wellness-muted">
+                            {[{ name: "Home", key: "home" }, ...menuItems.filter((item) => item.key !== "home")].map((item) => (
+                                <Link
+                                    key={item.key}
+                                    href={menuHref(item.key)}
+                                    className="px-2 py-1 hover:text-primary-600"
+                                >
+                                    {item.name}
+                                </Link>
+                            ))}
+
+                            <Link
+                                href={route("login")}
+                                className="rounded-full bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700"
+                            >
+                                Login
+                            </Link>
+                        </div>
+                    </div>
+                </nav>
+
+                <section className="mx-auto max-w-6xl px-4 py-10">
+                    <Link href={route("welcome.page", "classes")} className="mb-6 inline-flex items-center gap-2 text-sm text-primary-600">
+                        <IconArrowLeft size={16} /> Kembali ke Daftar Kelas
+                    </Link>
+
+                    <div className="grid gap-8 lg:grid-cols-[1.1fr,0.9fr]">
+                        <article className="overflow-hidden rounded-3xl border border-primary-100 bg-white shadow-sm">
+                            {classItem.image ? (
+                                <img src={imageUrl("classes", classItem.image)} alt={classItem.name} className="h-72 w-full object-cover md:h-96" />
+                            ) : (
+                                <div className="flex h-72 items-center justify-center bg-primary-50 text-primary-700 md:h-96">Gambar kelas belum tersedia.</div>
+                            )}
+                            <div className="space-y-4 p-6 md:p-8">
+                                <p className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
+                                    <IconStar size={14} /> {classItem.difficulty_level || "Open to all"}
+                                </p>
+                                <h1 className="text-3xl font-bold md:text-4xl">{classItem.name}</h1>
+                                <p className="text-wellness-muted">{classItem.about || "Kelas ini dirancang untuk membantu progres latihan pilates Anda secara konsisten."}</p>
+                                <div className="grid gap-3 text-sm text-wellness-muted sm:grid-cols-2">
+                                    <p className="inline-flex items-center gap-2"><IconClock size={16} /> Durasi {classItem.duration || "-"} menit</p>
+                                    <p className="inline-flex items-center gap-2"><IconCreditCard size={16} /> Credit {classItem.credit ?? "-"}</p>
+                                    <p className="inline-flex items-center gap-2"><IconUsers size={16} /> Slot {classItem.slot ?? "-"} peserta</p>
+                                    <p className="inline-flex items-center gap-2"><IconCalendarEvent size={16} /> Default: {formatDateTime(classItem.scheduled_at)}</p>
+                                </div>
+                                <div className="rounded-2xl bg-primary-50 p-4 text-primary-700">
+                                    <p className="text-sm">Harga kelas</p>
+                                    <p className="text-2xl font-bold">{formatRupiah(classItem.price)}</p>
+                                </div>
+                                <Link
+                                    href={route("welcome.page", { key: "schedule", class_name: classItem.name })}
+                                    className="inline-flex rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
+                                >
+                                    Book Now
+                                </Link>
+                            </div>
+                        </article>
+
+                        <aside className="space-y-6">
+                            <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
+                                <h2 className="text-xl font-semibold">Detail Data Kelas</h2>
+                                <p className="mt-1 text-sm text-wellness-muted">Seluruh data utama kelas ditampilkan berikut ini.</p>
+                                <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
+                                    <table className="w-full text-sm">
+                                        <tbody>
+                                            {detailRows.map((row) => (
+                                                <tr key={row.label} className="border-b border-slate-100 last:border-none">
+                                                    <td className="w-40 bg-slate-50 px-4 py-3 font-medium text-slate-700">{row.label}</td>
+                                                    <td className="px-4 py-3 text-slate-700">{row.value}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
+                                <h2 className="text-xl font-semibold">Trainer Pengampu</h2>
+                                <div className="mt-4 space-y-3">
+                                    {(classItem.trainers || []).length === 0 && (
+                                        <p className="text-sm text-wellness-muted">Belum ada trainer terdaftar untuk kelas ini.</p>
+                                    )}
+                                    {(classItem.trainers || []).map((trainer) => (
+                                        <div key={trainer.id} className="rounded-2xl border border-slate-200 p-4">
+                                            <p className="inline-flex items-center gap-2 font-semibold"><IconUser size={16} /> {trainer.name}</p>
+                                            <p className="mt-2 text-sm text-wellness-muted">{trainer.gender || "-"}, {trainer.age || "-"} tahun</p>
+                                            <p className="mt-1 inline-flex items-start gap-2 text-sm text-wellness-muted"><IconMapPin size={14} className="mt-0.5" /> {trainer.address || "-"}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </section>
+            </div>
+        </>
+    );
+}
