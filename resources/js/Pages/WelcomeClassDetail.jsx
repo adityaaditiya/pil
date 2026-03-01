@@ -35,18 +35,18 @@ const formatDateTime = (date) =>
 
 export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
     const detailRows = [
-        { label: "Nama Kelas", value: classItem.name || "-" },
-        { label: "Kategori Kelas", value: classItem.class_category?.name || "-" },
+        { label: "Claesses Name", value: classItem.name || "-" },
+        { label: "Classes Category", value: classItem.class_category?.name || "-" },
         { label: "Difficulty Level", value: classItem.difficulty_level || "-" },
-        { label: "Durasi", value: classItem.duration ? `${classItem.duration} menit` : "-" },
-        { label: "Slot", value: classItem.slot ?? "-" },
-        { label: "Credit", value: classItem.credit ?? "-" },
-        { label: "Harga", value: formatRupiah(classItem.price) },
-        { label: "Jadwal Default", value: formatDateTime(classItem.scheduled_at) },
-        { label: "Tentang Kelas", value: classItem.about || "-" },
-        { label: "Peralatan", value: classItem.equipment || "-" },
-        { label: "Created At", value: formatDateTime(classItem.created_at) },
-        { label: "Updated At", value: formatDateTime(classItem.updated_at) },
+        { label: "Duration", value: classItem.duration ? `${classItem.duration} menit` : "-" },
+        // { label: "Slot", value: classItem.slot ?? "-" },
+        // { label: "Credit", value: classItem.credit ?? "-" },
+        // { label: "Harga", value: formatRupiah(classItem.price) },
+        // { label: "Jadwal Default", value: formatDateTime(classItem.scheduled_at) },
+        // { label: "About Classes", value: classItem.about || "-" },
+        { label: "What you will need", value: classItem.equipment || "-" },
+        // { label: "Created At", value: formatDateTime(classItem.created_at) },
+        // { label: "Updated At", value: formatDateTime(classItem.updated_at) },
     ];
 
     return (
@@ -95,19 +95,20 @@ export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
                             <div className="space-y-4 p-6 md:p-8">
                                 <p className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
                                     <IconStar size={14} /> {classItem.difficulty_level || "Open to all"}
-                                </p>
+                                </p> &nbsp;
+                                <p className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700"><IconClock size={16} /> Durasi {classItem.duration || "-"} menit</p>
                                 <h1 className="text-3xl font-bold md:text-4xl">{classItem.name}</h1>
                                 <p className="text-wellness-muted">{classItem.about || "Kelas ini dirancang untuk membantu progres latihan pilates Anda secara konsisten."}</p>
                                 <div className="grid gap-3 text-sm text-wellness-muted sm:grid-cols-2">
-                                    <p className="inline-flex items-center gap-2"><IconClock size={16} /> Durasi {classItem.duration || "-"} menit</p>
-                                    <p className="inline-flex items-center gap-2"><IconCreditCard size={16} /> Credit {classItem.credit ?? "-"}</p>
+                                    
+                                    {/* <p className="inline-flex items-center gap-2"><IconCreditCard size={16} /> Credit {classItem.credit ?? "-"}</p>
                                     <p className="inline-flex items-center gap-2"><IconUsers size={16} /> Slot {classItem.slot ?? "-"} peserta</p>
-                                    <p className="inline-flex items-center gap-2"><IconCalendarEvent size={16} /> Default: {formatDateTime(classItem.scheduled_at)}</p>
+                                    <p className="inline-flex items-center gap-2"><IconCalendarEvent size={16} /> Default: {formatDateTime(classItem.scheduled_at)}</p> */}
                                 </div>
-                                <div className="rounded-2xl bg-primary-50 p-4 text-primary-700">
+                                {/* <div className="rounded-2xl bg-primary-50 p-4 text-primary-700">
                                     <p className="text-sm">Harga kelas</p>
                                     <p className="text-2xl font-bold">{formatRupiah(classItem.price)}</p>
-                                </div>
+                                </div> */}
                                 <Link
                                     href={route("welcome.page", { key: "schedule", class_name: classItem.name })}
                                     className="inline-flex rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
@@ -136,7 +137,7 @@ export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
                             </div>
 
                             <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
-                                <h2 className="text-xl font-semibold">Trainer Pengampu</h2>
+                                <h2 className="text-xl font-semibold">Instructor</h2>
                                 <div className="mt-4 space-y-3">
                                     {(classItem.trainers || []).length === 0 && (
                                         <p className="text-sm text-wellness-muted">Belum ada trainer terdaftar untuk kelas ini.</p>
@@ -144,7 +145,7 @@ export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
                                     {(classItem.trainers || []).map((trainer) => (
                                         <div key={trainer.id} className="rounded-2xl border border-slate-200 p-4">
                                             <p className="inline-flex items-center gap-2 font-semibold"><IconUser size={16} /> {trainer.name}</p>
-                                            <p className="mt-2 text-sm text-wellness-muted">{trainer.gender || "-"}, {trainer.age || "-"} tahun</p>
+                                            <p className="mt-2 text-sm text-wellness-muted">{trainer.gender || "-"}</p>
                                             <p className="mt-1 inline-flex items-start gap-2 text-sm text-wellness-muted"><IconMapPin size={14} className="mt-0.5" /> {trainer.address || "-"}</p>
                                         </div>
                                     ))}
