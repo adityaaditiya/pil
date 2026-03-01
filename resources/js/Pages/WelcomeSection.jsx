@@ -294,26 +294,31 @@ export default function WelcomeSection({
                     <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-16 md:grid-cols-2 lg:grid-cols-3">
                         {filteredClasses.length === 0 && <p className="text-wellness-muted">Tidak ada data classes sesuai filter.</p>}
                         {filteredClasses.map((classItem) => (
-                            <article key={classItem.id} className="overflow-hidden rounded-3xl border border-primary-100 bg-white shadow-sm">
+                            <article key={classItem.id} className="flex h-full flex-col overflow-hidden rounded-3xl border border-primary-100 bg-white shadow-sm">
                                 {classItem.image && (
                                     <img src={imageUrl("classes", classItem.image)} alt={classItem.name} className="h-52 w-full object-cover" />
                                 )}
-                                <div className="space-y-3 p-6">
-                                    <h3 className="text-xl font-semibold">{classItem.name}</h3>
-                                    
-                                    <div className="flex flex-wrap gap-2 text-xs">
-                                        <span className="rounded-full bg-primary-50 px-3 py-1">{classItem.duration} menit</span>
-                                        <span className="rounded-full bg-primary-50 px-3 py-1">{classItem.difficulty_level}</span>
+                                <div className="flex h-full flex-col p-6">
+                                    <div className="space-y-3">
+                                        <h3 className="text-xl font-semibold">{classItem.name}</h3>
+
+                                        <div className="flex flex-wrap gap-2 text-xs">
+                                            <span className="rounded-full bg-primary-50 px-3 py-1">{classItem.duration} menit</span>
+                                            <span className="rounded-full bg-primary-50 px-3 py-1">{classItem.difficulty_level}</span>
+                                        </div>
+                                        {/* <p className="text-sm text-wellness-muted">Trainer: {classItem.trainers.map((trainer) => trainer.name).join(", ") || "-"}</p> */}
+                                        {/* <p className="font-semibold text-primary-600">{formatRupiah(classItem.price)}</p> */}
+                                        <p className="overflow-hidden text-ellipsis text-sm text-wellness-muted [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">{classItem.about}</p>
                                     </div>
-                                    {/* <p className="text-sm text-wellness-muted">Trainer: {classItem.trainers.map((trainer) => trainer.name).join(", ") || "-"}</p> */}
-                                    {/* <p className="font-semibold text-primary-600">{formatRupiah(classItem.price)}</p> */}
-                                    <p className="text-sm text-wellness-muted">{classItem.about}</p>
-                                    <Link
-                                        href={route("welcome.class-detail", classItem.id)}
-                                        className="inline-flex items-center rounded-full bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700"
-                                    >
-                                        Lihat selengkapnya
-                                    </Link>
+
+                                    <div className="mt-auto pt-5">
+                                        <Link
+                                            href={route("welcome.class-detail", classItem.id)}
+                                            className="inline-flex items-center rounded-full bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700"
+                                        >
+                                            Lihat Selengkapnya
+                                        </Link>
+                                    </div>
                                 </div>
                             </article>
                         ))}
