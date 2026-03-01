@@ -189,7 +189,7 @@ export default function Welcome() {
 
                         <div className="flex items-center gap-3">
                             <Button as={Link} href={route("login")} className="hidden md:inline-flex">
-                                Login
+                                Login / Register
                             </Button>
                             <button className="rounded-xl border border-primary-200 p-2.5 text-wellness-text lg:hidden" type="button">
                                 <IconMenu2 size={20} />
@@ -208,8 +208,8 @@ export default function Welcome() {
                             </p>
 
                             <div className="mt-10 flex flex-wrap gap-4">
-                                <Button as={Link} href={route("welcome.page", "pricing")}>Booking Kelas</Button>
-                                <Button as={Link} href={route("welcome.page", "schedule")} variant="secondary">Lihat Jadwal</Button>
+                                <Button as={Link} href={route("welcome.page", "classes")}>Book A Class</Button>
+                                {/* <Button as={Link} href={route("welcome.page", "schedule")} variant="secondary">Lihat Jadwal</Button> */}
                             </div>
 
                             <div className="mt-10 flex flex-wrap gap-3">
@@ -431,8 +431,8 @@ export default function Welcome() {
                                     <IconHeartHandshake size={18} />
                                 </a>
                             </div>
-                            <Button as={Link} href={route("welcome.page", "contact")} className="mt-6 w-full bg-primary-500 text-white hover:bg-primary-700">
-                                Booking Kelas
+                            <Button as={Link} href={route("welcome.page", "classes")} className="mt-6 w-full bg-primary-500 text-white hover:bg-primary-700">
+                                Book A Class
                             </Button>
                         </div>
                     </div>

@@ -134,13 +134,14 @@ export default function WelcomeSection({
                                 )}
                                 <div className="space-y-3 p-6">
                                     <h3 className="text-xl font-semibold">{classItem.name}</h3>
-                                    <p className="text-sm text-wellness-muted">{classItem.about}</p>
+                                    
                                     <div className="flex flex-wrap gap-2 text-xs">
                                         <span className="rounded-full bg-primary-50 px-3 py-1">{classItem.duration} menit</span>
                                         <span className="rounded-full bg-primary-50 px-3 py-1">{classItem.difficulty_level}</span>
                                     </div>
-                                    <p className="text-sm text-wellness-muted">Trainer: {classItem.trainers.map((trainer) => trainer.name).join(", ") || "-"}</p>
-                                    <p className="font-semibold text-primary-600">{formatRupiah(classItem.price)}</p>
+                                    {/* <p className="text-sm text-wellness-muted">Trainer: {classItem.trainers.map((trainer) => trainer.name).join(", ") || "-"}</p> */}
+                                    {/* <p className="font-semibold text-primary-600">{formatRupiah(classItem.price)}</p> */}
+                                    <p className="text-sm text-wellness-muted">{classItem.about}</p>
                                 </div>
                             </article>
                         ))}
@@ -155,9 +156,9 @@ export default function WelcomeSection({
                                 <article key={item.id} className="rounded-2xl border border-primary-100 bg-white p-5 shadow-sm">
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <h3 className="text-lg font-semibold">{item.pilates_class?.name || "Kelas"}</h3>
-                                        <span className="rounded-full bg-primary-100 px-3 py-1 text-xs font-medium text-primary-700">
+                                        {/* <span className="rounded-full bg-primary-100 px-3 py-1 text-xs font-medium text-primary-700">
                                             {item.allow_drop_in ? "Drop In" : "Membership"}
-                                        </span>
+                                        </span> */}
                                     </div>
                                     <div className="mt-3 grid gap-2 text-sm text-wellness-muted md:grid-cols-2">
                                         <p className="inline-flex items-center gap-2"><IconCalendarEvent size={16} /> {formatDateTime(item.start_at)} WIB</p>
