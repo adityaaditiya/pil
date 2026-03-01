@@ -1,4 +1,5 @@
 import { Head, Link } from "@inertiajs/react";
+import { useMemo, useState } from "react";
 import {
     IconArrowLeft,
     IconCalendarEvent,
@@ -65,11 +66,101 @@ export default function WelcomeSection({
     memberships = [],
     trainers = [],
 }) {
+    const [selectedClassName, setSelectedClassName] = useState("all");
+    const [selectedDifficulty, setSelectedDifficulty] = useState("all");
+
     const meta = page || fallbackMeta[pageKey] || {
         name: "Welcome",
         title: "ORO Pilates Studio",
         content: "Selamat datang di ORO Pilates Studio.",
     };
+
+    const classNameOptions = useMemo(() => {
+        const classNames = new Set([
+            ...classes.map((item) => item.name).filter(Boolean),
+            ...schedules.map((item) => item.pilates_class?.name).filter(Boolean),
+        ]);
+
+        return Array.from(classNames).sort((a, b) => a.localeCompare(b, "id"));
+    }, [classes, schedules]);
+
+    const difficultyOptions = useMemo(() => {
+        const difficulties = new Set([
+            ...classes.map((item) => item.difficulty_level).filter(Boolean),
+            ...schedules.map((item) => item.pilates_class?.difficulty_level).filter(Boolean),
+        ]);
+
+        return Array.from(difficulties).sort((a, b) => a.localeCompare(b, "id"));
+    }, [classes, schedules]);
+
+    const filteredClasses = useMemo(
+        () =>
+            classes.filter((item) => {
+                const matchClass = selectedClassName === "all" || item.name === selectedClassName;
+                const matchDifficulty = selectedDifficulty === "all" || item.difficulty_level === selectedDifficulty;
+
+                return matchClass && matchDifficulty;
+            }),
+        [classes, selectedClassName, selectedDifficulty],
+    );
+
+    const filteredSchedules = useMemo(
+        () =>
+            schedules.filter((item) => {
+                const className = item.pilates_class?.name;
+                const difficultyLevel = item.pilates_class?.difficulty_level;
+                const matchClass = selectedClassName === "all" || className === selectedClassName;
+                const matchDifficulty = selectedDifficulty === "all" || difficultyLevel === selectedDifficulty;
+
+                return matchClass && matchDifficulty;
+            }),
+        [schedules, selectedClassName, selectedDifficulty],
+    );
+
+    const renderCardFilters = () => (
+        <div className="mx-auto mb-6 flex max-w-6xl flex-wrap items-end gap-3 px-4">
+            <label className="flex flex-col gap-1 text-sm text-wellness-muted">
+                Nama Kelas
+                <select
+                    value={selectedClassName}
+                    onChange={(event) => setSelectedClassName(event.target.value)}
+                    className="rounded-xl border border-primary-200 bg-white px-3 py-2 text-sm text-wellness-text focus:border-primary-500 focus:outline-none"
+                >
+                    <option value="all">Semua Kelas</option>
+                    {classNameOptions.map((className) => (
+                        <option key={className} value={className}>
+                            {className}
+                        </option>
+                    ))}
+                </select>
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-wellness-muted">
+                Difficulty Level
+                <select
+                    value={selectedDifficulty}
+                    onChange={(event) => setSelectedDifficulty(event.target.value)}
+                    className="rounded-xl border border-primary-200 bg-white px-3 py-2 text-sm text-wellness-text focus:border-primary-500 focus:outline-none"
+                >
+                    <option value="all">Semua Level</option>
+                    {difficultyOptions.map((difficulty) => (
+                        <option key={difficulty} value={difficulty}>
+                            {difficulty}
+                        </option>
+                    ))}
+                </select>
+            </label>
+            <button
+                type="button"
+                onClick={() => {
+                    setSelectedClassName("all");
+                    setSelectedDifficulty("all");
+                }}
+                className="rounded-xl border border-primary-200 px-4 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50"
+            >
+                Reset Filter
+            </button>
+        </div>
+    );
 
     return (
         <>
@@ -125,9 +216,11 @@ export default function WelcomeSection({
                 </section>
 
                 {pageKey === "classes" && (
-                    <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-16 md:grid-cols-2 lg:grid-cols-3">
-                        {classes.length === 0 && <p className="text-wellness-muted">Belum ada data classes.</p>}
-                        {classes.map((classItem) => (
+                    <>
+                        {renderCardFilters()}
+                        <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-16 md:grid-cols-2 lg:grid-cols-3">
+                        {filteredClasses.length === 0 && <p className="text-wellness-muted">Belum ada data classes sesuai filter.</p>}
+                        {filteredClasses.map((classItem) => (
                             <article key={classItem.id} className="overflow-hidden rounded-3xl border border-primary-100 bg-white shadow-sm">
                                 {classItem.image && (
                                     <img src={imageUrl("classes", classItem.image)} alt={classItem.name} className="h-52 w-full object-cover" />
@@ -145,14 +238,17 @@ export default function WelcomeSection({
                                 </div>
                             </article>
                         ))}
-                    </section>
+                        </section>
+                    </>
                 )}
 
                 {pageKey === "schedule" && (
+                    <>
+                    {renderCardFilters()}
                     <section className="mx-auto max-w-6xl px-4 pb-16">
                         <div className="grid gap-4">
-                            {schedules.length === 0 && <p className="text-wellness-muted">Belum ada data schedule.</p>}
-                            {schedules.map((item) => (
+                            {filteredSchedules.length === 0 && <p className="text-wellness-muted">Belum ada data schedule sesuai filter.</p>}
+                            {filteredSchedules.map((item) => (
                                 <article key={item.id} className="rounded-2xl border border-primary-100 bg-white p-5 shadow-sm">
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <h3 className="text-lg font-semibold">{item.pilates_class?.name || "Kelas"}</h3>
@@ -170,6 +266,7 @@ export default function WelcomeSection({
                             ))}
                         </div>
                     </section>
+                    </>
                 )}
 
                 {pageKey === "pricing" && (
