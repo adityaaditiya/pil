@@ -86,7 +86,11 @@ class StudioPageController extends Controller
                 ? PilatesClass::with('trainers:id,name')->latest()->get(['id', 'image', 'name', 'duration', 'difficulty_level', 'about', 'equipment', 'price'])
                 : [],
             'schedules' => $normalizedKey === 'schedule'
-                ? PilatesTimetable::with(['pilatesClass:id,name,image,difficulty_level', 'trainer:id,name'])
+                ? PilatesTimetable::with([
+                    'pilatesClass:id,class_category_id,name,image,difficulty_level',
+                    'pilatesClass.classCategory:id,name',
+                    'trainer:id,name',
+                ])
                     ->where('status', 'scheduled')
                     ->orderBy('start_at')
                     ->get(['id', 'pilates_class_id', 'trainer_id', 'start_at', 'capacity', 'duration_minutes', 'price_override', 'allow_drop_in'])
