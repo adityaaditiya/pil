@@ -1,5 +1,5 @@
 import { Head, Link } from "@inertiajs/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     IconArrowLeft,
     IconCalendarEvent,
@@ -66,12 +66,13 @@ export default function WelcomeSection({
     schedules = [],
     memberships = [],
     trainers = [],
+    initialFilters = {},
 }) {
     const [showFilters, setShowFilters] = useState(false);
-    const [classNameFilter, setClassNameFilter] = useState("");
-    const [difficultyFilter, setDifficultyFilter] = useState("");
-    const [trainerFilter, setTrainerFilter] = useState("");
-    const [classCategoryFilter, setClassCategoryFilter] = useState("");
+    const [classNameFilter, setClassNameFilter] = useState(initialFilters.className || "");
+    const [difficultyFilter, setDifficultyFilter] = useState(initialFilters.difficulty || "");
+    const [trainerFilter, setTrainerFilter] = useState(initialFilters.trainer || "");
+    const [classCategoryFilter, setClassCategoryFilter] = useState(initialFilters.classCategory || "");
 
     const meta = page || fallbackMeta[pageKey] || {
         name: "Welcome",
@@ -80,6 +81,12 @@ export default function WelcomeSection({
     };
 
     const shouldShowFilter = pageKey === "classes" || pageKey === "schedule";
+
+    useEffect(() => {
+        if (shouldShowFilter && (initialFilters.className || initialFilters.difficulty || initialFilters.trainer || initialFilters.classCategory)) {
+            setShowFilters(true);
+        }
+    }, [shouldShowFilter, initialFilters.className, initialFilters.difficulty, initialFilters.trainer, initialFilters.classCategory]);
 
     const difficultyOptions = useMemo(() => {
         const source = pageKey === "classes" ? classes : schedules;
@@ -301,6 +308,12 @@ export default function WelcomeSection({
                                     {/* <p className="text-sm text-wellness-muted">Trainer: {classItem.trainers.map((trainer) => trainer.name).join(", ") || "-"}</p> */}
                                     {/* <p className="font-semibold text-primary-600">{formatRupiah(classItem.price)}</p> */}
                                     <p className="text-sm text-wellness-muted">{classItem.about}</p>
+                                    <Link
+                                        href={route("welcome.class-detail", classItem.id)}
+                                        className="inline-flex items-center rounded-full bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700"
+                                    >
+                                        Lihat selengkapnya
+                                    </Link>
                                 </div>
                             </article>
                         ))}

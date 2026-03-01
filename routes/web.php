@@ -38,6 +38,7 @@ Route::get('/', function () {
 })->name('welcome');
 
 Route::get('/welcome/{key}', [StudioPageController::class, 'showByKey'])->name('welcome.page');
+Route::get('/welcome/classes/{pilatesClass}', [StudioPageController::class, 'showClassDetail'])->name('welcome.class-detail');
 
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'permission:dashboard-access'])->name('dashboard');

@@ -82,6 +82,12 @@ class StudioPageController extends Controller
             'page' => $page,
             'pageKey' => $normalizedKey,
             'menuItems' => $menuItems,
+            'initialFilters' => [
+                'className' => request()->string('class_name')->toString(),
+                'difficulty' => request()->string('difficulty')->toString(),
+                'trainer' => request()->string('trainer')->toString(),
+                'classCategory' => request()->string('class_category')->toString(),
+            ],
             'classes' => $normalizedKey === 'classes'
                 ? PilatesClass::with('trainers:id,name')->latest()->get(['id', 'image', 'name', 'duration', 'difficulty_level', 'about', 'equipment', 'price'])
                 : [],
@@ -103,6 +109,16 @@ class StudioPageController extends Controller
             'trainers' => $normalizedKey === 'trainers'
                 ? Trainer::latest()->get(['id', 'name', 'photo', 'age', 'gender', 'address'])
                 : [],
+        ]);
+    }
+
+    public function showClassDetail(PilatesClass $pilatesClass): Response
+    {
+        $menuItems = StudioPage::orderBy('id')->get(['name', 'key']);
+
+        return Inertia::render('WelcomeClassDetail', [
+            'menuItems' => $menuItems,
+            'classItem' => $pilatesClass->load(['classCategory:id,name', 'trainers:id,name,photo,gender,age,address']),
         ]);
     }
 }
