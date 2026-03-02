@@ -1,4 +1,4 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import {
     IconArrowLeft,
     IconCalendarEvent,
@@ -34,6 +34,7 @@ const formatDateTime = (date) =>
         : "-";
 
 export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
+    const { auth } = usePage().props;
     const detailRows = [
         { label: "Claesses Name", value: classItem.name || "-" },
         { label: "Classes Category", value: classItem.class_category?.name || "-" },
@@ -70,12 +71,21 @@ export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
                                 </Link>
                             ))}
 
-                            <Link
-                                href={route("login")}
-                                className="rounded-full bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700"
-                            >
-                                Login
-                            </Link>
+                            {auth?.user ? (
+                                <div className="inline-flex items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
+                                        {(auth.user.name || "U").charAt(0)}
+                                    </div>
+                                    <span className="pr-2 text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                </div>
+                            ) : (
+                                <Link
+                                    href={route("login")}
+                                    className="rounded-full bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700"
+                                >
+                                    Login / Register
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </nav>

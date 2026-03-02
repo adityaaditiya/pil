@@ -179,12 +179,21 @@ export default function WelcomeSection({
                 </Link>
             ))}
 
-            <Link
-                href={route("login")}
-                className="rounded-full bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700"
-            >
-                Login
-            </Link>
+            {auth?.user ? (
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
+                        {(auth.user.name || "U").charAt(0)}
+                    </div>
+                    <span className="pr-2 text-sm font-medium text-slate-700">{auth.user.name}</span>
+                </div>
+            ) : (
+                <Link
+                    href={route("login")}
+                    className="rounded-full bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700"
+                >
+                    Login / Register
+                </Link>
+            )}
         </div>
     </div>
 </nav>
@@ -346,7 +355,7 @@ export default function WelcomeSection({
                                     </div>
                                     <div className="mt-4">
                                         <Link
-                                            href={auth?.user ? route("welcome.schedule-detail", item.id) : route("login")}
+                                            href={auth?.user ? route("welcome.schedule-detail", item.id) : route("login", { redirect: route("welcome.schedule-detail", item.id, false) })}
                                             className="inline-flex rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
                                         >
                                             Book Now

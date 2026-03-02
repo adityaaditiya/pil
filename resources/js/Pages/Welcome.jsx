@@ -1,4 +1,4 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import {
     IconAward,
     IconCheck,
@@ -19,6 +19,7 @@ import Card from "@/Components/Landing/Card";
 import SectionTitle from "@/Components/Landing/SectionTitle";
 
 export default function Welcome() {
+    const { auth } = usePage().props;
     const navItems = [
         { name: "Home", key: "home" },
         { name: "About", key: "about" },
@@ -188,9 +189,18 @@ export default function Welcome() {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Button as={Link} href={route("login")} className="hidden md:inline-flex">
-                                Login / Register
-                            </Button>
+                            {auth?.user ? (
+                                <div className="hidden items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1 md:inline-flex">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
+                                        {(auth.user.name || "U").charAt(0)}
+                                    </div>
+                                    <span className="pr-2 text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                </div>
+                            ) : (
+                                <Button as={Link} href={route("login")} className="hidden md:inline-flex">
+                                    Login / Register
+                                </Button>
+                            )}
                             <button className="rounded-xl border border-primary-200 p-2.5 text-wellness-text lg:hidden" type="button">
                                 <IconMenu2 size={20} />
                             </button>
