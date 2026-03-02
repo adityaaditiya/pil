@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MembershipPlan;
 use App\Models\PilatesClass;
 use App\Models\PilatesTimetable;
+use App\Models\PaymentSetting;
 use App\Models\StudioPage;
 use App\Models\Trainer;
 use Illuminate\Http\RedirectResponse;
@@ -119,6 +120,35 @@ class StudioPageController extends Controller
         return Inertia::render('WelcomeClassDetail', [
             'menuItems' => $menuItems,
             'classItem' => $pilatesClass->load(['classCategory:id,name', 'trainers:id,name,photo,gender,age,address,biodata']),
+        ]);
+    }
+
+    public function showScheduleDetail(PilatesTimetable $pilatesTimetable): Response
+    {
+        $menuItems = StudioPage::orderBy('id')->get(['name', 'key']);
+        $schedule = $pilatesTimetable->load([
+            'pilatesClass:id,class_category_id,image,name,duration,difficulty_level,about,equipment,price',
+            'pilatesClass.classCategory:id,name',
+            'trainer:id,name,photo,gender,age,address,biodata',
+        ]);
+
+        return Inertia::render('WelcomeScheduleDetail', [
+            'menuItems' => $menuItems,
+            'schedule' => $schedule,
+        ]);
+    }
+
+    public function showSchedulePayment(PilatesTimetable $pilatesTimetable): Response
+    {
+        $schedule = $pilatesTimetable->load(['pilatesClass:id,name,image', 'trainer:id,name']);
+        $paymentSetting = PaymentSetting::first();
+        $paymentGateways = collect($paymentSetting?->enabledGateways() ?? [])->filter(function ($gateway) {
+            return strtolower($gateway['value'] ?? '') !== 'cash';
+        })->values();
+
+        return Inertia::render('WelcomeSchedulePayment', [
+            'schedule' => $schedule,
+            'paymentGateways' => $paymentGateways,
         ]);
     }
 }

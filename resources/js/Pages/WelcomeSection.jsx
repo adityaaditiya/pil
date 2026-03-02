@@ -1,4 +1,4 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import { useEffect, useMemo, useState } from "react";
 import {
     IconArrowLeft,
@@ -68,6 +68,7 @@ export default function WelcomeSection({
     trainers = [],
     initialFilters = {},
 }) {
+    const { auth } = usePage().props;
     const [showFilters, setShowFilters] = useState(false);
     const [classNameFilter, setClassNameFilter] = useState(initialFilters.className || "");
     const [difficultyFilter, setDifficultyFilter] = useState(initialFilters.difficulty || "");
@@ -342,6 +343,14 @@ export default function WelcomeSection({
                                         <p className="inline-flex items-center gap-2"><IconUser size={16} /> {item.trainer?.name || "Trainer"}</p>
                                         <p className="inline-flex items-center gap-2"><IconClock size={16} /> Durasi {item.duration_minutes} menit</p>
                                         <p className="inline-flex items-center gap-2"><IconUsers size={16} /> Kapasitas {item.capacity} peserta</p>
+                                    </div>
+                                    <div className="mt-4">
+                                        <Link
+                                            href={auth?.user ? route("welcome.schedule-detail", item.id) : route("login")}
+                                            className="inline-flex rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
+                                        >
+                                            Book Now
+                                        </Link>
                                     </div>
                                 </article>
                             ))}
