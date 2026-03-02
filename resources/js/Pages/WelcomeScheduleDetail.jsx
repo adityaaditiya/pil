@@ -47,9 +47,9 @@ export default function WelcomeScheduleDetail({ schedule, menuItems = [] }) {
         { label: "Durasi", value: `${schedule.duration_minutes || 0} menit` },
         { label: "Kapasitas", value: `${schedule.capacity || 0} peserta` },
         // { label: "Status", value: schedule.status || "-" },
-        { label: "Metode Pembayaran", value: paymentLabel },
-        { label: "Harga Drop-In", value: formatRupiah(schedule.price_override) },
-        { label: "Kredit per Sesi", value: `${Number(schedule.credit_override || 0)} Credit`},
+        // { label: "Metode Pembayaran", value: paymentLabel },
+        // { label: "Harga Drop-In", value: formatRupiah(schedule.price_override) },
+        // { label: "Kredit per Sesi", value: `${Number(schedule.credit_override || 0)} Credit`},
     ];
 
     return (
@@ -128,6 +128,11 @@ export default function WelcomeScheduleDetail({ schedule, menuItems = [] }) {
                                         <IconClock size={16} />
                                         Durasi {schedule.duration_minutes} menit
                                     </p>
+                                &nbsp;
+                                <p className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
+                                        <IconUser size={16} />
+                                        {schedule.capacity}  peserta
+                                    </p>
 
                                 <h1 className="text-3xl font-bold md:text-4xl">
                                     {schedule.pilates_class?.name || "Detail Schedule"}
@@ -167,7 +172,7 @@ export default function WelcomeScheduleDetail({ schedule, menuItems = [] }) {
                                     }
                                     className="inline-flex rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
                                 >
-                                    Book Now
+                                    Confirm Booking
                                 </Link>
                             </div>
                         </article>
