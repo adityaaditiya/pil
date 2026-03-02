@@ -12,17 +12,22 @@ import { useState } from "react";
 
 import { IconArrowLeft, IconYoga } from "@tabler/icons-react";
 
-export default function Login({ status, canResetPassword }) {
+export default function Login({ status, canResetPassword, redirect = "" }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: "",
         password: "",
         remember: false,
+        redirect,
     });
     const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         return () => reset("password");
     }, []);
+
+    useEffect(() => {
+        setData("redirect", redirect || "");
+    }, [redirect]);
 
     const submit = (e) => {
         e.preventDefault();
