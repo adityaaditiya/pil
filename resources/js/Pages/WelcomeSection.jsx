@@ -343,6 +343,14 @@ export default function WelcomeSection({
                                         <p className="inline-flex items-center gap-2"><IconClock size={16} /> Durasi {item.duration_minutes} menit</p>
                                         <p className="inline-flex items-center gap-2"><IconUsers size={16} /> Kapasitas {item.capacity} peserta</p>
                                     </div>
+                                    <div className="mt-4">
+                                        <Link
+                                            href={route("welcome.schedule-detail", item.id)}
+                                            className="inline-flex rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
+                                        >
+                                            Book Now
+                                        </Link>
+                                    </div>
                                 </article>
                             ))}
                         </div>
