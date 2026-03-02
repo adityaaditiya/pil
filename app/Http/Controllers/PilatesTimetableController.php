@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PilatesClass;
-use App\Models\Customer;
-use App\Models\PaymentSetting;
 use App\Models\PilatesTimetable;
-use App\Models\UserMembership;
 use App\Models\Trainer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -82,7 +79,6 @@ class PilatesTimetableController extends Controller
 
                 return [
                     'id' => $session->id,
-                    'pilates_class_id' => $session->pilates_class_id,
                     'status' => $session->status,
                     'start_at' => $session->start_at,
                     'start_at_label' => $session->start_at?->clone()->timezone('Asia/Jakarta')->format('d M Y, H:i'),
@@ -108,45 +104,11 @@ class PilatesTimetableController extends Controller
             })
             ->values();
 
-        $paymentSetting = PaymentSetting::first();
-
-        $customers = Customer::query()
-            ->select('id', 'user_id', 'name', 'no_telp', 'address', 'credit')
-            ->latest()
-            ->take(30)
-            ->get();
-
-        $availableMemberships = UserMembership::query()
-            ->with('plan.classRules')
-            ->where('status', 'active')
-            ->where('credits_remaining', '>', 0)
-            ->where(function ($query) {
-                $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
-            })
-            ->get()
-            ->map(function (UserMembership $membership) {
-                return [
-                    'id' => $membership->id,
-                    'plan_name' => $membership->plan?->name,
-                    'user_id' => $membership->user_id,
-                    'credits_remaining' => $membership->credits_remaining,
-                    'expires_at' => $membership->expires_at?->timezone('Asia/Jakarta')?->format('d M Y H:i'),
-                    'class_rules' => $membership->plan?->classRules?->map(fn ($rule) => [
-                        'pilates_class_id' => $rule->pilates_class_id,
-                        'credit_cost' => $rule->credit_cost,
-                    ])->values() ?? [],
-                ];
-            })
-            ->values();
-
         return Inertia::render('Dashboard/Timetable/Index', [
             'selectedStartDate' => $startDate->toDateString(),
             'selectedEndDate' => $endDate->toDateString(),
             'sessions' => $sessions,
             'canBook' => $request->user() !== null,
-            'customers' => $customers,
-            'paymentGateways' => $paymentSetting?->enabledGateways() ?? [],
-            'availableMemberships' => $availableMemberships,
         ]);
     }
 
