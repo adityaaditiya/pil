@@ -107,7 +107,7 @@ class StudioPageController extends Controller
                     ->get(['id', 'name', 'credits', 'price', 'valid_days', 'description'])
                 : [],
             'trainers' => $normalizedKey === 'trainers'
-                ? Trainer::latest()->get(['id', 'name', 'photo', 'age', 'gender', 'address'])
+                ? Trainer::latest()->get(['id', 'name', 'photo', 'age', 'gender', 'address', 'biodata'])
                 : [],
         ]);
     }
@@ -118,7 +118,7 @@ class StudioPageController extends Controller
 
         return Inertia::render('WelcomeClassDetail', [
             'menuItems' => $menuItems,
-            'classItem' => $pilatesClass->load(['classCategory:id,name', 'trainers:id,name,photo,gender,age,address']),
+            'classItem' => $pilatesClass->load(['classCategory:id,name', 'trainers:id,name,photo,gender,age,address,biodata']),
         ]);
     }
 }

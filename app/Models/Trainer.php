@@ -15,6 +15,7 @@ class Trainer extends Model
         'age',
         'gender',
         'address',
+        'biodata',
     ];
 
     public function pilatesClasses()
