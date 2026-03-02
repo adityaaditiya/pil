@@ -37,6 +37,7 @@ export default function Index({ trainers }) {
                             <Table.Th>Usia</Table.Th>
                             <Table.Th>Gender</Table.Th>
                             <Table.Th>Alamat</Table.Th>
+                            <Table.Th>Biodata</Table.Th>
                             <Table.Th></Table.Th>
                         </tr>
                     </Table.Thead>
@@ -55,6 +56,9 @@ export default function Index({ trainers }) {
                                 <Table.Td>{item.gender}</Table.Td>
                                 <Table.Td>
                                     <p className="max-w-[260px] line-clamp-2">{item.address}</p>
+                                </Table.Td>
+                                <Table.Td>
+                                    <p className="max-w-[260px] line-clamp-2">{item.biodata}</p>
                                 </Table.Td>
                                 <Table.Td>
                                     <div className="flex gap-2">

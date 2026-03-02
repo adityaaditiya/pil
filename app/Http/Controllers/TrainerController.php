@@ -18,7 +18,8 @@ class TrainerController extends Controller
                 ->when(request('search'), function ($query, $search) {
                     $query->where('name', 'like', "%{$search}%")
                         ->orWhere('gender', 'like', "%{$search}%")
-                        ->orWhere('address', 'like', "%{$search}%");
+                        ->orWhere('address', 'like', "%{$search}%")
+                        ->orWhere('biodata', 'like', "%{$search}%");
                 })
                 ->latest()
                 ->paginate(10)
@@ -39,6 +40,7 @@ class TrainerController extends Controller
             'age' => 'required|integer|min:1|max:120',
             'gender' => 'required|in:Laki-laki,Perempuan',
             'address' => 'required|string',
+            'biodata' => 'required|string',
         ]);
 
         $photo = $request->file('photo');
@@ -65,6 +67,7 @@ class TrainerController extends Controller
             'age' => 'required|integer|min:1|max:120',
             'gender' => 'required|in:Laki-laki,Perempuan',
             'address' => 'required|string',
+            'biodata' => 'required|string',
         ]);
 
         if ($request->file('photo')) {

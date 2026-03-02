@@ -147,6 +147,7 @@ export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
                                             <p className="inline-flex items-center gap-2 font-semibold"><IconUser size={16} /> {trainer.name}</p>
                                             <p className="mt-2 text-sm text-wellness-muted">{trainer.gender || "-"}</p>
                                             <p className="mt-1 inline-flex items-start gap-2 text-sm text-wellness-muted"><IconMapPin size={14} className="mt-0.5" /> {trainer.address || "-"}</p>
+                                            <p className="mt-2 text-sm text-wellness-muted">{trainer.biodata || "Biodata trainer belum diisi."}</p>
                                         </div>
                                     ))}
                                 </div>

@@ -13,6 +13,7 @@ export default function Create() {
         age: "",
         gender: "Laki-laki",
         address: "",
+        biodata: "",
     });
 
     const submit = (e) => {
@@ -46,6 +47,7 @@ export default function Create() {
                         {errors.gender && <small className="text-xs text-danger-500">{errors.gender}</small>}
                     </div>
                     <Textarea label="Alamat" value={data.address} errors={errors.address} onChange={(e) => setData("address", e.target.value)} rows={3} />
+                    <Textarea label="Biodata" value={data.biodata} errors={errors.biodata} onChange={(e) => setData("biodata", e.target.value)} rows={4} />
 
                     <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                         <Link href={route("trainers.index")} className="px-5 py-2.5 rounded-xl border border-slate-200">Batal</Link>
