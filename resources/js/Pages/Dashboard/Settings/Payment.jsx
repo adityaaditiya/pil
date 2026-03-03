@@ -17,12 +17,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
     const { data, setData, put, errors, processing } = useForm({
         default_gateway: setting?.default_gateway ?? "cash",
         qris_enabled: setting?.qris_enabled ?? false,
-        qris_image: null,
-        qris_image_existing: setting?.qris_image ?? "",
         bank_transfer_enabled: setting?.bank_transfer_enabled ?? false,
-        bank_name: setting?.bank_name ?? "",
-        bank_account_name: setting?.bank_account_name ?? "",
-        bank_account_number: setting?.bank_account_number ?? "",
         ayo_enabled: setting?.ayo_enabled ?? false,
         credit_card_enabled: setting?.credit_card_enabled ?? false,
         midtrans_enabled: setting?.midtrans_enabled ?? false,
@@ -42,10 +37,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        put(route("settings.payments.update"), {
-            preserveScroll: true,
-            forceFormData: true,
-        });
+        put(route("settings.payments.update"), { preserveScroll: true });
     };
 
     const isGatewaySelectable = (gateway) => {
@@ -154,36 +146,6 @@ export default function Payment({ setting, supportedGateways = [] }) {
                                 {data.qris_enabled ? "Aktif" : "Nonaktif"}
                             </label>
                         </div>
-                        <div className="rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3 md:col-span-2">
-                            <p className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                Upload Gambar QRIS
-                            </p>
-                            <input
-                                type="file"
-                                accept="image/png,image/jpeg,image/jpg,image/webp"
-                                onChange={(e) =>
-                                    setData("qris_image", e.target.files?.[0] ?? null)
-                                }
-                                className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-700 hover:file:bg-primary-100"
-                            />
-                            {data.qris_image_existing && !data.qris_image && (
-                                <img
-                                    src={`/storage/payment-gateways/${data.qris_image_existing}`}
-                                    alt="QRIS"
-                                    className="mt-3 h-40 rounded-lg border border-slate-200 object-contain p-2"
-                                />
-                            )}
-                            {data.qris_image && (
-                                <p className="mt-2 text-xs text-slate-500">
-                                    File dipilih: {data.qris_image.name}
-                                </p>
-                            )}
-                            {errors?.qris_image && (
-                                <small className="mt-1 block text-xs text-danger-500">
-                                    {errors.qris_image}
-                                </small>
-                            )}
-                        </div>
                         <div className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3">
                             <div>
                                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -214,38 +176,6 @@ export default function Payment({ setting, supportedGateways = [] }) {
                                     ? "Aktif"
                                     : "Nonaktif"}
                             </label>
-                        </div>
-                        <div className="rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3 md:col-span-2">
-                            <div className="grid gap-4 md:grid-cols-3">
-                                <Input
-                                    label="Nama Bank"
-                                    type="text"
-                                    value={data.bank_name}
-                                    onChange={(e) => setData("bank_name", e.target.value)}
-                                    errors={errors?.bank_name}
-                                    placeholder="Contoh: BCA"
-                                />
-                                <Input
-                                    label="Nama Lengkap"
-                                    type="text"
-                                    value={data.bank_account_name}
-                                    onChange={(e) =>
-                                        setData("bank_account_name", e.target.value)
-                                    }
-                                    errors={errors?.bank_account_name}
-                                    placeholder="Nama pemilik rekening"
-                                />
-                                <Input
-                                    label="Nomor Rekening"
-                                    type="text"
-                                    value={data.bank_account_number}
-                                    onChange={(e) =>
-                                        setData("bank_account_number", e.target.value)
-                                    }
-                                    errors={errors?.bank_account_number}
-                                    placeholder="Contoh: 1234567890"
-                                />
-                            </div>
                         </div>
                         <div className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3">
                             <div>

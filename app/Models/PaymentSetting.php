@@ -18,7 +18,6 @@ class PaymentSetting extends Model
 
     protected $fillable = [
         'default_gateway',
-        'qris_image',
         'midtrans_enabled',
         'midtrans_server_key',
         'midtrans_client_key',
@@ -29,9 +28,6 @@ class PaymentSetting extends Model
         'xendit_production',
         'qris_enabled',
         'bank_transfer_enabled',
-        'bank_name',
-        'bank_account_name',
-        'bank_account_number',
         'ayo_enabled',
         'credit_card_enabled',
     ];

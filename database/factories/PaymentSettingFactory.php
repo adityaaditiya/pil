@@ -19,11 +19,7 @@ class PaymentSettingFactory extends Factory
         return [
             'default_gateway' => 'cash',
             'qris_enabled' => false,
-            'qris_image' => null,
             'bank_transfer_enabled' => false,
-            'bank_name' => null,
-            'bank_account_name' => null,
-            'bank_account_number' => null,
             'ayo_enabled' => false,
             'credit_card_enabled' => false,
             'midtrans_enabled' => false,
