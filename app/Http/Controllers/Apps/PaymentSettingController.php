@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Apps;
 use App\Http\Controllers\Controller;
 use App\Models\PaymentSetting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -51,11 +50,7 @@ class PaymentSettingController extends Controller
                 ]),
             ],
             'qris_enabled' => ['boolean'],
-            'qris_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'bank_transfer_enabled' => ['boolean'],
-            'bank_name' => ['nullable', 'string', 'max:100'],
-            'bank_account_name' => ['nullable', 'string', 'max:150'],
-            'bank_account_number' => ['nullable', 'string', 'max:50'],
             'ayo_enabled' => ['boolean'],
             'credit_card_enabled' => ['boolean'],
             'midtrans_enabled' => ['boolean'],
@@ -87,30 +82,6 @@ class PaymentSettingController extends Controller
             ])->withInput();
         }
 
-        if ($qrisEnabled && ! $request->hasFile('qris_image') && empty($setting->qris_image)) {
-            return back()->withErrors([
-                'qris_image' => 'Gambar QRIS wajib diunggah saat mengaktifkan QRIS.',
-            ])->withInput();
-        }
-
-        if ($bankTransferEnabled && (empty($data['bank_name']) || empty($data['bank_account_name']) || empty($data['bank_account_number']))) {
-            return back()->withErrors([
-                'bank_name' => 'Nama bank, nama lengkap, dan nomor rekening wajib diisi saat mengaktifkan transfer bank.',
-            ])->withInput();
-        }
-
-        $qrisImagePath = $setting->qris_image;
-
-        if ($request->hasFile('qris_image')) {
-            if ($qrisImagePath) {
-                Storage::disk('local')->delete('public/payment-gateways/' . basename($qrisImagePath));
-            }
-
-            $image = $request->file('qris_image');
-            $image->storeAs('public/payment-gateways', $image->hashName());
-            $qrisImagePath = $image->hashName();
-        }
-
         if (
             $data['default_gateway'] !== 'cash'
             && !(($data['default_gateway'] === PaymentSetting::GATEWAY_MIDTRANS && $midtransEnabled)
@@ -127,12 +98,8 @@ class PaymentSettingController extends Controller
 
         $setting->update([
             'default_gateway' => $data['default_gateway'],
-            'qris_image' => $qrisImagePath,
             'qris_enabled' => $qrisEnabled,
             'bank_transfer_enabled' => $bankTransferEnabled,
-            'bank_name' => $data['bank_name'] ?? null,
-            'bank_account_name' => $data['bank_account_name'] ?? null,
-            'bank_account_number' => $data['bank_account_number'] ?? null,
             'ayo_enabled' => $ayoEnabled,
             'credit_card_enabled' => $creditCardEnabled,
             'midtrans_enabled' => $midtransEnabled,
