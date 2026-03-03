@@ -83,7 +83,8 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
 
                             <div>
                                 <h1 className="text-3xl font-bold">Pembayaran Booking</h1>
-                                <p className="mt-2 text-wellness-muted">{schedule.pilates_class?.name} bersama {schedule.trainer?.name || "trainer"}.</p>
+                                {/* <p className="mt-2 text-wellness-muted">{schedule.pilates_class?.name} bersama {schedule.trainer?.name || "trainer"}.</p> */}
+                                <p className="mt-2 text-wellness-muted">{schedule.pilates_class?.name}</p>
 
                                 <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
                                     <table className="w-full text-sm">
@@ -148,8 +149,8 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
                                     )}
 
                                     {!allowDropIn && (
-                                        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-                                            Sesi ini hanya bisa dibayar menggunakan credit membership, sehingga metode Drop-In tidak ditampilkan.
+                                        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                                            Sesi ini hanya bisa dibayar menggunakan credits membership.
                                         </div>
                                     )}
 
@@ -160,7 +161,7 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
                                         disabled={processing || remainingSlots < 1}
                                         className="inline-flex rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-400"
                                     >
-                                        Book Now
+                                        Selesaikan Pembayaran
                                     </button>
                                 </form>
                             </div>
