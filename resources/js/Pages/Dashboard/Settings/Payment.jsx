@@ -16,7 +16,7 @@ import toast from "react-hot-toast";
 export default function Payment({ setting, supportedGateways = [] }) {
     const { flash } = usePage().props;
 
-    const { data, setData, put, errors, processing } = useForm({
+    const { data, setData, post, errors, processing } = useForm({
         default_gateway: setting?.default_gateway ?? "cash",
         qris_enabled: setting?.qris_enabled ?? false,
         qris_full_name: setting?.qris_full_name ?? "",
@@ -36,6 +36,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
         xendit_secret_key: setting?.xendit_secret_key ?? "",
         xendit_public_key: setting?.xendit_public_key ?? "",
         xendit_production: setting?.xendit_production ?? false,
+        _method: "PUT",
     });
 
     const currentQrisImage = useMemo(() => {
@@ -53,7 +54,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        put(route("settings.payments.update"), {
+        post(route("settings.payments.update"), {
             preserveScroll: true,
             forceFormData: true,
         });
