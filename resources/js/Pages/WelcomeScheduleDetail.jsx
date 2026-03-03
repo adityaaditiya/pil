@@ -59,6 +59,10 @@ export default function WelcomeScheduleDetail({ schedule, menuItems = [] }) {
 
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
                 <section className="mx-auto max-w-6xl px-4 py-10">
+                    <br />
+                    <Link href={route("welcome.page", "schedule")} className="mb-6 inline-flex items-center gap-2 text-sm text-primary-600">
+                        <IconArrowLeft size={16} /> Kembali ke Schedule
+                    </Link>
                     <div className="grid gap-8 lg:grid-cols-[0.9fr,1.1fr]">
                         
                         {/* ================= LEFT SIDE (DETAIL DATA) ================= */}

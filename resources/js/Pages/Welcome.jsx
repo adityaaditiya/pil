@@ -219,7 +219,7 @@ export default function Welcome() {
 
                             <div className="mt-10 flex flex-wrap gap-4">
                                 <Button as={Link} href={route("welcome.page", "classes")}>Book A Class</Button>
-                                {/* <Button as={Link} href={route("welcome.page", "schedule")} variant="secondary">Lihat Jadwal</Button> */}
+                                <Button as={Link} href={route("welcome.page", "pricing")} variant="secondary">Lihat Penawaran!</Button>
                             </div>
 
                             <div className="mt-10 flex flex-wrap gap-3">

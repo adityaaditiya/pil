@@ -90,7 +90,7 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
                                     <table className="w-full text-sm">
                                         <tbody>
                                             <tr className="border-b border-slate-100">
-                                                <td className="w-48 bg-slate-50 px-4 py-3 font-medium text-slate-700">Sisa Credit Anda</td>
+                                                <td className="w-48 bg-slate-50 px-4 py-3 font-medium text-slate-700">Sisa Credit</td>
                                                 <td className="px-4 py-3 text-slate-700">{customerCredit}</td>
                                             </tr>
                                             <tr className="border-b border-slate-100">
@@ -150,7 +150,7 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
 
                                     {!allowDropIn && (
                                         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-                                            Sesi ini hanya bisa dibayar menggunakan credits membership.
+                                            Sesi ini hanya bisa dibayarkan menggunakan credits membership.
                                         </div>
                                     )}
 
