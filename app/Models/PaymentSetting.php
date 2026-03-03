@@ -13,6 +13,7 @@ class PaymentSetting extends Model
     public const GATEWAY_XENDIT = 'xendit';
     public const GATEWAY_QRIS = 'qris';
     public const GATEWAY_BANK_TRANSFER = 'bank_transfer';
+    public const GATEWAY_DEBIT = 'debit';
     public const GATEWAY_AYO = 'ayo';
     public const GATEWAY_CREDIT_CARD = 'credit_card';
 
@@ -28,6 +29,12 @@ class PaymentSetting extends Model
         'xendit_production',
         'qris_enabled',
         'bank_transfer_enabled',
+        'debit_enabled',
+        'qris_full_name',
+        'qris_image',
+        'bank_name',
+        'bank_account_name',
+        'bank_account_number',
         'ayo_enabled',
         'credit_card_enabled',
     ];
@@ -39,6 +46,7 @@ class PaymentSetting extends Model
         'xendit_production' => 'boolean',
         'qris_enabled' => 'boolean',
         'bank_transfer_enabled' => 'boolean',
+        'debit_enabled' => 'boolean',
         'ayo_enabled' => 'boolean',
         'credit_card_enabled' => 'boolean',
     ];
@@ -60,6 +68,14 @@ class PaymentSetting extends Model
                 'value' => self::GATEWAY_BANK_TRANSFER,
                 'label' => 'Transfer Bank',
                 'description' => 'Pembayaran transfer bank yang dicatat manual.',
+            ];
+        }
+
+        if ($this->isGatewayReady(self::GATEWAY_DEBIT)) {
+            $gateways[] = [
+                'value' => self::GATEWAY_DEBIT,
+                'label' => 'Debit',
+                'description' => 'Pembayaran kartu debit yang dicatat manual.',
             ];
         }
 
@@ -109,6 +125,7 @@ class PaymentSetting extends Model
                 && filled($this->xendit_public_key),
             self::GATEWAY_QRIS => $this->qris_enabled,
             self::GATEWAY_BANK_TRANSFER => $this->bank_transfer_enabled,
+            self::GATEWAY_DEBIT => $this->debit_enabled,
             self::GATEWAY_AYO => $this->ayo_enabled,
             self::GATEWAY_CREDIT_CARD => $this->credit_card_enabled,
             default => false,
