@@ -20,9 +20,11 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
-        return Inertia::render('Auth/Register');
+        return Inertia::render('Auth/Register', [
+            'redirect' => $request->query('redirect'),
+        ]);
     }
 
     /**
@@ -32,6 +34,8 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $redirect = trim((string) $request->input('redirect', ''));
+
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|lowercase|email|max:255|unique:' . User::class,
@@ -66,6 +70,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('transactions.my', absolute: false));
+        if ($redirect !== '' && str_starts_with($redirect, '/')) {
+            return redirect()->to($redirect);
+        }
+
+        return redirect(route('welcome', absolute: false));
     }
 }
