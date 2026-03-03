@@ -202,7 +202,7 @@ export default function Login({ status, canResetPassword, redirect = "" }) {
                             <p className="text-center text-sm text-slate-600 dark:text-slate-400">
                                 Belum punya akun?{" "}
                                 <Link
-                                    href="/register"
+                                    href={route("register", redirect ? { redirect } : {})}
                                     className="text-primary-500 hover:text-primary-600 font-semibold"
                                 >
                                     Daftar Sekarang

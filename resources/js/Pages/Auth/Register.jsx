@@ -13,12 +13,13 @@ import {
 
 import { IconArrowLeft, IconYoga } from "@tabler/icons-react";
 
-export default function Register() {
+export default function Register({ redirect = "" }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: "",
         email: "",
         password: "",
         password_confirmation: "",
+        redirect,
     });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -26,6 +27,10 @@ export default function Register() {
     useEffect(() => {
         return () => reset("password", "password_confirmation");
     }, []);
+
+    useEffect(() => {
+        setData("redirect", redirect || "");
+    }, [redirect]);
 
     const submit = (e) => {
         e.preventDefault();
@@ -279,7 +284,7 @@ export default function Register() {
                             <p className="text-center text-sm text-slate-600 dark:text-slate-400">
                                 Sudah punya akun?{" "}
                                 <Link
-                                    href="/login"
+                                    href={route("login", redirect ? { redirect } : {})}
                                     className="text-primary-500 hover:text-primary-600 font-semibold"
                                 >
                                     Masuk disini
