@@ -30,6 +30,27 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
         membership_id: "",
     });
 
+    const selectedMembership = useMemo(() => {
+        if (!data.membership_id) {
+            return null;
+        }
+
+        return availableMemberships.find((membership) => String(membership.id) === String(data.membership_id)) ?? null;
+    }, [availableMemberships, data.membership_id]);
+
+    useEffect(() => {
+        if (!availableMemberships.length) {
+            if (data.membership_id) {
+                setData("membership_id", "");
+            }
+            return;
+        }
+
+        if (!data.membership_id) {
+            setData("membership_id", String(bestMembership?.id ?? availableMemberships[0].id));
+        }
+    }, [availableMemberships, bestMembership, data.membership_id, setData]);
+
     useEffect(() => {
         if (!availableMemberships.length) {
             if (data.membership_id) {
@@ -115,7 +136,7 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
                                                         >
                                                             {availableMemberships.map((membership) => (
                                                                 <option key={membership.id} value={membership.id}>
-                                                                    {membership.plan_name} • {membership.credits_remaining} credit tersisa
+                                                                    {membership.plan_name}
                                                                 </option>
                                                             ))}
                                                         </select>
@@ -132,7 +153,7 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
                                             </tr>
                                             <tr className="border-b border-slate-100">
                                                 <td className="w-48 bg-slate-50 px-4 py-3 font-medium text-slate-700">Sisa Credit</td>
-                                                <td className="px-4 py-3 text-slate-700">{customerCredit}</td>
+                                                <td className="px-4 py-3 text-slate-700">{selectedMembership?.credits_remaining ?? customerCredit}</td>
                                             </tr>
                                             <tr className="border-b border-slate-100">
                                                 <td className="bg-slate-50 px-4 py-3 font-medium text-slate-700">Slot Peserta</td>
