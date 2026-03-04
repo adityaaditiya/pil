@@ -1,4 +1,5 @@
 import { Head, Link, usePage } from "@inertiajs/react";
+import { useState } from "react";
 import {
     IconAward,
     IconCheck,
@@ -20,6 +21,7 @@ import SectionTitle from "@/Components/Landing/SectionTitle";
 
 export default function Welcome() {
     const { auth } = usePage().props;
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const navItems = [
         { name: "Home", key: "home" },
         { name: "About", key: "about" },
@@ -190,7 +192,7 @@ export default function Welcome() {
 
                         <div className="flex items-center gap-3">
                             {auth?.user ? (
-                                <div className="hidden items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1 md:inline-flex">
+                                <div className="hidden md:flex items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1">
                                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
                                         {(auth.user.name || "U").charAt(0)}
                                     </div>
@@ -201,11 +203,47 @@ export default function Welcome() {
                                     Login / Register
                                 </Button>
                             )}
-                            <button className="rounded-xl border border-primary-200 p-2.5 text-wellness-text lg:hidden" type="button">
+                            <button
+                                className="rounded-xl border border-primary-200 p-2.5 text-wellness-text md:hidden"
+                                type="button"
+                                onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+                                aria-label="Toggle mobile menu"
+                            >
                                 <IconMenu2 size={20} />
                             </button>
                         </div>
                     </div>
+
+                    {isMobileMenuOpen && (
+                        <div className="border-t border-primary-100 bg-wellness-soft px-4 py-4 md:hidden">
+                            <div className="mx-auto flex max-w-7xl flex-col gap-4">
+                                {auth?.user ? (
+                                    <div className="flex items-center gap-2 rounded-2xl border border-primary-100 bg-white px-3 py-2">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
+                                            {(auth.user.name || "U").charAt(0)}
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                    </div>
+                                ) : (
+                                    <Button as={Link} href={route("login")} className="w-full justify-center">
+                                        Login / Register
+                                    </Button>
+                                )}
+
+                                <div className="flex flex-col gap-3">
+                                    {navItems.map((item) => (
+                                        <Link
+                                            key={item.key}
+                                            href={item.key === "home" ? route("welcome") : route("welcome.page", item.key)}
+                                            className="text-sm text-wellness-muted transition hover:text-primary-600"
+                                        >
+                                            {item.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </nav>
 
                 <section className="bg-gradient-to-br from-wellness-beige via-wellness-soft to-wellness-greige px-4 pb-20 pt-16 md:px-6 md:pt-20">
