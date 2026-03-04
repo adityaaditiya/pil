@@ -52,6 +52,19 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
     }, [availableMemberships, bestMembership, data.membership_id, setData]);
 
     useEffect(() => {
+        if (!availableMemberships.length) {
+            if (data.membership_id) {
+                setData("membership_id", "");
+            }
+            return;
+        }
+
+        if (!data.membership_id) {
+            setData("membership_id", String(bestMembership?.id ?? availableMemberships[0].id));
+        }
+    }, [availableMemberships, bestMembership, data.membership_id, setData]);
+
+    useEffect(() => {
         if (flash?.success) {
             setShowSuccessModal(true);
         }
