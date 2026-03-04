@@ -1,4 +1,5 @@
 import { Head, Link, usePage } from "@inertiajs/react";
+import { useState } from "react";
 import {
     IconAward,
     IconCheck,
@@ -6,6 +7,7 @@ import {
     IconFlower,
     IconHeartHandshake,
     IconBrandInstagram,
+    IconChevronDown,
     IconMapPin,
     IconMenu2,
     IconPhone,
@@ -20,6 +22,8 @@ import SectionTitle from "@/Components/Landing/SectionTitle";
 
 export default function Welcome() {
     const { auth } = usePage().props;
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const navItems = [
         { name: "Home", key: "home" },
         { name: "About", key: "about" },
@@ -32,6 +36,12 @@ export default function Welcome() {
     ];
 
     const trustBadges = ["Certified Trainers", "Small Group", "Beginner Friendly"];
+
+    const userMenuItems = [
+        { name: "My profile", href: route("profile.edit") },
+        { name: "My schedule", href: route("welcome.page", "schedule") },
+        { name: "My memberships", href: route("memberships.my") },
+    ];
 
     const benefits = [
         {
@@ -190,22 +200,98 @@ export default function Welcome() {
 
                         <div className="flex items-center gap-3">
                             {auth?.user ? (
-                                <div className="hidden items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1 md:inline-flex">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
-                                        {(auth.user.name || "U").charAt(0)}
-                                    </div>
-                                    <span className="pr-2 text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                <div className="relative hidden md:flex">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                                        className="flex items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1"
+                                    >
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
+                                            {(auth.user.name || "U").charAt(0)}
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                        <IconChevronDown size={16} className="text-slate-500" />
+                                    </button>
+
+                                    {isUserMenuOpen && (
+                                        <div className="absolute right-0 top-12 z-50 w-48 rounded-2xl border border-primary-100 bg-white p-2 shadow-lg">
+                                            {userMenuItems.map((item) => (
+                                                <Link key={item.name} href={item.href} className="block rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-primary-50">
+                                                    {item.name}
+                                                </Link>
+                                            ))}
+                                            <Link href={route("logout")} method="post" as="button" className="block w-full rounded-xl px-3 py-2 text-left text-sm text-slate-700 hover:bg-primary-50">
+                                                Logout
+                                            </Link>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <Button as={Link} href={route("login")} className="hidden md:inline-flex">
                                     Login / Register
                                 </Button>
                             )}
-                            <button className="rounded-xl border border-primary-200 p-2.5 text-wellness-text lg:hidden" type="button">
+                            <button
+                                className="rounded-xl border border-primary-200 p-2.5 text-wellness-text md:hidden"
+                                type="button"
+                                onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+                                aria-label="Toggle mobile menu"
+                            >
                                 <IconMenu2 size={20} />
                             </button>
                         </div>
                     </div>
+
+                    {isMobileMenuOpen && (
+                        <div className="border-t border-primary-100 bg-wellness-soft px-4 py-4 md:hidden">
+                            <div className="mx-auto flex max-w-7xl flex-col gap-4">
+                                {auth?.user ? (
+                                    <div className="rounded-2xl border border-primary-100 bg-white p-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                                            className="flex w-full items-center gap-2 rounded-xl px-1 py-1"
+                                        >
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
+                                                {(auth.user.name || "U").charAt(0)}
+                                            </div>
+                                            <span className="text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                            <IconChevronDown size={16} className="ml-auto text-slate-500" />
+                                        </button>
+
+                                        {isUserMenuOpen && (
+                                            <div className="mt-2 space-y-1">
+                                                {userMenuItems.map((item) => (
+                                                    <Link key={item.name} href={item.href} className="block rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-primary-50">
+                                                        {item.name}
+                                                    </Link>
+                                                ))}
+                                                <Link href={route("logout")} method="post" as="button" className="block w-full rounded-xl px-3 py-2 text-left text-sm text-slate-700 hover:bg-primary-50">
+                                                    Logout
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <Button as={Link} href={route("login")} className="w-full justify-center">
+                                        Login / Register
+                                    </Button>
+                                )}
+
+                                <div className="flex flex-col gap-3">
+                                    {navItems.map((item) => (
+                                        <Link
+                                            key={item.key}
+                                            href={item.key === "home" ? route("welcome") : route("welcome.page", item.key)}
+                                            className="text-sm text-wellness-muted transition hover:text-primary-600"
+                                        >
+                                            {item.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </nav>
 
                 <section className="bg-gradient-to-br from-wellness-beige via-wellness-soft to-wellness-greige px-4 pb-20 pt-16 md:px-6 md:pt-20">
