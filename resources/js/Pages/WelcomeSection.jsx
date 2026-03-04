@@ -7,6 +7,7 @@ import {
     IconCurrencyDollar,
     IconFilter,
     IconMapPin,
+    IconMenu2,
     IconSparkles,
     IconStar,
     IconUser,
@@ -69,6 +70,7 @@ export default function WelcomeSection({
     initialFilters = {},
 }) {
     const { auth } = usePage().props;
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
     const [classNameFilter, setClassNameFilter] = useState(initialFilters.className || "");
     const [difficultyFilter, setDifficultyFilter] = useState(initialFilters.difficulty || "");
@@ -152,51 +154,100 @@ export default function WelcomeSection({
             <Head title={`${meta.name} | ORO Pilates Studio`} />
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
                 <nav className="sticky top-0 z-40 border-b border-primary-100 bg-white/90 backdrop-blur">
-    <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
-        <Link
-            href={route("welcome")}
-            className="flex items-center gap-2 font-semibold text-primary-700"
-        >
-            <IconYoga size={20} /> ORO Pilates Studio
-        </Link>
+                    <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
+                        <Link
+                            href={route("welcome")}
+                            className="flex items-center gap-2 font-semibold text-primary-700"
+                        >
+                            <IconYoga size={20} /> ORO Pilates Studio
+                        </Link>
 
-        <div className="flex flex-wrap items-center gap-3 text-sm text-wellness-muted">
+                        <div className="hidden md:flex flex-wrap items-center gap-3 text-sm text-wellness-muted">
+                            {[
+                                { name: "Home", key: "home" },
+                                ...menuItems.filter((item) => item.key !== "home"),
+                            ].map((item) => (
+                                <Link
+                                    key={item.key}
+                                    href={menuHref(item.key)}
+                                    className={
+                                        item.key === pageKey
+                                            ? "rounded-full bg-primary-100 px-3 py-1.5 font-medium text-primary-700"
+                                            : "px-2 py-1 hover:text-primary-600"
+                                    }
+                                >
+                                    {item.name}
+                                </Link>
+                            ))}
 
-            {[
-                { name: "Home", key: "home" },
-                ...menuItems.filter((item) => item.key !== "home"),
-            ].map((item) => (
-                <Link
-                    key={item.key}
-                    href={menuHref(item.key)}
-                    className={
-                        item.key === pageKey
-                            ? "rounded-full bg-primary-100 px-3 py-1.5 font-medium text-primary-700"
-                            : "px-2 py-1 hover:text-primary-600"
-                    }
-                >
-                    {item.name}
-                </Link>
-            ))}
+                            {auth?.user ? (
+                                <div className="hidden md:flex items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
+                                        {(auth.user.name || "U").charAt(0)}
+                                    </div>
+                                    <span className="pr-2 text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                </div>
+                            ) : (
+                                <Link
+                                    href={route("login")}
+                                    className="rounded-full bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700"
+                                >
+                                    Login / Register
+                                </Link>
+                            )}
+                        </div>
 
-            {auth?.user ? (
-                <div className="inline-flex items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
-                        {(auth.user.name || "U").charAt(0)}
+                        <button
+                            className="rounded-xl border border-primary-200 p-2.5 text-wellness-text md:hidden"
+                            type="button"
+                            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+                            aria-label="Toggle mobile menu"
+                        >
+                            <IconMenu2 size={20} />
+                        </button>
                     </div>
-                    <span className="pr-2 text-sm font-medium text-slate-700">{auth.user.name}</span>
-                </div>
-            ) : (
-                <Link
-                    href={route("login")}
-                    className="rounded-full bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700"
-                >
-                    Login / Register
-                </Link>
-            )}
-        </div>
-    </div>
-</nav>
+
+                    {isMobileMenuOpen && (
+                        <div className="border-t border-primary-100 bg-white/90 px-4 py-4 md:hidden">
+                            <div className="mx-auto flex max-w-6xl flex-col gap-4 text-sm text-wellness-muted">
+                                {auth?.user ? (
+                                    <div className="flex items-center gap-2 rounded-2xl border border-primary-100 bg-white px-3 py-2">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
+                                            {(auth.user.name || "U").charAt(0)}
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                    </div>
+                                ) : (
+                                    <Link
+                                        href={route("login")}
+                                        className="rounded-full bg-primary-600 px-4 py-2 text-center font-medium text-white hover:bg-primary-700"
+                                    >
+                                        Login / Register
+                                    </Link>
+                                )}
+
+                                <div className="flex flex-col gap-2">
+                                    {[
+                                        { name: "Home", key: "home" },
+                                        ...menuItems.filter((item) => item.key !== "home"),
+                                    ].map((item) => (
+                                        <Link
+                                            key={item.key}
+                                            href={menuHref(item.key)}
+                                            className={
+                                                item.key === pageKey
+                                                    ? "rounded-full bg-primary-100 px-3 py-1.5 font-medium text-primary-700"
+                                                    : "px-2 py-1 hover:text-primary-600"
+                                            }
+                                        >
+                                            {item.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </nav>
 
                 <section className="mx-auto max-w-6xl px-4 py-12">
                     <Link href={route("welcome")} className="mb-8 inline-flex items-center gap-2 text-sm text-primary-600">
