@@ -198,6 +198,7 @@ class StudioPageController extends Controller
         $data = $request->validate([
             'payment_type' => ['required', 'in:credit,drop_in'],
             'payment_method' => ['nullable', 'string', 'max:50'],
+            'membership_id' => ['nullable', 'integer'],
         ]);
 
         $timetable = PilatesTimetable::query()
@@ -254,7 +255,7 @@ class StudioPageController extends Controller
         $selectedMembership = null;
 
         if ($paymentType === 'credit') {
-            $selectedMembership = UserMembership::query()
+            $eligibleMemberships = UserMembership::query()
                 ->with(['plan.classRules' => fn ($query) => $query->where('pilates_class_id', $timetable->pilates_class_id)])
                 ->where('user_id', Auth::id())
                 ->where('status', 'active')
@@ -263,20 +264,24 @@ class StudioPageController extends Controller
                     $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
                 })
                 ->get()
-                ->first(fn (UserMembership $membership) => $membership->plan?->classRules->contains('pilates_class_id', $timetable->pilates_class_id));
+                ->filter(fn (UserMembership $membership) => $membership->plan?->classRules->contains('pilates_class_id', $timetable->pilates_class_id));
 
+            $selectedMembershipId = isset($data['membership_id']) ? (int) $data['membership_id'] : null;
+            $selectedMembership = $selectedMembershipId
+                ? $eligibleMemberships->firstWhere('id', $selectedMembershipId)
+                : $eligibleMemberships->first();
             $rule = $selectedMembership?->plan?->classRules?->first();
 
             if (! $selectedMembership || ! $rule) {
                 throw ValidationException::withMessages([
-                    'payment_type' => 'Tidak ada membership aktif yang valid untuk kelas ini.',
+                    'membership_id' => 'Pilih membership aktif yang valid untuk kelas ini.',
                 ]);
             }
 
             $creditUsed = (float) ($rule->credit_cost ?? 1);
             if ((int) $selectedMembership->credits_remaining < (int) $creditUsed) {
                 throw ValidationException::withMessages([
-                    'payment_type' => 'Credit membership tidak cukup.',
+                    'membership_id' => 'Credit membership tidak cukup.',
                 ]);
             }
         }

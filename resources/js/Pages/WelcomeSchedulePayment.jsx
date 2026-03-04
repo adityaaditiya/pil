@@ -27,7 +27,29 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
     const { data, setData, post, processing, errors } = useForm({
         payment_type: allowDropIn ? "drop_in" : "credit",
         payment_method: paymentGateways[0]?.value ?? "",
+        membership_id: "",
     });
+
+    const selectedMembership = useMemo(() => {
+        if (!data.membership_id) {
+            return null;
+        }
+
+        return availableMemberships.find((membership) => String(membership.id) === String(data.membership_id)) ?? null;
+    }, [availableMemberships, data.membership_id]);
+
+    useEffect(() => {
+        if (!availableMemberships.length) {
+            if (data.membership_id) {
+                setData("membership_id", "");
+            }
+            return;
+        }
+
+        if (!data.membership_id) {
+            setData("membership_id", String(bestMembership?.id ?? availableMemberships[0].id));
+        }
+    }, [availableMemberships, bestMembership, data.membership_id, setData]);
 
     useEffect(() => {
         if (flash?.success) {
@@ -90,8 +112,35 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
                                     <table className="w-full text-sm">
                                         <tbody>
                                             <tr className="border-b border-slate-100">
+                                                <td className="w-48 bg-slate-50 px-4 py-3 font-medium text-slate-700">Pilih Membership</td>
+                                                <td className="px-4 py-3 text-slate-700">
+                                                    {availableMemberships.length ? (
+                                                        <select
+                                                            value={data.membership_id}
+                                                            onChange={(event) => setData("membership_id", event.target.value)}
+                                                            disabled={data.payment_type !== "credit"}
+                                                            className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:bg-slate-100"
+                                                        >
+                                                            {availableMemberships.map((membership) => (
+                                                                <option key={membership.id} value={membership.id}>
+                                                                    {membership.plan_name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    ) : (
+                                                        <Link
+                                                            href={route("welcome.page", "pricing")}
+                                                            className="inline-flex rounded-full bg-primary-600 px-4 py-2 text-xs font-semibold text-white"
+                                                        >
+                                                            Beli Membership
+                                                        </Link>
+                                                    )}
+                                                    {errors.membership_id && <p className="mt-1 text-sm text-red-500">{errors.membership_id}</p>}
+                                                </td>
+                                            </tr>
+                                            <tr className="border-b border-slate-100">
                                                 <td className="w-48 bg-slate-50 px-4 py-3 font-medium text-slate-700">Sisa Credit</td>
-                                                <td className="px-4 py-3 text-slate-700">{customerCredit}</td>
+                                                <td className="px-4 py-3 text-slate-700">{selectedMembership?.credits_remaining ?? customerCredit}</td>
                                             </tr>
                                             <tr className="border-b border-slate-100">
                                                 <td className="bg-slate-50 px-4 py-3 font-medium text-slate-700">Slot Peserta</td>
