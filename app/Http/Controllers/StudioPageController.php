@@ -193,12 +193,50 @@ class StudioPageController extends Controller
         ]);
     }
 
+
+    public function showDropInCheckout(Request $request, PilatesTimetable $pilatesTimetable): Response|RedirectResponse
+    {
+        $schedule = $pilatesTimetable
+            ->load(['pilatesClass:id,name,image', 'trainer:id,name'])
+            ->loadSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants');
+        $bookedSlots = (int) ($schedule->booked_slots ?? 0);
+        $remainingSlots = max(0, ((int) $schedule->capacity) - $bookedSlots);
+
+        $paymentSetting = PaymentSetting::first();
+        $paymentGateways = collect($paymentSetting?->enabledGateways() ?? [])->filter(function ($gateway) {
+            return strtolower($gateway['value'] ?? '') !== 'cash';
+        })->values();
+
+        $method = (string) $request->string('payment_method');
+        $participants = max(1, (int) $request->integer('participants', 1));
+        $selectedGateway = $paymentGateways->firstWhere('value', $method);
+
+        if (! $schedule->allow_drop_in || ! $selectedGateway || $remainingSlots < 1) {
+            return to_route('welcome.schedule-payment', $schedule->id);
+        }
+
+        return Inertia::render('WelcomeScheduleDropInCheckout', [
+            'schedule' => $schedule,
+            'selectedGateway' => $selectedGateway,
+            'participants' => min($participants, $remainingSlots),
+            'remainingSlots' => $remainingSlots,
+            'paymentInstructions' => [
+                'qris_full_name' => $paymentSetting?->qris_full_name,
+                'qris_image' => $paymentSetting?->qris_image,
+                'bank_name' => $paymentSetting?->bank_name,
+                'bank_account_name' => $paymentSetting?->bank_account_name,
+                'bank_account_number' => $paymentSetting?->bank_account_number,
+            ],
+        ]);
+    }
+
     public function processSchedulePayment(Request $request, PilatesTimetable $pilatesTimetable): RedirectResponse
     {
         $data = $request->validate([
             'payment_type' => ['required', 'in:credit,drop_in'],
             'payment_method' => ['nullable', 'string', 'max:50'],
             'membership_id' => ['nullable', 'integer'],
+            'participants' => ['nullable', 'integer', 'min:1'],
         ]);
 
         $timetable = PilatesTimetable::query()
@@ -214,9 +252,10 @@ class StudioPageController extends Controller
 
         $bookedSlots = (int) ($timetable->booked_slots ?? 0);
         $remainingSlots = max(0, ((int) $timetable->capacity) - $bookedSlots);
-        if ($remainingSlots < 1) {
+        $participants = (int) ($data['participants'] ?? 1);
+        if ($remainingSlots < 1 || $participants > $remainingSlots) {
             throw ValidationException::withMessages([
-                'payment_type' => 'Slot kelas sudah penuh.',
+                'participants' => 'Slot kelas tidak mencukupi jumlah peserta yang dipilih.',
             ]);
         }
 
@@ -250,7 +289,7 @@ class StudioPageController extends Controller
         }
 
         $paymentMethod = $paymentType === 'credit' ? 'credits' : ($data['payment_method'] ?? 'manual_transfer');
-        $priceAmount = (float) ($timetable->price_override ?? 0);
+        $priceAmount = (float) (($timetable->price_override ?? 0) * $participants);
         $creditUsed = (float) ($timetable->credit_override ?? 0);
         $selectedMembership = null;
 
@@ -278,7 +317,7 @@ class StudioPageController extends Controller
                 ]);
             }
 
-            $creditUsed = (float) ($rule->credit_cost ?? 1);
+            $creditUsed = (float) (($rule->credit_cost ?? 1) * $participants);
             if ((int) $selectedMembership->credits_remaining < (int) $creditUsed) {
                 throw ValidationException::withMessages([
                     'membership_id' => 'Credit membership tidak cukup.',
@@ -287,11 +326,11 @@ class StudioPageController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($timetable, $paymentType, $paymentMethod, $priceAmount, $creditUsed, $selectedMembership) {
+            DB::transaction(function () use ($timetable, $paymentType, $paymentMethod, $priceAmount, $creditUsed, $selectedMembership, $participants) {
                 PilatesBooking::create([
                     'user_id' => Auth::id(),
                     'timetable_id' => $timetable->id,
-                    'participants' => 1,
+                    'participants' => $participants,
                     'user_membership_id' => $selectedMembership?->id,
                     'membership_plan_id' => $selectedMembership?->membership_plan_id,
                     'status' => 'confirmed',
