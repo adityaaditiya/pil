@@ -4,6 +4,7 @@ import {
     IconArrowLeft,
     IconCalendarEvent,
     IconClock,
+    IconChevronDown,
     IconCurrencyDollar,
     IconFilter,
     IconMapPin,
@@ -71,6 +72,7 @@ export default function WelcomeSection({
 }) {
     const { auth } = usePage().props;
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
     const [classNameFilter, setClassNameFilter] = useState(initialFilters.className || "");
     const [difficultyFilter, setDifficultyFilter] = useState(initialFilters.difficulty || "");
@@ -124,6 +126,12 @@ export default function WelcomeSection({
     );
 
     const hasActiveFilters = Boolean(classNameFilter || difficultyFilter || trainerFilter || classCategoryFilter);
+
+    const userMenuItems = [
+        { name: "My profile", href: route("profile.edit") },
+        { name: "My schedule", href: route("welcome.page", "schedule") },
+        { name: "My memberships", href: route("memberships.my") },
+    ];
 
     const filteredClasses = useMemo(() => {
         return classes.filter((classItem) => {
@@ -181,11 +189,31 @@ export default function WelcomeSection({
                             ))}
 
                             {auth?.user ? (
-                                <div className="hidden md:flex items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
-                                        {(auth.user.name || "U").charAt(0)}
-                                    </div>
-                                    <span className="pr-2 text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                <div className="relative hidden md:flex">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                                        className="flex items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1"
+                                    >
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
+                                            {(auth.user.name || "U").charAt(0)}
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                        <IconChevronDown size={16} className="text-slate-500" />
+                                    </button>
+
+                                    {isUserMenuOpen && (
+                                        <div className="absolute right-0 top-12 z-50 w-48 rounded-2xl border border-primary-100 bg-white p-2 shadow-lg">
+                                            {userMenuItems.map((item) => (
+                                                <Link key={item.name} href={item.href} className="block rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-primary-50">
+                                                    {item.name}
+                                                </Link>
+                                            ))}
+                                            <Link href={route("logout")} method="post" as="button" className="block w-full rounded-xl px-3 py-2 text-left text-sm text-slate-700 hover:bg-primary-50">
+                                                Logout
+                                            </Link>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <Link
@@ -211,11 +239,31 @@ export default function WelcomeSection({
                         <div className="border-t border-primary-100 bg-white/90 px-4 py-4 md:hidden">
                             <div className="mx-auto flex max-w-6xl flex-col gap-4 text-sm text-wellness-muted">
                                 {auth?.user ? (
-                                    <div className="flex items-center gap-2 rounded-2xl border border-primary-100 bg-white px-3 py-2">
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
-                                            {(auth.user.name || "U").charAt(0)}
-                                        </div>
-                                        <span className="text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                    <div className="rounded-2xl border border-primary-100 bg-white p-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                                            className="flex w-full items-center gap-2 rounded-xl px-1 py-1"
+                                        >
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
+                                                {(auth.user.name || "U").charAt(0)}
+                                            </div>
+                                            <span className="text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                            <IconChevronDown size={16} className="ml-auto text-slate-500" />
+                                        </button>
+
+                                        {isUserMenuOpen && (
+                                            <div className="mt-2 space-y-1">
+                                                {userMenuItems.map((item) => (
+                                                    <Link key={item.name} href={item.href} className="block rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-primary-50">
+                                                        {item.name}
+                                                    </Link>
+                                                ))}
+                                                <Link href={route("logout")} method="post" as="button" className="block w-full rounded-xl px-3 py-2 text-left text-sm text-slate-700 hover:bg-primary-50">
+                                                    Logout
+                                                </Link>
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <Link
