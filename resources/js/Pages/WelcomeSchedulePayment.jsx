@@ -1,4 +1,4 @@
-import { Head, Link, useForm, usePage } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { IconArrowLeft, IconCheck, IconCreditCard, IconWallet } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -14,6 +14,7 @@ const formatRupiah = (value) =>
 export default function WelcomeSchedulePayment({ schedule, paymentGateways = [], customerCredit = 0, availableMemberships = [], remainingSlots = 0 }) {
     const { flash } = usePage().props;
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     const allowDropIn = schedule.allow_drop_in && paymentGateways.length > 0;
     const bestMembership = useMemo(() => {
@@ -27,7 +28,30 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
     const { data, setData, post, processing, errors } = useForm({
         payment_type: allowDropIn ? "drop_in" : "credit",
         payment_method: paymentGateways[0]?.value ?? "",
+        membership_id: "",
+        participants: 1,
     });
+
+    const selectedMembership = useMemo(() => {
+        if (!data.membership_id) {
+            return null;
+        }
+
+        return availableMemberships.find((membership) => String(membership.id) === String(data.membership_id)) ?? null;
+    }, [availableMemberships, data.membership_id]);
+
+    useEffect(() => {
+        if (!availableMemberships.length) {
+            if (data.membership_id) {
+                setData("membership_id", "");
+            }
+            return;
+        }
+
+        if (!data.membership_id) {
+            setData("membership_id", String(bestMembership?.id ?? availableMemberships[0].id));
+        }
+    }, [availableMemberships, bestMembership, data.membership_id, setData]);
 
     useEffect(() => {
         if (flash?.success) {
@@ -56,12 +80,40 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
             : []),
     ];
 
+    const selectedMethodLabel = useMemo(() => {
+        if (data.payment_type === "credit") {
+            return "Credit Membership";
+        }
+
+        return paymentGateways.find((gateway) => gateway.value === data.payment_method)?.label ?? "Drop-In Payment";
+    }, [data.payment_method, data.payment_type, paymentGateways]);
+
     const submitBooking = (event) => {
         event.preventDefault();
 
-        post(route("welcome.schedule-payment.process", schedule.id), {
-            preserveScroll: true,
-        });
+        setShowConfirmModal(true);
+    };
+
+    const confirmPayment = () => {
+        if (data.payment_type === "credit") {
+            post(route("welcome.schedule-payment.process", schedule.id), {
+                preserveScroll: true,
+                onSuccess: () => setShowConfirmModal(false),
+            });
+
+            return;
+        }
+
+        router.get(
+            route("welcome.schedule-payment.drop-in-checkout", schedule.id),
+            {
+                payment_method: data.payment_method,
+                participants: data.participants,
+            },
+            {
+                preserveScroll: true,
+            }
+        );
     };
 
     return (
@@ -90,8 +142,48 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
                                     <table className="w-full text-sm">
                                         <tbody>
                                             <tr className="border-b border-slate-100">
+                                                <td className="w-48 bg-slate-50 px-4 py-3 font-medium text-slate-700">Pilih Membership</td>
+                                                <td className="px-4 py-3 text-slate-700">
+                                                    {availableMemberships.length ? (
+                                                        <select
+                                                            value={data.membership_id}
+                                                            onChange={(event) => setData("membership_id", event.target.value)}
+                                                            disabled={data.payment_type !== "credit"}
+                                                            className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:bg-slate-100"
+                                                        >
+                                                            {availableMemberships.map((membership) => (
+                                                                <option key={membership.id} value={membership.id}>
+                                                                    {membership.plan_name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    ) : (
+                                                        <Link
+                                                            href={route("welcome.page", "pricing")}
+                                                            className="inline-flex rounded-full bg-primary-600 px-4 py-2 text-xs font-semibold text-white"
+                                                        >
+                                                            Beli Membership
+                                                        </Link>
+                                                    )}
+                                                    {errors.membership_id && <p className="mt-1 text-sm text-red-500">{errors.membership_id}</p>}
+                                                </td>
+                                            </tr>
+                                            <tr className="border-b border-slate-100">
                                                 <td className="w-48 bg-slate-50 px-4 py-3 font-medium text-slate-700">Sisa Credit</td>
-                                                <td className="px-4 py-3 text-slate-700">{customerCredit}</td>
+                                                <td className="px-4 py-3 text-slate-700">{selectedMembership?.credits_remaining ?? customerCredit}</td>
+                                            </tr>
+                                            <tr className="border-b border-slate-100">
+                                                <td className="bg-slate-50 px-4 py-3 font-medium text-slate-700">Slot Booking Peserta</td>
+                                                <td className="px-4 py-3 text-slate-700">
+                                                    <input
+                                                        type="number"
+                                                        min={1}
+                                                        max={Math.max(1, remainingSlots)}
+                                                        value={data.participants}
+                                                        onChange={(event) => setData("participants", Number(event.target.value || 1))}
+                                                        className="w-24 rounded-xl border border-slate-300 px-3 py-2 text-sm"
+                                                    />
+                                                </td>
                                             </tr>
                                             <tr className="border-b border-slate-100">
                                                 <td className="bg-slate-50 px-4 py-3 font-medium text-slate-700">Slot Peserta</td>
@@ -155,6 +247,7 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
                                     )}
 
                                     {errors.payment_type && <p className="text-sm text-red-500">{errors.payment_type}</p>}
+                                    {errors.participants && <p className="text-sm text-red-500">{errors.participants}</p>}
 
                                     <button
                                         type="submit"
@@ -181,6 +274,37 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
                         >
                             Kembali ke Jadwal
                         </Link>
+                    </div>
+                </div>
+            )}
+
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
+                    <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+                        <h2 className="text-xl font-bold text-primary-700">Konfirmasi Pembayaran</h2>
+                        <p className="mt-3 text-sm text-slate-700">
+                            Metode pembayaran dipilih: <span className="font-semibold">{selectedMethodLabel}</span>.
+                        </p>
+                        <p className="mt-2 text-sm text-slate-700">
+                            Jumlah peserta: <span className="font-semibold">{data.participants}</span> orang.
+                        </p>
+                        {data.payment_type === "credit" && (
+                            <p className="mt-2 text-sm text-slate-700">
+                                Jumlah <span className="font-semibold">{(selectedMembership?.credit_cost ?? Number(schedule.credit_override ?? 0)) * Number(data.participants || 1)} credit</span> akan dipotong.
+                            </p>
+                        )}
+                        <div className="mt-6 flex justify-end gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmModal(false)}
+                                className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
+                            >
+                                Batal
+                            </button>
+                            <button type="button" onClick={confirmPayment} className="rounded-full bg-primary-600 px-5 py-2 text-sm font-semibold text-white">
+                                Konfirmasi
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

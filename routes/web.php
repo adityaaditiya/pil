@@ -41,6 +41,7 @@ Route::get('/welcome/{key}', [StudioPageController::class, 'showByKey'])->name('
 Route::get('/welcome/classes/{pilatesClass}', [StudioPageController::class, 'showClassDetail'])->name('welcome.class-detail');
 Route::get('/welcome/schedule/{pilatesTimetable}', [StudioPageController::class, 'showScheduleDetail'])->name('welcome.schedule-detail');
 Route::middleware('auth')->get('/welcome/schedule/{pilatesTimetable}/payment', [StudioPageController::class, 'showSchedulePayment'])->name('welcome.schedule-payment');
+Route::middleware('auth')->get('/welcome/schedule/{pilatesTimetable}/payment/drop-in-checkout', [StudioPageController::class, 'showDropInCheckout'])->name('welcome.schedule-payment.drop-in-checkout');
 Route::middleware('auth')->post('/welcome/schedule/{pilatesTimetable}/payment', [StudioPageController::class, 'processSchedulePayment'])->name('welcome.schedule-payment.process');
 
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
