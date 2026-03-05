@@ -54,7 +54,7 @@ export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
         <>
             <Head title={`${classItem.name} | Detail Kelas`} />
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
-                <nav className="sticky top-0 z-40 border-b border-primary-100 bg-white/90 backdrop-blur">
+                <nav className="sticky top-0 z-40 border-b border-primary-100 bg-wellness-soft/95 backdrop-blur">
                     <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
                         <Link href={route("welcome")} className="flex items-center gap-2 font-semibold text-primary-700">
                             <IconYoga size={20} /> ORO Pilates Studio
