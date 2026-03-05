@@ -1,27 +1,15 @@
-import { Head, Link, usePage } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
+import Navbar from "@/Components/Landing/Navbar";
 import {
     IconArrowLeft,
-    IconCalendarEvent,
     IconClock,
-    IconCreditCard,
     IconMapPin,
     IconStar,
-    IconTagStarred,
     IconUser,
-    IconUsers,
     IconYoga,
 } from "@tabler/icons-react";
 
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
-const menuHref = (key) => (key === "home" ? route("welcome") : route("welcome.page", key));
-
-const formatRupiah = (value) =>
-    new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-        maximumFractionDigits: 0,
-    }).format(Number(value || 0));
-
 const formatDateTime = (date) =>
     date
         ? new Intl.DateTimeFormat("id-ID", {
@@ -34,10 +22,7 @@ const formatDateTime = (date) =>
           }).format(new Date(date))
         : "-";
 
-export default function WelcomeScheduleDetail({ schedule, menuItems = [] }) {
-    const { auth } = usePage().props;
-    const paymentLabel = schedule.allow_drop_in ? "Credit atau Drop-In" : "Credit";
-
+export default function WelcomeScheduleDetail({ schedule }) {
     const scheduleRows = [
         // { label: "ID Schedule", value: schedule.id },
         { label: "Class Name", value: schedule.pilates_class?.name || "-" },
@@ -58,8 +43,9 @@ export default function WelcomeScheduleDetail({ schedule, menuItems = [] }) {
             <Head title={`${schedule.pilates_class?.name || "Schedule"} | Detail Schedule`} />
 
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
+                <Navbar currentKey="schedule" />
+
                 <section className="mx-auto max-w-6xl px-4 py-10">
-                    <br />
                     <Link href={route("welcome.page", "schedule")} className="mb-6 inline-flex items-center gap-2 text-sm text-primary-600">
                         <IconArrowLeft size={16} /> Kembali ke Schedule
                     </Link>
@@ -168,13 +154,7 @@ export default function WelcomeScheduleDetail({ schedule, menuItems = [] }) {
                                 </div> */}
 
                                 <Link
-                                    href={
-                                        auth?.user
-                                            ? route("welcome.schedule-payment", schedule.id)
-                                            : route("login", {
-                                                  redirect: route("welcome.schedule-detail", schedule.id, false),
-                                              })
-                                    }
+                                    href={route("welcome.schedule-payment", schedule.id)}
                                     className="inline-flex rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
                                 >
                                     Confirm Booking
