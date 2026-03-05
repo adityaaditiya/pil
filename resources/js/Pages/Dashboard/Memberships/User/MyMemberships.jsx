@@ -1,13 +1,9 @@
 import React from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, usePage } from "@inertiajs/react";
-import WelcomeNavbar from "@/Components/Landing/WelcomeNavbar";
+import { Head } from "@inertiajs/react";
 
 export default function MyMemberships({ memberships }) {
-    const { auth } = usePage().props;
-    const isCustomer = !(auth?.permissions || []).includes("dashboard-access");
-
-    const content = (
+    return (
         <>
             <Head title="My Memberships" />
             <h1 className="mb-4 text-2xl font-bold">My Memberships</h1>
@@ -23,15 +19,5 @@ export default function MyMemberships({ memberships }) {
             </div>
         </>
     );
-
-    if (isCustomer) {
-        return (
-            <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
-                <WelcomeNavbar auth={auth} />
-                <div className="mx-auto max-w-6xl px-4 py-10">{content}</div>
-            </div>
-        );
-    }
-
-    return <DashboardLayout>{content}</DashboardLayout>;
 }
+MyMemberships.layout = (page) => <DashboardLayout children={page} />;
