@@ -1,4 +1,4 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import Navbar from "@/Components/Landing/Navbar";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -71,6 +71,7 @@ export default function WelcomeSection({
     const [difficultyFilter, setDifficultyFilter] = useState(initialFilters.difficulty || "");
     const [trainerFilter, setTrainerFilter] = useState(initialFilters.trainer || "");
     const [classCategoryFilter, setClassCategoryFilter] = useState(initialFilters.classCategory || "");
+    const { auth } = usePage().props;
 
     const meta = page || fallbackMeta[pageKey] || {
         name: "Welcome",
