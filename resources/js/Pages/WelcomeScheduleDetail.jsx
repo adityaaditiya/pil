@@ -1,20 +1,15 @@
 import { Head, Link, usePage } from "@inertiajs/react";
 import {
     IconArrowLeft,
-    IconCalendarEvent,
     IconClock,
-    IconCreditCard,
     IconMapPin,
     IconStar,
-    IconTagStarred,
     IconUser,
-    IconUsers,
     IconYoga,
 } from "@tabler/icons-react";
+import WelcomeNavbar from "@/Components/Landing/WelcomeNavbar";
 
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
-const menuHref = (key) => (key === "home" ? route("welcome") : route("welcome.page", key));
-
 const formatRupiah = (value) =>
     new Intl.NumberFormat("id-ID", {
         style: "currency",
@@ -58,6 +53,7 @@ export default function WelcomeScheduleDetail({ schedule, menuItems = [] }) {
             <Head title={`${schedule.pilates_class?.name || "Schedule"} | Detail Schedule`} />
 
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
+                <WelcomeNavbar auth={auth} activeKey="schedule" />
                 <section className="mx-auto max-w-6xl px-4 py-10">
                     <br />
                     <Link href={route("welcome.page", "schedule")} className="mb-6 inline-flex items-center gap-2 text-sm text-primary-600">
