@@ -3,13 +3,13 @@ import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 import { Head } from '@inertiajs/react';
+import WelcomeNavbar from '@/Components/Landing/WelcomeNavbar';
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
-    return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Profile</h2>}
-        >
+    const isCustomer = !(auth?.permissions || []).includes('dashboard-access');
+
+    const content = (
+        <>
             <Head title="Profile" />
 
             <div className="py-12">
@@ -31,6 +31,24 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                     </div>
                 </div>
             </div>
+        </>
+    );
+
+    if (isCustomer) {
+        return (
+            <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
+                <WelcomeNavbar auth={auth} />
+                {content}
+            </div>
+        );
+    }
+
+    return (
+        <AuthenticatedLayout
+            user={auth.user}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Profile</h2>}
+        >
+            {content}
         </AuthenticatedLayout>
     );
 }
