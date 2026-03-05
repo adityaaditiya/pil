@@ -1,17 +1,19 @@
 import { Head, Link, usePage } from "@inertiajs/react";
 import { useEffect, useMemo, useState } from "react";
-import WelcomeNavbar from "@/Components/Landing/WelcomeNavbar";
 import {
     IconArrowLeft,
     IconCalendarEvent,
     IconClock,
+    IconChevronDown,
     IconCurrencyDollar,
     IconFilter,
     IconMapPin,
+    IconMenu2,
     IconSparkles,
     IconStar,
     IconUser,
     IconUsers,
+    IconYoga,
 } from "@tabler/icons-react";
 
 const fallbackMeta = {
@@ -56,6 +58,7 @@ const formatDateTime = (date) =>
 
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
 
+const menuHref = (key) => (key === "home" ? route("welcome") : route("welcome.page", key));
 
 export default function WelcomeSection({
     page,
@@ -68,6 +71,8 @@ export default function WelcomeSection({
     initialFilters = {},
 }) {
     const { auth } = usePage().props;
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
     const [classNameFilter, setClassNameFilter] = useState(initialFilters.className || "");
     const [difficultyFilter, setDifficultyFilter] = useState(initialFilters.difficulty || "");
@@ -122,6 +127,12 @@ export default function WelcomeSection({
 
     const hasActiveFilters = Boolean(classNameFilter || difficultyFilter || trainerFilter || classCategoryFilter);
 
+    const userMenuItems = [
+        { name: "My profile", href: route("profile.edit") },
+        { name: "My schedule", href: route("welcome.page", "schedule") },
+        { name: "My memberships", href: route("memberships.my") },
+    ];
+
     const filteredClasses = useMemo(() => {
         return classes.filter((classItem) => {
             const matchClassName = !classNameFilter || classItem.name === classNameFilter;
@@ -150,7 +161,141 @@ export default function WelcomeSection({
         <>
             <Head title={`${meta.name} | ORO Pilates Studio`} />
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
-                <WelcomeNavbar auth={auth} menuItems={menuItems} activeKey={pageKey} />
+                <nav className="sticky top-0 z-40 border-b border-primary-100 bg-wellness-soft/95 backdrop-blur">
+                    <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
+                        <Link
+                            href={route("welcome")}
+                            className="flex items-center gap-2 font-semibold text-primary-700"
+                        >
+                            <IconYoga size={20} /> ORO Pilates Studio
+                        </Link>
+
+                        <div className="hidden md:flex flex-wrap items-center gap-3 text-sm text-wellness-muted">
+                            {[
+                                { name: "Home", key: "home" },
+                                ...menuItems.filter((item) => item.key !== "home"),
+                            ].map((item) => (
+                                <Link
+                                    key={item.key}
+                                    href={menuHref(item.key)}
+                                    className={
+                                        item.key === pageKey
+                                            ? "rounded-full bg-primary-100 px-3 py-1.5 font-medium text-primary-700"
+                                            : "px-2 py-1 hover:text-primary-600"
+                                    }
+                                >
+                                    {item.name}
+                                </Link>
+                            ))}
+
+                            {auth?.user ? (
+                                <div className="relative hidden md:flex">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                                        className="flex items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1"
+                                    >
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
+                                            {(auth.user.name || "U").charAt(0)}
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                        <IconChevronDown size={16} className="text-slate-500" />
+                                    </button>
+
+                                    {isUserMenuOpen && (
+                                        <div className="absolute right-0 top-12 z-50 w-48 rounded-2xl border border-primary-100 bg-white p-2 shadow-lg">
+                                            {userMenuItems.map((item) => (
+                                                <Link key={item.name} href={item.href} className="block rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-primary-50">
+                                                    {item.name}
+                                                </Link>
+                                            ))}
+                                            <Link href={route("logout")} method="post" as="button" className="block w-full rounded-xl px-3 py-2 text-left text-sm text-slate-700 hover:bg-primary-50">
+                                                Logout
+                                            </Link>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <Link
+                                    href={route("login")}
+                                    className="rounded-full bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700"
+                                >
+                                    Login / Register
+                                </Link>
+                            )}
+                        </div>
+
+                        <button
+                            className="rounded-xl border border-primary-200 p-2.5 text-wellness-text md:hidden"
+                            type="button"
+                            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+                            aria-label="Toggle mobile menu"
+                        >
+                            <IconMenu2 size={20} />
+                        </button>
+                    </div>
+
+                    {isMobileMenuOpen && (
+                        <div className="border-t border-primary-100 bg-white/90 px-4 py-4 md:hidden">
+                            <div className="mx-auto flex max-w-6xl flex-col gap-4 text-sm text-wellness-muted">
+                                {auth?.user ? (
+                                    <div className="rounded-2xl border border-primary-100 bg-white p-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                                            className="flex w-full items-center gap-2 rounded-xl px-1 py-1"
+                                        >
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
+                                                {(auth.user.name || "U").charAt(0)}
+                                            </div>
+                                            <span className="text-sm font-medium text-slate-700">{auth.user.name}</span>
+                                            <IconChevronDown size={16} className="ml-auto text-slate-500" />
+                                        </button>
+
+                                        {isUserMenuOpen && (
+                                            <div className="mt-2 space-y-1">
+                                                {userMenuItems.map((item) => (
+                                                    <Link key={item.name} href={item.href} className="block rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-primary-50">
+                                                        {item.name}
+                                                    </Link>
+                                                ))}
+                                                <Link href={route("logout")} method="post" as="button" className="block w-full rounded-xl px-3 py-2 text-left text-sm text-slate-700 hover:bg-primary-50">
+                                                    Logout
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <Link
+                                        href={route("login")}
+                                        className="rounded-full bg-primary-600 px-4 py-2 text-center font-medium text-white hover:bg-primary-700"
+                                    >
+                                        Login / Register
+                                    </Link>
+                                )}
+
+                                <div className="flex flex-col gap-2">
+                                    {[
+                                        { name: "Home", key: "home" },
+                                        ...menuItems.filter((item) => item.key !== "home"),
+                                    ].map((item) => (
+                                        <Link
+                                            key={item.key}
+                                            href={menuHref(item.key)}
+                                            className={
+                                                item.key === pageKey
+                                                    ? "rounded-full bg-primary-100 px-3 py-1.5 font-medium text-primary-700"
+                                                    : "px-2 py-1 hover:text-primary-600"
+                                            }
+                                        >
+                                            {item.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </nav>
 
                 <section className="mx-auto max-w-6xl px-4 py-12">
                     <Link href={route("welcome")} className="mb-8 inline-flex items-center gap-2 text-sm text-primary-600">
