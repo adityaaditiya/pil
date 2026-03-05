@@ -50,15 +50,15 @@ export default function WelcomeScheduleDropInCheckout({ schedule, selectedGatewa
                     <p className="mt-2 text-sm text-slate-600">Metode pembayaran: <span className="font-semibold">{selectedGateway?.label}</span></p>
                     <p className="text-sm text-slate-600">Jumlah peserta: <span className="font-semibold">{data.participants}</span> orang</p>
                     <p className="text-sm text-slate-600">Total pembayaran: <span className="font-semibold">{formatRupiah(totalPrice)}</span></p>
-                    <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">Selesaikan transaksi dalam hitungan mundur {minutes}:{seconds}</p>
-
+                    <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">Selesaikan transaksi dalam {minutes}:{seconds}. Otomatis batal jika transaksi tidak diselesaikan</p>
                     {selectedGateway?.value === "qris" && (
                         <div className="mt-6 rounded-2xl border border-slate-200 p-4">
                             <p className="text-sm font-semibold text-slate-800">Scan QRIS berikut:</p>
                             {paymentInstructions?.qris_image && (
                                 <img src={imageUrl("payment-settings", paymentInstructions.qris_image)} alt="QRIS" className="mt-3 h-60 w-60 rounded-xl object-cover" />
                             )}
-                            <p className="mt-3 text-sm text-slate-700">Nama lengkap: <span className="font-semibold">{paymentInstructions?.qris_full_name || "-"}</span></p>
+                            <p className="mt-3 text-sm text-slate-700">Nama Merchant: <span className="font-semibold">{paymentInstructions?.qris_full_name || "-"}</span></p>
+                            <p className="mt-3 text-sm text-slate-700">*Pastikan QRIS sesuai dengan yang tertera pada Nama Merchant</p>
                         </div>
                     )}
 
@@ -90,7 +90,7 @@ export default function WelcomeScheduleDropInCheckout({ schedule, selectedGatewa
                             disabled={processing || secondsLeft === 0 || remainingSlots < 1}
                             className="rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
                         >
-                            Pesanan Berhasil
+                            Konfirmasi Pembayaran
                         </button>
                         <Link href={route("welcome.schedule-payment", schedule.id)} className="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700">
                             Kembali

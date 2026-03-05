@@ -130,8 +130,8 @@ export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
 
                         <aside className="space-y-6">
                             <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
-                                <h2 className="text-xl font-semibold">Detail Data Kelas</h2>
-                                <p className="mt-1 text-sm text-wellness-muted">Seluruh data utama kelas ditampilkan berikut ini.</p>
+                                <h2 className="text-xl font-semibold">Detail Class</h2>
+                                {/* <p className="mt-1 text-sm text-wellness-muted">Seluruh data utama kelas ditampilkan berikut ini.</p> */}
                                 <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
                                     <table className="w-full text-sm">
                                         <tbody>
