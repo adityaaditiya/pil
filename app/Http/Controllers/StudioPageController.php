@@ -162,6 +162,11 @@ class StudioPageController extends Controller
             ->where('user_id', Auth::id())
             ->first(['id', 'credit']);
 
+        $alreadyBooked = PilatesBooking::query()
+            ->where('user_id', Auth::id())
+            ->where('timetable_id', $schedule->id)
+            ->exists();
+
         $availableMemberships = UserMembership::query()
             ->with(['plan.classRules' => fn ($query) => $query->where('pilates_class_id', $schedule->pilates_class_id)])
             ->where('user_id', Auth::id())
@@ -190,6 +195,7 @@ class StudioPageController extends Controller
             'customerCredit' => (int) ($customer?->credit ?? 0),
             'availableMemberships' => $availableMemberships,
             'remainingSlots' => $remainingSlots,
+            'alreadyBooked' => $alreadyBooked,
         ]);
     }
 
