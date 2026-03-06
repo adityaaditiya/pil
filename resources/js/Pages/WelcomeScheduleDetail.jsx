@@ -29,7 +29,7 @@ export default function WelcomeScheduleDetail({ schedule }) {
         { label: "Category", value: schedule.pilates_class?.class_category?.name || "-" },
         // { label: "Trainer", value: schedule.trainer?.name || "-" },
         { label: "Date & Time", value: `${formatDateTime(schedule.start_at)} WIB` },
-        { label: "Duration", value: `${schedule.pilates_class?.duration || schedule.duration_minutes || 0} menit` },
+        { label: "Duration", value: `${schedule.duration_minutes || 0} menit` },
         { label: "Equipment", value: schedule.pilates_class?.equipment || "-" },
         { label: "Capacity", value: `${schedule.capacity || 0} peserta` },
         // { label: "Status", value: schedule.status || "-" },
@@ -117,7 +117,7 @@ export default function WelcomeScheduleDetail({ schedule }) {
                                 </p> &nbsp;
                                 <p className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
                                         <IconClock size={16} />
-                                        {schedule.pilates_class?.duration || schedule.duration_minutes || 0} menit
+                                        {schedule.duration_minutes} menit
                                     </p>
                                 &nbsp;
                                 <p className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
