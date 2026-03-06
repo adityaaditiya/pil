@@ -11,10 +11,13 @@ const formatRupiah = (value) =>
         maximumFractionDigits: 0,
     }).format(Number(value || 0));
 
-export default function WelcomeSchedulePayment({ schedule, paymentGateways = [], customerCredit = 0, availableMemberships = [], remainingSlots = 0 }) {
+export default function WelcomeSchedulePayment({ schedule, paymentGateways = [], customerCredit = 0, availableMemberships = [], remainingSlots = 0, alreadyBooked = false }) {
     const { flash } = usePage().props;
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [bookingError, setBookingError] = useState(
+        alreadyBooked ? "Anda sudah melakukan booking untuk sesi ini." : ""
+    );
 
     const allowDropIn = schedule.allow_drop_in && paymentGateways.length > 0;
     const bestMembership = useMemo(() => {
@@ -59,6 +62,12 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
         }
     }, [flash?.success]);
 
+    useEffect(() => {
+        if (alreadyBooked) {
+            setBookingError("Anda sudah melakukan booking untuk sesi ini.");
+        }
+    }, [alreadyBooked]);
+
     const availableMethods = [
         {
             key: "credit",
@@ -91,6 +100,13 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
     const submitBooking = (event) => {
         event.preventDefault();
 
+        if (alreadyBooked) {
+            setBookingError("Anda sudah melakukan booking untuk sesi ini.");
+            setShowConfirmModal(false);
+            return;
+        }
+
+        setBookingError("");
         setShowConfirmModal(true);
     };
 
@@ -246,12 +262,12 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
                                         </div>
                                     )}
 
-                                    {errors.payment_type && <p className="text-sm text-red-500">{errors.payment_type}</p>}
+                                    {(bookingError || errors.payment_type) && <p className="text-sm text-red-500">{bookingError || errors.payment_type}</p>}
                                     {errors.participants && <p className="text-sm text-red-500">{errors.participants}</p>}
 
                                     <button
                                         type="submit"
-                                        disabled={processing || remainingSlots < 1}
+                                        disabled={processing || remainingSlots < 1 || alreadyBooked}
                                         className="inline-flex rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-400"
                                     >
                                         Selesaikan Pembayaran
