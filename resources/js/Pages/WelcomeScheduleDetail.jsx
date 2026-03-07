@@ -124,7 +124,7 @@ export default function WelcomeScheduleDetail({ schedule }) {
                                 </p> &nbsp;
                                 <p className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
                                         <IconClock size={16} />
-                                        {schedule.pilates_class?.duration || schedule.duration_minutes || 0} menit
+                                        {schedule.duration_minutes} menit
                                     </p>
                                 &nbsp;
                                 <p className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
