@@ -10,13 +10,19 @@ import {
 } from "@tabler/icons-react";
 
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
-const formatDateTime = (date) =>
+const formatDate = (date) =>
     date
         ? new Intl.DateTimeFormat("id-ID", {
               weekday: "long",
               day: "2-digit",
               month: "long",
               year: "numeric",
+          }).format(new Date(date))
+        : "-";
+
+const formatTime = (date) =>
+    date
+        ? new Intl.DateTimeFormat("id-ID", {
               hour: "2-digit",
               minute: "2-digit",
           }).format(new Date(date))
@@ -28,7 +34,8 @@ export default function WelcomeScheduleDetail({ schedule }) {
         { label: "Class Name", value: schedule.pilates_class?.name || "-" },
         { label: "Category", value: schedule.pilates_class?.class_category?.name || "-" },
         // { label: "Trainer", value: schedule.trainer?.name || "-" },
-        { label: "Date & Time", value: `${formatDateTime(schedule.start_at)} WIB` },
+        { label: "Date", value: formatDate(schedule.start_at) },
+        { label: "Time", value: `${formatTime(schedule.start_at)} WIB` },
         { label: "Duration", value: `${schedule.pilates_class?.duration || schedule.duration_minutes || 0} menit` },
         { label: "Equipment", value: schedule.pilates_class?.equipment || "-" },
         { label: "Capacity", value: `${schedule.capacity || 0} peserta` },
