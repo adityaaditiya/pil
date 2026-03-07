@@ -24,6 +24,7 @@ use App\Http\Controllers\StudioPageController;
 use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserMembershipController;
+use App\Http\Controllers\UserMembershipHistoryController;
 use App\Http\Controllers\UserScheduleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -46,6 +47,7 @@ Route::middleware('auth')->get('/welcome/schedule/{pilatesTimetable}/payment/dro
 Route::middleware('auth')->post('/welcome/schedule/{pilatesTimetable}/payment', [StudioPageController::class, 'processSchedulePayment'])->name('welcome.schedule-payment.process');
 
 Route::middleware('auth')->get('/user/my-schedule', [UserScheduleController::class, 'index'])->name('user.my-schedule');
+Route::middleware('auth')->get('/user/my-memberships', [UserMembershipHistoryController::class, 'index'])->name('user.my-memberships');
 
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'permission:dashboard-access'])->name('dashboard');
