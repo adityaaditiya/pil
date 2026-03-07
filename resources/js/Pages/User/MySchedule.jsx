@@ -42,12 +42,12 @@ export default function MySchedule({ bookings = [] }) {
                 <section className="mx-auto max-w-6xl px-4 py-10">
                     <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
                         <div>
-                            <p className="text-sm font-medium text-primary-600">User</p>
+                            {/* <p className="text-sm font-medium text-primary-600">User</p> */}
                             <h1 className="text-3xl font-bold md:text-4xl">My Schedule</h1>
                             <p className="mt-2 text-sm text-wellness-muted">Riwayat booking schedule kelas pilates Anda.</p>
                         </div>
 
-                        <Link href={route("welcome.page", "schedule")} className="rounded-full border border-primary-200 px-4 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50">
+                        <Link href={route("welcome.page", "schedule")} className="inline-flex rounded-full bg-primary-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary-700">
                             Book New Schedule
                         </Link>
                     </div>

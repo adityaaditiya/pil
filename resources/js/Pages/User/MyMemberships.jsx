@@ -32,12 +32,12 @@ export default function MyMemberships({ memberships = [] }) {
                 <section className="mx-auto max-w-6xl px-4 py-10">
                     <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
                         <div>
-                            <p className="text-sm font-medium text-primary-600">User</p>
+                            {/* <p className="text-sm font-medium text-primary-600">User</p> */}
                             <h1 className="text-3xl font-bold md:text-4xl">My Memberships</h1>
                             <p className="mt-2 text-sm text-wellness-muted">Riwayat langganan membership Anda.</p>
                         </div>
 
-                        <Link href={route("memberships.plans")} className="rounded-full border border-primary-200 px-4 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50">
+                        <Link href={route("welcome.page", "pricing")} className="inline-flex rounded-full bg-primary-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary-700">
                             Lihat Paket Membership
                         </Link>
                     </div>
@@ -68,7 +68,7 @@ export default function MyMemberships({ memberships = [] }) {
                                         </p>
                                         <p className="inline-flex items-center gap-2">
                                             <IconCalendarEvent size={16} />
-                                            Start: {formatDate(item.starts_at)}
+                                            Start From: {formatDate(item.starts_at)}
                                         </p>
                                         <p className="inline-flex items-center gap-2">
                                             <IconClockHour4 size={16} />

@@ -199,6 +199,22 @@ export default function WelcomeSection({
                                             ))}
                                         </select>
                                     </div>
+
+                                    <div>
+                                                <label className="mb-2 block text-sm font-medium text-slate-700">Kategori Kelas</label>
+                                                <select
+                                                    value={classCategoryFilter}
+                                                    onChange={(event) => setClassCategoryFilter(event.target.value)}
+                                                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-slate-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
+                                                >
+                                                    <option value="">Semua kategori</option>
+                                                    {classCategoryOptions.map((category) => (
+                                                        <option key={category} value={category}>
+                                                            {category}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
                                     <div>
                                         <label className="mb-2 block text-sm font-medium text-slate-700">Difficulty Level</label>
                                         <select
@@ -231,21 +247,7 @@ export default function WelcomeSection({
                                                     ))}
                                                 </select>
                                             </div>
-                                            <div>
-                                                <label className="mb-2 block text-sm font-medium text-slate-700">Kategori Kelas</label>
-                                                <select
-                                                    value={classCategoryFilter}
-                                                    onChange={(event) => setClassCategoryFilter(event.target.value)}
-                                                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-slate-800 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
-                                                >
-                                                    <option value="">Semua kategori</option>
-                                                    {classCategoryOptions.map((category) => (
-                                                        <option key={category} value={category}>
-                                                            {category}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
+                                            
                                         </>
                                     )}
                                 </div>
@@ -332,9 +334,9 @@ export default function WelcomeSection({
                                 <h3 className="mt-4 text-xl font-semibold">{membership.name}</h3>
                                 <p className="mt-2 text-3xl font-bold text-primary-600">{formatRupiah(membership.price)}</p>
                                 <div className="mt-4 space-y-2 text-sm text-wellness-muted">
-                                    <p className="inline-flex items-center gap-2"><IconStar size={16} /> {membership.credits} kredit kelas</p>
+                                    <p className="inline-flex items-center gap-2"><IconStar size={16} /> {membership.credits} credits class</p>
                                     <br/><p className="inline-flex items-center gap-2"><IconClock size={16} /> Berlaku {membership.valid_days || "-"} hari</p>
-                                    <br /><p className="inline-flex items-center gap-2"><IconCurrencyDollar size={16} /> Aktivasi cepat & fleksibel</p>
+                                    <br /><p className="inline-flex items-center gap-2"><IconCurrencyDollar size={16} /> Nilai terbaik untuk setiap sesi</p>
                                 </div>
                                 <p className="mt-4 text-sm text-wellness-muted">{membership.description || "Paket membership untuk latihan konsisten."}</p>
                             </article>
