@@ -1,40 +1,15 @@
-import { Head, Link, usePage } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import {
     IconArrowLeft,
-    IconCalendarEvent,
     IconClock,
-    IconCreditCard,
     IconMapPin,
     IconStar,
     IconUser,
-    IconUsers,
-    IconYoga,
 } from "@tabler/icons-react";
+import Navbar from "@/Components/Landing/Navbar";
 
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
-const menuHref = (key) => (key === "home" ? route("welcome") : route("welcome.page", key));
-
-const formatRupiah = (value) =>
-    new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-        maximumFractionDigits: 0,
-    }).format(Number(value || 0));
-
-const formatDateTime = (date) =>
-    date
-        ? new Intl.DateTimeFormat("id-ID", {
-              weekday: "long",
-              day: "2-digit",
-              month: "long",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-          }).format(new Date(date))
-        : "-";
-
 export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
-    const { auth } = usePage().props;
     const detailRows = [
         { label: "Claesses Name", value: classItem.name || "-" },
         { label: "Classes Category", value: classItem.class_category?.name || "-" },
@@ -54,41 +29,7 @@ export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
         <>
             <Head title={`${classItem.name} | Detail Kelas`} />
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
-                <nav className="sticky top-0 z-40 border-b border-primary-100 bg-wellness-soft/95 backdrop-blur">
-                    <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
-                        <Link href={route("welcome")} className="flex items-center gap-2 font-semibold text-primary-700">
-                            <IconYoga size={20} /> ORO Pilates Studio
-                        </Link>
-
-                        <div className="flex flex-wrap items-center gap-3 text-sm text-wellness-muted">
-                            {[{ name: "Home", key: "home" }, ...menuItems.filter((item) => item.key !== "home")].map((item) => (
-                                <Link
-                                    key={item.key}
-                                    href={menuHref(item.key)}
-                                    className="px-2 py-1 hover:text-primary-600"
-                                >
-                                    {item.name}
-                                </Link>
-                            ))}
-
-                            {auth?.user ? (
-                                <div className="inline-flex items-center gap-2 rounded-full border border-primary-100 bg-white px-2 py-1">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-semibold uppercase text-white">
-                                        {(auth.user.name || "U").charAt(0)}
-                                    </div>
-                                    <span className="pr-2 text-sm font-medium text-slate-700">{auth.user.name}</span>
-                                </div>
-                            ) : (
-                                <Link
-                                    href={route("login")}
-                                    className="rounded-full bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700"
-                                >
-                                    Login / Register
-                                </Link>
-                            )}
-                        </div>
-                    </div>
-                </nav>
+                <Navbar navItems={[{ name: "Home", key: "home" }, ...menuItems.filter((item) => item.key !== "home")]} currentKey="classes" />
 
                 <section className="mx-auto max-w-6xl px-4 py-10">
                     <Link href={route("welcome.page", "classes")} className="mb-6 inline-flex items-center gap-2 text-sm text-primary-600">
