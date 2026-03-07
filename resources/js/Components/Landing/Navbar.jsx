@@ -23,7 +23,7 @@ export default function Navbar({ navItems = defaultNavItems, currentKey = null }
 
     const userMenuItems = [
         { name: "My profile", href: route("profile.edit") },
-        { name: "My schedule", href: route("welcome.page", "schedule") },
+        { name: "My schedule", href: route("user.my-schedule") },
         { name: "My memberships", href: route("memberships.my") },
     ];
 
