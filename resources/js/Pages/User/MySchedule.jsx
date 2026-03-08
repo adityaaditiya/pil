@@ -78,7 +78,7 @@ export default function MySchedule({ bookings = [] }) {
 
                                             <div>
                                                 <div className="mb-3 flex flex-wrap items-center gap-2">
-                                                    <span className="rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">Booking #{booking.id}</span>
+                                                    <span className="rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">{booking.invoice || "-"}</span>
                                                     <span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusClass(booking.status)}`}>
                                                         {booking.status || "pending"}
                                                     </span>
