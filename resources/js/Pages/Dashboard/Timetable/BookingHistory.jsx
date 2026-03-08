@@ -120,7 +120,7 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                     </label>
                                     <input
                                         type="text"
-                                        placeholder="BK-..."
+                                        placeholder="INV-..."
                                         value={filterData.invoice}
                                         onChange={(event) =>
                                             handleChange("invoice", event.target.value)

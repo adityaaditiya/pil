@@ -34,16 +34,7 @@ class PilatesBookingHistoryController extends Controller
         }
 
         if ($invoice !== '') {
-            $normalizedInvoice = strtoupper($invoice);
-            $bookingId = preg_replace('/\D+/', '', $invoice);
-
-            $query->where(function ($filterQuery) use ($normalizedInvoice, $bookingId) {
-                $filterQuery->whereRaw("CONCAT('BK-', LPAD(id, 6, '0')) LIKE ?", ["%{$normalizedInvoice}%"]);
-
-                if ($bookingId !== '') {
-                    $filterQuery->orWhere('id', (int) $bookingId);
-                }
-            });
+            $query->where('invoice', 'like', '%' . strtoupper($invoice) . '%');
         }
 
         $bookings = $query
@@ -52,7 +43,7 @@ class PilatesBookingHistoryController extends Controller
             ->through(function (PilatesBooking $booking) {
                 return [
                     'id' => $booking->id,
-                    'invoice' => sprintf('BK-%06d', $booking->id),
+                    'invoice' => $booking->invoice,
                     'booked_at' => $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
                     'status' => $booking->status,
                     'participants' => $booking->participants,

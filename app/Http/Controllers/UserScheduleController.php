@@ -26,6 +26,7 @@ class UserScheduleController extends Controller
             ->map(function (PilatesBooking $booking) {
                 return [
                     'id' => $booking->id,
+                    'invoice' => $booking->invoice,
                     'status' => $booking->status,
                     'participants' => $booking->participants,
                     'payment_type' => $booking->payment_type,
