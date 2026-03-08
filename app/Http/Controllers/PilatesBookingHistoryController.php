@@ -75,7 +75,8 @@ class PilatesBookingHistoryController extends Controller
     {
         $booking = PilatesBooking::query()
             ->with([
-                'user:id,name,email,phone,address',
+                'user:id,name,email',
+                // 'user:id,name,email,phone,address',
                 'timetable:id,pilates_class_id,trainer_id,start_at,duration_minutes',
                 'timetable.pilatesClass:id,name,duration',
                 'timetable.trainer:id,name',
