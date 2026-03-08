@@ -11,6 +11,7 @@ use App\Http\Controllers\Apps\TransactionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MembershipPlanController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PilatesBookingHistoryController;
 use App\Http\Controllers\PilatesClassController;
 use App\Http\Controllers\PilatesTimetableController;
 use App\Http\Controllers\ProfileController;
@@ -122,6 +123,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::delete('timetable/{timetable}', [PilatesTimetableController::class, 'destroy'])
         ->middleware('permission:dashboard-access')
         ->name('timetable.destroy');
+    Route::get('bookings/history', [PilatesBookingHistoryController::class, 'index'])
+        ->middleware('permission:dashboard-access')
+        ->name('bookings.history');
     Route::get('bookings/create', [BookingController::class, 'create'])->name('bookings.create');
 
     Route::resource('membership-plans', MembershipPlanController::class)
