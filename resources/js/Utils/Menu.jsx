@@ -114,6 +114,13 @@ function Menu() {
                     permissions: hasAnyPermission(["dashboard-access"]),
                 },
                 {
+                    title: "Riwayat Booking",
+                    href: route("bookings.history"),
+                    active: url === "/dashboard/bookings/history",
+                    icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["dashboard-access"]),
+                },
+                {
                     title: "Trainer",
                     href: route("trainers.index"),
                     active: url.startsWith("/dashboard/trainers"),
