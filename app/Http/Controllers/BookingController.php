@@ -116,6 +116,7 @@ class BookingController extends Controller
         $alreadyBooked = PilatesBooking::query()
             ->where('user_id', $customer->user_id)
             ->where('timetable_id', $timetable->id)
+            ->where('status', '!=', 'cancelled')
             ->exists();
 
         if ($alreadyBooked) {
