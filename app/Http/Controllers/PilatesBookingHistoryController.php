@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\PilatesBooking;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -50,6 +53,7 @@ class PilatesBookingHistoryController extends Controller
                     'payment_type' => $booking->payment_type,
                     'payment_method' => $booking->payment_method,
                     'price_amount' => $booking->price_amount,
+                    'credit_used' => $booking->credit_used,
                     'customer' => $booking->user?->name,
                     'class_name' => $booking->timetable?->pilatesClass?->name,
                     'trainer_name' => $booking->timetable?->trainer?->name,
@@ -65,5 +69,61 @@ class PilatesBookingHistoryController extends Controller
                 'end_date' => $endDate,
             ],
         ]);
+    }
+
+    public function print(string $invoice): Response
+    {
+        $booking = PilatesBooking::query()
+            ->with([
+                'user:id,name,email,phone,address',
+                'timetable:id,pilates_class_id,trainer_id,start_at,duration_minutes',
+                'timetable.pilatesClass:id,name,duration',
+                'timetable.trainer:id,name',
+            ])
+            ->where('invoice', $invoice)
+            ->firstOrFail();
+
+        return Inertia::render('Dashboard/Timetable/Print', [
+            'booking' => $booking,
+        ]);
+    }
+
+    public function cancel(Request $request, PilatesBooking $booking)
+    {
+        $validated = $request->validate([
+            'authorization_note' => ['nullable', 'string'],
+            'super_admin_email' => ['required', 'email'],
+            'super_admin_password' => ['required', 'string'],
+        ]);
+
+        $superAdmin = User::query()
+            ->where('email', $validated['super_admin_email'])
+            ->first();
+
+        if (! $superAdmin || ! $superAdmin->isSuperAdmin() || ! Hash::check($validated['super_admin_password'], $superAdmin->password)) {
+            return back()->withErrors([
+                'message' => 'Otorisasi super-admin gagal.',
+            ]);
+        }
+
+        if ($booking->status === 'cancelled') {
+            return back()->withErrors([
+                'message' => 'Booking sudah dibatalkan.',
+            ]);
+        }
+
+        DB::transaction(function () use ($booking) {
+            $booking->loadMissing('userMembership');
+
+            if ($booking->payment_type === 'credit' && $booking->userMembership && (float) $booking->credit_used > 0) {
+                $booking->userMembership->increment('credits_remaining', (int) round((float) $booking->credit_used));
+            }
+
+            $booking->update([
+                'status' => 'cancelled',
+            ]);
+        });
+
+        return back()->with('success', 'Booking berhasil dibatalkan. Slot peserta dan credit telah dikembalikan.');
     }
 }

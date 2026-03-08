@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Head, router } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Pagination from "@/Components/Dashboard/Pagination";
-import { IconFilter, IconHistory, IconSearch, IconUsers, IconX } from "@tabler/icons-react";
+import Swal from "sweetalert2";
+import { IconBan, IconFilter, IconHistory, IconPrinter, IconSearch, IconUsers, IconX } from "@tabler/icons-react";
 
 const defaultFilters = {
     invoice: "",
@@ -76,6 +77,81 @@ export default function BookingHistory({ bookings, filters = {} }) {
             ...previous,
             [field]: value,
         }));
+    };
+
+    const handleCancel = (booking) => {
+        Swal.fire({
+            title: "Batalkan booking?",
+            text: "Credit customer (jika ada) dan slot peserta akan dikembalikan.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#64748b",
+            confirmButtonText: "Lanjutkan",
+            cancelButtonText: "Batal",
+        }).then((confirmResult) => {
+            if (!confirmResult.isConfirmed) return;
+
+            Swal.fire({
+                title: "Otorisasi",
+                html: `
+                    <input id="super-admin-authorization-note" type="text" class="swal2-input" placeholder="Keterangan otorisasi">
+                    <input id="super-admin-email" type="email" class="swal2-input" placeholder="Username / Email">
+                    <input id="super-admin-password" type="password" class="swal2-input" placeholder="Password">
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: "Validasi",
+                cancelButtonText: "Batal",
+                preConfirm: () => {
+                    const authorizationNote = document
+                        .getElementById("super-admin-authorization-note")
+                        ?.value?.trim();
+                    const email = document
+                        .getElementById("super-admin-email")
+                        ?.value?.trim();
+                    const password =
+                        document.getElementById("super-admin-password")?.value;
+
+                    if (!email || !password) {
+                        Swal.showValidationMessage(
+                            "Email dan password super-admin wajib diisi."
+                        );
+                        return null;
+                    }
+
+                    return { authorizationNote, email, password };
+                },
+            }).then((authResult) => {
+                if (!authResult.isConfirmed) return;
+
+                router.delete(route("bookings.cancel", booking.id), {
+                    data: {
+                        authorization_note:
+                            authResult.value.authorizationNote || "",
+                        super_admin_email: authResult.value.email,
+                        super_admin_password: authResult.value.password,
+                    },
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: "Berhasil!",
+                            text: "Booking berhasil dibatalkan.",
+                            icon: "success",
+                            showConfirmButton: false,
+                            timer: 1500,
+                        });
+                    },
+                    onError: (errors) => {
+                        Swal.fire({
+                            title: "Gagal!",
+                            text: errors?.message || "Booking gagal dibatalkan.",
+                            icon: "error",
+                        });
+                    },
+                });
+            });
+        });
     };
 
     return (
@@ -192,6 +268,7 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Pembayaran</th>
                                     <th className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Nominal</th>
                                     <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
+                                    <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -237,12 +314,37 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                                     {booking.status || "-"}
                                                 </span>
                                             </td>
+                                            <td className="px-4 py-4 text-center">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <Link
+                                                        href={route("bookings.print", booking.invoice)}
+                                                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-950/50"
+                                                        title="Print Booking"
+                                                    >
+                                                        <IconPrinter size={18} />
+                                                    </Link>
+                                                    {booking.status === "cancelled" ? (
+                                                        <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                                                            Dibatalkan
+                                                        </span>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleCancel(booking)}
+                                                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-danger-50 hover:text-danger-600 dark:hover:bg-danger-950/50"
+                                                            title="Batalkan Booking"
+                                                        >
+                                                            <IconBan size={18} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
                                         <td
-                                            colSpan={10}
+                                            colSpan={11}
                                             className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400"
                                         >
                                             Belum ada data riwayat booking.

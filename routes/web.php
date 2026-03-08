@@ -126,6 +126,12 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('bookings/history', [PilatesBookingHistoryController::class, 'index'])
         ->middleware('permission:dashboard-access')
         ->name('bookings.history');
+    Route::get('bookings/{invoice}/print', [PilatesBookingHistoryController::class, 'print'])
+        ->middleware('permission:dashboard-access')
+        ->name('bookings.print');
+    Route::delete('bookings/{booking}/cancel', [PilatesBookingHistoryController::class, 'cancel'])
+        ->middleware('permission:dashboard-access')
+        ->name('bookings.cancel');
     Route::get('bookings/create', [BookingController::class, 'create'])->name('bookings.create');
 
     Route::resource('membership-plans', MembershipPlanController::class)
