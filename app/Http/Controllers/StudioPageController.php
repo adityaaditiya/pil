@@ -165,6 +165,7 @@ class StudioPageController extends Controller
         $alreadyBooked = PilatesBooking::query()
             ->where('user_id', Auth::id())
             ->where('timetable_id', $schedule->id)
+            ->where('status', '!=', 'cancelled')
             ->exists();
 
         $availableMemberships = UserMembership::query()
@@ -278,6 +279,7 @@ class StudioPageController extends Controller
         $alreadyBooked = PilatesBooking::query()
             ->where('user_id', Auth::id())
             ->where('timetable_id', $timetable->id)
+            ->where('status', '!=', 'cancelled')
             ->exists();
 
         if ($alreadyBooked) {
