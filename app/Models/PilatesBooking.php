@@ -21,6 +21,7 @@ class PilatesBooking extends Model
         'booked_at',
         'payment_type',
         'payment_method',
+        'payment_proof_image',
         'price_amount',
         'credit_used',
     ];

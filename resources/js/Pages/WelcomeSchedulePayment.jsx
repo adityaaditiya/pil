@@ -1,4 +1,4 @@
-import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import { IconArrowLeft, IconCheck, IconCreditCard, IconWallet } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -120,16 +120,10 @@ export default function WelcomeSchedulePayment({ schedule, paymentGateways = [],
             return;
         }
 
-        router.get(
-            route("welcome.schedule-payment.drop-in-checkout", schedule.id),
-            {
-                payment_method: data.payment_method,
-                participants: data.participants,
-            },
-            {
-                preserveScroll: true,
-            }
-        );
+        post(route("welcome.schedule-payment.process", schedule.id), {
+            preserveScroll: true,
+            onSuccess: () => setShowConfirmModal(false),
+        });
     };
 
     return (

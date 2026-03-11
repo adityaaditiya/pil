@@ -16,6 +16,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -214,18 +215,29 @@ class StudioPageController extends Controller
             return strtolower($gateway['value'] ?? '') !== 'cash';
         })->values();
 
-        $method = (string) $request->string('payment_method');
-        $participants = max(1, (int) $request->integer('participants', 1));
-        $selectedGateway = $paymentGateways->firstWhere('value', $method);
+        $bookingId = (int) $request->integer('booking_id');
+        $booking = PilatesBooking::query()
+            ->where('id', $bookingId)
+            ->where('user_id', Auth::id())
+            ->where('timetable_id', $schedule->id)
+            ->where('payment_type', 'drop_in')
+            ->where('status', 'pending')
+            ->first();
+        $selectedGateway = $paymentGateways->firstWhere('value', $booking?->payment_method);
 
-        if (! $schedule->allow_drop_in || ! $selectedGateway || $remainingSlots < 1) {
+        if (! $schedule->allow_drop_in || ! $booking || ! $selectedGateway || $remainingSlots < 1) {
             return to_route('welcome.schedule-payment', $schedule->id);
         }
 
         return Inertia::render('WelcomeScheduleDropInCheckout', [
             'schedule' => $schedule,
+            'booking' => [
+                'id' => $booking->id,
+                'invoice' => $booking->invoice,
+                'payment_proof_image' => $booking->payment_proof_image,
+            ],
             'selectedGateway' => $selectedGateway,
-            'participants' => min($participants, $remainingSlots),
+            'participants' => min((int) $booking->participants, $remainingSlots),
             'remainingSlots' => $remainingSlots,
             'paymentInstructions' => [
                 'qris_full_name' => $paymentSetting?->qris_full_name,
@@ -296,6 +308,19 @@ class StudioPageController extends Controller
             ]);
         }
 
+        if ($paymentType === 'drop_in') {
+            $paymentSetting = PaymentSetting::first();
+            $availableGatewayValues = collect($paymentSetting?->enabledGateways() ?? [])
+                ->pluck('value')
+                ->map(fn ($value) => strtolower((string) $value));
+
+            if (! $availableGatewayValues->contains(strtolower((string) ($data['payment_method'] ?? '')))) {
+                throw ValidationException::withMessages([
+                    'payment_method' => 'Metode pembayaran drop-in tidak tersedia.',
+                ]);
+            }
+        }
+
         $paymentMethod = $paymentType === 'credit' ? 'credits' : ($data['payment_method'] ?? 'manual_transfer');
         $priceAmount = (float) (($timetable->price_override ?? 0) * $participants);
         $creditUsed = (float) ($timetable->credit_override ?? 0);
@@ -334,14 +359,14 @@ class StudioPageController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($timetable, $paymentType, $paymentMethod, $priceAmount, $creditUsed, $selectedMembership, $participants) {
-                PilatesBooking::create([
+            $booking = DB::transaction(function () use ($timetable, $paymentType, $paymentMethod, $priceAmount, $creditUsed, $selectedMembership, $participants) {
+                $booking = PilatesBooking::create([
                     'user_id' => Auth::id(),
                     'timetable_id' => $timetable->id,
                     'participants' => $participants,
                     'user_membership_id' => $selectedMembership?->id,
                     'membership_plan_id' => $selectedMembership?->membership_plan_id,
-                    'status' => 'confirmed',
+                    'status' => $paymentType === 'drop_in' ? 'pending' : 'confirmed',
                     'booked_at' => now(),
                     'payment_type' => $paymentType,
                     'payment_method' => $paymentMethod,
@@ -352,6 +377,8 @@ class StudioPageController extends Controller
                 if ($paymentType === 'credit' && $selectedMembership) {
                     $selectedMembership->decrement('credits_remaining', (int) $creditUsed);
                 }
+
+                return $booking;
             });
         } catch (QueryException) {
             throw ValidationException::withMessages([
@@ -359,6 +386,54 @@ class StudioPageController extends Controller
             ]);
         }
 
+        if ($paymentType === 'drop_in') {
+            return to_route('welcome.schedule-payment.drop-in-checkout', [
+                'pilatesTimetable' => $timetable->id,
+                'booking_id' => $booking->id,
+            ]);
+        }
+
         return back()->with('success', 'Transaksi selesai. Booking berhasil dibuat.');
+    }
+
+    public function uploadDropInPaymentProof(Request $request, PilatesBooking $booking): RedirectResponse
+    {
+        if ((int) $booking->user_id !== (int) Auth::id() || $booking->status !== 'pending' || $booking->payment_type !== 'drop_in') {
+            return to_route('welcome.page', 'schedule')->withErrors(['payment_proof' => 'Transaksi tidak ditemukan atau sudah tidak aktif.']);
+        }
+
+        $data = $request->validate([
+            'payment_proof' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ]);
+
+        $storedPath = $data['payment_proof']->store('booking-payment-proofs', 'public');
+
+        if ($booking->payment_proof_image) {
+            Storage::disk('public')->delete($booking->payment_proof_image);
+        }
+
+        $booking->update([
+            'payment_proof_image' => $storedPath,
+        ]);
+
+        return back()->with('success', 'Foto bukti pembayaran berhasil diupload. Menunggu konfirmasi admin.');
+    }
+
+    public function cancelDropInTransaction(PilatesBooking $booking): RedirectResponse
+    {
+        if ((int) $booking->user_id !== (int) Auth::id() || $booking->status !== 'pending' || $booking->payment_type !== 'drop_in') {
+            return to_route('welcome.page', 'schedule')->withErrors(['payment_proof' => 'Transaksi tidak ditemukan atau sudah tidak aktif.']);
+        }
+
+        if ($booking->payment_proof_image) {
+            Storage::disk('public')->delete($booking->payment_proof_image);
+        }
+
+        $booking->update([
+            'status' => 'cancelled',
+            'payment_proof_image' => null,
+        ]);
+
+        return to_route('welcome.schedule-payment', $booking->timetable_id)->with('success', 'Transaksi berhasil dibatalkan.');
     }
 }
