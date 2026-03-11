@@ -120,6 +120,17 @@ export default function MySchedule({ bookings = [] }) {
                                                             Lihat detail schedule
                                                         </Link>
                                                     )}
+                                                    {booking.status === "pending" && booking.payment_type === "drop_in" && !booking.payment_proof_image && schedule.id && (
+                                                        <Link
+                                                            href={route("welcome.schedule-payment.drop-in-checkout", {
+                                                                pilatesTimetable: schedule.id,
+                                                                booking_id: booking.id,
+                                                            })}
+                                                            className="inline-flex rounded-full border border-primary-200 px-5 py-2 text-sm font-semibold text-primary-700 transition hover:bg-primary-50"
+                                                        >
+                                                            Upload Foto Bukti Pembayaran
+                                                        </Link>
+                                                    )}
                                                     {booking.status === "pending" && booking.payment_type === "drop_in" && (
                                                         <button
                                                             type="button"
