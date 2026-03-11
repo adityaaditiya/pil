@@ -54,6 +54,7 @@ class PilatesBookingHistoryController extends Controller
                     'payment_method' => $booking->payment_method,
                     'price_amount' => $booking->price_amount,
                     'credit_used' => $booking->credit_used,
+                    'payment_proof_image' => $booking->payment_proof_image,
                     'customer' => $booking->user?->name,
                     'class_name' => $booking->timetable?->pilatesClass?->name,
                     'trainer_name' => $booking->timetable?->trainer?->name,
@@ -126,5 +127,35 @@ class PilatesBookingHistoryController extends Controller
         });
 
         return back()->with('success', 'Booking berhasil dibatalkan. Slot peserta dan credit telah dikembalikan.');
+    }
+
+    public function confirmPayment(PilatesBooking $booking)
+    {
+        if ($booking->status !== 'pending' || $booking->payment_type !== 'drop_in') {
+            return back()->withErrors([
+                'message' => 'Booking tidak dapat dikonfirmasi.',
+            ]);
+        }
+
+        $booking->update([
+            'status' => 'confirmed',
+        ]);
+
+        return back()->with('success', 'Pembayaran booking berhasil dikonfirmasi.');
+    }
+
+    public function rejectPayment(PilatesBooking $booking)
+    {
+        if ($booking->status !== 'pending' || $booking->payment_type !== 'drop_in') {
+            return back()->withErrors([
+                'message' => 'Booking tidak dapat ditolak.',
+            ]);
+        }
+
+        $booking->update([
+            'status' => 'cancelled',
+        ]);
+
+        return back()->with('success', 'Pembayaran booking berhasil ditolak.');
     }
 }

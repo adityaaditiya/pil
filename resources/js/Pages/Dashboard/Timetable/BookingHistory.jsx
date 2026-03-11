@@ -3,7 +3,7 @@ import { Head, Link, router } from "@inertiajs/react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Pagination from "@/Components/Dashboard/Pagination";
 import Swal from "sweetalert2";
-import { IconBan, IconFilter, IconHistory, IconPrinter, IconSearch, IconUsers, IconX } from "@tabler/icons-react";
+import { IconBan, IconEye, IconFilter, IconHistory, IconPrinter, IconSearch, IconUsers, IconX } from "@tabler/icons-react";
 
 const defaultFilters = {
     invoice: "",
@@ -77,6 +77,72 @@ export default function BookingHistory({ bookings, filters = {} }) {
             ...previous,
             [field]: value,
         }));
+    };
+
+
+
+    const handlePaymentAction = (bookingId, action) => {
+        router.post(route(action === "confirm" ? "bookings.confirm-payment" : "bookings.reject-payment", bookingId), {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+                Swal.fire({
+                    title: "Berhasil!",
+                    text: action === "confirm" ? "Pembayaran berhasil dikonfirmasi." : "Pembayaran berhasil ditolak.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+            },
+            onError: (errors) => {
+                Swal.fire({
+                    title: "Gagal!",
+                    text: errors?.message || "Aksi pembayaran gagal diproses.",
+                    icon: "error",
+                });
+            },
+        });
+    };
+
+    const handleViewPaymentProof = (booking) => {
+        if (!booking.payment_proof_image) {
+            Swal.fire({
+                title: "Bukti pembayaran belum tersedia",
+                text: "Customer belum mengunggah foto bukti pembayaran.",
+                icon: "info",
+            });
+
+            return;
+        }
+
+        Swal.fire({
+            title: "Upload Foto Bukti Pembayaran",
+            html: `
+                <div class="space-y-4">
+                    <img src="/storage/${booking.payment_proof_image}" alt="Bukti Pembayaran" class="mx-auto max-h-[60vh] rounded-lg border border-slate-200" />
+                    <div class="flex items-center justify-center gap-3">
+                        <button id="confirm-payment-btn" class="swal2-confirm swal2-styled" style="background:#16a34a;">Confirm Payment</button>
+                        <button id="reject-payment-btn" class="swal2-deny swal2-styled" style="background:#dc2626;">Reject Payment</button>
+                    </div>
+                </div>
+            `,
+            showConfirmButton: false,
+            showCloseButton: true,
+            width: 640,
+            didOpen: () => {
+                const confirmBtn = document.getElementById("confirm-payment-btn");
+                const rejectBtn = document.getElementById("reject-payment-btn");
+
+                confirmBtn?.addEventListener("click", () => {
+                    Swal.close();
+                    handlePaymentAction(booking.id, "confirm");
+                });
+
+                rejectBtn?.addEventListener("click", () => {
+                    Swal.close();
+                    handlePaymentAction(booking.id, "reject");
+                });
+            },
+        });
     };
 
     const handleCancel = (booking) => {
@@ -316,6 +382,14 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                             </td>
                                             <td className="px-4 py-4 text-center">
                                                 <div className="flex items-center justify-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleViewPaymentProof(booking)}
+                                                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-950/50"
+                                                        title="Lihat Bukti Pembayaran"
+                                                    >
+                                                        <IconEye size={18} />
+                                                    </button>
                                                     <Link
                                                         href={route("bookings.print", booking.invoice)}
                                                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-950/50"
