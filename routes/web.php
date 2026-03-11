@@ -46,6 +46,8 @@ Route::get('/welcome/schedule/{pilatesTimetable}', [StudioPageController::class,
 Route::middleware('auth')->get('/welcome/schedule/{pilatesTimetable}/payment', [StudioPageController::class, 'showSchedulePayment'])->name('welcome.schedule-payment');
 Route::middleware('auth')->get('/welcome/schedule/{pilatesTimetable}/payment/drop-in-checkout', [StudioPageController::class, 'showDropInCheckout'])->name('welcome.schedule-payment.drop-in-checkout');
 Route::middleware('auth')->post('/welcome/schedule/{pilatesTimetable}/payment', [StudioPageController::class, 'processSchedulePayment'])->name('welcome.schedule-payment.process');
+Route::middleware('auth')->post('/welcome/schedule/bookings/{booking}/payment-proof', [StudioPageController::class, 'uploadDropInPaymentProof'])->name('welcome.schedule-payment.upload-proof');
+Route::middleware('auth')->delete('/welcome/schedule/bookings/{booking}/cancel', [StudioPageController::class, 'cancelDropInTransaction'])->name('welcome.schedule-payment.cancel-transaction');
 
 Route::middleware('auth')->get('/user/my-schedule', [UserScheduleController::class, 'index'])->name('user.my-schedule');
 Route::middleware('auth')->get('/user/my-memberships', [UserMembershipHistoryController::class, 'index'])->name('user.my-memberships');
