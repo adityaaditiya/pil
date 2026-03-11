@@ -32,6 +32,7 @@ const statusClass = (status) => {
 
     if (value === "confirmed") return "bg-emerald-50 text-emerald-700";
     if (value === "cancelled") return "bg-rose-50 text-rose-700";
+    if (value === "expired") return "bg-slate-100 text-slate-700";
 
     return "bg-amber-50 text-amber-700";
 };

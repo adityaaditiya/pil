@@ -12,6 +12,7 @@ use App\Models\StudioPage;
 use App\Models\Trainer;
 use App\Models\UserMembership;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -148,9 +149,10 @@ class StudioPageController extends Controller
 
     public function showSchedulePayment(PilatesTimetable $pilatesTimetable): Response
     {
+        $this->expirePendingBookings($pilatesTimetable->id);
         $schedule = $pilatesTimetable
             ->load(['pilatesClass:id,name,image', 'trainer:id,name'])
-            ->loadSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants');
+            ->loadSum(['bookings as booked_slots' => fn ($query) => $this->bookingSlotsQuery($query)], 'participants');
         $bookedSlots = (int) ($schedule->booked_slots ?? 0);
         $remainingSlots = max(0, ((int) $schedule->capacity) - $bookedSlots);
 
@@ -166,7 +168,7 @@ class StudioPageController extends Controller
         $alreadyBooked = PilatesBooking::query()
             ->where('user_id', Auth::id())
             ->where('timetable_id', $schedule->id)
-            ->where('status', '!=', 'cancelled')
+            ->whereNotIn('status', ['cancelled', 'expired'])
             ->exists();
 
         $availableMemberships = UserMembership::query()
@@ -204,9 +206,10 @@ class StudioPageController extends Controller
 
     public function showDropInCheckout(Request $request, PilatesTimetable $pilatesTimetable): Response|RedirectResponse
     {
+        $this->expirePendingBookings($pilatesTimetable->id);
         $schedule = $pilatesTimetable
             ->load(['pilatesClass:id,name,image', 'trainer:id,name'])
-            ->loadSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants');
+            ->loadSum(['bookings as booked_slots' => fn ($query) => $this->bookingSlotsQuery($query)], 'participants');
         $bookedSlots = (int) ($schedule->booked_slots ?? 0);
         $remainingSlots = max(0, ((int) $schedule->capacity) - $bookedSlots);
 
@@ -224,8 +227,9 @@ class StudioPageController extends Controller
             ->where('status', 'pending')
             ->first();
         $selectedGateway = $paymentGateways->firstWhere('value', $booking?->payment_method);
+        $checkoutRemainingSlots = $remainingSlots + (int) ($booking?->participants ?? 0);
 
-        if (! $schedule->allow_drop_in || ! $booking || ! $selectedGateway || $remainingSlots < 1) {
+        if (! $schedule->allow_drop_in || ! $booking || ! $selectedGateway || $checkoutRemainingSlots < 1) {
             return to_route('welcome.schedule-payment', $schedule->id);
         }
 
@@ -235,10 +239,11 @@ class StudioPageController extends Controller
                 'id' => $booking->id,
                 'invoice' => $booking->invoice,
                 'payment_proof_image' => $booking->payment_proof_image,
+                'expired_at' => $booking->expired_at?->toISOString(),
             ],
             'selectedGateway' => $selectedGateway,
-            'participants' => min((int) $booking->participants, $remainingSlots),
-            'remainingSlots' => $remainingSlots,
+            'participants' => min((int) $booking->participants, $checkoutRemainingSlots),
+            'remainingSlots' => $checkoutRemainingSlots,
             'paymentInstructions' => [
                 'qris_full_name' => $paymentSetting?->qris_full_name,
                 'qris_image' => $paymentSetting?->qris_image,
@@ -251,6 +256,7 @@ class StudioPageController extends Controller
 
     public function processSchedulePayment(Request $request, PilatesTimetable $pilatesTimetable): RedirectResponse
     {
+        $this->expirePendingBookings($pilatesTimetable->id);
         $data = $request->validate([
             'payment_type' => ['required', 'in:credit,drop_in'],
             'payment_method' => ['nullable', 'string', 'max:50'],
@@ -260,7 +266,7 @@ class StudioPageController extends Controller
 
         $timetable = PilatesTimetable::query()
             ->with(['pilatesClass:id,name'])
-            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
+            ->withSum(['bookings as booked_slots' => fn ($query) => $this->bookingSlotsQuery($query)], 'participants')
             ->findOrFail($pilatesTimetable->id);
 
         if ($timetable->status !== 'scheduled') {
@@ -291,7 +297,7 @@ class StudioPageController extends Controller
         $alreadyBooked = PilatesBooking::query()
             ->where('user_id', Auth::id())
             ->where('timetable_id', $timetable->id)
-            ->where('status', '!=', 'cancelled')
+            ->whereNotIn('status', ['cancelled', 'expired'])
             ->exists();
 
         if ($alreadyBooked) {
@@ -372,6 +378,7 @@ class StudioPageController extends Controller
                     'payment_method' => $paymentMethod,
                     'price_amount' => $paymentType === 'drop_in' ? $priceAmount : 0,
                     'credit_used' => $paymentType === 'credit' ? $creditUsed : 0,
+                    'expired_at' => $paymentType === 'drop_in' ? Carbon::now()->addMinutes(15) : null,
                 ]);
 
                 if ($paymentType === 'credit' && $selectedMembership) {
@@ -398,6 +405,8 @@ class StudioPageController extends Controller
 
     public function uploadDropInPaymentProof(Request $request, PilatesBooking $booking): RedirectResponse
     {
+        $this->expirePendingBookings($booking->timetable_id);
+        $booking->refresh();
         if ((int) $booking->user_id !== (int) Auth::id() || $booking->status !== 'pending' || $booking->payment_type !== 'drop_in') {
             return to_route('welcome.page', 'schedule')->withErrors(['payment_proof' => 'Transaksi tidak ditemukan atau sudah tidak aktif.']);
         }
@@ -421,6 +430,8 @@ class StudioPageController extends Controller
 
     public function cancelDropInTransaction(PilatesBooking $booking): RedirectResponse
     {
+        $this->expirePendingBookings($booking->timetable_id);
+        $booking->refresh();
         if ((int) $booking->user_id !== (int) Auth::id() || $booking->status !== 'pending' || $booking->payment_type !== 'drop_in') {
             return to_route('welcome.page', 'schedule')->withErrors(['payment_proof' => 'Transaksi tidak ditemukan atau sudah tidak aktif.']);
         }
@@ -436,4 +447,43 @@ class StudioPageController extends Controller
 
         return to_route('welcome.schedule-payment', $booking->timetable_id)->with('success', 'Transaksi berhasil dibatalkan.');
     }
+    private function expirePendingBookings(?int $timetableId = null): void
+    {
+        $query = PilatesBooking::query()
+            ->where('status', 'pending')
+            ->where('payment_type', 'drop_in')
+            ->where(function ($builder) {
+                $builder
+                    ->where('expired_at', '<=', now())
+                    ->orWhere(function ($fallback) {
+                        $fallback->whereNull('expired_at')->where('created_at', '<=', now()->subMinutes(15));
+                    });
+            });
+
+        if ($timetableId) {
+            $query->where('timetable_id', $timetableId);
+        }
+
+        $query->update([
+            'status' => 'expired',
+        ]);
+    }
+
+    private function bookingSlotsQuery($query)
+    {
+        $query->where('status', 'confirmed')
+            ->orWhere(function ($pendingQuery) {
+                $pendingQuery
+                    ->where('status', 'pending')
+                    ->where('payment_type', 'drop_in')
+                    ->where(function ($activePending) {
+                        $activePending
+                            ->where('expired_at', '>', now())
+                            ->orWhere(function ($fallbackPending) {
+                                $fallbackPending->whereNull('expired_at')->where('created_at', '>', now()->subMinutes(15));
+                            });
+                    });
+            });
+    }
+
 }
