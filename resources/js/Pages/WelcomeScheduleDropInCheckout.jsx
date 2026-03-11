@@ -1,4 +1,4 @@
-import { Head, router, useForm, usePage } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { useEffect, useMemo, useState } from "react";
 
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
@@ -54,7 +54,9 @@ export default function WelcomeScheduleDropInCheckout({ schedule, booking, selec
                     <p className="text-sm text-slate-600">Metode pembayaran: <span className="font-semibold">{selectedGateway?.label}</span></p>
                     <p className="text-sm text-slate-600">Jumlah peserta: <span className="font-semibold">{participants}</span> orang</p>
                     <p className="text-sm text-slate-600">Total pembayaran: <span className="font-semibold">{formatRupiah(totalPrice)}</span></p>
-                    <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">Selesaikan transaksi dalam {minutes}:{seconds}. Otomatis batal jika transaksi tidak diselesaikan</p>
+                    {!booking?.payment_proof_image && (
+                        <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">Selesaikan transaksi dalam {minutes}:{seconds}. Otomatis batal jika transaksi tidak diselesaikan</p>
+                    )}
                     {selectedGateway?.value === "qris" && (
                         <div className="mt-6 rounded-2xl border border-slate-200 p-4">
                             <p className="text-sm font-semibold text-slate-800">Scan QRIS berikut:</p>
@@ -88,26 +90,37 @@ export default function WelcomeScheduleDropInCheckout({ schedule, booking, selec
 
                     {(errors.payment_proof || errors.payment_type || errors.participants) && <p className="mt-4 text-sm text-red-500">{errors.payment_proof || errors.payment_type || errors.participants}</p>}
 
-                    <form onSubmit={uploadPaymentProof} className="mt-6 space-y-3">
-                        <input
-                            type="file"
-                            accept="image/png,image/jpeg,image/jpg,image/webp"
-                            onChange={(event) => setData("payment_proof", event.target.files?.[0] ?? null)}
-                            className="block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
-                        />
-                        <div className="flex flex-wrap gap-3">
-                            <button
-                                type="submit"
-                                disabled={processing || secondsLeft === 0 || remainingSlots < 1}
-                                className="rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+                    {booking?.payment_proof_image ? (
+                        <div className="mt-6">
+                            <Link
+                                href={route("user.my-schedule")}
+                                className="inline-flex rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
                             >
-                                Upload Foto Bukti Pembayaran
-                            </button>
-                            <button type="button" onClick={cancelTransaction} className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-700">
-                                Batalkan Transaksi
-                            </button>
+                                Lihat booking saya
+                            </Link>
                         </div>
-                    </form>
+                    ) : (
+                        <form onSubmit={uploadPaymentProof} className="mt-6 space-y-3">
+                            <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/jpg,image/webp"
+                                onChange={(event) => setData("payment_proof", event.target.files?.[0] ?? null)}
+                                className="block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
+                            />
+                            <div className="flex flex-wrap gap-3">
+                                <button
+                                    type="submit"
+                                    disabled={processing || secondsLeft === 0 || remainingSlots < 1}
+                                    className="rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+                                >
+                                    Upload Foto Bukti Pembayaran
+                                </button>
+                                <button type="button" onClick={cancelTransaction} className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-700">
+                                    Batalkan Transaksi
+                                </button>
+                            </div>
+                        </form>
+                    )}
                 </div>
             </div>
         </>
