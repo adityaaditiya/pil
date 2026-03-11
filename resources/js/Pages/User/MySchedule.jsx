@@ -1,4 +1,4 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import Navbar from "@/Components/Landing/Navbar";
 import { IconCalendarEvent, IconClock, IconUser, IconYoga } from "@tabler/icons-react";
 
@@ -29,6 +29,16 @@ const statusClass = (status) => {
     if (value === "cancelled") return "bg-rose-50 text-rose-700";
 
     return "bg-amber-50 text-amber-700";
+};
+
+
+
+const handleCancelTransaction = (bookingId) => {
+    if (!window.confirm("Batalkan transaksi ini?")) return;
+
+    router.delete(route("welcome.schedule-payment.cancel-transaction", bookingId), {
+        preserveScroll: true,
+    });
 };
 
 export default function MySchedule({ bookings = [] }) {
@@ -104,13 +114,22 @@ export default function MySchedule({ bookings = [] }) {
                                                     <p>Booked at: {formatDate(booking.booked_at)}</p>
                                                 </div>
 
-                                                {schedule.id && (
-                                                    <div className="mt-5">
+                                                <div className="mt-5 flex flex-wrap gap-2">
+                                                    {schedule.id && (
                                                         <Link href={route("welcome.schedule-detail", schedule.id)} className="inline-flex rounded-full bg-primary-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary-700">
                                                             Lihat detail schedule
                                                         </Link>
-                                                    </div>
-                                                )}
+                                                    )}
+                                                    {booking.status === "pending" && booking.payment_type === "drop_in" && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleCancelTransaction(booking.id)}
+                                                            className="inline-flex rounded-full border border-rose-200 px-5 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                                                        >
+                                                            Batalkan transaksi
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </article>
