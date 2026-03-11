@@ -3,7 +3,16 @@ import { Head, Link, router } from "@inertiajs/react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Pagination from "@/Components/Dashboard/Pagination";
 import Swal from "sweetalert2";
-import { IconBan, IconFilter, IconHistory, IconPrinter, IconSearch, IconUsers, IconX } from "@tabler/icons-react";
+import {
+    IconBan,
+    IconEye,
+    IconFilter,
+    IconHistory,
+    IconPrinter,
+    IconSearch,
+    IconUsers,
+    IconX,
+} from "@tabler/icons-react";
 
 const defaultFilters = {
     invoice: "",
@@ -15,6 +24,7 @@ const statusClass = {
     pending: "bg-amber-100 text-amber-700",
     confirmed: "bg-emerald-100 text-emerald-700",
     cancelled: "bg-rose-100 text-rose-700",
+    expired: "bg-slate-100 text-slate-700",
 };
 
 const paymentTypeLabel = {
@@ -79,6 +89,86 @@ export default function BookingHistory({ bookings, filters = {} }) {
         }));
     };
 
+    const handlePaymentAction = (bookingId, action) => {
+        router.post(
+            route(
+                action === "confirm"
+                    ? "bookings.confirm-payment"
+                    : "bookings.reject-payment",
+                bookingId,
+            ),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    Swal.fire({
+                        title: "Berhasil!",
+                        text:
+                            action === "confirm"
+                                ? "Pembayaran berhasil dikonfirmasi."
+                                : "Pembayaran berhasil ditolak.",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false,
+                    });
+                },
+                onError: (errors) => {
+                    Swal.fire({
+                        title: "Gagal!",
+                        text:
+                            errors?.message ||
+                            "Aksi pembayaran gagal diproses.",
+                        icon: "error",
+                    });
+                },
+            },
+        );
+    };
+
+    const handleViewPaymentProof = (booking) => {
+        if (!booking.payment_proof_image) {
+            Swal.fire({
+                title: "Bukti pembayaran belum tersedia",
+                text: "Customer belum mengunggah foto bukti pembayaran.",
+                icon: "info",
+            });
+
+            return;
+        }
+
+        Swal.fire({
+            title: "Upload Foto Bukti Pembayaran",
+            html: `
+                <div class="space-y-4">
+                    <img src="/storage/${booking.payment_proof_image}" alt="Bukti Pembayaran" class="mx-auto max-h-[60vh] rounded-lg border border-slate-200" />
+                    <div class="flex items-center justify-center gap-3">
+                        <button id="confirm-payment-btn" class="swal2-confirm swal2-styled" style="background:#16a34a;">Confirm Payment</button>
+                        <button id="reject-payment-btn" class="swal2-deny swal2-styled" style="background:#dc2626;">Reject Payment</button>
+                    </div>
+                </div>
+            `,
+            showConfirmButton: false,
+            showCloseButton: true,
+            width: 640,
+            didOpen: () => {
+                const confirmBtn = document.getElementById(
+                    "confirm-payment-btn",
+                );
+                const rejectBtn = document.getElementById("reject-payment-btn");
+
+                confirmBtn?.addEventListener("click", () => {
+                    Swal.close();
+                    handlePaymentAction(booking.id, "confirm");
+                });
+
+                rejectBtn?.addEventListener("click", () => {
+                    Swal.close();
+                    handlePaymentAction(booking.id, "reject");
+                });
+            },
+        });
+    };
+
     const handleCancel = (booking) => {
         Swal.fire({
             title: "Batalkan booking?",
@@ -110,12 +200,13 @@ export default function BookingHistory({ bookings, filters = {} }) {
                     const email = document
                         .getElementById("super-admin-email")
                         ?.value?.trim();
-                    const password =
-                        document.getElementById("super-admin-password")?.value;
+                    const password = document.getElementById(
+                        "super-admin-password",
+                    )?.value;
 
                     if (!email || !password) {
                         Swal.showValidationMessage(
-                            "Email dan password super-admin wajib diisi."
+                            "Email dan password super-admin wajib diisi.",
                         );
                         return null;
                     }
@@ -145,7 +236,8 @@ export default function BookingHistory({ bookings, filters = {} }) {
                     onError: (errors) => {
                         Swal.fire({
                             title: "Gagal!",
-                            text: errors?.message || "Booking gagal dibatalkan.",
+                            text:
+                                errors?.message || "Booking gagal dibatalkan.",
                             icon: "error",
                         });
                     },
@@ -162,7 +254,10 @@ export default function BookingHistory({ bookings, filters = {} }) {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900 dark:text-white">
-                            <IconHistory size={28} className="text-primary-500" />
+                            <IconHistory
+                                size={28}
+                                className="text-primary-500"
+                            />
                             Riwayat Booking
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -199,7 +294,10 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                         placeholder="INV-..."
                                         value={filterData.invoice}
                                         onChange={(event) =>
-                                            handleChange("invoice", event.target.value)
+                                            handleChange(
+                                                "invoice",
+                                                event.target.value,
+                                            )
                                         }
                                         className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 placeholder-slate-400 transition-all focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                                     />
@@ -212,7 +310,10 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                         type="date"
                                         value={filterData.start_date}
                                         onChange={(event) =>
-                                            handleChange("start_date", event.target.value)
+                                            handleChange(
+                                                "start_date",
+                                                event.target.value,
+                                            )
                                         }
                                         className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 transition-all focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                                     />
@@ -225,7 +326,10 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                         type="date"
                                         value={filterData.end_date}
                                         onChange={(event) =>
-                                            handleChange("end_date", event.target.value)
+                                            handleChange(
+                                                "end_date",
+                                                event.target.value,
+                                            )
                                         }
                                         className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 transition-all focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                                     />
@@ -258,25 +362,51 @@ export default function BookingHistory({ bookings, filters = {} }) {
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-slate-100 dark:border-slate-800">
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">No</th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Invoice</th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Tanggal Booking</th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Pelanggan</th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Kelas</th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Jadwal</th>
-                                    <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Peserta</th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Pembayaran</th>
-                                    <th className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Nominal</th>
-                                    <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        No
+                                    </th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Invoice
+                                    </th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Tanggal Booking
+                                    </th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Pelanggan
+                                    </th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Kelas
+                                    </th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Jadwal
+                                    </th>
+                                    <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Peserta
+                                    </th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Pembayaran
+                                    </th>
+                                    <th className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Nominal
+                                    </th>
+                                    <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Status
+                                    </th>
                                     <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                 {rows.length > 0 ? (
                                     rows.map((booking, index) => (
-                                        <tr key={booking.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                                        <tr
+                                            key={booking.id}
+                                            className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40"
+                                        >
                                             <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300">
-                                                {(bookings.current_page - 1) * bookings.per_page + index + 1}
+                                                {(bookings.current_page - 1) *
+                                                    bookings.per_page +
+                                                    index +
+                                                    1}
                                             </td>
                                             <td className="px-4 py-4 text-sm font-semibold text-slate-800 dark:text-slate-200">
                                                 {booking.invoice}
@@ -288,8 +418,13 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                                 {booking.customer || "-"}
                                             </td>
                                             <td className="px-4 py-4 text-sm text-slate-700 dark:text-slate-300">
-                                                <p className="font-medium">{booking.class_name || "-"}</p>
-                                                <p className="text-xs text-slate-500">{booking.trainer_name || "Trainer belum ditentukan"}</p>
+                                                <p className="font-medium">
+                                                    {booking.class_name || "-"}
+                                                </p>
+                                                <p className="text-xs text-slate-500">
+                                                    {booking.trainer_name ||
+                                                        "Trainer belum ditentukan"}
+                                                </p>
                                             </td>
                                             <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300">
                                                 {booking.schedule_at || "-"}
@@ -301,11 +436,20 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                                 </span>
                                             </td>
                                             <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300">
-                                                <p>{paymentTypeLabel[booking.payment_type] || "-"}</p>
-                                                <p className="text-xs text-slate-500">{booking.payment_method || "-"}</p>
+                                                <p>
+                                                    {paymentTypeLabel[
+                                                        booking.payment_type
+                                                    ] || "-"}
+                                                </p>
+                                                <p className="text-xs text-slate-500">
+                                                    {booking.payment_method ||
+                                                        "-"}
+                                                </p>
                                             </td>
                                             <td className="px-4 py-4 text-right text-sm font-semibold text-slate-800 dark:text-slate-200">
-                                                {formatCurrency(booking.price_amount || 0)}
+                                                {formatCurrency(
+                                                    booking.price_amount || 0,
+                                                )}
                                             </td>
                                             <td className="px-4 py-4 text-center">
                                                 <span
@@ -316,25 +460,49 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                             </td>
                                             <td className="px-4 py-4 text-center">
                                                 <div className="flex items-center justify-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            handleViewPaymentProof(
+                                                                booking,
+                                                            )
+                                                        }
+                                                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-950/50"
+                                                        title="Lihat Bukti Pembayaran"
+                                                    >
+                                                        <IconEye size={18} />
+                                                    </button>
                                                     <Link
-                                                        href={route("bookings.print", booking.invoice)}
+                                                        href={route(
+                                                            "bookings.print",
+                                                            booking.invoice,
+                                                        )}
                                                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-950/50"
                                                         title="Print Booking"
                                                     >
-                                                        <IconPrinter size={18} />
+                                                        <IconPrinter
+                                                            size={18}
+                                                        />
                                                     </Link>
-                                                    {booking.status === "cancelled" ? (
+                                                    {booking.status ===
+                                                    "cancelled" ? (
                                                         <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                                                             Dibatalkan
                                                         </span>
                                                     ) : (
                                                         <button
                                                             type="button"
-                                                            onClick={() => handleCancel(booking)}
+                                                            onClick={() =>
+                                                                handleCancel(
+                                                                    booking,
+                                                                )
+                                                            }
                                                             className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-danger-50 hover:text-danger-600 dark:hover:bg-danger-950/50"
                                                             title="Batalkan Booking"
                                                         >
-                                                            <IconBan size={18} />
+                                                            <IconBan
+                                                                size={18}
+                                                            />
                                                         </button>
                                                     )}
                                                 </div>

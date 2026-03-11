@@ -24,6 +24,7 @@ class PilatesBooking extends Model
         'payment_proof_image',
         'price_amount',
         'credit_used',
+        'expired_at',
     ];
 
     protected $casts = [
@@ -31,6 +32,7 @@ class PilatesBooking extends Model
         'participants' => 'integer',
         'price_amount' => 'decimal:2',
         'credit_used' => 'decimal:2',
+        'expired_at' => 'datetime',
     ];
 
     protected static function booted(): void
