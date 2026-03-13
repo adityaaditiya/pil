@@ -5,12 +5,14 @@ import TextInput from '@/Components/TextInput';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 
-export default function UpdateProfileInformation({ mustVerifyEmail, status, className = '' }) {
+export default function UpdateProfileInformation({ mustVerifyEmail, status, customer, className = '' }) {
     const user = usePage().props.auth.user;
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
         name: user.name,
         email: user.email,
+        no_telp: customer?.no_telp ? String(customer.no_telp) : '',
+        address: customer?.address || '',
     });
 
     const submit = (e) => {
@@ -60,6 +62,39 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                     />
 
                     <InputError className="mt-2" message={errors.email} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="no_telp" value="No. Handphone" />
+
+                    <TextInput
+                        id="no_telp"
+                        type="text"
+                        className="mt-1 block w-full"
+                        value={data.no_telp}
+                        onChange={(e) => setData('no_telp', e.target.value.replace(/\D/g, ''))}
+                        required
+                        inputMode="numeric"
+                        autoComplete="tel"
+                    />
+
+                    <InputError className="mt-2" message={errors.no_telp} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="address" value="Alamat" />
+
+                    <textarea
+                        id="address"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        value={data.address}
+                        onChange={(e) => setData('address', e.target.value)}
+                        required
+                        rows={3}
+                        autoComplete="street-address"
+                    />
+
+                    <InputError className="mt-2" message={errors.address} />
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (

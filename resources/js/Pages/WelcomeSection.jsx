@@ -114,10 +114,13 @@ export default function WelcomeSection({
         [schedules]
     );
 
-    const classCategoryOptions = useMemo(
-        () => [...new Set(schedules.map((item) => item.pilates_class?.class_category?.name).filter(Boolean))],
-        [schedules]
-    );
+    const classCategoryOptions = useMemo(() => {
+        if (pageKey === "classes") {
+            return [...new Set(classes.map((item) => item.class_category?.name).filter(Boolean))];
+        }
+
+        return [...new Set(schedules.map((item) => item.pilates_class?.class_category?.name).filter(Boolean))];
+    }, [pageKey, classes, schedules]);
 
     const hasActiveFilters = Boolean(classNameFilter || difficultyFilter || trainerFilter || classCategoryFilter);
     const navItems = [{ name: "Home", key: "home" }, ...menuItems.filter((item) => item.key !== "home")];

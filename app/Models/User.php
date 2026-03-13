@@ -57,6 +57,11 @@ class User extends Authenticatable
         return $this->hasMany(UserMembership::class);
     }
 
+    public function customer()
+    {
+        return $this->hasOne(Customer::class);
+    }
+
     /**
      *  get all permissions users
      */

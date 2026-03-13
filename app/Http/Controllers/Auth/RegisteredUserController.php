@@ -35,10 +35,16 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $redirect = trim((string) $request->input('redirect', ''));
+        $sanitizedAddress = preg_replace('/[<>;]/', '', (string) $request->input('address', ''));
+        $request->merge([
+            'address' => trim((string) $sanitizedAddress),
+        ]);
 
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            'no_telp'  => 'required|regex:/^[0-9]+$/|digits_between:7,15|unique:customers,no_telp',
+            'address'  => 'required|string|min:10|max:1000',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -52,8 +58,8 @@ class RegisteredUserController extends Controller
             Customer::create([
                 'user_id'  => $user->id,
                 'name'     => $request->name,
-                'no_telp'  => 0,
-                'address'  => '-',
+                'no_telp'  => $request->no_telp,
+                'address'  => $request->address,
             ]);
 
             // Assign default role for self-registration users
