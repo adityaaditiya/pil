@@ -277,7 +277,7 @@ export default function WelcomeSection({
                                         </div>
                                         {/* <p className="text-sm text-wellness-muted">Trainer: {classItem.trainers.map((trainer) => trainer.name).join(", ") || "-"}</p> */}
                                         {/* <p className="font-semibold text-primary-600">{formatRupiah(classItem.price)}</p> */}
-                                        <p className="overflow-hidden text-ellipsis text-sm text-wellness-muted [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">{classItem.about}</p>
+                                        <p className="overflow-hidden text-ellipsis text-justify text-sm text-wellness-muted [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">{classItem.about}</p>
                                     </div>
 
                                     <div className="mt-auto pt-5">
@@ -339,9 +339,11 @@ export default function WelcomeSection({
                                 <div className="mt-4 space-y-2 text-sm text-wellness-muted">
                                     <p className="inline-flex items-center gap-2"><IconStar size={16} /> {membership.credits} credits class</p>
                                     <br/><p className="inline-flex items-center gap-2"><IconClock size={16} /> Berlaku {membership.valid_days || "-"} hari</p>
-                                    <br /><p className="inline-flex items-center gap-2"><IconCurrencyDollar size={16} /> Nilai terbaik untuk setiap sesi</p>
+                                    <br /><p className="inline-flex items-center gap-2"><IconCurrencyDollar size={16} /> Benefit Terbaik Setiap Sesi</p>
                                 </div>
-                                <p className="mt-4 text-sm text-wellness-muted">{membership.description || "Paket membership untuk latihan konsisten."}</p>
+                                <p className="mt-4 text-sm text-wellness-muted whitespace-pre-line ">
+                                    {membership.description || "Paket membership untuk latihan konsisten."}
+                                </p>
                             </article>
                         ))}
                     </section>

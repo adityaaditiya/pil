@@ -37,7 +37,14 @@ export default function WelcomeScheduleDetail({ schedule }) {
         { label: "Date", value: formatDate(schedule.start_at) },
         { label: "Time", value: `${formatTime(schedule.start_at)} WIB` },
         { label: "Duration", value: `${schedule.pilates_class?.duration || schedule.duration_minutes || 0} menit` },
-        { label: "Equipment", value: schedule.pilates_class?.equipment || "-" },
+        {
+  label: "Equipment",
+  value: (
+    <div className="whitespace-pre-line">
+      {schedule.pilates_class?.equipment || "-"}
+    </div>
+  )
+},
         { label: "Capacity", value: `${schedule.capacity || 0} peserta` },
         // { label: "Status", value: schedule.status || "-" },
         // { label: "Metode Pembayaran", value: paymentLabel },
@@ -80,7 +87,7 @@ export default function WelcomeScheduleDetail({ schedule }) {
                                 </div>
                             </div>
 
-                            <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
+                            <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm whitespace-pre-line">
                                 <h2 className="text-xl font-semibold">Instructor</h2>
                                 <div className="mt-4 rounded-2xl border border-slate-200 p-4">
                                     <p className="inline-flex items-center gap-2 font-semibold">
@@ -97,6 +104,17 @@ export default function WelcomeScheduleDetail({ schedule }) {
                                         {schedule.trainer?.biodata || "Biodata trainer belum diisi."}
                                     </p>
                                 </div>
+                            </div>
+                            <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm whitespace-pre-line">
+                                <h2 className="text-xl font-semibold">Ketentuan Pembatalan</h2>
+                                <div className="mt-4 rounded-2xl border border-slate-200 p-4">
+                                <p className="text-sm text-wellness-muted whitespace-pre-line text-justify">
+                                Demi kenyamanan bersama, kami sangat menghargai kerja sama Anda untuk tidak melakukan pembatalan mendadak agar jadwal kelas tetap berjalan efektif.
+                                </p>
+                                <p className="mt-2 text-sm text-wellness-muted whitespace-pre-line text-justify">
+                                Catatan: Pengembalian kredit/saldo hanya berlaku untuk pembatalan yang dilakukan maksimal 12 jam sebelum sesi dimulai. Pembatalan setelah melewati batas waktu tersebut akan dianggap hangus.
+                                </p>
+                            </div>
                             </div>
                         </aside>
 
@@ -136,7 +154,7 @@ export default function WelcomeScheduleDetail({ schedule }) {
                                     {schedule.pilates_class?.name || "Detail Schedule"}
                                 </h1>
 
-                                <p className="text-wellness-muted">
+                                <p className="text-wellness-muted text-justify">
                                     {schedule.pilates_class?.about ||
                                         "Pilih jadwal terbaik dan lanjutkan ke proses pembayaran booking Anda."}
                                 </p>
@@ -160,6 +178,21 @@ export default function WelcomeScheduleDetail({ schedule }) {
                                     </p>
                                 </div> */}
 
+                                
+                                <link rel="stylesheet" href="https://maps.app.goo.gl/hHjRXS5fa6ezSBa96" />
+                                <iframe
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.267416072759!2d109.13153807480896!3d-6.858518693139926!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e6fb73855438ee5%3A0x9a72d2d730a422fc!2sOro%20Padel%20Tegal!5e0!3m2!1sid!2sid!4v1773433907949!5m2!1sid!2sid"
+                                    width="100%"
+                                    height="200"
+                                    style={{ border: 0 }}
+                                    allowFullScreen
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                ></iframe>
+                                <p className="text-sm text-wellness-muted text-justify">
+                                    Getting there:  
+                                    Jl. Layur No.8, Tegalsari, Kec. Tegal Bar., Kota Tegal, Jawa Tengah 52111
+                                </p>
                                 <Link
                                     href={route("welcome.schedule-payment", schedule.id)}
                                     className="inline-flex rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"

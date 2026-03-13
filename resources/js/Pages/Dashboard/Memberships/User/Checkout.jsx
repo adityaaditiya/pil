@@ -130,7 +130,7 @@ export default function Checkout({ plan, customers = [], paymentGateways = [] })
                                         <p className="mt-1 text-xs text-danger-500">{errors.cash_amount}</p>
                                     )}
                                 </div>
-
+                                    <br />
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-slate-700">
                                         Diskon (Rp)
@@ -151,6 +151,7 @@ export default function Checkout({ plan, customers = [], paymentGateways = [] })
                                 </div>
                             </>
                         )}
+                        <br />
                         <div className="space-y-2 text-sm">
                             <div className="flex items-center justify-between">
                                 <span className="text-slate-500">Subtotal</span>
