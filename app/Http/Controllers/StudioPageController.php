@@ -99,7 +99,7 @@ class StudioPageController extends Controller
                 'classCategory' => request()->string('class_category')->toString(),
             ],
             'classes' => $normalizedKey === 'classes'
-                ? PilatesClass::with('trainers:id,name')->latest()->get(['id', 'image', 'name', 'duration', 'difficulty_level', 'about', 'equipment', 'price'])
+                ? PilatesClass::with(['trainers:id,name', 'classCategory:id,name'])->latest()->get(['id', 'class_category_id', 'image', 'name', 'duration', 'difficulty_level', 'about', 'equipment', 'price'])
                 : [],
             'schedules' => $normalizedKey === 'schedule'
                 ? PilatesTimetable::with([
@@ -224,7 +224,7 @@ class StudioPageController extends Controller
             ->where('user_id', Auth::id())
             ->where('timetable_id', $schedule->id)
             ->where('payment_type', 'drop_in')
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'pending_payment'])
             ->first();
         $selectedGateway = $paymentGateways->firstWhere('value', $booking?->payment_method);
         $checkoutRemainingSlots = $remainingSlots + (int) ($booking?->participants ?? 0);
@@ -407,7 +407,7 @@ class StudioPageController extends Controller
     {
         $this->expirePendingBookings($booking->timetable_id);
         $booking->refresh();
-        if ((int) $booking->user_id !== (int) Auth::id() || $booking->status !== 'pending' || $booking->payment_type !== 'drop_in') {
+        if ((int) $booking->user_id !== (int) Auth::id() || ! in_array($booking->status, ['pending', 'pending_payment'], true) || $booking->payment_type !== 'drop_in') {
             return to_route('welcome.page', 'schedule')->withErrors(['payment_proof' => 'Transaksi tidak ditemukan atau sudah tidak aktif.']);
         }
 
@@ -432,7 +432,7 @@ class StudioPageController extends Controller
     {
         $this->expirePendingBookings($booking->timetable_id);
         $booking->refresh();
-        if ((int) $booking->user_id !== (int) Auth::id() || $booking->status !== 'pending' || $booking->payment_type !== 'drop_in') {
+        if ((int) $booking->user_id !== (int) Auth::id() || ! in_array($booking->status, ['pending', 'pending_payment'], true) || $booking->payment_type !== 'drop_in') {
             return to_route('welcome.page', 'schedule')->withErrors(['payment_proof' => 'Transaksi tidak ditemukan atau sudah tidak aktif.']);
         }
 
@@ -450,7 +450,7 @@ class StudioPageController extends Controller
     private function expirePendingBookings(?int $timetableId = null): void
     {
         $query = PilatesBooking::query()
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'pending_payment'])
             ->where('payment_type', 'drop_in')
             ->where(function ($builder) {
                 $builder
@@ -474,7 +474,7 @@ class StudioPageController extends Controller
         $query->where('status', 'confirmed')
             ->orWhere(function ($pendingQuery) {
                 $pendingQuery
-                    ->where('status', 'pending')
+                    ->whereIn('status', ['pending', 'pending_payment'])
                     ->where('payment_type', 'drop_in')
                     ->where(function ($activePending) {
                         $activePending

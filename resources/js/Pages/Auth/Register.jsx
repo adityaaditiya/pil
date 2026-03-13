@@ -4,6 +4,8 @@ import {
     IconShoppingCart,
     IconUser,
     IconMail,
+    IconPhone,
+    IconMapPin,
     IconLock,
     IconEye,
     IconEyeOff,
@@ -17,6 +19,8 @@ export default function Register({ redirect = "" }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: "",
         email: "",
+        no_telp: "",
+        address: "",
         password: "",
         password_confirmation: "",
         redirect,
@@ -117,7 +121,7 @@ export default function Register({ redirect = "" }) {
                                         type="text"
                                         value={data.name}
                                         onChange={(e) =>
-                                            setData("name", e.target.value)
+                                            setData("name", e.target.value.replace(/[^\p{L}\s]/gu, ""))
                                         }
                                         placeholder="Nama Anda"
                                         className={`w-full h-12 pl-12 pr-4 rounded-xl border-2 ${
@@ -160,6 +164,65 @@ export default function Register({ redirect = "" }) {
                                 {errors.email && (
                                     <p className="mt-1.5 text-sm text-danger-500">
                                         {errors.email}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Contact Information */}
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                    No. Handphone
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                        <IconPhone size={20} />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={data.no_telp}
+                                        onChange={(e) =>
+                                            setData("no_telp", e.target.value.replace(/\D/g, ""))
+                                        }
+                                        placeholder="Contoh: 08123456789"
+                                        inputMode="numeric"
+                                        maxLength={15}
+                                        className={`w-full h-12 pl-12 pr-4 rounded-xl border-2 ${
+                                            errors.no_telp
+                                                ? "border-danger-500 focus:border-danger-500"
+                                                : "border-slate-200 dark:border-slate-700 focus:border-primary-500"
+                                        } bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-4 focus:ring-primary-500/20 transition-all`}
+                                    />
+                                </div>
+                                {errors.no_telp && (
+                                    <p className="mt-1.5 text-sm text-danger-500">
+                                        {errors.no_telp}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                    Alamat
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute left-4 top-4 text-slate-400">
+                                        <IconMapPin size={20} />
+                                    </div>
+                                    <textarea
+                                        value={data.address}
+                                        onChange={(e) => setData("address", e.target.value)}
+                                        placeholder="Masukkan alamat lengkap"
+                                        rows={3}
+                                        className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 ${
+                                            errors.address
+                                                ? "border-danger-500 focus:border-danger-500"
+                                                : "border-slate-200 dark:border-slate-700 focus:border-primary-500"
+                                        } bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-4 focus:ring-primary-500/20 transition-all`}
+                                    />
+                                </div>
+                                {errors.address && (
+                                    <p className="mt-1.5 text-sm text-danger-500">
+                                        {errors.address}
                                     </p>
                                 )}
                             </div>

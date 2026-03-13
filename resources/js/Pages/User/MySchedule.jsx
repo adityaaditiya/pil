@@ -7,7 +7,11 @@ import {
     IconYoga,
 } from "@tabler/icons-react";
 
-const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
+const imageUrl = (folder, file) => {
+    if (!file) return null;
+
+    return folder ? `/storage/${folder}/${file}` : `/storage/${file}`;
+};
 
 const formatDate = (date) =>
     date
@@ -91,6 +95,9 @@ export default function MySchedule({ bookings = [] }) {
                             {bookings.map((booking) => {
                                 const schedule = booking.schedule || {};
                                 const classItem = schedule.class || {};
+                                const isPendingPayment = ["pending", "pending_payment"].includes(
+                                    String(booking.status || "").toLowerCase(),
+                                );
 
                                 return (
                                     <article
@@ -189,8 +196,7 @@ export default function MySchedule({ bookings = [] }) {
                                                             schedule
                                                         </Link>
                                                     )}
-                                                    {booking.status ===
-                                                        "pending" &&
+                                                    {isPendingPayment &&
                                                         booking.payment_type ===
                                                             "drop_in" &&
                                                         !booking.payment_proof_image &&
@@ -211,8 +217,18 @@ export default function MySchedule({ bookings = [] }) {
                                                                 Bukti Pembayaran
                                                             </Link>
                                                         )}
-                                                    {booking.status ===
-                                                        "pending" &&
+                                                    {booking.payment_proof_image && (
+                                                        <a
+                                                            href={imageUrl("", booking.payment_proof_image)}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="inline-flex rounded-full border border-emerald-200 px-5 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                                                        >
+                                                            Lihat Foto Bukti
+                                                            Pembayaran
+                                                        </a>
+                                                    )}
+                                                    {isPendingPayment &&
                                                         booking.payment_type ===
                                                             "drop_in" &&
                                                         !booking.payment_proof_image && (

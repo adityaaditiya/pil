@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class PilatesBooking extends Model
@@ -40,6 +41,25 @@ class PilatesBooking extends Model
         static::creating(function (self $booking) {
             if (! $booking->invoice) {
                 $booking->invoice = self::generateInvoice();
+            }
+
+            if ($booking->payment_type === 'drop_in' && ! $booking->expired_at) {
+                $booking->expired_at = Carbon::now()->addMinutes(15);
+            }
+        });
+
+        static::retrieved(function (self $booking) {
+            if (
+                $booking->payment_type === 'drop_in'
+                && in_array($booking->status, ['pending', 'pending_payment'], true)
+                && $booking->expired_at
+                && now()->greaterThan($booking->expired_at)
+            ) {
+                $booking->forceFill([
+                    'status' => 'expired',
+                ])->saveQuietly();
+
+                $booking->status = 'expired';
             }
         });
     }

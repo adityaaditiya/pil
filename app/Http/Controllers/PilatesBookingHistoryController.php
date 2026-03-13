@@ -131,7 +131,7 @@ class PilatesBookingHistoryController extends Controller
 
     public function confirmPayment(PilatesBooking $booking)
     {
-        if ($booking->status !== 'pending' || $booking->payment_type !== 'drop_in') {
+        if (! in_array($booking->status, ['pending', 'pending_payment'], true) || $booking->payment_type !== 'drop_in') {
             return back()->withErrors([
                 'message' => 'Booking tidak dapat dikonfirmasi.',
             ]);
@@ -146,7 +146,7 @@ class PilatesBookingHistoryController extends Controller
 
     public function rejectPayment(PilatesBooking $booking)
     {
-        if ($booking->status !== 'pending' || $booking->payment_type !== 'drop_in') {
+        if (! in_array($booking->status, ['pending', 'pending_payment'], true) || $booking->payment_type !== 'drop_in') {
             return back()->withErrors([
                 'message' => 'Booking tidak dapat ditolak.',
             ]);

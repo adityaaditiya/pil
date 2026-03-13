@@ -4,7 +4,7 @@ import UpdatePasswordForm from "./Partials/UpdatePasswordForm";
 import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm";
 import { Head } from "@inertiajs/react";
 
-export default function Edit({ mustVerifyEmail, status }) {
+export default function Edit({ mustVerifyEmail, status, customer }) {
     return (
         <>
             <Head title="Profile" />
@@ -22,6 +22,7 @@ export default function Edit({ mustVerifyEmail, status }) {
                                 <UpdateProfileInformationForm
                                     mustVerifyEmail={mustVerifyEmail}
                                     status={status}
+                                    customer={customer}
                                     className="max-w-xl"
                                 />
                             </div>
