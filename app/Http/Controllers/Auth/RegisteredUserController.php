@@ -41,7 +41,7 @@ class RegisteredUserController extends Controller
         ]);
 
         $request->validate([
-            'name'     => 'required|string|max:255',
+            'name'     => ['required', 'string', 'max:255', 'regex:/^[\pL\s]+$/u'],
             'email'    => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'no_telp'  => 'required|regex:/^[0-9]+$/|digits_between:7,15|unique:customers,no_telp',
             'address'  => 'required|string|min:10|max:1000',

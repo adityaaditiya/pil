@@ -95,6 +95,9 @@ export default function MySchedule({ bookings = [] }) {
                             {bookings.map((booking) => {
                                 const schedule = booking.schedule || {};
                                 const classItem = schedule.class || {};
+                                const isPendingPayment = ["pending", "pending_payment"].includes(
+                                    String(booking.status || "").toLowerCase(),
+                                );
 
                                 return (
                                     <article
@@ -193,8 +196,7 @@ export default function MySchedule({ bookings = [] }) {
                                                             schedule
                                                         </Link>
                                                     )}
-                                                    {booking.status ===
-                                                        "pending" &&
+                                                    {isPendingPayment &&
                                                         booking.payment_type ===
                                                             "drop_in" &&
                                                         !booking.payment_proof_image &&
@@ -226,8 +228,7 @@ export default function MySchedule({ bookings = [] }) {
                                                             Pembayaran
                                                         </a>
                                                     )}
-                                                    {booking.status ===
-                                                        "pending" &&
+                                                    {isPendingPayment &&
                                                         booking.payment_type ===
                                                             "drop_in" &&
                                                         !booking.payment_proof_image && (

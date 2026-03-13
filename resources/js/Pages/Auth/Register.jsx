@@ -121,7 +121,7 @@ export default function Register({ redirect = "" }) {
                                         type="text"
                                         value={data.name}
                                         onChange={(e) =>
-                                            setData("name", e.target.value)
+                                            setData("name", e.target.value.replace(/[^\p{L}\s]/gu, ""))
                                         }
                                         placeholder="Nama Anda"
                                         className={`w-full h-12 pl-12 pr-4 rounded-xl border-2 ${

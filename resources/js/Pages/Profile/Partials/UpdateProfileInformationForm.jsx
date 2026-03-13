@@ -39,7 +39,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, cust
                         id="name"
                         className="mt-1 block w-full"
                         value={data.name}
-                        onChange={(e) => setData('name', e.target.value)}
+                        onChange={(e) => setData('name', e.target.value.replace(/[^\p{L}\s]/gu, ''))}
                         required
                         isFocused
                         autoComplete="name"
