@@ -99,7 +99,7 @@ class StudioPageController extends Controller
                 'classCategory' => request()->string('class_category')->toString(),
             ],
             'classes' => $normalizedKey === 'classes'
-                ? PilatesClass::with('trainers:id,name')->latest()->get(['id', 'image', 'name', 'duration', 'difficulty_level', 'about', 'equipment', 'price'])
+                ? PilatesClass::with(['trainers:id,name', 'classCategory:id,name'])->latest()->get(['id', 'class_category_id', 'image', 'name', 'duration', 'difficulty_level', 'about', 'equipment', 'price'])
                 : [],
             'schedules' => $normalizedKey === 'schedule'
                 ? PilatesTimetable::with([
