@@ -21,6 +21,9 @@ export default function Edit({ customer }) {
         email: customer.user?.email || "",
         no_telp: customer.no_telp,
         address: customer.address,
+        gender: customer.gender || "Laki-laki",
+        date_of_birth: customer.date_of_birth || "",
+        photo: null,
         credit: customer.credit ?? "0",
         password: "",
         password_confirmation: "",
@@ -54,7 +57,7 @@ export default function Edit({ customer }) {
                 <p className="text-sm text-slate-500 mt-1">{customer.name}</p>
             </div>
 
-            <form onSubmit={submit}>
+            <form onSubmit={submit} encType="multipart/form-data">
                 <div className="max-w-2xl">
                     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
                         <div className="space-y-4">
@@ -115,6 +118,34 @@ export default function Edit({ customer }) {
                                 }
                                 value={data.password_confirmation}
                             />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Gender</label>
+                                    <select value={data.gender} onChange={(e) => setData("gender", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                                        <option value="Laki-laki">Laki-laki</option>
+                                        <option value="Perempuan">Perempuan</option>
+                                    </select>
+                                    {errors.gender && <small className="text-xs text-danger-500">{errors.gender}</small>}
+                                </div>
+                                <Input
+                                    type="date"
+                                    label="Tanggal Lahir"
+                                    errors={errors.date_of_birth}
+                                    onChange={(e) =>
+                                        setData("date_of_birth", e.target.value)
+                                    }
+                                    value={data.date_of_birth}
+                                />
+                            </div>
+                            <Input
+                                type="file"
+                                label="Foto (Opsional)"
+                                errors={errors.photo}
+                                onChange={(e) =>
+                                    setData("photo", e.target.files[0])
+                                }
+                            />
+
                             <Input
                                 type="number"
                                 label="Credit"

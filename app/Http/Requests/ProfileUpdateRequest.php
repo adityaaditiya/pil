@@ -14,6 +14,7 @@ class ProfileUpdateRequest extends FormRequest
 
         $this->merge([
             'address' => trim((string) $address),
+            'date_of_birth' => $this->input('date_of_birth') ?: null,
         ]);
     }
 
@@ -36,6 +37,9 @@ class ProfileUpdateRequest extends FormRequest
                 ),
             ],
             'address' => ['required', 'string', 'min:10', 'max:1000'],
+            'gender' => ['required', Rule::in(['Laki-laki', 'Perempuan'])],
+            'date_of_birth' => ['required', 'date', 'before:today'],
+            'photo' => ['nullable', 'image', 'max:2048'],
         ];
     }
 }

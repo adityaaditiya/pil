@@ -21,6 +21,9 @@ export default function Register({ redirect = "" }) {
         email: "",
         no_telp: "",
         address: "",
+        gender: "Laki-laki",
+        date_of_birth: "",
+        photo: null,
         password: "",
         password_confirmation: "",
         redirect,
@@ -107,7 +110,7 @@ export default function Register({ redirect = "" }) {
                         </div>
 
                         {/* Form */}
-                        <form onSubmit={submit} className="space-y-5">
+                        <form onSubmit={submit} className="space-y-5" encType="multipart/form-data">
                             {/* Name */}
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -225,6 +228,54 @@ export default function Register({ redirect = "" }) {
                                         {errors.address}
                                     </p>
                                 )}
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Gender</label>
+                                    <select
+                                        value={data.gender}
+                                        onChange={(e) => setData("gender", e.target.value)}
+                                        className={`w-full h-12 px-4 rounded-xl border-2 ${
+                                            errors.gender
+                                                ? "border-danger-500 focus:border-danger-500"
+                                                : "border-slate-200 dark:border-slate-700 focus:border-primary-500"
+                                        } bg-white dark:bg-slate-900`}
+                                    >
+                                        <option value="Laki-laki">Laki-laki</option>
+                                        <option value="Perempuan">Perempuan</option>
+                                    </select>
+                                    {errors.gender && <p className="mt-1 text-xs text-danger-500">{errors.gender}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tanggal Lahir</label>
+                                    <input
+                                        type="date"
+                                        value={data.date_of_birth}
+                                        onChange={(e) => setData("date_of_birth", e.target.value)}
+                                        className={`w-full h-12 px-4 rounded-xl border-2 ${
+                                            errors.date_of_birth
+                                                ? "border-danger-500 focus:border-danger-500"
+                                                : "border-slate-200 dark:border-slate-700 focus:border-primary-500"
+                                        } bg-white dark:bg-slate-900`}
+                                    />
+                                    {errors.date_of_birth && <p className="mt-1 text-xs text-danger-500">{errors.date_of_birth}</p>}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Foto (Opsional)</label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => setData("photo", e.target.files[0])}
+                                    className={`w-full h-12 px-4 py-2 rounded-xl border-2 ${
+                                        errors.photo
+                                            ? "border-danger-500 focus:border-danger-500"
+                                            : "border-slate-200 dark:border-slate-700 focus:border-primary-500"
+                                    } bg-white dark:bg-slate-900`}
+                                />
+                                {errors.photo && <p className="mt-1 text-xs text-danger-500">{errors.photo}</p>}
                             </div>
 
                             {/* Password */}

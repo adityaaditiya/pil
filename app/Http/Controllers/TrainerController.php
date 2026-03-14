@@ -37,7 +37,8 @@ class TrainerController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'photo' => 'required|image|max:2048',
-            'age' => 'required|integer|min:1|max:120',
+            'date_of_birth' => 'required|date|before:today',
+            'expertise' => 'required|string|max:255',
             'gender' => 'required|in:Laki-laki,Perempuan',
             'address' => 'required|string',
             'biodata' => 'required|string',
@@ -64,7 +65,8 @@ class TrainerController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'photo' => 'nullable|image|max:2048',
-            'age' => 'required|integer|min:1|max:120',
+            'date_of_birth' => 'required|date|before:today',
+            'expertise' => 'required|string|max:255',
             'gender' => 'required|in:Laki-laki,Perempuan',
             'address' => 'required|string',
             'biodata' => 'required|string',

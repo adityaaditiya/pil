@@ -45,6 +45,9 @@ class RegisteredUserController extends Controller
             'email'    => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'no_telp'  => 'required|regex:/^[0-9]+$/|digits_between:7,15|unique:customers,no_telp',
             'address'  => 'required|string|min:10|max:1000',
+            'gender' => 'required|in:Laki-laki,Perempuan',
+            'date_of_birth' => 'required|date|before:today',
+            'photo' => 'nullable|image|max:2048',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -55,11 +58,22 @@ class RegisteredUserController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
+            $photoPath = null;
+
+            if ($request->file('photo')) {
+                $photo = $request->file('photo');
+                $photo->storeAs('public/customers', $photo->hashName());
+                $photoPath = $photo->hashName();
+            }
+
             Customer::create([
                 'user_id'  => $user->id,
                 'name'     => $request->name,
                 'no_telp'  => $request->no_telp,
                 'address'  => $request->address,
+                'gender' => $request->gender,
+                'date_of_birth' => $request->date_of_birth,
+                'photo' => $photoPath,
             ]);
 
             // Assign default role for self-registration users
