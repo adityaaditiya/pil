@@ -19,7 +19,7 @@ import SectionTitle from "@/Components/Landing/SectionTitle";
 import Navbar from "@/Components/Landing/Navbar";
 
 export default function Welcome() {
-    const { auth } = usePage().props;
+    const { auth, trainers = [] } = usePage().props;
 
     const trustBadges = ["Certified Trainers", "Small Group", "Beginner Friendly"];
 
@@ -120,11 +120,6 @@ export default function Welcome() {
         },
     ];
 
-    const trainers = [
-        { name: "Nadia Putri", specialty: "Posture & Rehabilitation" },
-        { name: "Alya Prameswari", specialty: "Prenatal Pilates" },
-        { name: "Shinta Maheswari", specialty: "Strength & Mobility" },
-    ];
 
     const testimonials = [
         {
@@ -316,12 +311,12 @@ export default function Welcome() {
                             {trainers.map((trainer) => (
                                 <Card key={trainer.name} className="text-center">
                                     <img
-                                        src="https://images.unsplash.com/photo-1595079835353-fb3cf0f83f20?auto=format&fit=crop&w=500&q=80"
+                                        src={trainer.photo ? `/storage/trainers/${trainer.photo}` : "https://images.unsplash.com/photo-1595079835353-fb3cf0f83f20?auto=format&fit=crop&w=500&q=80"}
                                         alt={trainer.name}
                                         className="mx-auto h-44 w-full rounded-2xl object-cover"
                                     />
                                     <h3 className="mt-5 text-xl font-semibold">{trainer.name}</h3>
-                                    <p className="mt-2 text-sm text-wellness-muted">{trainer.specialty}</p>
+                                    <p className="mt-2 text-sm text-wellness-muted">{trainer.expertise || "Spesialisasi trainer belum diisi."}</p>
                                 </Card>
                             ))}
                         </div>

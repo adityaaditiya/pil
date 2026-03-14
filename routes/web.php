@@ -27,6 +27,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserMembershipController;
 use App\Http\Controllers\UserMembershipHistoryController;
 use App\Http\Controllers\UserScheduleController;
+use App\Models\Trainer;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -37,6 +38,9 @@ Route::get('/', function () {
         'canRegister'    => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion'     => PHP_VERSION,
+        'trainers'       => Trainer::query()
+            ->latest()
+            ->get(['id', 'name', 'photo', 'expertise']),
     ]);
 })->name('welcome');
 
