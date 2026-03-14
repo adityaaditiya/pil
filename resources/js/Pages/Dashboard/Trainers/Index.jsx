@@ -34,7 +34,8 @@ export default function Index({ trainers }) {
                         <tr>
                             <Table.Th>Foto</Table.Th>
                             <Table.Th>Nama</Table.Th>
-                            <Table.Th>Usia</Table.Th>
+                            <Table.Th>Tanggal Lahir</Table.Th>
+                            <Table.Th>Keahlian</Table.Th>
                             <Table.Th>Gender</Table.Th>
                             <Table.Th>Alamat</Table.Th>
                             <Table.Th>Biodata</Table.Th>
@@ -52,7 +53,8 @@ export default function Index({ trainers }) {
                                     )}
                                 </Table.Td>
                                 <Table.Td>{item.name}</Table.Td>
-                                <Table.Td>{item.age}</Table.Td>
+                                <Table.Td>{item.date_of_birth || "-"}</Table.Td>
+                                <Table.Td>{item.expertise || "-"}</Table.Td>
                                 <Table.Td>{item.gender}</Table.Td>
                                 <Table.Td>
                                     <p className="max-w-[260px] line-clamp-2">{item.address}</p>

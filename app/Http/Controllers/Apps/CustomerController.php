@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
@@ -66,6 +67,9 @@ class CustomerController extends Controller
             'name'    => 'required',
             'no_telp' => 'required|unique:customers',
             'address' => 'required',
+            'gender' => 'required|in:Laki-laki,Perempuan',
+            'date_of_birth' => 'required|date|before:today',
+            'photo' => 'nullable|image|max:2048',
             'credit'  => 'required|numeric|min:0',
             'email'   => 'required|email|unique:users,email',
             'password'=> 'required|string|min:8|confirmed',
@@ -84,11 +88,22 @@ class CustomerController extends Controller
                 $user->givePermissionTo('my-transactions-access');
             }
 
+            $photoPath = null;
+
+            if ($request->file('photo')) {
+                $photo = $request->file('photo');
+                $photo->storeAs('public/customers', $photo->hashName());
+                $photoPath = $photo->hashName();
+            }
+
             Customer::create([
                 'user_id'  => $user->id,
                 'name'     => $request->name,
                 'no_telp'  => $request->no_telp,
                 'address'  => $request->address,
+                'gender' => $request->gender,
+                'date_of_birth' => $request->date_of_birth,
+                'photo' => $photoPath,
                 'credit'   => $request->credit,
             ]);
         });
@@ -109,13 +124,16 @@ class CustomerController extends Controller
             'name'    => 'required|string|max:255',
             'no_telp' => 'required|string|unique:customers,no_telp',
             'address' => 'required|string',
+            'gender' => 'required|in:Laki-laki,Perempuan',
+            'date_of_birth' => 'required|date|before:today',
+            'photo' => 'nullable|image|max:2048',
             'credit'  => 'required|numeric|min:0',
             'email'   => 'required|email|unique:users,email',
             'password'=> 'required|string|min:8|confirmed',
         ]);
 
         try {
-            $customer = DB::transaction(function () use ($validated) {
+            $customer = DB::transaction(function () use ($validated, $request) {
                 $user = User::create([
                     'name'     => $validated['name'],
                     'email'    => $validated['email'],
@@ -128,11 +146,22 @@ class CustomerController extends Controller
                     $user->givePermissionTo('my-transactions-access');
                 }
 
+                $photoPath = null;
+
+                if ($request->file('photo')) {
+                    $photo = $request->file('photo');
+                    $photo->storeAs('public/customers', $photo->hashName());
+                    $photoPath = $photo->hashName();
+                }
+
                 return Customer::create([
                     'user_id'  => $user->id,
                     'name'     => $validated['name'],
                     'no_telp'  => $validated['no_telp'],
                     'address'  => $validated['address'],
+                    'gender' => $validated['gender'],
+                    'date_of_birth' => $validated['date_of_birth'],
+                    'photo' => $photoPath,
                     'credit'   => $validated['credit'],
                 ]);
             });
@@ -146,6 +175,9 @@ class CustomerController extends Controller
                     'email'   => $customer->user?->email,
                     'phone'   => $customer->no_telp,
                     'address' => $customer->address,
+                    'gender' => $customer->gender,
+                    'date_of_birth' => optional($customer->date_of_birth)->format('Y-m-d'),
+                    'photo' => $customer->photo,
                     'credit'  => $customer->credit,
                 ],
             ]);
@@ -189,6 +221,9 @@ class CustomerController extends Controller
             'name'    => 'required',
             'no_telp' => 'required|unique:customers,no_telp,' . $customer->id,
             'address' => 'required',
+            'gender' => 'required|in:Laki-laki,Perempuan',
+            'date_of_birth' => 'required|date|before:today',
+            'photo' => 'nullable|image|max:2048',
             'credit'  => 'required|numeric|min:0',
             'email'   => 'required|email|unique:users,email,' . $customer->user_id,
             'password'=> 'nullable|string|min:8|confirmed',
@@ -219,11 +254,26 @@ class CustomerController extends Controller
                 $user->save();
             }
 
+            $photoPath = $customer->photo;
+
+            if ($request->file('photo')) {
+                if ($photoPath) {
+                    Storage::disk('local')->delete('public/customers/' . basename($photoPath));
+                }
+
+                $photo = $request->file('photo');
+                $photo->storeAs('public/customers', $photo->hashName());
+                $photoPath = $photo->hashName();
+            }
+
             $customer->update([
                 'user_id'  => $user->id,
                 'name'     => $request->name,
                 'no_telp'  => $request->no_telp,
                 'address'  => $request->address,
+                'gender' => $request->gender,
+                'date_of_birth' => $request->date_of_birth,
+                'photo' => $photoPath,
                 'credit'   => $request->credit,
             ]);
         });
@@ -242,6 +292,10 @@ class CustomerController extends Controller
     {
         //find customer by ID
         $customer = Customer::with('user')->findOrFail($id);
+
+        if ($customer->photo) {
+            Storage::disk('local')->delete('public/customers/' . basename($customer->photo));
+        }
 
         //delete customer
         $customer->delete();

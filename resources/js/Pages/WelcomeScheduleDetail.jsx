@@ -94,7 +94,7 @@ export default function WelcomeScheduleDetail({ schedule }) {
                                         <IconUser size={16} /> {schedule.trainer?.name || "-"}
                                     </p> <br />
                                     {/* <p className="mt-2 text-sm text-wellness-muted">
-                                        {schedule.trainer?.gender || "-"}, {schedule.trainer?.age || "-"} tahun
+                                        {schedule.trainer?.gender || "-"}
                                     </p> */}
                                     <p className="mt-1 inline-flex items-start gap-2 text-sm text-wellness-muted">
                                         <IconMapPin size={14} className="mt-0.5" />

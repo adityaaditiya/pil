@@ -10,7 +10,8 @@ export default function Create() {
     const { data, setData, post, processing } = useForm({
         name: "",
         photo: null,
-        age: "",
+        date_of_birth: "",
+        expertise: "",
         gender: "Laki-laki",
         address: "",
         biodata: "",
@@ -37,7 +38,8 @@ export default function Create() {
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-w-4xl">
                     <Input type="file" label="Foto" errors={errors.photo} onChange={(e) => setData("photo", e.target.files[0])} />
                     <Input type="text" label="Nama" value={data.name} errors={errors.name} onChange={(e) => setData("name", e.target.value)} />
-                    <Input type="number" label="Usia" value={data.age} errors={errors.age} onChange={(e) => setData("age", e.target.value)} />
+                    <Input type="date" label="Tanggal Lahir" value={data.date_of_birth} errors={errors.date_of_birth} onChange={(e) => setData("date_of_birth", e.target.value)} />
+                    <Input type="text" label="Keahlian" value={data.expertise} errors={errors.expertise} onChange={(e) => setData("expertise", e.target.value)} />
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Jenis Kelamin</label>
                         <select value={data.gender} onChange={(e) => setData("gender", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">

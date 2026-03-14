@@ -12,10 +12,15 @@ class Trainer extends Model
     protected $fillable = [
         'name',
         'photo',
-        'age',
         'gender',
+        'date_of_birth',
+        'expertise',
         'address',
         'biodata',
+    ];
+
+    protected $casts = [
+        'date_of_birth' => 'date',
     ];
 
     public function pilatesClasses()

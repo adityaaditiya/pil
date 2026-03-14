@@ -16,7 +16,11 @@ class Customer extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'name', 'no_telp', 'address', 'credit'
+        'user_id', 'name', 'no_telp', 'address', 'gender', 'date_of_birth', 'photo', 'credit'
+    ];
+
+    protected $casts = [
+        'date_of_birth' => 'date',
     ];
 
     public function user(): BelongsTo

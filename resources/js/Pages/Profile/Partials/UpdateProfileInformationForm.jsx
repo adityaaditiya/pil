@@ -13,6 +13,9 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, cust
         email: user.email,
         no_telp: customer?.no_telp ? String(customer.no_telp) : '',
         address: customer?.address || '',
+        gender: customer?.gender || 'Laki-laki',
+        date_of_birth: customer?.date_of_birth || '',
+        photo: null,
     });
 
     const submit = (e) => {
@@ -31,7 +34,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, cust
                 </p>
             </header>
 
-            <form onSubmit={submit} className="mt-6 space-y-6">
+            <form onSubmit={submit} className="mt-6 space-y-6" encType="multipart/form-data">
                 <div>
                     <InputLabel htmlFor="name" value="Name" />
 
@@ -95,6 +98,50 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, cust
                     />
 
                     <InputError className="mt-2" message={errors.address} />
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <InputLabel htmlFor="gender" value="Gender" />
+                        <select
+                            id="gender"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            value={data.gender}
+                            onChange={(e) => setData('gender', e.target.value)}
+                            required
+                        >
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                        <InputError className="mt-2" message={errors.gender} />
+                    </div>
+                    <div>
+                        <InputLabel htmlFor="date_of_birth" value="Tanggal Lahir" />
+                        <TextInput
+                            id="date_of_birth"
+                            type="date"
+                            className="mt-1 block w-full"
+                            value={data.date_of_birth}
+                            onChange={(e) => setData('date_of_birth', e.target.value)}
+                            required
+                        />
+                        <InputError className="mt-2" message={errors.date_of_birth} />
+                    </div>
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="photo" value="Foto (Opsional)" />
+                    {customer?.photo && (
+                        <img src={`/storage/customers/${customer.photo}`} alt="Foto Profil" className="mt-2 h-20 w-20 rounded-lg object-cover" />
+                    )}
+                    <TextInput
+                        id="photo"
+                        type="file"
+                        className="mt-1 block w-full"
+                        onChange={(e) => setData('photo', e.target.files[0])}
+                        accept="image/*"
+                    />
+                    <InputError className="mt-2" message={errors.photo} />
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (
