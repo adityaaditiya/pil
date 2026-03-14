@@ -263,7 +263,7 @@ export default function Register({ redirect = "" }) {
                                 </div>
                             </div>
 
-                            <div>
+                            {/* <div>
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Foto (Opsional)</label>
                                 <input
                                     type="file"
@@ -276,7 +276,7 @@ export default function Register({ redirect = "" }) {
                                     } bg-white dark:bg-slate-900`}
                                 />
                                 {errors.photo && <p className="mt-1 text-xs text-danger-500">{errors.photo}</p>}
-                            </div>
+                            </div> */}
 
                             {/* Password */}
                             <div>
