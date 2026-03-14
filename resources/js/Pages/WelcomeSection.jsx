@@ -69,8 +69,12 @@ const formatSectionDate = (date) =>
 
 const getDateKey = (date) => {
     const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    return d.toISOString().split("T")[0];
+    const year = d.getFullYear();
+    // getMonth() dimulai dari 0 (Januari), jadi harus ditambah 1
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
 };
 
 const getRemainingSlots = (item) => {
@@ -110,6 +114,15 @@ export default function WelcomeSection({
     const [selectedMonthAnchor, setSelectedMonthAnchor] = useState(null);
     const dateStripRef = useRef(null);
     const { auth } = usePage().props;
+    // Di dekat useRef lainnya
+    const dateInputRef = useRef(null); // Tambahkan ini
+
+    const handleCalendarChange = (e) => {
+    const selectedDate = e.target.value; // Format: YYYY-MM-DD
+    if (selectedDate) {
+        handleDateClick(selectedDate);
+    }
+};
 
     const meta = page || fallbackMeta[pageKey] || {
         name: "Welcome",
@@ -188,20 +201,21 @@ export default function WelcomeSection({
     }, [schedules, classNameFilter, difficultyFilter, trainerFilter, classCategoryFilter]);
 
     const dateNavigatorDates = useMemo(() => {
-        if (pageKey !== "schedule") {
-            return [];
-        }
+    if (pageKey !== "schedule") {
+        return [];
+    }
 
-        const sorted = [...filteredSchedules].sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
-        const baseDate = sorted.length > 0 ? new Date(sorted[0].start_at) : new Date();
-        baseDate.setHours(0, 0, 0, 0);
+    // Set "hari ini" sebagai titik mulai (jam 00:00:00)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-        return Array.from({ length: 14 }, (_, index) => {
-            const next = new Date(baseDate);
-            next.setDate(baseDate.getDate() + index);
-            return next;
-        });
-    }, [pageKey, filteredSchedules]);
+    // Buat array berisi 14 hari ke depan dari hari ini
+    return Array.from({ length: 30 }, (_, index) => {
+        const next = new Date(today);
+        next.setDate(today.getDate() + index);
+        return next;
+    });
+}, [pageKey]); // Hapus filteredSchedules dari dependency agar tidak berubah-ubah saat filter dipakai
 
     const schedulesByDate = useMemo(() => {
         if (pageKey !== "schedule") {
@@ -232,14 +246,31 @@ export default function WelcomeSection({
     }, [pageKey, filteredSchedules, dateNavigatorDates]);
 
     useEffect(() => {
-        if (pageKey !== "schedule" || dateNavigatorDates.length === 0) {
-            return;
-        }
+    if (pageKey !== "schedule" || dateNavigatorDates.length === 0) {
+        return;
+    }
 
-        const initialDate = dateNavigatorDates[0];
-        setActiveDateKey(getDateKey(initialDate));
-        setSelectedMonthAnchor(initialDate);
-    }, [pageKey, dateNavigatorDates]);
+    const todayKey = getDateKey(new Date());
+    // Cek apakah hari ini ada dalam daftar (pasti ada karena kita set di urutan ke-0)
+    setActiveDateKey(todayKey);
+    setSelectedMonthAnchor(dateNavigatorDates[0]);
+}, [pageKey, dateNavigatorDates]);
+
+// Tambahkan useEffect ini untuk menggeser navigator secara otomatis
+useEffect(() => {
+    if (activeDateKey && dateStripRef.current) {
+        // Cari elemen tombol yang sedang aktif berdasarkan data-key (kita perlu menambah atribut ini nanti)
+        const activeElement = dateStripRef.current.querySelector(`[data-nav-key="${activeDateKey}"]`);
+        
+        if (activeElement) {
+            activeElement.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "center", // Ini yang membuat tombol aktif bergeser ke tengah
+            });
+        }
+    }
+}, [activeDateKey]);
 
     useEffect(() => {
         if (pageKey !== "schedule" || schedulesByDate.length === 0) {
@@ -463,16 +494,34 @@ export default function WelcomeSection({
                             <div className="space-y-6">
                                 <div className="sticky top-20 z-30 rounded-3xl border border-primary-100 bg-white/95 p-4 shadow-md backdrop-blur">
                                     <div className="mb-4 flex items-center justify-between gap-3">
-                                        <p className="text-lg font-semibold text-slate-900">
+                                        {/* GANTI <p> MENJADI <div> */}
+                                    <div className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+                                        <span>
                                             {formatMonthYear(selectedMonthAnchor || dateNavigatorDates[0])}
-                                        </p>
-                                        <button
-                                            type="button"
-                                            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:border-primary-200 hover:text-primary-700"
-                                            aria-label="Open date picker"
-                                        >
-                                            <IconCalendarMonth size={18} />
-                                        </button>
+                                        </span>
+                                        
+                                        <div className="relative inline-flex">
+                                            <button
+                                                type="button"
+                                                onClick={() => dateInputRef.current?.showPicker()}
+                                                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-primary-50 hover:text-primary-700"
+                                                aria-label="Open date picker"
+                                            >
+                                                <IconCalendarMonth size={20} />
+                                            </button>
+
+                                            <input
+                                                ref={dateInputRef}
+                                                type="date"
+                                                // Batasi pilihan: Minimal hari ini, Maksimal 30 hari ke depan
+                                                min={new Date().toISOString().split("T")[0]}
+                                                max={new Date(new Date().setDate(new Date().getDate() + 29)).toISOString().split("T")[0]}
+                                                onChange={handleCalendarChange}
+                                                className="absolute inset-0 w-0 h-0 opacity-0 pointer-events-none"
+                                            />
+                                        </div>
+                                    </div>
+                                        
                                     </div>
 
                                     <div className="flex items-center gap-2">
@@ -493,6 +542,7 @@ export default function WelcomeSection({
                                                 return (
                                                     <button
                                                         key={key}
+                                                        data-nav-key={key} // TAMBAHKAN BARIS INI
                                                         type="button"
                                                         onClick={() => handleDateClick(key)}
                                                         className={`min-w-24 snap-start rounded-2xl border px-3 py-2 text-center transition ${
@@ -549,25 +599,44 @@ export default function WelcomeSection({
                                                         <div className="grid gap-4 md:grid-cols-[180px,1fr,160px] md:items-center">
                                                             <div>
                                                                 <p className="text-lg font-semibold text-slate-900">
-                                                                    {new Intl.DateTimeFormat("id-ID", { hour: "numeric", minute: "2-digit" }).format(new Date(item.start_at))}
+                                                                    Pukul {new Intl.DateTimeFormat("id-ID", { hour: "numeric", minute: "2-digit" }).format(new Date(item.start_at))} WIB
                                                                 </p>
-                                                                <p className="mt-1 text-sm text-slate-500">{item.duration_minutes} mins</p>
+                                                                <p className="mt-1 text-sm text-slate-500">Durasi {item.duration_minutes} menit</p>
                                                             </div>
 
                                                             <div>
-                                                                <h4 className="text-base font-semibold text-slate-900 md:text-lg">
-                                                                    {item.pilates_class?.name || "Kelas"}
-                                                                </h4>
-                                                                <p className="mt-1 inline-flex items-center gap-1 text-sm text-slate-500">
-                                                                    <IconUser size={14} /> {item.trainer?.name || "Instructor"}
-                                                                </p>
-                                                            </div>
+    {/* Baris Pertama: Nama Kelas dan Detail Level/Kategori */}
+    <div className="flex flex-wrap items-baseline gap-2">
+        <h4 className="text-base font-semibold text-slate-900 md:text-lg">
+            {item.pilates_class?.name || "Kelas"}
+        </h4>
+        
+    </div>
+
+    {/* Baris Kedua: Trainer (Paragraf Baru) */}
+    <div className="mt-1 flex items-center gap-1 text-sm text-slate-500">
+        <IconUser size={14} /> 
+        <span>Trainer: {item.trainer?.name || "Instructor"} | </span>
+        <div className="flex flex-wrap gap-2 text-xs">
+            {/* {item.pilates_class?.difficulty_level && (
+                <span className="rounded-full bg-primary-50 px-3 py-1">
+                    {item.pilates_class.difficulty_level}
+                </span>
+            )} */}
+            {item.pilates_class?.class_category?.name && (
+                <span className="rounded-full bg-primary-50 px-3 py-1">
+                    {item.pilates_class.class_category.name}
+                </span>
+            )}
+        </div>
+    </div>
+</div>
 
                                                             <div className="md:text-right">
-                                                                <p className="text-sm font-medium text-primary-700">{getRemainingSlots(item)} left</p>
+                                                                <p className="text-sm font-medium text-primary-700 text-right">{getRemainingSlots(item)} Slot tersisa</p>
                                                                 <Link
                                                                     href={auth?.user ? route("welcome.schedule-detail", item.id) : route("login", { redirect: route("welcome.schedule-detail", item.id, false) })}
-                                                                    className="mt-2 inline-flex rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
+                                                                    className="mt-2 flex w-full items-center justify-center md:inline-flex md:w-auto rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
                                                                 >
                                                                     Book Now
                                                                 </Link>
