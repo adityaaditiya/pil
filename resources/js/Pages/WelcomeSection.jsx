@@ -12,6 +12,7 @@ import {
     IconSparkles,
     IconStar,
     IconUser,
+    IconYoga,
 } from "@tabler/icons-react";
 
 const fallbackMeta = {
@@ -683,11 +684,24 @@ useEffect(() => {
                             <article key={trainer.id} className="overflow-hidden rounded-3xl border border-primary-100 bg-white shadow-sm">
                                 {trainer.photo && <img src={imageUrl("trainers", trainer.photo)} alt={trainer.name} className="h-64 w-full object-cover" />}
                                 <div className="space-y-2 p-6">
-                                    <h3 className="text-xl font-semibold">{trainer.name}</h3>
+                                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                                        <IconUser size={16} /> {trainer.name}
+                                        <span className="mx-0.2">|</span>
+                                        <p className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
+                                            <IconYoga size={16} /> {trainer.expertise || "Spesialisasi trainer belum diisi."}
+                                        </p>
+                                    </h3>
+
                                     {/* <p className="text-sm text-wellness-muted">{trainer.gender}, {trainer.age} tahun</p> */}
-                                    <p className="inline-flex items-start gap-2 text-sm text-wellness-muted">
+                                    {/* <p className="inline-flex items-start gap-2 text-sm text-wellness-muted">
                                         <IconMapPin size={16} className="mt-0.5" /> {trainer.address}
+                                    </p> */}
+                                    <p className="whitespace-pre-line text-sm text-wellness-muted">
+                                        Profile : 
+                                        <br />
+                                        {trainer.biodata || "Biodata trainer belum diisi."}
                                     </p>
+                                    
                                 </div>
                             </article>
                         ))}

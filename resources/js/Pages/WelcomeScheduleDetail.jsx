@@ -90,16 +90,19 @@ export default function WelcomeScheduleDetail({ schedule }) {
                             <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm whitespace-pre-line">
                                 <h2 className="text-xl font-semibold">Instructor</h2>
                                 <div className="mt-4 rounded-2xl border border-slate-200 p-4">
-                                    <p className="inline-flex items-center gap-2 font-semibold">
-                                        <IconUser size={16} /> {schedule.trainer?.name || "-"}
-                                    </p> <br />
+                                    <div className="inline-flex items-center gap-2 font-semibold">
+                                        <IconUser size={16} /> {schedule.trainer?.name || "-"} |
+                                        <p className="whitespace-pre-line text-sm text-wellness-muted">
+                                            {schedule.trainer?.expertise || "Spesialisasi trainer belum diisi."}
+                                        </p>
+                                    </div>
                                     {/* <p className="mt-2 text-sm text-wellness-muted">
                                         {schedule.trainer?.gender || "-"}
                                     </p> */}
-                                    <p className="mt-1 inline-flex items-start gap-2 text-sm text-wellness-muted">
+                                    {/* <p className="mt-1 inline-flex items-start gap-2 text-sm text-wellness-muted">
                                         <IconMapPin size={14} className="mt-0.5" />
                                         {schedule.trainer?.address || "-"}
-                                    </p>
+                                    </p> */}
                                     <p className="mt-2 text-sm text-wellness-muted">
                                         {schedule.trainer?.biodata || "Biodata trainer belum diisi."}
                                     </p>
