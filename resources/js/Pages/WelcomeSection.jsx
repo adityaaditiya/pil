@@ -1,9 +1,10 @@
 import { Head, Link, usePage } from "@inertiajs/react";
 import Navbar from "@/Components/Landing/Navbar";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
     IconArrowLeft,
-    IconCalendarEvent,
+    IconArrowRight,
+    IconCalendarMonth,
     IconClock,
     IconCurrencyDollar,
     IconFilter,
@@ -11,7 +12,6 @@ import {
     IconSparkles,
     IconStar,
     IconUser,
-    IconUsers,
 } from "@tabler/icons-react";
 
 const fallbackMeta = {
@@ -44,15 +44,50 @@ const formatRupiah = (value) =>
         maximumFractionDigits: 0,
     }).format(Number(value || 0));
 
-const formatDateTime = (date) =>
+const formatMonthYear = (date) =>
+    new Intl.DateTimeFormat("id-ID", {
+        month: "short",
+        year: "numeric",
+    }).format(date);
+
+const formatDayName = (date) =>
+    new Intl.DateTimeFormat("id-ID", {
+        weekday: "long",
+    }).format(date);
+
+const formatDayNumber = (date) =>
+    new Intl.DateTimeFormat("id-ID", {
+        day: "2-digit",
+    }).format(date);
+
+const formatSectionDate = (date) =>
     new Intl.DateTimeFormat("id-ID", {
         weekday: "long",
         day: "2-digit",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    }).format(new Date(date));
+        month: "short",
+    }).format(date);
+
+const getDateKey = (date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString().split("T")[0];
+};
+
+const getRemainingSlots = (item) => {
+    if (typeof item.remaining_slots === "number") {
+        return item.remaining_slots;
+    }
+
+    if (typeof item.slots_left === "number") {
+        return item.slots_left;
+    }
+
+    if (typeof item.booked_count === "number") {
+        return Math.max(0, Number(item.capacity || 0) - item.booked_count);
+    }
+
+    return Number(item.capacity || 0);
+};
 
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
 
@@ -71,6 +106,9 @@ export default function WelcomeSection({
     const [difficultyFilter, setDifficultyFilter] = useState(initialFilters.difficulty || "");
     const [trainerFilter, setTrainerFilter] = useState(initialFilters.trainer || "");
     const [classCategoryFilter, setClassCategoryFilter] = useState(initialFilters.classCategory || "");
+    const [activeDateKey, setActiveDateKey] = useState("");
+    const [selectedMonthAnchor, setSelectedMonthAnchor] = useState(null);
+    const dateStripRef = useRef(null);
     const { auth } = usePage().props;
 
     const meta = page || fallbackMeta[pageKey] || {
@@ -148,6 +186,129 @@ export default function WelcomeSection({
             return matchClassName && matchDifficulty && matchTrainer && matchClassCategory;
         });
     }, [schedules, classNameFilter, difficultyFilter, trainerFilter, classCategoryFilter]);
+
+    const dateNavigatorDates = useMemo(() => {
+        if (pageKey !== "schedule") {
+            return [];
+        }
+
+        const sorted = [...filteredSchedules].sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
+        const baseDate = sorted.length > 0 ? new Date(sorted[0].start_at) : new Date();
+        baseDate.setHours(0, 0, 0, 0);
+
+        return Array.from({ length: 14 }, (_, index) => {
+            const next = new Date(baseDate);
+            next.setDate(baseDate.getDate() + index);
+            return next;
+        });
+    }, [pageKey, filteredSchedules]);
+
+    const schedulesByDate = useMemo(() => {
+        if (pageKey !== "schedule") {
+            return [];
+        }
+
+        const groupedMap = filteredSchedules.reduce((acc, item) => {
+            const key = getDateKey(item.start_at);
+
+            if (!acc.has(key)) {
+                acc.set(key, []);
+            }
+
+            acc.get(key).push(item);
+            return acc;
+        }, new Map());
+
+        return dateNavigatorDates.map((date) => {
+            const key = getDateKey(date);
+            const items = (groupedMap.get(key) || []).sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
+
+            return {
+                key,
+                date,
+                items,
+            };
+        });
+    }, [pageKey, filteredSchedules, dateNavigatorDates]);
+
+    useEffect(() => {
+        if (pageKey !== "schedule" || dateNavigatorDates.length === 0) {
+            return;
+        }
+
+        const initialDate = dateNavigatorDates[0];
+        setActiveDateKey(getDateKey(initialDate));
+        setSelectedMonthAnchor(initialDate);
+    }, [pageKey, dateNavigatorDates]);
+
+    useEffect(() => {
+        if (pageKey !== "schedule" || schedulesByDate.length === 0) {
+            return;
+        }
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visibleEntries = entries
+                    .filter((entry) => entry.isIntersecting)
+                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+                if (visibleEntries.length === 0) {
+                    return;
+                }
+
+                const nextKey = visibleEntries[0].target.getAttribute("data-date-key");
+
+                if (nextKey) {
+                    setActiveDateKey(nextKey);
+                    const matchedDate = dateNavigatorDates.find((date) => getDateKey(date) === nextKey);
+                    if (matchedDate) {
+                        setSelectedMonthAnchor(matchedDate);
+                    }
+                }
+            },
+            {
+                root: null,
+                rootMargin: "-30% 0px -55% 0px",
+                threshold: [0.2, 0.4, 0.65],
+            }
+        );
+
+        const sections = Array.from(document.querySelectorAll("[data-schedule-day-section='true']"));
+        sections.forEach((section) => observer.observe(section));
+
+        return () => observer.disconnect();
+    }, [pageKey, schedulesByDate, dateNavigatorDates]);
+
+    const scrollDateStrip = (direction) => {
+        if (!dateStripRef.current) {
+            return;
+        }
+
+        const amount = Math.max(220, dateStripRef.current.clientWidth * 0.5);
+        dateStripRef.current.scrollBy({
+            left: direction === "left" ? -amount : amount,
+            behavior: "smooth",
+        });
+    };
+
+    const handleDateClick = (dateKey) => {
+        const section = document.getElementById(`schedule-day-${dateKey}`);
+
+        if (!section) {
+            return;
+        }
+
+        setActiveDateKey(dateKey);
+
+        const matchedDate = dateNavigatorDates.find((date) => getDateKey(date) === dateKey);
+        if (matchedDate) {
+            setSelectedMonthAnchor(matchedDate);
+        }
+
+        const stickyHeaderOffset = 190;
+        const targetY = section.getBoundingClientRect().top + window.scrollY - stickyHeaderOffset;
+        window.scrollTo({ top: targetY, behavior: "smooth" });
+    };
 
     return (
         <>
@@ -296,33 +457,130 @@ export default function WelcomeSection({
 
                 {pageKey === "schedule" && (
                     <section className="mx-auto max-w-6xl px-4 pb-16">
-                        <div className="grid gap-4">
-                            {filteredSchedules.length === 0 && <p className="text-wellness-muted">Tidak ada data schedule sesuai filter.</p>}
-                            {filteredSchedules.map((item) => (
-                                <article key={item.id} className="rounded-2xl border border-primary-100 bg-white p-5 shadow-sm">
-                                    <div className="flex flex-wrap items-center justify-between gap-3">
-                                        <h3 className="text-lg font-semibold">{item.pilates_class?.name || "Kelas"}</h3>
-                                        {/* <span className="rounded-full bg-primary-100 px-3 py-1 text-xs font-medium text-primary-700">
-                                            {item.allow_drop_in ? "Drop In" : "Membership"}
-                                        </span> */}
-                                    </div>
-                                    <div className="mt-3 grid gap-2 text-sm text-wellness-muted md:grid-cols-2">
-                                        <p className="inline-flex items-center gap-2"><IconCalendarEvent size={16} /> {formatDateTime(item.start_at)} WIB</p>
-                                        <p className="inline-flex items-center gap-2"><IconUser size={16} /> {item.trainer?.name || "Trainer"}</p>
-                                        <p className="inline-flex items-center gap-2"><IconClock size={16} /> Durasi {item.duration_minutes} menit</p>
-                                        <p className="inline-flex items-center gap-2"><IconUsers size={16} /> Kapasitas {item.capacity} peserta</p>
-                                    </div>
-                                    <div className="mt-4">
-                                        <Link
-                                            href={auth?.user ? route("welcome.schedule-detail", item.id) : route("login", { redirect: route("welcome.schedule-detail", item.id, false) })}
-                                            className="inline-flex rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
+                        {schedulesByDate.length === 0 && <p className="text-wellness-muted">Tidak ada data schedule sesuai filter.</p>}
+
+                        {schedulesByDate.length > 0 && (
+                            <div className="space-y-6">
+                                <div className="sticky top-20 z-30 rounded-3xl border border-primary-100 bg-white/95 p-4 shadow-md backdrop-blur">
+                                    <div className="mb-4 flex items-center justify-between gap-3">
+                                        <p className="text-lg font-semibold text-slate-900">
+                                            {formatMonthYear(selectedMonthAnchor || dateNavigatorDates[0])}
+                                        </p>
+                                        <button
+                                            type="button"
+                                            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:border-primary-200 hover:text-primary-700"
+                                            aria-label="Open date picker"
                                         >
-                                            Book Now
-                                        </Link>
+                                            <IconCalendarMonth size={18} />
+                                        </button>
                                     </div>
-                                </article>
-                            ))}
-                        </div>
+
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => scrollDateStrip("left")}
+                                            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:border-primary-200 hover:text-primary-700"
+                                            aria-label="Geser tanggal ke kiri"
+                                        >
+                                            <IconArrowLeft size={18} />
+                                        </button>
+
+                                        <div ref={dateStripRef} className="flex snap-x snap-mandatory gap-2 overflow-x-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                            {dateNavigatorDates.map((date) => {
+                                                const key = getDateKey(date);
+                                                const isActive = activeDateKey === key;
+
+                                                return (
+                                                    <button
+                                                        key={key}
+                                                        type="button"
+                                                        onClick={() => handleDateClick(key)}
+                                                        className={`min-w-24 snap-start rounded-2xl border px-3 py-2 text-center transition ${
+                                                            isActive
+                                                                ? "border-primary-200 bg-primary-600 text-white shadow"
+                                                                : "border-slate-200 bg-white text-slate-700 hover:border-primary-200 hover:bg-primary-50"
+                                                        }`}
+                                                    >
+                                                        <p className={`text-xs capitalize ${isActive ? "text-primary-50" : "text-slate-500"}`}>
+                                                            {formatDayName(date)}
+                                                        </p>
+                                                        <p className="mt-1 text-lg font-semibold">{formatDayNumber(date)}</p>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => scrollDateStrip("right")}
+                                            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:border-primary-200 hover:text-primary-700"
+                                            aria-label="Geser tanggal ke kanan"
+                                        >
+                                            <IconArrowRight size={18} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-10">
+                                    {schedulesByDate.map((group) => (
+                                        <section
+                                            key={group.key}
+                                            id={`schedule-day-${group.key}`}
+                                            data-date-key={group.key}
+                                            data-schedule-day-section="true"
+                                            className="scroll-mt-52"
+                                        >
+                                            <h3 className="mb-4 text-base font-semibold text-slate-800 md:text-lg">
+                                                {formatSectionDate(group.date)} — {group.items.length} classes
+                                            </h3>
+
+                                            <div className="space-y-4">
+                                                {group.items.length === 0 && (
+                                                    <article className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-wellness-muted">
+                                                        Belum ada kelas pada tanggal ini.
+                                                    </article>
+                                                )}
+
+                                                {group.items.map((item) => (
+                                                    <article
+                                                        key={item.id}
+                                                        className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg md:p-6"
+                                                    >
+                                                        <div className="grid gap-4 md:grid-cols-[180px,1fr,160px] md:items-center">
+                                                            <div>
+                                                                <p className="text-lg font-semibold text-slate-900">
+                                                                    {new Intl.DateTimeFormat("id-ID", { hour: "numeric", minute: "2-digit" }).format(new Date(item.start_at))}
+                                                                </p>
+                                                                <p className="mt-1 text-sm text-slate-500">{item.duration_minutes} mins</p>
+                                                            </div>
+
+                                                            <div>
+                                                                <h4 className="text-base font-semibold text-slate-900 md:text-lg">
+                                                                    {item.pilates_class?.name || "Kelas"}
+                                                                </h4>
+                                                                <p className="mt-1 inline-flex items-center gap-1 text-sm text-slate-500">
+                                                                    <IconUser size={14} /> {item.trainer?.name || "Instructor"}
+                                                                </p>
+                                                            </div>
+
+                                                            <div className="md:text-right">
+                                                                <p className="text-sm font-medium text-primary-700">{getRemainingSlots(item)} left</p>
+                                                                <Link
+                                                                    href={auth?.user ? route("welcome.schedule-detail", item.id) : route("login", { redirect: route("welcome.schedule-detail", item.id, false) })}
+                                                                    className="mt-2 inline-flex rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
+                                                                >
+                                                                    Book Now
+                                                                </Link>
+                                                            </div>
+                                                        </div>
+                                                    </article>
+                                                ))}
+                                            </div>
+                                        </section>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </section>
                 )}
 
