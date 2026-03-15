@@ -606,32 +606,32 @@ useEffect(() => {
                                                             </div>
 
                                                             <div>
-    {/* Baris Pertama: Nama Kelas dan Detail Level/Kategori */}
-    <div className="flex flex-wrap items-baseline gap-2">
-        <h4 className="text-base font-semibold text-slate-900 md:text-lg">
-            {item.pilates_class?.name || "Kelas"}
-        </h4>
-        
-    </div>
+                                                                {/* Baris Pertama: Nama Kelas dan Detail Level/Kategori */}
+                                                                <div className="flex flex-wrap items-baseline gap-2">
+                                                                    <h4 className="text-base font-semibold text-slate-900 md:text-lg">
+                                                                        {item.pilates_class?.name || "Kelas"}
+                                                                    </h4>
+                                                                    
+                                                                </div>
 
-    {/* Baris Kedua: Trainer (Paragraf Baru) */}
-    <div className="mt-1 flex items-center gap-1 text-sm text-slate-500">
-        <IconUser size={14} /> 
-        <span>Trainer: {item.trainer?.name || "Instructor"} | </span>
-        <div className="flex flex-wrap gap-2 text-xs">
-            {/* {item.pilates_class?.difficulty_level && (
-                <span className="rounded-full bg-primary-50 px-3 py-1">
-                    {item.pilates_class.difficulty_level}
-                </span>
-            )} */}
-            {item.pilates_class?.class_category?.name && (
-                <span className="rounded-full bg-primary-50 px-3 py-1">
-                    {item.pilates_class.class_category.name}
-                </span>
-            )}
-        </div>
-    </div>
-</div>
+                                                                {/* Baris Kedua: Trainer (Paragraf Baru) */}
+                                                                <div className="mt-1 flex items-center gap-1 text-sm text-slate-500">
+                                                                    <IconUser size={14} /> 
+                                                                    <span>Trainer: {item.trainer?.name || "Instructor"} | </span>
+                                                                    <div className="flex flex-wrap gap-2 text-xs">
+                                                                        {/* {item.pilates_class?.difficulty_level && (
+                                                                            <span className="rounded-full bg-primary-50 px-3 py-1">
+                                                                                {item.pilates_class.difficulty_level}
+                                                                            </span>
+                                                                        )} */}
+                                                                        {item.pilates_class?.class_category?.name && (
+                                                                            <span className="rounded-full bg-primary-50 px-3 py-1">
+                                                                                {item.pilates_class.class_category.name}
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
 
                                                             <div className="md:text-right">
                                                                 <p className="text-sm font-medium text-primary-700 text-right">{getRemainingSlots(item)} Slot tersisa</p>

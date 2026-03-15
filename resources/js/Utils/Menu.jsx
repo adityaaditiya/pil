@@ -53,7 +53,7 @@ function Menu() {
             title: "Data Management",
             details: [
                 {
-                    title: "Kategori",
+                    title: "Kategori Produk",
                     href: route("categories.index"),
                     active: url === "/dashboard/categories" ? true : false, // Update comparison here
                     icon: <IconFolder size={20} strokeWidth={1.5} />,

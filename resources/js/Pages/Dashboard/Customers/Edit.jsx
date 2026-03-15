@@ -38,6 +38,9 @@ export default function Edit({ customer }) {
         });
     };
 
+    // const cleanDate = data.date_of_birth ? new Date(data.date_of_birth).toISOString().split("T")[0] : "";
+    const cleanDate = data.date_of_birth ? data.date_of_birth.split('T')[0] : '';
+
     return (
         <>
             <Head title="Edit Pelanggan" />
@@ -75,7 +78,7 @@ export default function Edit({ customer }) {
                                 <Input
                                     type="text"
                                     label="No. Handphone"
-                                    placeholder="08xxxxxxxxxx"
+                                    placeholder="628xxxxxxxxxx"
                                     errors={errors.no_telp}
                                     onChange={(e) =>
                                         setData("no_telp", e.target.value)
@@ -134,7 +137,7 @@ export default function Edit({ customer }) {
                                     onChange={(e) =>
                                         setData("date_of_birth", e.target.value)
                                     }
-                                    value={data.date_of_birth}
+                                    value={cleanDate}
                                 />
                             </div>
                             <Input
@@ -146,7 +149,7 @@ export default function Edit({ customer }) {
                                 }
                             />
 
-                            <Input
+                            {/* <Input
                                 type="number"
                                 label="Credit"
                                 placeholder="0"
@@ -155,7 +158,7 @@ export default function Edit({ customer }) {
                                     setData("credit", e.target.value)
                                 }
                                 value={data.credit}
-                            />
+                            /> */}
                             <Textarea
                                 label="Alamat"
                                 placeholder="Alamat lengkap"

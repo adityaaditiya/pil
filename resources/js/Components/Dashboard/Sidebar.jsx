@@ -29,8 +29,9 @@ export default function Sidebar({ sidebarOpen }) {
                             </span>
                         </div>
                         <span className="text-xl font-bold text-slate-800 dark:text-white">
-                            ORO PILATES STUDIO
+                            ORO Pilates Studio
                         </span>
+                        
                     </div>
                 ) : (
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">

@@ -115,7 +115,7 @@ export default function WelcomeScheduleDetail({ schedule }) {
                                 Demi kenyamanan bersama, kami sangat menghargai kerja sama Anda untuk tidak melakukan pembatalan mendadak agar jadwal kelas tetap berjalan efektif.
                                 </p>
                                 <p className="mt-2 text-sm text-wellness-muted whitespace-pre-line text-justify">
-                                Catatan: Pengembalian kredit/saldo hanya berlaku untuk pembatalan yang dilakukan maksimal 12 jam sebelum sesi dimulai. Pembatalan setelah melewati batas waktu tersebut akan dianggap hangus.
+                                Catatan: Pengembalian kredit/saldo hanya berlaku untuk pembatalan yang dilakukan maksimal 24 jam sebelum sesi dimulai. Pembatalan setelah melewati batas waktu tersebut akan dianggap hangus.
                                 </p>
                             </div>
                             </div>

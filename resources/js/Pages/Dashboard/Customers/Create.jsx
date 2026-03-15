@@ -73,7 +73,7 @@ export default function Create() {
                                     <Input
                                         type="text"
                                         label="No. Handphone"
-                                        placeholder="08xxxxxxxxxx"
+                                        placeholder="628xxxxxxxxxx"
                                         errors={errors.no_telp}
                                         onChange={(e) =>
                                             setData("no_telp", e.target.value)
@@ -106,6 +106,17 @@ export default function Create() {
                                     value={data.password}
                                 />
                             </div>
+                            <Input
+                                type="password"
+                                label="Konfirmasi Password"
+                                icon={<IconLock size={18} strokeWidth={1.5} />}
+                                placeholder="Ulangi password"
+                                errors={errors.password_confirmation}
+                                onChange={(e) =>
+                                    setData("password_confirmation", e.target.value)
+                                }
+                                value={data.password_confirmation}
+                            />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-2">
                                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Gender</label>
@@ -134,7 +145,7 @@ export default function Create() {
                                 }
                             />
 
-                            <Input
+                            {/* <Input
                                 type="number"
                                 label="Credit"
                                 placeholder="0"
@@ -143,18 +154,8 @@ export default function Create() {
                                     setData("credit", e.target.value)
                                 }
                                 value={data.credit}
-                            />
-                            <Input
-                                type="password"
-                                label="Konfirmasi Password"
-                                icon={<IconLock size={18} strokeWidth={1.5} />}
-                                placeholder="Ulangi password"
-                                errors={errors.password_confirmation}
-                                onChange={(e) =>
-                                    setData("password_confirmation", e.target.value)
-                                }
-                                value={data.password_confirmation}
-                            />
+                            /> */}
+                            
                             <Textarea
                                 label="Alamat"
                                 placeholder="Alamat lengkap pelanggan"

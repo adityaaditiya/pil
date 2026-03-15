@@ -53,7 +53,11 @@ export default function Index({ trainers }) {
                                     )}
                                 </Table.Td>
                                 <Table.Td>{item.name}</Table.Td>
-                                <Table.Td>{item.date_of_birth || "-"}</Table.Td>
+                                <Table.Td>
+                                    {item.date_of_birth 
+                                        ? new Date(item.date_of_birth).toLocaleDateString('id-ID').replace(/\//g, '-') 
+                                        : "-"}
+                                </Table.Td>
                                 <Table.Td>{item.expertise || "-"}</Table.Td>
                                 <Table.Td>{item.gender}</Table.Td>
                                 <Table.Td>
