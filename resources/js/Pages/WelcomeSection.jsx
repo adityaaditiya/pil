@@ -672,6 +672,18 @@ useEffect(() => {
                                 <p className="mt-4 text-sm text-wellness-muted whitespace-pre-line ">
                                     {membership.description || "Paket membership untuk latihan konsisten."}
                                 </p>
+                                <div className="mt-3 text-sm text-wellness-muted">
+                                    <p className="font-medium text-wellness-text">Daftar kelas terkait:</p>
+                                    {(membership.classes || []).length > 0 ? (
+                                        <ul className="mt-1 list-disc space-y-1 pl-5">
+                                            {membership.classes.map((classItem) => (
+                                                <li key={classItem.id}>{classItem.name}</li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p className="mt-1">Belum ada kelas terkait.</p>
+                                    )}
+                                </div>
                             </article>
                         ))}
                     </section>
