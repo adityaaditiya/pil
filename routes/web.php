@@ -27,6 +27,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserMembershipController;
 use App\Http\Controllers\UserMembershipHistoryController;
 use App\Http\Controllers\UserScheduleController;
+use App\Models\MembershipPlan;
 use App\Models\Trainer;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,11 @@ Route::get('/', function () {
         'trainers'       => Trainer::query()
             ->latest()
             ->get(['id', 'name', 'photo', 'expertise']),
+        'membershipPlans' => MembershipPlan::query()
+            ->where('is_active', true)
+            ->orderBy('order_position')
+            ->orderBy('id')
+            ->get(['id', 'name', 'price', 'description', 'tag']),
     ]);
 })->name('welcome');
 

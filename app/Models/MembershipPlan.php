@@ -16,6 +16,8 @@ class MembershipPlan extends Model
         'valid_days',
         'is_active',
         'description',
+        'tag',
+        'order_position',
     ];
 
     protected $casts = [
@@ -23,6 +25,7 @@ class MembershipPlan extends Model
         'price' => 'decimal:2',
         'valid_days' => 'integer',
         'is_active' => 'boolean',
+        'order_position' => 'integer',
     ];
 
     public function classRules()

@@ -19,7 +19,7 @@ import SectionTitle from "@/Components/Landing/SectionTitle";
 import Navbar from "@/Components/Landing/Navbar";
 
 export default function Welcome() {
-    const { auth, trainers = [] } = usePage().props;
+    const { auth, trainers = [], membershipPlans = [] } = usePage().props;
 
     const trustBadges = ["Certified Trainers", "Small Group", "Beginner Friendly"];
 
@@ -91,33 +91,6 @@ export default function Welcome() {
         { day: "Kamis", morning: "08:00 Recovery", evening: "19:00 Private" },
         { day: "Jumat", morning: "07:00 Reformer", evening: "18:00 Mat Basics" },
         { day: "Sabtu", morning: "09:00 Signature Class", evening: "16:30 Recovery" },
-    ];
-
-    const prices = [
-        {
-            plan: "Trial",
-            price: "Rp150.000",
-            note: "1x kelas untuk member baru",
-            popular: false,
-        },
-        {
-            plan: "Monthly Unlimited",
-            price: "Rp1.450.000",
-            note: "Akses semua kelas selama 30 hari",
-            popular: true,
-        },
-        {
-            plan: "10 Class Pack",
-            price: "Rp1.250.000",
-            note: "Masa aktif 2 bulan, fleksibel",
-            popular: false,
-        },
-        {
-            plan: "Private",
-            price: "Rp450.000",
-            note: "Sesi personal per pertemuan",
-            popular: false,
-        },
     ];
 
 
@@ -283,19 +256,33 @@ export default function Welcome() {
                             description="Pilih paket yang paling sesuai dengan gaya hidup dan target kebugaran Anda."
                         />
                         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                            {prices.map((item) => (
-                                <Card key={item.plan} className={item.popular ? "border-primary-500 ring-2 ring-primary-500/20" : ""}>
-                                    {item.popular && (
-                                        <span className="rounded-full bg-primary-500 px-3 py-1 text-xs font-semibold text-white">Most Popular</span>
-                                    )}
-                                    <h3 className="mt-4 text-xl font-semibold">{item.plan}</h3>
-                                    <p className="mt-3 text-3xl font-semibold text-primary-600">{item.price}</p>
-                                    <p className="mt-2 text-sm text-wellness-muted">{item.note}</p>
-                                    <Button as={Link} href={route("welcome.page", "contact")} variant={item.popular ? "primary" : "secondary"} className="mt-6 w-full">
-                                        Daftar Sekarang
-                                    </Button>
-                                </Card>
-                            ))}
+                            {membershipPlans.map((item) => {
+                                const isMostPopular = item.tag === "Most Popular";
+
+                                return (
+                                    <Card
+                                        key={item.id}
+                                        className={isMostPopular ? "border-2 border-primary-600 ring-2 ring-primary-500/20" : "border border-primary-100"}
+                                    >
+                                        {item.tag && (
+                                            <span className="rounded-full bg-primary-500 px-3 py-1 text-xs font-semibold text-white">{item.tag}</span>
+                                        )}
+                                        <h3 className="mt-4 text-xl font-semibold">{item.name}</h3>
+                                        <p className="mt-3 text-3xl font-semibold text-primary-600">
+                                            {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(Number(item.price || 0))}
+                                        </p>
+                                        <p className="mt-2 text-sm text-wellness-muted">{item.description || "Benefit membership akan tampil di sini."}</p>
+                                        <Button
+                                            as={Link}
+                                            href={route("welcome.page", "contact")}
+                                            variant={isMostPopular ? "primary" : "secondary"}
+                                            className={isMostPopular ? "mt-6 w-full bg-primary-600 hover:bg-primary-700" : "mt-6 w-full border-primary-600 text-primary-700 hover:bg-primary-50"}
+                                        >
+                                            Daftar Sekarang
+                                        </Button>
+                                    </Card>
+                                );
+                            })}
                         </div>
                     </div>
                 </section>

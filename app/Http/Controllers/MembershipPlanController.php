@@ -16,7 +16,8 @@ class MembershipPlanController extends Controller
         return Inertia::render('Dashboard/Memberships/Plans/Index', [
             'plans' => MembershipPlan::query()
                 ->withCount('classRules')
-                ->latest()
+                ->orderBy('order_position')
+                ->latest('id')
                 ->paginate(10),
         ]);
     }
@@ -72,6 +73,8 @@ class MembershipPlanController extends Controller
             'valid_days' => ['nullable', 'integer', 'min:1'],
             'is_active' => ['nullable', 'boolean'],
             'description' => ['nullable', 'string'],
+            'tag' => ['nullable', 'string', 'max:255'],
+            'order_position' => ['nullable', 'integer', 'min:0'],
             'class_rules' => ['nullable', 'array'],
             'class_rules.*.pilates_class_id' => ['required', 'integer', 'exists:pilates_classes,id'],
             'class_rules.*.credit_cost' => ['required', 'integer', 'min:1'],
