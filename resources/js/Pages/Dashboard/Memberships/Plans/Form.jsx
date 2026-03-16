@@ -123,6 +123,32 @@ export default function Form({ data, setData, errors, classes = [] }) {
                 <FieldError message={errors?.description} />
             </div>
 
+            {/* Tag & Urutan */}
+            <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                    <FieldLabel>Tag</FieldLabel>
+                    <input
+                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition focus:border-slate-300 focus:ring-4 focus:ring-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-slate-800"
+                        placeholder="Contoh: Most Popular"
+                        value={data.tag ?? ""}
+                        onChange={(e) => setData("tag", e.target.value)}
+                    />
+                    <FieldError message={errors?.tag} />
+                </div>
+                <div>
+                    <FieldLabel>Order Position</FieldLabel>
+                    <input
+                        type="number"
+                        min={0}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition focus:border-slate-300 focus:ring-4 focus:ring-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-slate-800"
+                        placeholder="1 untuk paling kiri"
+                        value={data.order_position ?? 0}
+                        onChange={(e) => setData("order_position", e.target.value)}
+                    />
+                    <FieldError message={errors?.order_position} />
+                </div>
+            </div>
+
             {/* Status aktif */}
             <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div>

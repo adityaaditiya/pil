@@ -22,11 +22,11 @@ export default function Index({ plans }) {
             </div>
             <Table.Card title="Data Paket Membership">
                 <Table>
-                    <Table.Thead><tr><Table.Th>Nama</Table.Th><Table.Th>Credits</Table.Th><Table.Th>Harga</Table.Th><Table.Th>Jumlah Kelas Terkait</Table.Th><Table.Th>Status</Table.Th><Table.Th></Table.Th></tr></Table.Thead>
+                    <Table.Thead><tr><Table.Th>Nama</Table.Th><Table.Th>Tag</Table.Th><Table.Th>Urutan</Table.Th><Table.Th>Credits</Table.Th><Table.Th>Harga</Table.Th><Table.Th>Jumlah Kelas Terkait</Table.Th><Table.Th>Status</Table.Th><Table.Th></Table.Th></tr></Table.Thead>
                     <Table.Tbody>
                         {plans.data.map((plan) => (
                             <tr key={plan.id}>
-                                <Table.Td>{plan.name}</Table.Td><Table.Td>{plan.credits}</Table.Td><Table.Td>{formatRupiah(plan.price)}</Table.Td><Table.Td>{plan.class_rules_count}</Table.Td><Table.Td>{plan.is_active ? "Aktif" : "Nonaktif"}</Table.Td>
+                                <Table.Td>{plan.name}</Table.Td><Table.Td>{plan.tag || "-"}</Table.Td><Table.Td>{plan.order_position ?? 0}</Table.Td><Table.Td>{plan.credits}</Table.Td><Table.Td>{formatRupiah(plan.price)}</Table.Td><Table.Td>{plan.class_rules_count}</Table.Td><Table.Td>{plan.is_active ? "Aktif" : "Nonaktif"}</Table.Td>
                                 <Table.Td>
                                     <div className="flex gap-2">
                                         <Button
