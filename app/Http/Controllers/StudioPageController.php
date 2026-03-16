@@ -112,7 +112,8 @@ class StudioPageController extends Controller
                     ->get(['id', 'pilates_class_id', 'trainer_id', 'start_at', 'capacity', 'duration_minutes', 'price_override', 'allow_drop_in'])
                 : [],
             'memberships' => $normalizedKey === 'pricing'
-                ? MembershipPlan::where('is_active', true)
+                ? MembershipPlan::with(['classes:id,name'])
+                    ->where('is_active', true)
                     ->orderBy('price')
                     ->get(['id', 'name', 'credits', 'price', 'valid_days', 'description'])
                 : [],
