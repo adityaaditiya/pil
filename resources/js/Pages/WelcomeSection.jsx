@@ -672,16 +672,17 @@ useEffect(() => {
                                 <p className="mt-4 text-sm text-wellness-muted whitespace-pre-line ">
                                     {membership.description || "Paket membership untuk latihan konsisten."}
                                 </p>
-                                <div className="mt-3 text-sm text-wellness-muted">
-                                    <p className="font-medium text-wellness-text">Daftar kelas terkait:</p>
-                                    {(membership.classes || []).length > 0 ? (
-                                        <ul className="mt-1 list-disc space-y-1 pl-5">
-                                            {membership.classes.map((classItem) => (
-                                                <li key={classItem.id}>{classItem.name}</li>
+                                <div className="mt-3 text-sm text-wellness-muted border-t border-slate-200 pt-3">
+                                    <p className="font-medium text-wellness-text">Daftar kelas yang bisa dipesan:</p>
+                                     
+                                    {membership.classes.length > 0 ? (
+                                        <ul className="list-disc list-inside mt-2">
+                                            {membership.classes.map((c) => (
+                                                <li key={c.id}>{c.name}</li>
                                             ))}
                                         </ul>
                                     ) : (
-                                        <p className="mt-1">Belum ada kelas terkait.</p>
+                                        <p>-</p>
                                     )}
                                 </div>
                             </article>
