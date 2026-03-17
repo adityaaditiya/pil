@@ -194,7 +194,51 @@ export default function Welcome() {
                     </div>
                 </section>
 
-                <section className="bg-wellness-soft px-4 py-20 md:px-6">
+
+                {/* Hapus px-4 dan md:px-6 di sini */}
+                <section className="py-10"> 
+                    <div className="relative h-[100vh] w-full">
+                            <SectionTitle
+                                eyebrow="Classes"
+                                title="Pilihan kelas sesuai ritme Anda"
+                                description="Mulai dari basic hingga sesi personal, semua kelas dipandu instruktur profesional bersertifikat."
+                            />
+                            <br />
+                        <div className="relative h-[100vh] w-full">
+                            {/* Gambar Background */}
+                            <img 
+                                src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80" 
+                                alt="Pilates class" 
+                                className="absolute inset-0 h-full w-full object-cover" 
+                            />
+                        
+                            {/* Overlay Konten */}
+                            <div className="absolute inset-0 bg-black/30 flex flex-col justify-end p-6 md:p-16">
+                                
+                                {/* Container untuk teks agar tetap rapi di tengah/kiri sesuai layout website */}
+                                <div className="container mx-auto px-4 md:px-6">
+                                    <div className="max-w-xl text-left">
+                                        <h1 className="text-white text-xl md:text-4xl ">
+                                            Latihan Pilates yang Menenangkan
+                                        </h1>
+                            
+                                        <div className="mt-6 flex flex-col md:flex-row gap-3">
+                                            <Button as={Link} href={route("welcome.page", "classes")}>Find Your Class</Button>
+                                            <Link 
+                                            href={route("welcome.page", "schedule")} 
+                                            className="inline-block border border-white text-white px-6 py-2 rounded-full text-sm hover:bg-gray-500 text-center"
+                                            >
+                                            Book An Appointment
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* <section className="bg-wellness-soft px-4 py-20 md:px-6">
                     <div className="mx-auto max-w-7xl">
                         <SectionTitle
                             eyebrow="Classes"
@@ -214,16 +258,53 @@ export default function Welcome() {
                             ))}
                         </div>
                     </div>
-                </section>
-
-                <section className="px-4 py-20 md:px-6">
-                    <div className="mx-auto max-w-7xl">
+                </section> */}
+                <br />
+                <section className="py-20 mt-20">
+                    <div className="relative h-[100vh] w-full">
                         <SectionTitle
                             eyebrow="Schedule"
                             title="Preview jadwal mingguan"
                             description="Atur waktu latihan Anda dengan jadwal yang fleksibel untuk pagi dan malam."
                         />
-                        <Card className="mt-10 p-0 overflow-hidden">
+                        
+                {/* Hapus px-4 dan md:px-6 di sini */}
+                <section className="mt-18 bg-wellness-soft"> 
+                <div className="relative h-[100vh] w-full">
+                    {/* Gambar Background */}
+                    <img 
+                    src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80" 
+                    alt="Pilates class" 
+                    className="absolute inset-0 h-full w-full object-cover" 
+                    />
+                    
+                    {/* Overlay Konten */}
+                    <div className="absolute inset-0 bg-black/30 flex flex-col justify-end p-6 md:p-16">
+                    {/* Container untuk teks agar tetap rapi di tengah/kiri sesuai layout website */}
+                    <div className="container mx-auto px-4 md:px-6">
+                        <div className="max-w-xl text-left">
+                        <h1 className="text-white text-xl md:text-2xl ">
+                            Jadwal mingguan yang fleksibel untuk pagi dan malam
+                        </h1>
+                        
+                        <div className="mt-6 flex flex-col md:flex-row gap-3">
+                            
+                            <Link 
+                                href={route("welcome.page", "schedule")} 
+                                className="inline-block border border-white text-white px-6 py-2 rounded-full text-sm hover:bg-gray-500 text-center"
+                            >
+                                View More
+                            </Link>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                </section>
+                    </div>
+                </section>
+
+                            {/* <Card className="mt-10 p-0 overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="min-w-full text-left text-sm">
                                     <thead className="bg-primary-50 text-wellness-text">
@@ -244,11 +325,9 @@ export default function Welcome() {
                                     </tbody>
                                 </table>
                             </div>
-                        </Card>
-                    </div>
-                </section>
+                        </Card> */} 
 
-                <section className="bg-wellness-soft px-4 py-20 md:px-6">
+                <section className="mt-18 bg-wellness-soft px-4 py-20 md:px-6">
                     <div className="mx-auto max-w-7xl">
                         <SectionTitle
                             eyebrow="Pricing"
