@@ -271,12 +271,32 @@ export default function Welcome() {
                                         <p className="mt-3 text-3xl font-semibold text-primary-600">
                                             {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(Number(item.price || 0))}
                                         </p>
-                                        <p className="mt-2 text-sm text-wellness-muted">{item.description || "Benefit membership akan tampil di sini."}</p>
+                                        {/* <p className="mt-2 text-sm text-wellness-muted">{item.description || "Benefit membership akan tampil di sini."}</p>
                                         <Button
                                             as={Link}
                                             href={route("welcome.page", "contact")}
                                             variant={isMostPopular ? "primary" : "secondary"}
                                             className={isMostPopular ? "mt-6 w-full bg-primary-600 hover:bg-primary-700" : "mt-6 w-full border-primary-600 text-primary-700 hover:bg-primary-50"}
+                                        >
+                                            Daftar Sekarang
+                                        </Button> */}
+                                        {/* 1. Tambahkan wrapper <div> dengan flex-1 di sekitar deskripsi */}
+                                        <div className="flex-1">
+                                            <p className="mt-2 text-sm text-wellness-muted whitespace-pre-line">
+                                                {item.description || "Benefit membership akan tampil di sini."}
+                                            </p>
+                                        </div>
+                                            <br />
+                                        {/* 2. Tambahkan mt-auto pada Button */}
+                                        <Button
+                                            as={Link}
+                                            href={route("welcome.page", "contact")}
+                                            variant={isMostPopular ? "primary" : "secondary"}
+                                            className={`${
+                                                isMostPopular 
+                                                ? "mt-auto w-full bg-primary-600 hover:bg-primary-700" 
+                                                : "mt-auto w-full border-primary-600 text-primary-700 hover:bg-primary-50"
+                                            } py-3`} // mt-auto memastikan tombol selalu di bawah
                                         >
                                             Daftar Sekarang
                                         </Button>
