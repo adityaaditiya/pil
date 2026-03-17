@@ -256,51 +256,60 @@ export default function Welcome() {
                             description="Pilih paket yang paling sesuai dengan gaya hidup dan target kebugaran Anda."
                         />
                         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                            {membershipPlans.map((item) => {
+                            {membershipPlans.slice(0, 4).map((item) => {
                                 const isMostPopular = item.tag === "Most Popular";
 
                                 return (
-                                    <Card
-                                        key={item.id}
-                                        className={isMostPopular ? "border-2 border-primary-600 ring-2 ring-primary-500/20" : "border border-primary-100"}
-                                    >
-                                        {item.tag && (
-                                            <span className="rounded-full bg-primary-500 px-3 py-1 text-xs font-semibold text-white">{item.tag}</span>
-                                        )}
-                                        <h3 className="mt-4 text-xl font-semibold">{item.name}</h3>
-                                        <p className="mt-3 text-3xl font-semibold text-primary-600">
-                                            {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(Number(item.price || 0))}
-                                        </p>
-                                        {/* <p className="mt-2 text-sm text-wellness-muted">{item.description || "Benefit membership akan tampil di sini."}</p>
-                                        <Button
-                                            as={Link}
-                                            href={route("welcome.page", "contact")}
-                                            variant={isMostPopular ? "primary" : "secondary"}
-                                            className={isMostPopular ? "mt-6 w-full bg-primary-600 hover:bg-primary-700" : "mt-6 w-full border-primary-600 text-primary-700 hover:bg-primary-50"}
-                                        >
-                                            Daftar Sekarang
-                                        </Button> */}
-                                        {/* 1. Tambahkan wrapper <div> dengan flex-1 di sekitar deskripsi */}
-                                        <div className="flex-1">
-                                            <p className="mt-2 text-sm text-wellness-muted whitespace-pre-line">
-                                                {item.description || "Benefit membership akan tampil di sini."}
-                                            </p>
-                                        </div>
-                                            <br />
-                                        {/* 2. Tambahkan mt-auto pada Button */}
-                                        <Button
-                                            as={Link}
-                                            href={route("welcome.page", "contact")}
-                                            variant={isMostPopular ? "primary" : "secondary"}
-                                            className={`${
-                                                isMostPopular 
-                                                ? "mt-auto w-full bg-primary-600 hover:bg-primary-700" 
-                                                : "mt-auto w-full border-primary-600 text-primary-700 hover:bg-primary-50"
-                                            } py-3`} // mt-auto memastikan tombol selalu di bawah
-                                        >
-                                            Daftar Sekarang
-                                        </Button>
-                                    </Card>
+<Card
+    key={item.id}
+    className={`flex flex-col h-full ${
+        isMostPopular 
+        ? "border-2 border-primary-600 ring-2 ring-primary-500/20" 
+        : "border border-primary-100"
+    }`}
+>
+    {/* Konten Atas */}
+    <div>
+        {item.tag && (
+            <span className="inline-block rounded-full bg-primary-500 px-3 py-1 text-xs font-semibold text-white">
+                {item.tag}
+            </span>
+        )}
+        
+        {/* TAMBAHKAN min-h DI SINI (Contoh: min-h-[56px] untuk 2 baris teks) */}
+        <div className="min-h-[60px] flex items-center">
+            <h3 className="mt-2 text-xl font-semibold leading-tight">{item.name}</h3>
+        </div>
+
+        {/* Harga sekarang akan selalu sejajar karena judul di atasnya punya tinggi tetap */}
+        <p className="mt-1 text-3xl font-semibold text-primary-600">
+            {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(Number(item.price || 0))}
+        </p>
+    </div>
+
+    {/* Area Tengah (Deskripsi) */}
+    <div className="flex-1 mt-2">
+        <p className="text-sm text-wellness-muted whitespace-pre-line">
+            {item.description || "Benefit membership akan tampil di sini."}
+        </p>
+    </div>
+
+    {/* Tombol */}
+    <div className="mt-3">
+        <Button
+            as={Link}
+            href={route("welcome.page", "contact")}
+            variant={isMostPopular ? "primary" : "secondary"}
+            className={`${
+                isMostPopular 
+                ? "w-full bg-primary-600 hover:bg-primary-700 text-white" 
+                : "w-full border-primary-600 text-primary-700 hover:bg-primary-50"
+            } py-2.5 text-sm font-semibold`} 
+        >
+            Daftar Sekarang
+        </Button>
+    </div>
+</Card>
                                 );
                             })}
                         </div>
