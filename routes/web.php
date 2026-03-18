@@ -28,6 +28,7 @@ use App\Http\Controllers\UserMembershipController;
 use App\Http\Controllers\UserMembershipHistoryController;
 use App\Http\Controllers\UserScheduleController;
 use App\Models\MembershipPlan;
+use App\Models\StudioPage;
 use App\Models\Trainer;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,9 @@ Route::get('/', function () {
             ->orderBy('order_position')
             ->orderBy('id')
             ->get(['id', 'name', 'price', 'description', 'tag']),
+        'studioPageImages' => StudioPage::query()
+            ->whereIn('key', ['home', 'classes', 'schedule'])
+            ->pluck('image', 'key'),
     ]);
 })->name('welcome');
 

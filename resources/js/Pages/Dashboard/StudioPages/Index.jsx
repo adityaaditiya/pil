@@ -4,7 +4,9 @@ import { Head, Link } from "@inertiajs/react";
 import Button from "@/Components/Dashboard/Button";
 import Search from "@/Components/Dashboard/Search";
 import Pagination from "@/Components/Dashboard/Pagination";
-import { IconCirclePlus, IconPencilCog, IconTrash } from "@tabler/icons-react";
+import { IconCirclePlus, IconPencilCog, IconPhoto, IconTrash } from "@tabler/icons-react";
+
+const imageEnabledKeys = ["home", "classes", "schedule"];
 
 export default function Index({ studioPages }) {
     return (
@@ -14,7 +16,7 @@ export default function Index({ studioPages }) {
             <div className="mb-6 flex items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Kelola Menu Studio</h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Kelola halaman Home, About, Classes, Schedule, Pricing, Trainers, Testimonials, Contact</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Kelola halaman Home, About, Classes, Schedule, Pricing, Trainers, Testimonials, Contact, termasuk gambar section utama.</p>
                 </div>
                 <Button
                     type="link"
@@ -36,6 +38,7 @@ export default function Index({ studioPages }) {
                             <th className="px-4 py-3 font-semibold">Nama</th>
                             <th className="px-4 py-3 font-semibold">Key</th>
                             <th className="px-4 py-3 font-semibold">Title</th>
+                            <th className="px-4 py-3 font-semibold">Gambar Section</th>
                             <th className="px-4 py-3 font-semibold text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -45,6 +48,19 @@ export default function Index({ studioPages }) {
                                 <td className="px-4 py-3">{item.name}</td>
                                 <td className="px-4 py-3">{item.key}</td>
                                 <td className="px-4 py-3">{item.title}</td>
+                                <td className="px-4 py-3">
+                                    {imageEnabledKeys.includes(item.key) ? (
+                                        item.image ? (
+                                            <img src={`/storage/${item.image}`} alt={item.name} className="h-12 w-20 rounded-lg object-cover" />
+                                        ) : (
+                                            <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+                                                <IconPhoto size={14} /> Belum ada gambar
+                                            </span>
+                                        )
+                                    ) : (
+                                        <span className="text-xs text-slate-400">Tidak digunakan</span>
+                                    )}
+                                </td>
                                 <td className="px-4 py-3">
                                     <div className="flex justify-center gap-2">
                                         <Link href={route("studio-pages.edit", item.id)} className="rounded-lg bg-amber-100 p-2 text-amber-700">
