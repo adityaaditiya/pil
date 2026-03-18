@@ -7,7 +7,7 @@ import {
     IconSparkles,
     IconStar,
 } from "@tabler/icons-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 const formatRupiah = (value) =>
     new Intl.NumberFormat("id-ID", {
@@ -18,15 +18,23 @@ const formatRupiah = (value) =>
 
 export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) {
     const { auth } = usePage().props;
-    const { data, setData, get, processing } = useForm({
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const { data, setData, post, processing } = useForm({
         payment_method: paymentGateways[0]?.value ?? "",
     });
 
     const allowedClasses = useMemo(() => plan?.classes ?? [], [plan?.classes]);
+    const selectedGateway = paymentGateways.find(
+        (gateway) => gateway.value === data.payment_method,
+    );
 
     const handleCheckout = (event) => {
         event.preventDefault();
-        get(route("welcome.membership-checkout", plan.id), {
+        setShowConfirmation(true);
+    };
+
+    const submitCheckout = () => {
+        post(route("welcome.membership-checkout.process", plan.id), {
             preserveScroll: true,
         });
     };
@@ -96,21 +104,18 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                             <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm whitespace-pre-line">
                                 <h2 className="text-xl font-semibold">Ketentuan Pembatalan</h2>
                                 <div className="mt-4 rounded-2xl border border-slate-200 p-4">
-                                <p className="text-sm text-wellness-muted whitespace-pre-line text-justify">
-                                Demi kenyamanan bersama, kami sangat menghargai kerja sama Anda untuk tidak melakukan pembatalan mendadak.
-                                </p>
-                                <p className="mt-2 text-sm text-wellness-muted whitespace-pre-line text-justify">
-                                Catatan: Pengembalian kredit/saldo hanya berlaku untuk pembatalan yang dilakukan maksimal 24 jam. Pembatalan setelah melewati batas waktu tersebut akan dianggap hangus.
-                                </p>
-                            </div>
+                                    <p className="text-sm text-wellness-muted whitespace-pre-line text-justify">
+                                        Demi kenyamanan bersama, kami sangat menghargai kerja sama Anda untuk tidak melakukan pembatalan mendadak.
+                                    </p>
+                                    <p className="mt-2 text-sm text-wellness-muted whitespace-pre-line text-justify">
+                                        Catatan: Pengembalian kredit/saldo hanya berlaku untuk pembatalan yang dilakukan maksimal 24 jam. Pembatalan setelah melewati batas waktu tersebut akan dianggap hangus.
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
                         <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm md:p-8">
                             <h2 className="text-xl font-semibold text-slate-900">Pilih Metode Pembayaran</h2>
-                            {/* <p className="mt-2 text-sm text-slate-600">
-                                Pilih metode pembayaran seperti pada menu welcome schedule payment untuk melanjutkan pembelian membership ini.
-                            </p> */}
 
                             <div className="mt-4 space-y-3">
                                 <div className="rounded-2xl bg-primary-50 px-4 py-3 text-sm text-primary-700">
@@ -139,7 +144,6 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                                                     />
                                                     <div>
                                                         <p className="font-semibold text-slate-800">{gateway.label}</p>
-                                                        {/* <p className="text-sm text-slate-500">Selesaikan Pembayaran dan ikuti sesuai instruksi pada halaman selanjutnya.</p> */}
                                                     </div>
                                                 </label>
                                             );
@@ -149,7 +153,7 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                                             Metode pembayaran belum tersedia. Silakan hubungi admin.
                                         </div>
                                     )}
-                                        
+
                                     <button
                                         type="submit"
                                         disabled={!auth?.user || !paymentGateways.length || processing}
@@ -163,6 +167,54 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                     </div>
                 </div>
             </div>
+
+            {showConfirmation && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4">
+                    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl">
+                        <h3 className="text-xl font-bold text-slate-900">Konfirmasi Pembayaran</h3>
+                        <p className="mt-2 text-sm text-slate-600">
+                            Pastikan detail pembayaran membership sudah benar sebelum melanjutkan.
+                        </p>
+
+                        <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
+                            <table className="w-full text-sm">
+                                <tbody>
+                                    <tr className="border-b border-slate-100">
+                                        <td className="w-40 bg-slate-50 px-4 py-3 font-medium text-slate-700">Nama Membership</td>
+                                        <td className="px-4 py-3 text-slate-700">{plan?.name || "-"}</td>
+                                    </tr>
+                                    <tr className="border-b border-slate-100">
+                                        <td className="bg-slate-50 px-4 py-3 font-medium text-slate-700">Metode Pembayaran</td>
+                                        <td className="px-4 py-3 text-slate-700">{selectedGateway?.label || "-"}</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="bg-slate-50 px-4 py-3 font-medium text-slate-700">Harga</td>
+                                        <td className="px-4 py-3 font-semibold text-primary-700">{formatRupiah(plan?.price)}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div className="mt-6 flex flex-wrap justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmation(false)}
+                                className="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={submitCheckout}
+                                disabled={processing}
+                                className="rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+                            >
+                                {processing ? "Memproses..." : "Konfirmasi Pembayaran"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

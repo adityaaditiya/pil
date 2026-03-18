@@ -62,6 +62,9 @@ Route::middleware('auth')->get('/welcome/schedule/{pilatesTimetable}/payment', [
 Route::middleware('auth')->get('/welcome/schedule/{pilatesTimetable}/payment/drop-in-checkout', [StudioPageController::class, 'showDropInCheckout'])->name('welcome.schedule-payment.drop-in-checkout');
 Route::middleware('auth')->get('/welcome/membership-plans/{membershipPlan}', [StudioPageController::class, 'showMembershipDetail'])->name('welcome.membership-detail');
 Route::middleware('auth')->get('/welcome/membership-plans/{membershipPlan}/checkout', [StudioPageController::class, 'showMembershipCheckout'])->name('welcome.membership-checkout');
+Route::middleware('auth')->post('/welcome/membership-plans/{membershipPlan}/checkout', [StudioPageController::class, 'processMembershipCheckout'])->name('welcome.membership-checkout.process');
+Route::middleware('auth')->post('/welcome/memberships/{userMembership}/payment-proof', [StudioPageController::class, 'uploadMembershipPaymentProof'])->name('welcome.membership-checkout.upload-proof');
+Route::middleware('auth')->delete('/welcome/memberships/{userMembership}/cancel', [StudioPageController::class, 'cancelMembershipTransaction'])->name('welcome.membership-checkout.cancel-transaction');
 Route::middleware('auth')->post('/welcome/schedule/{pilatesTimetable}/payment', [StudioPageController::class, 'processSchedulePayment'])->name('welcome.schedule-payment.process');
 Route::middleware('auth')->post('/welcome/schedule/bookings/{booking}/payment-proof', [StudioPageController::class, 'uploadDropInPaymentProof'])->name('welcome.schedule-payment.upload-proof');
 Route::middleware('auth')->delete('/welcome/schedule/bookings/{booking}/cancel', [StudioPageController::class, 'cancelDropInTransaction'])->name('welcome.schedule-payment.cancel-transaction');
