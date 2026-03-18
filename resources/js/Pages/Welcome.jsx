@@ -19,13 +19,9 @@ import SectionTitle from "@/Components/Landing/SectionTitle";
 import Navbar from "@/Components/Landing/Navbar";
 
 export default function Welcome() {
-    const { auth, trainers = [], membershipPlans = [], studioPageImages = {} } = usePage().props;
+    const { auth, trainers = [], membershipPlans = [] } = usePage().props;
 
     const trustBadges = ["Certified Trainers", "Small Group", "Beginner Friendly"];
-
-    const homeSectionImage = studioPageImages.home ? `/storage/${studioPageImages.home}` : "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80";
-    const classesSectionImage = studioPageImages.classes ? `/storage/${studioPageImages.classes}` : "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80";
-    const scheduleSectionImage = studioPageImages.schedule ? `/storage/${studioPageImages.schedule}` : "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80";
 
     const navItems = [
         { name: "Home", key: "home" },
@@ -169,7 +165,7 @@ export default function Welcome() {
 
                         <div className="overflow-hidden p-0">
                             <img
-                                src={homeSectionImage}
+                                src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80"
                                 alt="Pilates class"
                                 className="h-full min-h-[420px] w-full object-cover"
                             />
@@ -211,7 +207,7 @@ export default function Welcome() {
                         <div className="relative h-[100vh] w-full">
                             {/* Gambar Background */}
                             <img 
-                                src={classesSectionImage} 
+                                src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80" 
                                 alt="Pilates class" 
                                 className="absolute inset-0 h-full w-full object-cover" 
                             />
@@ -277,7 +273,7 @@ export default function Welcome() {
                 <div className="relative h-[100vh] w-full">
                     {/* Gambar Background */}
                     <img 
-                    src={scheduleSectionImage} 
+                    src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80" 
                     alt="Pilates class" 
                     className="absolute inset-0 h-full w-full object-cover" 
                     />
