@@ -17,9 +17,10 @@ import Button from "@/Components/Landing/Button";
 import Card from "@/Components/Landing/Card";
 import SectionTitle from "@/Components/Landing/SectionTitle";
 import Navbar from "@/Components/Landing/Navbar";
+import { getImageUrl } from "@/Utils/imageUrl";
 
 export default function Welcome() {
-    const { auth, trainers = [], membershipPlans = [] } = usePage().props;
+    const { auth, trainers = [], membershipPlans = [], landingPageSetting = {} } = usePage().props;
 
     const trustBadges = ["Certified Trainers", "Small Group", "Beginner Friendly"];
 
@@ -109,6 +110,20 @@ export default function Welcome() {
         },
     ];
 
+
+    const heroBackgroundImage = getImageUrl(
+        landingPageSetting?.hero_background_image,
+        "landing-page",
+    );
+    const scheduleBackgroundImage = getImageUrl(
+        landingPageSetting?.schedule_background_image,
+        "landing-page",
+    );
+    const classesBackgroundImage = getImageUrl(
+        landingPageSetting?.classes_background_image,
+        "landing-page",
+    );
+
     const faqs = [
         {
             q: "Apakah cocok untuk pemula?",
@@ -165,7 +180,7 @@ export default function Welcome() {
 
                         <div className="overflow-hidden p-0">
                             <img
-                                src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80"
+                                src={heroBackgroundImage}
                                 alt="Pilates class"
                                 className="h-full min-h-[420px] w-full object-cover"
                             />
@@ -207,7 +222,7 @@ export default function Welcome() {
                         <div className="relative h-[100vh] w-full">
                             {/* Gambar Background */}
                             <img 
-                                src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80" 
+                                src={classesBackgroundImage} 
                                 alt="Pilates class" 
                                 className="absolute inset-0 h-full w-full object-cover" 
                             />
@@ -273,7 +288,7 @@ export default function Welcome() {
                 <div className="relative h-[100vh] w-full">
                     {/* Gambar Background */}
                     <img 
-                    src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80" 
+                    src={scheduleBackgroundImage} 
                     alt="Pilates class" 
                     className="absolute inset-0 h-full w-full object-cover" 
                     />
