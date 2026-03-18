@@ -14,6 +14,5 @@ class StudioPage extends Model
         'name',
         'title',
         'content',
-        'image',
     ];
 }

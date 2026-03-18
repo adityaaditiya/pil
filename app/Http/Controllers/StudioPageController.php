@@ -18,7 +18,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -42,19 +41,14 @@ class StudioPageController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'key' => 'required|string|max:255|alpha_dash|unique:studio_pages,key',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => ['nullable', 'image', 'max:2048', Rule::requiredIf(fn () => in_array($request->input('key'), ['home', 'classes', 'schedule'], true))],
         ]);
 
-        if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('studio-pages', 'public');
-        }
-
-        StudioPage::create($validated);
+        StudioPage::create($request->only(['name', 'key', 'title', 'content']));
 
         return to_route('studio-pages.index');
     }
@@ -68,41 +62,20 @@ class StudioPageController extends Controller
 
     public function update(Request $request, StudioPage $studioPage): RedirectResponse
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'key' => 'required|string|max:255|alpha_dash|unique:studio_pages,key,' . $studioPage->id,
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => ['nullable', 'image', 'max:2048', Rule::requiredIf(fn () => in_array($request->input('key'), ['home', 'classes', 'schedule'], true) && blank($studioPage->image))],
-            'remove_image' => 'nullable|boolean',
         ]);
 
-        if (($validated['remove_image'] ?? false) && $studioPage->image) {
-            Storage::disk('public')->delete($studioPage->image);
-            $validated['image'] = null;
-        }
-
-        if ($request->hasFile('image')) {
-            if ($studioPage->image) {
-                Storage::disk('public')->delete($studioPage->image);
-            }
-
-            $validated['image'] = $request->file('image')->store('studio-pages', 'public');
-        }
-
-        unset($validated['remove_image']);
-
-        $studioPage->update($validated);
+        $studioPage->update($request->only(['name', 'key', 'title', 'content']));
 
         return to_route('studio-pages.index');
     }
 
     public function destroy(StudioPage $studioPage): RedirectResponse
     {
-        if ($studioPage->image) {
-            Storage::disk('public')->delete($studioPage->image);
-        }
-
         $studioPage->delete();
 
         return to_route('studio-pages.index');
