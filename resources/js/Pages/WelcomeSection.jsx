@@ -685,6 +685,14 @@ useEffect(() => {
                                         <p>-</p>
                                     )}
                                 </div>
+                                <div className="mt-6">
+                                    <Link
+                                        href={auth?.user ? route("welcome.membership-detail", membership.id) : route("login", { redirect: route("welcome.membership-detail", membership.id, false) })}
+                                        className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
+                                    >
+                                        Buy Now
+                                    </Link>
+                                </div>
                             </article>
                         ))}
                     </section>

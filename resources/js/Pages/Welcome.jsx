@@ -392,7 +392,7 @@ export default function Welcome() {
     <div className="mt-3">
         <Button
             as={Link}
-            href={route("welcome.page", "contact")}
+            href={auth?.user ? route("welcome.membership-detail", item.id) : route("login", { redirect: route("welcome.membership-detail", item.id, false) })}
             variant={isMostPopular ? "primary" : "secondary"}
             className={`${
                 isMostPopular 
@@ -400,7 +400,7 @@ export default function Welcome() {
                 : "w-full border-primary-600 text-primary-700 hover:bg-primary-50"
             } py-2.5 text-sm font-semibold`} 
         >
-            Daftar Sekarang
+            Buy Now
         </Button>
     </div>
 </Card>
