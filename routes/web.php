@@ -5,6 +5,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Apps\CashEntryController;
 use App\Http\Controllers\Apps\ClassCategoryController;
 use App\Http\Controllers\Apps\CustomerController;
+use App\Http\Controllers\Apps\LandingPageSettingController;
 use App\Http\Controllers\Apps\PaymentSettingController;
 use App\Http\Controllers\Apps\ProductController;
 use App\Http\Controllers\Apps\TransactionController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserMembershipController;
 use App\Http\Controllers\UserMembershipHistoryController;
 use App\Http\Controllers\UserScheduleController;
+use App\Models\LandingPageSetting;
 use App\Models\MembershipPlan;
 use App\Models\Trainer;
 use Illuminate\Foundation\Application;
@@ -34,6 +36,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    $landingPageSetting = LandingPageSetting::firstOrCreate([], LandingPageSetting::defaultAttributes());
+
     return Inertia::render('Welcome', [
         'canLogin'       => Route::has('login'),
         'canRegister'    => Route::has('register'),
@@ -47,6 +51,7 @@ Route::get('/', function () {
             ->orderBy('order_position')
             ->orderBy('id')
             ->get(['id', 'name', 'price', 'description', 'tag']),
+        'landingPageSetting' => $landingPageSetting,
     ]);
 })->name('welcome');
 
@@ -195,6 +200,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
 
     Route::get('/settings/payments', [PaymentSettingController::class, 'edit'])->middleware('permission:payment-settings-access')->name('settings.payments.edit');
     Route::put('/settings/payments', [PaymentSettingController::class, 'update'])->middleware('permission:payment-settings-access')->name('settings.payments.update');
+
+    Route::get('/settings/landing-page', [LandingPageSettingController::class, 'edit'])->middleware('permission:dashboard-access')->name('settings.landing-page.edit');
+    Route::put('/settings/landing-page', [LandingPageSettingController::class, 'update'])->middleware('permission:dashboard-access')->name('settings.landing-page.update');
 
     //reports
     Route::get('/reports/sales', [SalesReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.sales.index');
