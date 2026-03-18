@@ -205,6 +205,50 @@ class StudioPageController extends Controller
     }
 
 
+    public function showMembershipDetail(MembershipPlan $membershipPlan): Response|RedirectResponse
+    {
+        abort_if(! $membershipPlan->is_active, 404);
+
+        $paymentSetting = PaymentSetting::first();
+        $paymentGateways = collect($paymentSetting?->enabledGateways() ?? [])->filter(function ($gateway) {
+            return strtolower($gateway['value'] ?? '') !== 'cash';
+        })->values();
+
+        return Inertia::render('WelcomeMembershipDetail', [
+            'plan' => $membershipPlan->load(['classes:id,name']),
+            'paymentGateways' => $paymentGateways,
+        ]);
+    }
+
+    public function showMembershipCheckout(Request $request, MembershipPlan $membershipPlan): Response|RedirectResponse
+    {
+        abort_if(! $membershipPlan->is_active, 404);
+
+        $paymentSetting = PaymentSetting::first();
+        $paymentGateways = collect($paymentSetting?->enabledGateways() ?? [])->filter(function ($gateway) {
+            return strtolower($gateway['value'] ?? '') !== 'cash';
+        })->values();
+
+        $selectedMethod = (string) $request->string('payment_method');
+        $selectedGateway = $paymentGateways->firstWhere('value', $selectedMethod);
+
+        if (! $selectedGateway) {
+            return to_route('welcome.membership-detail', $membershipPlan->id);
+        }
+
+        return Inertia::render('WelcomeMembershipCheckout', [
+            'plan' => $membershipPlan->load(['classes:id,name']),
+            'selectedGateway' => $selectedGateway,
+            'paymentInstructions' => [
+                'qris_full_name' => $paymentSetting?->qris_full_name,
+                'qris_image' => $paymentSetting?->qris_image,
+                'bank_name' => $paymentSetting?->bank_name,
+                'bank_account_name' => $paymentSetting?->bank_account_name,
+                'bank_account_number' => $paymentSetting?->bank_account_number,
+            ],
+        ]);
+    }
+
     public function showDropInCheckout(Request $request, PilatesTimetable $pilatesTimetable): Response|RedirectResponse
     {
         $this->expirePendingBookings($pilatesTimetable->id);
