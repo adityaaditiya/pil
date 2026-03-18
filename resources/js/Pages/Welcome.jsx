@@ -226,7 +226,7 @@ export default function Welcome() {
                                             <Button as={Link} href={route("welcome.page", "classes")}>Find Your Class</Button>
                                             <Link 
                                             href={route("welcome.page", "schedule")} 
-                                            className="inline-block border border-white text-white px-6 py-2 rounded-full text-sm hover:bg-gray-500 text-center"
+                                            className="flex items-center justify-center inline-block border border-white text-white px-6 py-2 rounded-full text-sm hover:bg-gray-500"
                                             >
                                             Book An Appointment
                                             </Link>
