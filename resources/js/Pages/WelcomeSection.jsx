@@ -656,39 +656,71 @@ useEffect(() => {
 
                 {pageKey === "pricing" && (
                     <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-16 md:grid-cols-2 lg:grid-cols-3">
-                        {memberships.length === 0 && <p className="text-wellness-muted">Belum ada data membership.</p>}
+                        {memberships.length === 0 && (
+                            <p className="text-wellness-muted">Belum ada data membership.</p>
+                        )}
                         {memberships.map((membership) => (
-                            <article key={membership.id} className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
-                                <div className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
-                                    <IconSparkles size={14} /> Membership
+                            /* h-full memastikan semua kartu sama tinggi, flex-col untuk mengatur posisi vertikal */
+                            <article 
+                                key={membership.id} 
+                                className="flex flex-col h-full rounded-3xl border border-primary-100 bg-white p-6 shadow-sm"
+                            >
+                                {/* Bagian Atas: Header & Harga */}
+                                <div className="flex-none">
+                                    <div className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
+                                        <IconSparkles size={14} /> Membership
+                                    </div>
+                                    
+                                    {/* min-h-14 (56px) memastikan baris harga tetap sejajar walau judul cuma 1 baris */}
+                                    <div className="min-h-[40px] flex items-center mt-1">
+                                        <h3 className="text-xl font-semibold leading-tight">{membership.name}</h3>
+                                    </div>
+                                    
+                                    <p className="mt-0.2 text-3xl font-bold text-primary-600">
+                                        {formatRupiah(membership.price)}
+                                    </p>
+                                    
+                                    <div className="mt-4 space-y-2 text-sm text-wellness-muted">
+                                        <div className="flex items-center gap-2">
+                                            <IconStar size={16} /> <span>{membership.credits} credits class</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <IconClock size={16} /> <span>Berlaku {membership.valid_days || "-"} hari</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <IconCurrencyDollar size={16} /> <span>Benefit Terbaik Setiap Sesi</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <h3 className="mt-4 text-xl font-semibold">{membership.name}</h3>
-                                <p className="mt-2 text-3xl font-bold text-primary-600">{formatRupiah(membership.price)}</p>
-                                <div className="mt-4 space-y-2 text-sm text-wellness-muted">
-                                    <p className="inline-flex items-center gap-2"><IconStar size={16} /> {membership.credits} credits class</p>
-                                    <br/><p className="inline-flex items-center gap-2"><IconClock size={16} /> Berlaku {membership.valid_days || "-"} hari</p>
-                                    <br /><p className="inline-flex items-center gap-2"><IconCurrencyDollar size={16} /> Benefit Terbaik Setiap Sesi</p>
+
+                                {/* Bagian Tengah: Deskripsi & List Kelas (Dibuat Flex-1 agar mendorong tombol ke bawah) */}
+                                <div className="flex-1 flex flex-col mt-3">
+                                    <p className="text-sm text-wellness-muted whitespace-pre-line mb-2">
+                                        {membership.description || "Paket membership untuk latihan konsisten."}
+                                    </p>
+
+                                    {/* mt-auto di sini memastikan 'Daftar kelas' nempel ke area tombol di bawah */}
+                                    <div className="mt-auto pt-2 border-t border-slate-300">
+                                        <p className="text-sm font-medium text-wellness-text">Daftar kelas yang bisa dipesan:</p>
+                                        <div className="mt-2 min-h-[40px]"> {/* min-h agar area list punya ruang tetap */}
+                                            {membership.classes && membership.classes.length > 0 ? (
+                                                <ul className="list-disc list-inside text-sm text-wellness-muted space-y-1">
+                                                    {membership.classes.map((c) => (
+                                                        <li key={c.id} className="leading-tight">{c.name}</li>
+                                                    ))}
+                                                </ul>
+                                            ) : (
+                                                <p className="text-sm text-wellness-muted">-</p>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                                <p className="mt-4 text-sm text-wellness-muted whitespace-pre-line ">
-                                    {membership.description || "Paket membership untuk latihan konsisten."}
-                                </p>
-                                <div className="mt-3 text-sm text-wellness-muted border-t border-slate-200 pt-3">
-                                    <p className="font-medium text-wellness-text">Daftar kelas yang bisa dipesan:</p>
-                                     
-                                    {membership.classes.length > 0 ? (
-                                        <ul className="list-disc list-inside mt-2">
-                                            {membership.classes.map((c) => (
-                                                <li key={c.id}>{c.name}</li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p>-</p>
-                                    )}
-                                </div>
-                                <div className="mt-6">
+
+                                {/* Bagian Bawah: Tombol */}
+                                <div className="mt-4 flex-none">
                                     <Link
                                         href={auth?.user ? route("welcome.membership-detail", membership.id) : route("login", { redirect: route("welcome.membership-detail", membership.id, false) })}
-                                        className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
+                                        className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 shadow-md"
                                     >
                                         Buy Now
                                     </Link>

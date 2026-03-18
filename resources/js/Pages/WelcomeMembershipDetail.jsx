@@ -92,18 +92,30 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                                     </tbody>
                                 </table>
                             </div>
+                            &nbsp;
+                            <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm whitespace-pre-line">
+                                <h2 className="text-xl font-semibold">Ketentuan Pembatalan</h2>
+                                <div className="mt-4 rounded-2xl border border-slate-200 p-4">
+                                <p className="text-sm text-wellness-muted whitespace-pre-line text-justify">
+                                Demi kenyamanan bersama, kami sangat menghargai kerja sama Anda untuk tidak melakukan pembatalan mendadak.
+                                </p>
+                                <p className="mt-2 text-sm text-wellness-muted whitespace-pre-line text-justify">
+                                Catatan: Pengembalian kredit/saldo hanya berlaku untuk pembatalan yang dilakukan maksimal 24 jam. Pembatalan setelah melewati batas waktu tersebut akan dianggap hangus.
+                                </p>
+                            </div>
+                            </div>
                         </div>
 
                         <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm md:p-8">
-                            <h2 className="text-xl font-semibold text-slate-900">Metode Pembayaran Drop-In</h2>
-                            <p className="mt-2 text-sm text-slate-600">
+                            <h2 className="text-xl font-semibold text-slate-900">Pilih Metode Pembayaran</h2>
+                            {/* <p className="mt-2 text-sm text-slate-600">
                                 Pilih metode pembayaran seperti pada menu welcome schedule payment untuk melanjutkan pembelian membership ini.
-                            </p>
+                            </p> */}
 
-                            <div className="mt-6 space-y-3">
+                            <div className="mt-4 space-y-3">
                                 <div className="rounded-2xl bg-primary-50 px-4 py-3 text-sm text-primary-700">
-                                    <p className="inline-flex items-center gap-2"><IconStar size={16} /> {plan?.credits || 0} total credits</p>
-                                    <p className="mt-2 inline-flex items-center gap-2"><IconClock size={16} /> Masa aktif {plan?.valid_days ? `${plan.valid_days} hari` : "tanpa batas waktu"}</p>
+                                    <p className="inline-flex items-center gap-2"><IconStar size={16} /> {plan?.credits || 0} total credits </p> &nbsp;&nbsp;
+                                    <p className="mt-2 inline-flex items-center gap-1"><IconClock size={16} /> Masa aktif {plan?.valid_days ? `${plan.valid_days} hari` : "tanpa batas waktu"}</p>
                                     <p className="mt-2 inline-flex items-center gap-2"><IconCreditCard size={16} /> Total bayar {formatRupiah(plan?.price)}</p>
                                 </div>
 
@@ -115,7 +127,7 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                                             return (
                                                 <label
                                                     key={gateway.value}
-                                                    className={`flex cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3 transition ${checked ? "border-primary-500 bg-primary-50" : "border-slate-200 hover:border-primary-300"}`}
+                                                    className={`mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3 transition ${checked ? "border-primary-500 bg-primary-50" : "border-slate-200 hover:border-primary-300"}`}
                                                 >
                                                     <input
                                                         type="radio"
@@ -127,7 +139,7 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                                                     />
                                                     <div>
                                                         <p className="font-semibold text-slate-800">{gateway.label}</p>
-                                                        <p className="text-sm text-slate-500">Pembayaran manual sesuai instruksi pada halaman selanjutnya.</p>
+                                                        {/* <p className="text-sm text-slate-500">Selesaikan Pembayaran dan ikuti sesuai instruksi pada halaman selanjutnya.</p> */}
                                                     </div>
                                                 </label>
                                             );
@@ -137,7 +149,7 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                                             Metode pembayaran belum tersedia. Silakan hubungi admin.
                                         </div>
                                     )}
-
+                                        
                                     <button
                                         type="submit"
                                         disabled={!auth?.user || !paymentGateways.length || processing}

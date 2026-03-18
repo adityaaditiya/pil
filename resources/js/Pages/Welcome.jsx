@@ -354,56 +354,56 @@ export default function Welcome() {
                                 const isMostPopular = item.tag === "Most Popular";
 
                                 return (
-<Card
-    key={item.id}
-    className={`flex flex-col h-full ${
-        isMostPopular 
-        ? "border-2 border-primary-600 ring-2 ring-primary-500/20" 
-        : "border border-primary-100"
-    }`}
->
-    {/* Konten Atas */}
-    <div>
-        {item.tag && (
-            <span className="inline-block rounded-full bg-primary-500 px-3 py-1 text-xs font-semibold text-white">
-                {item.tag}
-            </span>
-        )}
-        
-        {/* TAMBAHKAN min-h DI SINI (Contoh: min-h-[56px] untuk 2 baris teks) */}
-        <div className="min-h-[60px] flex items-center">
-            <h3 className="mt-2 text-xl font-semibold leading-tight">{item.name}</h3>
-        </div>
+                                <Card
+                                    key={item.id}
+                                    className={`flex flex-col h-full ${
+                                        isMostPopular 
+                                        ? "border-2 border-primary-600 ring-2 ring-primary-500/20" 
+                                        : "border border-primary-100"
+                                    }`}
+                                >
+                                    {/* Konten Atas */}
+                                    <div>
+                                        {item.tag && (
+                                            <span className="inline-block rounded-full bg-primary-500 px-3 py-1 text-xs font-semibold text-white">
+                                                {item.tag}
+                                            </span>
+                                        )}
+                                        
+                                        {/* TAMBAHKAN min-h DI SINI (Contoh: min-h-[56px] untuk 2 baris teks) */}
+                                        <div className="min-h-[60px] flex items-center">
+                                            <h3 className="mt-2 text-xl font-semibold leading-tight">{item.name}</h3>
+                                        </div>
 
-        {/* Harga sekarang akan selalu sejajar karena judul di atasnya punya tinggi tetap */}
-        <p className="mt-1 text-3xl font-semibold text-primary-600">
-            {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(Number(item.price || 0))}
-        </p>
-    </div>
+                                        {/* Harga sekarang akan selalu sejajar karena judul di atasnya punya tinggi tetap */}
+                                        <p className="mt-1 text-3xl font-semibold text-primary-600">
+                                            {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(Number(item.price || 0))}
+                                        </p>
+                                    </div>
 
-    {/* Area Tengah (Deskripsi) */}
-    <div className="flex-1 mt-2">
-        <p className="text-sm text-wellness-muted whitespace-pre-line">
-            {item.description || "Benefit membership akan tampil di sini."}
-        </p>
-    </div>
+                                    {/* Area Tengah (Deskripsi) */}
+                                    <div className="flex-1 mt-2">
+                                        <p className="text-sm text-wellness-muted whitespace-pre-line">
+                                            {item.description || "Benefit membership akan tampil di sini."}
+                                        </p>
+                                    </div>
 
-    {/* Tombol */}
-    <div className="mt-3">
-        <Button
-            as={Link}
-            href={auth?.user ? route("welcome.membership-detail", item.id) : route("login", { redirect: route("welcome.membership-detail", item.id, false) })}
-            variant={isMostPopular ? "primary" : "secondary"}
-            className={`${
-                isMostPopular 
-                ? "w-full bg-primary-600 hover:bg-primary-700 text-white" 
-                : "w-full border-primary-600 text-primary-700 hover:bg-primary-50"
-            } py-2.5 text-sm font-semibold`} 
-        >
-            Buy Now
-        </Button>
-    </div>
-</Card>
+                                    {/* Tombol */}
+                                    <div className="mt-3">
+                                        <Button
+                                            as={Link}
+                                            href={auth?.user ? route("welcome.membership-detail", item.id) : route("login", { redirect: route("welcome.membership-detail", item.id, false) })}
+                                            variant={isMostPopular ? "primary" : "secondary"}
+                                            className={`${
+                                                isMostPopular 
+                                                ? "w-full bg-primary-600 hover:bg-primary-700 text-white" 
+                                                : "w-full border-primary-600 text-primary-700 hover:bg-primary-50"
+                                            } py-2.5 text-sm font-semibold`} 
+                                        >
+                                            Buy Now
+                                        </Button>
+                                    </div>
+                                </Card>
                                 );
                             })}
                         </div>
