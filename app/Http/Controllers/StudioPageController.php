@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -223,21 +224,35 @@ class StudioPageController extends Controller
     public function showMembershipCheckout(Request $request, MembershipPlan $membershipPlan): Response|RedirectResponse
     {
         abort_if(! $membershipPlan->is_active, 404);
+        $this->expirePendingMemberships($request->user()->id);
 
         $paymentSetting = PaymentSetting::first();
         $paymentGateways = collect($paymentSetting?->enabledGateways() ?? [])->filter(function ($gateway) {
             return strtolower($gateway['value'] ?? '') !== 'cash';
         })->values();
 
-        $selectedMethod = (string) $request->string('payment_method');
-        $selectedGateway = $paymentGateways->firstWhere('value', $selectedMethod);
+        $membershipId = (int) $request->integer('membership_id');
+        $membership = UserMembership::query()
+            ->where('id', $membershipId)
+            ->where('user_id', Auth::id())
+            ->where('membership_plan_id', $membershipPlan->id)
+            ->whereIn('status', ['pending', 'pending_payment'])
+            ->first();
+        $selectedGateway = $paymentGateways->firstWhere('value', $membership?->payment_method);
 
-        if (! $selectedGateway) {
+        if (! $membership || ! $selectedGateway) {
             return to_route('welcome.membership-detail', $membershipPlan->id);
         }
 
         return Inertia::render('WelcomeMembershipCheckout', [
             'plan' => $membershipPlan->load(['classes:id,name']),
+            'membership' => [
+                'id' => $membership->id,
+                'invoice' => $membership->invoice,
+                'payment_proof_image' => $membership->payment_proof_image,
+                'expired_at' => $membership->expired_at?->toISOString(),
+                'status' => $membership->status,
+            ],
             'selectedGateway' => $selectedGateway,
             'paymentInstructions' => [
                 'qris_full_name' => $paymentSetting?->qris_full_name,
@@ -247,6 +262,114 @@ class StudioPageController extends Controller
                 'bank_account_number' => $paymentSetting?->bank_account_number,
             ],
         ]);
+    }
+
+    public function processMembershipCheckout(Request $request, MembershipPlan $membershipPlan): RedirectResponse
+    {
+        abort_if(! $membershipPlan->is_active, 404);
+        $this->expirePendingMemberships($request->user()->id);
+
+        $data = $request->validate([
+            'payment_method' => ['required', 'string', 'max:50'],
+        ]);
+
+        $paymentSetting = PaymentSetting::first();
+        $availableGatewayValues = collect($paymentSetting?->enabledGateways() ?? [])
+            ->reject(fn ($gateway) => strtolower((string) ($gateway['value'] ?? '')) === 'cash')
+            ->pluck('value')
+            ->map(fn ($value) => strtolower((string) $value));
+
+        if (! $availableGatewayValues->contains(strtolower((string) $data['payment_method']))) {
+            throw ValidationException::withMessages([
+                'payment_method' => 'Metode pembayaran membership tidak tersedia.',
+            ]);
+        }
+
+        $membership = UserMembership::query()
+            ->where('user_id', $request->user()->id)
+            ->where('membership_plan_id', $membershipPlan->id)
+            ->whereIn('status', ['pending', 'pending_payment'])
+            ->where(function ($query) {
+                $query->whereNull('expired_at')->orWhere('expired_at', '>', now());
+            })
+            ->latest('id')
+            ->first();
+
+        if (! $membership) {
+            $startsAt = now();
+
+            $membership = UserMembership::create([
+                'user_id' => $request->user()->id,
+                'membership_plan_id' => $membershipPlan->id,
+                'credits_total' => $membershipPlan->credits,
+                'credits_remaining' => $membershipPlan->credits,
+                'starts_at' => $startsAt,
+                'expires_at' => $membershipPlan->valid_days ? $startsAt->copy()->addDays($membershipPlan->valid_days) : null,
+                'payment_method' => $data['payment_method'],
+                'status' => 'pending',
+                'expired_at' => Carbon::now()->addMinutes(15),
+            ]);
+        } else {
+            $membership->update([
+                'payment_method' => $data['payment_method'],
+                'expired_at' => Carbon::now()->addMinutes(15),
+                'status' => 'pending',
+            ]);
+        }
+
+        return to_route('welcome.membership-checkout', [
+            'membershipPlan' => $membershipPlan->id,
+            'membership_id' => $membership->id,
+            't' => Str::lower(Str::random(6)),
+        ]);
+    }
+
+    public function uploadMembershipPaymentProof(Request $request, UserMembership $userMembership): RedirectResponse
+    {
+        $this->expirePendingMemberships(Auth::id());
+        $userMembership->refresh();
+
+        if ((int) $userMembership->user_id !== (int) Auth::id() || ! in_array($userMembership->status, ['pending', 'pending_payment'], true)) {
+            return to_route('user.my-memberships')->withErrors(['payment_proof' => 'Transaksi membership tidak ditemukan atau sudah tidak aktif.']);
+        }
+
+        $data = $request->validate([
+            'payment_proof' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ]);
+
+        $storedPath = $data['payment_proof']->store('membership-payment-proofs', 'public');
+
+        if ($userMembership->payment_proof_image) {
+            Storage::disk('public')->delete($userMembership->payment_proof_image);
+        }
+
+        $userMembership->update([
+            'payment_proof_image' => $storedPath,
+            'status' => 'pending_payment',
+        ]);
+
+        return back()->with('success', 'Foto bukti pembayaran membership berhasil diupload. Menunggu konfirmasi admin.');
+    }
+
+    public function cancelMembershipTransaction(UserMembership $userMembership): RedirectResponse
+    {
+        $this->expirePendingMemberships(Auth::id());
+        $userMembership->refresh();
+
+        if ((int) $userMembership->user_id !== (int) Auth::id() || ! in_array($userMembership->status, ['pending', 'pending_payment'], true)) {
+            return to_route('user.my-memberships')->withErrors(['payment_proof' => 'Transaksi membership tidak ditemukan atau sudah tidak aktif.']);
+        }
+
+        if ($userMembership->payment_proof_image) {
+            Storage::disk('public')->delete($userMembership->payment_proof_image);
+        }
+
+        $userMembership->update([
+            'status' => 'cancelled',
+            'payment_proof_image' => null,
+        ]);
+
+        return to_route('welcome.membership-detail', $userMembership->membership_plan_id)->with('success', 'Transaksi membership berhasil dibatalkan.');
     }
 
     public function showDropInCheckout(Request $request, PilatesTimetable $pilatesTimetable): Response|RedirectResponse
@@ -529,6 +652,27 @@ class StudioPageController extends Controller
                             });
                     });
             });
+    }
+
+    private function expirePendingMemberships(?int $userId = null): void
+    {
+        $query = UserMembership::query()
+            ->whereIn('status', ['pending', 'pending_payment'])
+            ->where(function ($builder) {
+                $builder
+                    ->where('expired_at', '<=', now())
+                    ->orWhere(function ($fallback) {
+                        $fallback->whereNull('expired_at')->where('created_at', '<=', now()->subMinutes(15));
+                    });
+            });
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+
+        $query->update([
+            'status' => 'expired',
+        ]);
     }
 
 }

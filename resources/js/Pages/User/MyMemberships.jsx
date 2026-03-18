@@ -1,6 +1,12 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import Navbar from "@/Components/Landing/Navbar";
-import { IconCalendarEvent, IconClockHour4, IconSparkles } from "@tabler/icons-react";
+import {
+    IconCalendarEvent,
+    IconClockHour4,
+    IconCreditCard,
+    IconReceipt2,
+    IconSparkles,
+} from "@tabler/icons-react";
 
 const formatDate = (date) =>
     date
@@ -9,6 +15,8 @@ const formatDate = (date) =>
               day: "2-digit",
               month: "long",
               year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
           }).format(new Date(date))
         : "-";
 
@@ -17,11 +25,25 @@ const statusClass = (status) => {
 
     if (value === "active") return "bg-emerald-50 text-emerald-700";
     if (value === "expired") return "bg-slate-100 text-slate-700";
+    if (value === "pending_payment") return "bg-blue-50 text-blue-700";
+    if (value === "pending") return "bg-amber-50 text-amber-700";
+    if (value === "cancelled") return "bg-rose-50 text-rose-700";
 
     return "bg-amber-50 text-amber-700";
 };
 
 export default function MyMemberships({ memberships = [] }) {
+    const { setData, post, processing } = useForm({
+        payment_proof: null,
+    });
+
+    const uploadPaymentProof = (membershipId) => {
+        post(route("welcome.membership-checkout.upload-proof", membershipId), {
+            preserveScroll: true,
+            forceFormData: true,
+        });
+    };
+
     return (
         <>
             <Head title="My Memberships" />
@@ -32,7 +54,6 @@ export default function MyMemberships({ memberships = [] }) {
                 <section className="mx-auto max-w-6xl px-4 py-10">
                     <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
                         <div>
-                            {/* <p className="text-sm font-medium text-primary-600">User</p> */}
                             <h1 className="text-3xl font-bold md:text-4xl">My Memberships</h1>
                             <p className="mt-2 text-sm text-wellness-muted">Riwayat langganan membership Anda.</p>
                         </div>
@@ -55,6 +76,9 @@ export default function MyMemberships({ memberships = [] }) {
                                         <span className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
                                             <IconSparkles size={14} /> Membership #{item.id}
                                         </span>
+                                        <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                                            <IconReceipt2 size={14} /> {item.invoice || "-"}
+                                        </span>
                                         <span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusClass(item.status)}`}>
                                             {item.status || "pending"}
                                         </span>
@@ -67,6 +91,10 @@ export default function MyMemberships({ memberships = [] }) {
                                             Credits: <span className="font-semibold">{item.credits_remaining}</span> / {item.credits_total}
                                         </p>
                                         <p className="inline-flex items-center gap-2">
+                                            <IconCreditCard size={16} />
+                                            Metode: {item.payment_method || "-"}
+                                        </p>
+                                        <p className="inline-flex items-center gap-2">
                                             <IconCalendarEvent size={16} />
                                             Start From: {formatDate(item.starts_at)}
                                         </p>
@@ -75,6 +103,37 @@ export default function MyMemberships({ memberships = [] }) {
                                             Expire: {item.expires_at ? formatDate(item.expires_at) : "Tidak ada"}
                                         </p>
                                     </div>
+
+                                    {item.payment_due_at && ["pending", "pending_payment"].includes(item.status) && (
+                                        <p className="mt-4 text-sm text-slate-500">
+                                            Batas upload bukti pembayaran: <span className="font-semibold">{formatDate(item.payment_due_at)}</span>
+                                        </p>
+                                    )}
+
+                                    {!item.payment_proof_image && ["pending", "pending_payment"].includes(item.status) && (
+                                        <div className="mt-4 rounded-2xl border border-slate-200 p-4">
+                                            <p className="text-sm font-medium text-slate-700">Upload bukti pembayaran membership.</p>
+                                            <input
+                                                type="file"
+                                                accept="image/png,image/jpeg,image/jpg,image/webp"
+                                                onChange={(event) =>
+                                                    setData(
+                                                        "payment_proof",
+                                                        event.target.files?.[0] ?? null,
+                                                    )
+                                                }
+                                                className="mt-3 block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => uploadPaymentProof(item.id)}
+                                                disabled={processing}
+                                                className="mt-3 rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+                                            >
+                                                Upload Bukti Pembayaran
+                                            </button>
+                                        </div>
+                                    )}
                                 </article>
                             ))}
                         </div>
