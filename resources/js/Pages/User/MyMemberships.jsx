@@ -172,7 +172,7 @@ export default function MyMemberships({ memberships = [], filters = {} }) {
 
                                     {item.payment_due_at && ["pending", "pending_payment"].includes(item.status) && (
                                         <p className="mt-4 text-sm text-slate-500">
-                                            <span className="font-semibold">{formatDate(item.payment_due_at)}</span>
+                                            Batas upload bukti pembayaran:  <span className="font-semibold">{formatDate(item.payment_due_at)}</span>
                                         </p>
                                     )}
 

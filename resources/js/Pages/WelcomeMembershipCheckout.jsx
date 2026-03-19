@@ -73,12 +73,16 @@ export default function WelcomeMembershipCheckout({
                     <h1 className="text-2xl font-bold text-primary-700">
                         Selesaikan Transaksi Membership
                     </h1>
-                    <p className="mt-2 text-sm text-slate-600">
-                        Lanjutkan pembayaran membership <span className="font-semibold">{plan?.name}</span> menggunakan metode <span className="font-semibold">{selectedGateway?.label}</span>.
-                    </p>
                     <p className="text-sm text-slate-600">
                         Invoice: <span className="font-semibold">{membership?.invoice}</span>
                     </p>
+                    <p className="mt-2 text-sm text-slate-600">
+                        Lanjutkan pembayaran membership <span className="font-semibold">{plan?.name}</span> menggunakan metode <span className="font-semibold">{selectedGateway?.label}</span>.
+                    </p>
+                    {/* <p className="border-t border-slate-200 mt-2 text-sm text-red-600 justify-center flex">
+                        *pembayaran membership menggunakan metode DEBIT & CREDIT CARD hanya bisa dilakukan di kasir.
+                    </p> */}
+                    
                     {!membership?.payment_proof_image && (
                         <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">
                             Selesaikan transaksi dalam {minutes}:{seconds}. Otomatis batal jika transaksi tidak diselesaikan.
