@@ -180,7 +180,7 @@ export default function MyMemberships({ memberships = [], filters = {} }) {
                                         )}
 
                                     <div className="mt-4 flex flex-wrap gap-3">
-                                        {["pending", "pending_payment"].includes(item.status) && item.membership_plan_id && (
+                                        {["pending", "pending_payment"].includes(item.status) && item.membership_plan_id && !item.payment_proof_image_url && (
                                             <Link
                                                 href={route("welcome.membership-checkout", {
                                                     membershipPlan: item.membership_plan_id,

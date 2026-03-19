@@ -306,14 +306,14 @@ class StudioPageController extends Controller
                 'starts_at' => $startsAt,
                 'expires_at' => $membershipPlan->valid_days ? $startsAt->copy()->addDays($membershipPlan->valid_days) : null,
                 'payment_method' => $data['payment_method'],
-                'status' => 'pending',
+                'status' => 'pending_payment',
                 'expired_at' => Carbon::now()->addMinutes(15),
             ]);
         } else {
             $membership->update([
                 'payment_method' => $data['payment_method'],
                 'expired_at' => Carbon::now()->addMinutes(15),
-                'status' => 'pending',
+                'status' => 'pending_payment',
             ]);
         }
 
@@ -345,7 +345,7 @@ class StudioPageController extends Controller
 
         $userMembership->update([
             'payment_proof_image' => $storedPath,
-            'status' => 'pending_payment',
+            'status' => 'pending',
         ]);
 
         return back()->with('success', 'Foto bukti pembayaran membership berhasil diupload. Menunggu konfirmasi admin.');
