@@ -40,6 +40,7 @@ class UserScheduleController extends Controller
                     'participants' => $booking->participants,
                     'payment_type' => $booking->payment_type,
                     'payment_proof_image' => $booking->payment_proof_image,
+                    'payment_due_at' => optional($booking->expired_at)->toISOString(),
                     'booked_at' => optional($booking->booked_at)->toISOString(),
                     'schedule' => [
                         'id' => $booking->timetable?->id,

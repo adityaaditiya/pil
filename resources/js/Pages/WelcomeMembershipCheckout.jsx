@@ -16,6 +16,7 @@ export default function WelcomeMembershipCheckout({
     selectedGateway,
     paymentInstructions = {},
 }) {
+    const showCashierOnlyNotice = ["debit", "credit_card"].includes(selectedGateway?.value);
     const { flash } = usePage().props;
     const [secondsLeft, setSecondsLeft] = useState(() => {
         if (!membership?.expired_at) return 0;
@@ -79,10 +80,12 @@ export default function WelcomeMembershipCheckout({
                     <p className="mt-2 text-sm text-slate-600">
                         Lanjutkan pembayaran membership <span className="font-semibold">{plan?.name}</span> menggunakan metode <span className="font-semibold">{selectedGateway?.label}</span>.
                     </p>
-                    {/* <p className="border-t border-slate-200 mt-2 text-sm text-red-600 justify-center flex">
-                        *pembayaran membership menggunakan metode DEBIT & CREDIT CARD hanya bisa dilakukan di kasir.
-                    </p> */}
-                    
+                    {showCashierOnlyNotice && (
+                        <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">
+                            Pembayaran membership menggunakan metode DEBIT & CREDIT CARD hanya bisa dilakukan saat berada di kasir.
+                        </p>
+                    )}
+
                     {!membership?.payment_proof_image && (
                         <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">
                             Selesaikan transaksi dalam {minutes}:{seconds}. Otomatis batal jika transaksi tidak diselesaikan.
