@@ -207,6 +207,18 @@ export default function MySchedule({ bookings = [], filters = {} }) {
                                                     <p>Booked at: {formatDate(booking.booked_at)}</p>
                                                 </div>
 
+                                                {isPendingPayment &&
+                                                    booking.payment_type === "drop_in" &&
+                                                    !booking.payment_proof_image &&
+                                                    booking.payment_due_at && (
+                                                        <p className="mt-4 text-sm text-slate-500">
+                                                            Batas upload bukti pembayaran:{" "}
+                                                            <span className="font-semibold">
+                                                                {formatDate(booking.payment_due_at)}
+                                                            </span>
+                                                        </p>
+                                                    )}
+
                                                 <div className="mt-5 flex flex-wrap gap-2">
                                                     {schedule.id && (
                                                         <Link

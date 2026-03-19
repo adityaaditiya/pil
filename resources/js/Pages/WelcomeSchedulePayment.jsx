@@ -127,6 +127,10 @@ export default function WelcomeSchedulePayment({
         );
     }, [data.payment_method, data.payment_type, paymentGateways]);
 
+    const showCashierOnlyNotice =
+        data.payment_type === "drop_in" &&
+        ["debit", "credit_card"].includes(data.payment_method);
+
     const submitBooking = (event) => {
         event.preventDefault();
 
@@ -414,6 +418,12 @@ export default function WelcomeSchedulePayment({
                                         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
                                             Sesi ini hanya bisa dibayarkan
                                             menggunakan credits membership.
+                                        </div>
+                                    )}
+
+                                    {showCashierOnlyNotice && (
+                                        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-medium text-amber-800">
+                                            Pembayaran membership menggunakan metode DEBIT & CREDIT CARD hanya bisa dilakukan saat berada di kasir.
                                         </div>
                                     )}
 

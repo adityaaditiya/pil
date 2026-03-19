@@ -170,11 +170,14 @@ export default function MyMemberships({ memberships = [], filters = {} }) {
                                         </p>
                                     </div>
 
-                                    {item.payment_due_at && ["pending", "pending_payment"].includes(item.status) && (
-                                        <p className="mt-4 text-sm text-slate-500">
-                                            Batas upload bukti pembayaran:  <span className="font-semibold">{formatDate(item.payment_due_at)}</span>
-                                        </p>
-                                    )}
+                                    {item.payment_due_at &&
+                                        !item.payment_proof_image_url &&
+                                        ["pending", "pending_payment"].includes(item.status) && (
+                                            <p className="mt-4 text-sm text-slate-500">
+                                                Batas upload bukti pembayaran:{" "}
+                                                <span className="font-semibold">{formatDate(item.payment_due_at)}</span>
+                                            </p>
+                                        )}
 
                                     <div className="mt-4 flex flex-wrap gap-3">
                                         {["pending", "pending_payment"].includes(item.status) && item.membership_plan_id && (
