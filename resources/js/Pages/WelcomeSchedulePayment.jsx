@@ -385,8 +385,7 @@ export default function WelcomeSchedulePayment({
                                         allowDropIn && (
                                             <div className="rounded-2xl border border-slate-200 p-4 text-sm text-wellness-muted">
                                                 <p className="font-semibold text-slate-800">
-                                                    Pilih Metode Payment
-                                                    Gateway:
+                                                    Pilih Metode Pembayaran:
                                                 </p>
                                                 <select
                                                     value={data.payment_method}
@@ -423,7 +422,7 @@ export default function WelcomeSchedulePayment({
 
                                     {showCashierOnlyNotice && (
                                         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-medium text-amber-800">
-                                            Pembayaran membership menggunakan metode DEBIT & CREDIT CARD hanya bisa dilakukan saat berada di kasir.
+                                            Pembayaran booking menggunakan metode DEBIT & CREDIT CARD hanya bisa dilakukan saat berada di kasir.
                                         </div>
                                     )}
 

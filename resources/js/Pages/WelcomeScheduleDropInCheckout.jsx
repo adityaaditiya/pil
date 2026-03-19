@@ -235,6 +235,13 @@ export default function WelcomeScheduleDropInCheckout({
                                 >
                                     Batalkan Transaksi
                                 </button>
+                                <button
+                                        type="button"
+                                        onClick={() => router.visit(route("user.my-schedule"))}
+                                        className="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700"
+                                > 
+                                Kembali
+                                </button>
                             </div>
                         </form>
                     )}

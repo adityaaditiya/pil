@@ -28,6 +28,8 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
         (gateway) => gateway.value === data.payment_method,
     );
 
+    const showCashierOnlyNotice = ["debit", "credit_card"].includes(data.payment_method);
+
     const handleCheckout = (event) => {
         event.preventDefault();
         setShowConfirmation(true);
@@ -153,7 +155,11 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                                             Metode pembayaran belum tersedia. Silakan hubungi admin.
                                         </div>
                                     )}
-
+                                    {showCashierOnlyNotice && (
+                                        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-medium text-amber-800">
+                                            Pembayaran membership menggunakan metode DEBIT & CREDIT CARD hanya bisa dilakukan saat berada di kasir.
+                                        </div>
+                                    )}
                                     <button
                                         type="submit"
                                         disabled={!auth?.user || !paymentGateways.length || processing}

@@ -16,7 +16,7 @@ export default function WelcomeMembershipCheckout({
     selectedGateway,
     paymentInstructions = {},
 }) {
-    const showCashierOnlyNotice = ["debit", "credit_card"].includes(selectedGateway?.value);
+    
     const { flash } = usePage().props;
     const [secondsLeft, setSecondsLeft] = useState(() => {
         if (!membership?.expired_at) return 0;
@@ -80,11 +80,7 @@ export default function WelcomeMembershipCheckout({
                     <p className="mt-2 text-sm text-slate-600">
                         Lanjutkan pembayaran membership <span className="font-semibold">{plan?.name}</span> menggunakan metode <span className="font-semibold">{selectedGateway?.label}</span>.
                     </p>
-                    {showCashierOnlyNotice && (
-                        <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">
-                            Pembayaran membership menggunakan metode DEBIT & CREDIT CARD hanya bisa dilakukan saat berada di kasir.
-                        </p>
-                    )}
+                    
 
                     {!membership?.payment_proof_image && (
                         <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">
@@ -216,6 +212,13 @@ export default function WelcomeMembershipCheckout({
                                     className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-700"
                                 >
                                     Batalkan Transaksi
+                                </button>
+                                <button
+                                        type="button"
+                                        onClick={() => router.visit(route("user.my-memberships"))}
+                                        className="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700"
+                                > 
+                                Kembali
                                 </button>
                             </div>
                         </form>
