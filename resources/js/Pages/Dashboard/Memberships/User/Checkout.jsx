@@ -60,9 +60,18 @@ export default function Checkout({ plan, customers = [], paymentGateways = [] })
                     <p className="text-sm text-slate-500">
                         {plan.credits} credits • {formatRupiah(plan.price)}
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
-                        Class: {plan.classes?.map((item) => item.name).join(", ") || "-"}
-                    </p>
+                    <p className="text-sm text-slate-500">Masa Aktif: {plan.valid_days} hari</p>
+                    <div className="mt-2 text-sm text-wellness-muted">
+                        <span className="font-medium block mb-1">Kelas Terkait:</span>
+                        <div className="flex flex-col gap-1">
+                            {plan.classes.map((c) => (
+                                <div key={c.id} className="flex items-center gap-2">
+                                    <span className="h-1 w-1 rounded-full bg-slate-400"></span> {/* Bullet point kecil */}
+                                    {c.name}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 <form onSubmit={submit} className="grid gap-5 lg:grid-cols-2">
