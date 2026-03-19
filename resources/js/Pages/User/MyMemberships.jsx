@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm } from "@inertiajs/react";
 import Navbar from "@/Components/Landing/Navbar";
 import {
     IconCalendarEvent,
@@ -41,6 +41,14 @@ export default function MyMemberships({ memberships = [] }) {
         post(route("welcome.membership-checkout.upload-proof", membershipId), {
             preserveScroll: true,
             forceFormData: true,
+        });
+    };
+
+    const cancelTransaction = (membershipId) => {
+        if (!window.confirm("Batalkan transaksi membership ini?")) return;
+
+        router.delete(route("welcome.membership-checkout.cancel-transaction", membershipId), {
+            preserveScroll: true,
         });
     };
 
@@ -124,14 +132,24 @@ export default function MyMemberships({ memberships = [] }) {
                                                 }
                                                 className="mt-3 block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => uploadPaymentProof(item.id)}
-                                                disabled={processing}
-                                                className="mt-3 rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
-                                            >
-                                                Upload Bukti Pembayaran
-                                            </button>
+                                            <div className="mt-3 flex flex-wrap gap-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => uploadPaymentProof(item.id)}
+                                                    disabled={processing}
+                                                    className="rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+                                                >
+                                                    Upload Bukti Pembayaran
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => cancelTransaction(item.id)}
+                                                    disabled={processing}
+                                                    className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                                >
+                                                    Batalkan Transaksi
+                                                </button>
+                                            </div>
                                         </div>
                                     )}
                                 </article>

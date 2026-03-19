@@ -10,6 +10,7 @@ use App\Http\Controllers\Apps\PaymentSettingController;
 use App\Http\Controllers\Apps\ProductController;
 use App\Http\Controllers\Apps\TransactionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MembershipHistoryController;
 use App\Http\Controllers\MembershipPlanController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PilatesBookingHistoryController;
@@ -171,6 +172,21 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('memberships/customers/search', [UserMembershipController::class, 'searchCustomers'])->name('memberships.customers.search');
     Route::post('memberships/plans/{membershipPlan}/activate', [UserMembershipController::class, 'activate'])->name('memberships.activate');
     Route::get('memberships/my', [UserMembershipController::class, 'myMemberships'])->name('memberships.my');
+    Route::get('memberships/history', [MembershipHistoryController::class, 'index'])
+        ->middleware('permission:dashboard-access')
+        ->name('memberships.history');
+    Route::get('memberships/{invoice}/print', [MembershipHistoryController::class, 'print'])
+        ->middleware('permission:dashboard-access')
+        ->name('memberships.print');
+    Route::delete('memberships/{userMembership}/cancel', [MembershipHistoryController::class, 'cancel'])
+        ->middleware('permission:dashboard-access')
+        ->name('memberships.cancel');
+    Route::post('memberships/{userMembership}/confirm-payment', [MembershipHistoryController::class, 'confirmPayment'])
+        ->middleware('permission:dashboard-access')
+        ->name('memberships.confirm-payment');
+    Route::post('memberships/{userMembership}/reject-payment', [MembershipHistoryController::class, 'rejectPayment'])
+        ->middleware('permission:dashboard-access')
+        ->name('memberships.reject-payment');
     Route::post('bookings', [BookingController::class, 'store'])->name('bookings.store');
     //route transaction
     Route::get('/transactions', [TransactionController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.index');

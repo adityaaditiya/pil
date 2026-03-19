@@ -270,6 +270,13 @@ function Menu() {
                     icon: <IconFileDescription size={20} strokeWidth={1.5} />,
                     permissions: true,
                 },
+                {
+                    title: "Riwayat Membership",
+                    href: route("memberships.history"),
+                    active: url === "/dashboard/memberships/history",
+                    icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
+                    permissions: true,
+                },
             ],
         },
         {
