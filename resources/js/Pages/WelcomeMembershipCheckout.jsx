@@ -166,7 +166,15 @@ export default function WelcomeMembershipCheckout({
                     )}
 
                     {membership?.payment_proof_image ? (
-                        <div className="mt-6">
+                        <div className="mt-6 flex flex-wrap gap-3">
+                            <a
+                                href={imageUrl("membership-payment-proofs", membership.payment_proof_image)}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex rounded-full border border-emerald-300 px-5 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                            >
+                                Lihat Foto Bukti Pembayaran
+                            </a>
                             <Link
                                 href={route("user.my-memberships")}
                                 className="inline-flex rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"

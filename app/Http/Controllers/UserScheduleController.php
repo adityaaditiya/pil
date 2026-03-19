@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PilatesBooking;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -14,12 +15,20 @@ class UserScheduleController extends Controller
      */
     public function index(Request $request): Response
     {
+        $startDate = trim((string) $request->string('start_date'));
+        $endDate = trim((string) $request->string('end_date'));
+        $status = trim((string) $request->string('status'));
+
         $bookings = PilatesBooking::query()
             ->with([
                 'timetable.pilatesClass:id,name,image,difficulty_level,duration,equipment',
                 'timetable.trainer:id,name',
             ])
             ->where('user_id', $request->user()->id)
+            ->when($startDate !== '', fn ($query) => $query->whereHas('timetable', fn ($timetableQuery) => $timetableQuery->where('start_at', '>=', Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay()->timezone('UTC'))))
+            ->when($endDate !== '', fn ($query) => $query->whereHas('timetable', fn ($timetableQuery) => $timetableQuery->where('start_at', '<=', Carbon::parse($endDate, 'Asia/Jakarta')->endOfDay()->timezone('UTC'))))
+            ->when($status !== '', fn ($query) => $query->where('status', $status))
+            ->orderByRaw("CASE status WHEN 'pending' THEN 0 WHEN 'pending_payment' THEN 1 WHEN 'confirmed' THEN 2 WHEN 'active' THEN 2 ELSE 3 END")
             ->latest('booked_at')
             ->latest('id')
             ->get()
@@ -51,6 +60,11 @@ class UserScheduleController extends Controller
 
         return Inertia::render('User/MySchedule', [
             'bookings' => $bookings,
+            'filters' => [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'status' => $status,
+            ],
         ]);
     }
 }

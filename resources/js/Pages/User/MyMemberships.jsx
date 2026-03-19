@@ -1,4 +1,4 @@
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import Navbar from "@/Components/Landing/Navbar";
 import {
     IconCalendarEvent,
@@ -32,15 +32,26 @@ const statusClass = (status) => {
     return "bg-amber-50 text-amber-700";
 };
 
-export default function MyMemberships({ memberships = [] }) {
-    const { setData, post, processing } = useForm({
-        payment_proof: null,
+const applyFilters = (filters) => {
+    router.get(route("user.my-memberships"), filters, {
+        preserveState: true,
+        replace: true,
     });
+};
 
-    const uploadPaymentProof = (membershipId) => {
-        post(route("welcome.membership-checkout.upload-proof", membershipId), {
-            preserveScroll: true,
-            forceFormData: true,
+export default function MyMemberships({ memberships = [], filters = {} }) {
+    const handleFilterChange = (key, value) => {
+        applyFilters({
+            ...filters,
+            [key]: value,
+        });
+    };
+
+    const resetFilters = () => {
+        applyFilters({
+            start_date: "",
+            end_date: "",
+            status: "",
         });
     };
 
@@ -69,6 +80,53 @@ export default function MyMemberships({ memberships = [] }) {
                         <Link href={route("welcome.page", "pricing")} className="inline-flex rounded-full bg-primary-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary-700">
                             Lihat Paket Membership
                         </Link>
+                    </div>
+
+                    <div className="mb-6 rounded-3xl border border-primary-100 bg-white p-4 shadow-sm">
+                        <div className="grid gap-4 md:grid-cols-4">
+                            <label className="text-sm text-slate-600">
+                                <span className="mb-1 block font-medium text-slate-700">Tanggal Mulai</span>
+                                <input
+                                    type="date"
+                                    value={filters.start_date || ""}
+                                    onChange={(event) => handleFilterChange("start_date", event.target.value)}
+                                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                                />
+                            </label>
+                            <label className="text-sm text-slate-600">
+                                <span className="mb-1 block font-medium text-slate-700">Tanggal Akhir</span>
+                                <input
+                                    type="date"
+                                    value={filters.end_date || ""}
+                                    onChange={(event) => handleFilterChange("end_date", event.target.value)}
+                                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                                />
+                            </label>
+                            <label className="text-sm text-slate-600">
+                                <span className="mb-1 block font-medium text-slate-700">Status</span>
+                                <select
+                                    value={filters.status || ""}
+                                    onChange={(event) => handleFilterChange("status", event.target.value)}
+                                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                                >
+                                    <option value="">Semua Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="pending_payment">Pending Payment</option>
+                                    <option value="active">Active</option>
+                                    <option value="expired">Expired</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </label>
+                            <div className="flex items-end">
+                                <button
+                                    type="button"
+                                    onClick={resetFilters}
+                                    className="w-full rounded-xl border border-slate-300 px-4 py-2 font-semibold text-slate-700 transition hover:bg-slate-50"
+                                >
+                                    Reset Filter
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     {memberships.length === 0 ? (
@@ -114,44 +172,42 @@ export default function MyMemberships({ memberships = [] }) {
 
                                     {item.payment_due_at && ["pending", "pending_payment"].includes(item.status) && (
                                         <p className="mt-4 text-sm text-slate-500">
-                                            Batas upload bukti pembayaran: <span className="font-semibold">{formatDate(item.payment_due_at)}</span>
+                                            <span className="font-semibold">{formatDate(item.payment_due_at)}</span>
                                         </p>
                                     )}
 
-                                    {!item.payment_proof_image && ["pending", "pending_payment"].includes(item.status) && (
-                                        <div className="mt-4 rounded-2xl border border-slate-200 p-4">
-                                            <p className="text-sm font-medium text-slate-700">Upload bukti pembayaran membership.</p>
-                                            <input
-                                                type="file"
-                                                accept="image/png,image/jpeg,image/jpg,image/webp"
-                                                onChange={(event) =>
-                                                    setData(
-                                                        "payment_proof",
-                                                        event.target.files?.[0] ?? null,
-                                                    )
-                                                }
-                                                className="mt-3 block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
-                                            />
-                                            <div className="mt-3 flex flex-wrap gap-3">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => uploadPaymentProof(item.id)}
-                                                    disabled={processing}
-                                                    className="rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
-                                                >
-                                                    Upload Bukti Pembayaran
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => cancelTransaction(item.id)}
-                                                    disabled={processing}
-                                                    className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-                                                >
-                                                    Batalkan Transaksi
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
+                                    <div className="mt-4 flex flex-wrap gap-3">
+                                        {["pending", "pending_payment"].includes(item.status) && item.membership_plan_id && (
+                                            <Link
+                                                href={route("welcome.membership-checkout", {
+                                                    membershipPlan: item.membership_plan_id,
+                                                    membership_id: item.id,
+                                                })}
+                                                className="rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700"
+                                            >
+                                                Upload Bukti Pembayaran
+                                            </Link>
+                                        )}
+                                        {item.payment_proof_image_url && (
+                                            <a
+                                                href={item.payment_proof_image_url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="rounded-full border border-emerald-300 px-5 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                                            >
+                                                Lihat Foto Bukti Pembayaran
+                                            </a>
+                                        )}
+                                        {["pending", "pending_payment"].includes(item.status) && (
+                                            <button
+                                                type="button"
+                                                onClick={() => cancelTransaction(item.id)}
+                                                className="rounded-full border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                            >
+                                                Batalkan Transaksi
+                                            </button>
+                                        )}
+                                    </div>
                                 </article>
                             ))}
                         </div>
