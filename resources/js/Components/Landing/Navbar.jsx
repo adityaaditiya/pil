@@ -10,17 +10,9 @@ const defaultNavItems = [
     { name: "Schedule", key: "schedule" },
     { name: "Pricing", key: "pricing" },
     { name: "Trainer", key: "trainer" },
-    { name: "Appointment", key: "appointment" },
+    { name: "Testimonials", key: "testimonials" },
     { name: "Contact", key: "contact" },
 ];
-
-const normalizeNavItem = (item) => {
-    if (["testimonial", "testimonials"].includes(item.key)) {
-        return { ...item, name: "Appointment", key: "appointment" };
-    }
-
-    return item;
-};
 
 const resolveHref = (key) => (key === "home" ? route("welcome") : route("welcome.page", key));
 
@@ -28,9 +20,6 @@ export default function Navbar({ navItems = defaultNavItems, currentKey = null }
     const { auth } = usePage().props;
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-
-    const normalizedCurrentKey = ["testimonial", "testimonials"].includes(currentKey) ? "appointment" : currentKey;
-    const normalizedNavItems = navItems.map(normalizeNavItem);
 
     const userMenuItems = [
         { name: "My profile", href: route("profile.edit") },
@@ -52,11 +41,11 @@ export default function Navbar({ navItems = defaultNavItems, currentKey = null }
                 </div>
 
                 <div className="hidden items-center gap-7 lg:flex">
-                    {normalizedNavItems.map((item) => (
+                    {navItems.map((item) => (
                         <Link
                             key={item.key}
                             href={resolveHref(item.key)}
-                            className={item.key === normalizedCurrentKey ? "text-sm font-medium text-primary-600" : "text-sm text-wellness-muted transition hover:text-primary-600"}
+                            className={item.key === currentKey ? "text-sm font-medium text-primary-600" : "text-sm text-wellness-muted transition hover:text-primary-600"}
                         >
                             {item.name}
                         </Link>
@@ -145,8 +134,8 @@ export default function Navbar({ navItems = defaultNavItems, currentKey = null }
                         )}
 
                         <div className="flex flex-col gap-3">
-                            {normalizedNavItems.map((item) => (
-                                <Link key={item.key} href={resolveHref(item.key)} className={item.key === normalizedCurrentKey ? "text-sm font-medium text-primary-600" : "text-sm text-wellness-muted transition hover:text-primary-600"}>
+                            {navItems.map((item) => (
+                                <Link key={item.key} href={resolveHref(item.key)} className={item.key === currentKey ? "text-sm font-medium text-primary-600" : "text-sm text-wellness-muted transition hover:text-primary-600"}>
                                     {item.name}
                                 </Link>
                             ))}
