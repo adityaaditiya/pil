@@ -5,13 +5,16 @@ import {
     IconArrowLeft,
     IconArrowRight,
     IconCalendarMonth,
+    IconCheck,
     IconClock,
+    IconCreditCard,
     IconCurrencyDollar,
     IconFilter,
     IconMapPin,
     IconSparkles,
     IconStar,
     IconUser,
+    IconUsers,
     IconYoga,
 } from "@tabler/icons-react";
 
@@ -35,6 +38,11 @@ const fallbackMeta = {
         name: "Trainer",
         title: "Our Trainers",
         content: "Kenali trainer profesional yang siap membimbing Anda.",
+    },
+    appointment: {
+        name: "Appointment",
+        title: "Book Your Appointment",
+        content: "Pilih layanan, trainer, tanggal, dan checkout sesi pilates Anda dengan alur booking yang praktis.",
     },
 };
 
@@ -96,6 +104,15 @@ const getRemainingSlots = (item) => {
 
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
 
+
+const appointmentServices = [
+    { id: "private", name: "Private Class", duration: "60 menit", price: 350000, description: "Sesi 1-on-1 dengan program latihan personal." },
+    { id: "duet", name: "Duet Private", duration: "60 menit", price: 500000, description: "Latihan privat berdua dengan fokus yang tetap terarah." },
+    { id: "group", name: "Group Class", duration: "50 menit", price: 185000, description: "Kelas kelompok kecil untuk latihan yang dinamis dan suportif." },
+];
+
+const appointmentHours = ["07:00", "08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+
 export default function WelcomeSection({
     page,
     pageKey,
@@ -104,6 +121,7 @@ export default function WelcomeSection({
     schedules = [],
     memberships = [],
     trainers = [],
+    paymentGateways = [],
     initialFilters = {},
 }) {
     const [showFilters, setShowFilters] = useState(false);
@@ -117,6 +135,10 @@ export default function WelcomeSection({
     const { auth } = usePage().props;
     // Di dekat useRef lainnya
     const dateInputRef = useRef(null); // Tambahkan ini
+    const [selectedServiceId, setSelectedServiceId] = useState(appointmentServices[0].id);
+    const [selectedTrainerId, setSelectedTrainerId] = useState("any");
+    const [selectedAppointmentDate, setSelectedAppointmentDate] = useState("");
+    const [selectedAppointmentTime, setSelectedAppointmentTime] = useState("");
 
     const handleCalendarChange = (e) => {
     const selectedDate = e.target.value; // Format: YYYY-MM-DD
@@ -175,7 +197,24 @@ export default function WelcomeSection({
     }, [pageKey, classes, schedules]);
 
     const hasActiveFilters = Boolean(classNameFilter || difficultyFilter || trainerFilter || classCategoryFilter);
-    const navItems = [{ name: "Home", key: "home" }, ...menuItems.filter((item) => item.key !== "home")];
+    const navItems = useMemo(() => {
+        const mappedItems = menuItems
+            .filter((item) => item.key !== "home" && item.key !== "testimonials")
+            .map((item) => (item.key === "trainer" ? { ...item, key: "trainers" } : item));
+
+        if (!mappedItems.some((item) => item.key === "appointment")) {
+            const trainerIndex = mappedItems.findIndex((item) => item.key === "trainers");
+            const appointmentItem = { name: "Appointment", key: "appointment" };
+
+            if (trainerIndex >= 0) {
+                mappedItems.splice(trainerIndex + 1, 0, appointmentItem);
+            } else {
+                mappedItems.push(appointmentItem);
+            }
+        }
+
+        return [{ name: "Home", key: "home" }, ...mappedItems];
+    }, [menuItems]);
 
     const filteredClasses = useMemo(() => {
         return classes.filter((classItem) => {
@@ -341,6 +380,74 @@ useEffect(() => {
         const targetY = section.getBoundingClientRect().top + window.scrollY - stickyHeaderOffset;
         window.scrollTo({ top: targetY, behavior: "smooth" });
     };
+
+    const appointmentTrainerChoices = useMemo(() => ([
+        { id: "any", name: "Siapa Saja", expertise: "Pilih slot tercepat yang tersedia" },
+        ...trainers.map((trainer) => ({
+            id: String(trainer.id),
+            name: trainer.name,
+            expertise: trainer.expertise || "Trainer Pilates",
+        })),
+    ]), [trainers]);
+
+    const appointmentDates = useMemo(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        return Array.from({ length: 14 }, (_, index) => {
+            const next = new Date(today);
+            next.setDate(today.getDate() + index);
+            return next;
+        });
+    }, []);
+
+    useEffect(() => {
+        if (pageKey !== "appointment") {
+            return;
+        }
+
+        if (!selectedAppointmentDate && appointmentDates[0]) {
+            setSelectedAppointmentDate(getDateKey(appointmentDates[0]));
+        }
+    }, [pageKey, selectedAppointmentDate, appointmentDates]);
+
+    const selectedService = useMemo(() => appointmentServices.find((service) => service.id === selectedServiceId) || appointmentServices[0], [selectedServiceId]);
+
+    const occupiedAppointmentHours = useMemo(() => {
+        if (!selectedAppointmentDate) {
+            return [];
+        }
+
+        return schedules
+            .filter((item) => {
+                const itemDateKey = getDateKey(item.start_at);
+                const trainerMatches = selectedTrainerId === "any" || String(item.trainer_id ?? item.trainer?.id) === selectedTrainerId;
+
+                return itemDateKey === selectedAppointmentDate && trainerMatches;
+            })
+            .map((item) => new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(item.start_at)));
+    }, [schedules, selectedAppointmentDate, selectedTrainerId]);
+
+    const availableAppointmentHours = useMemo(() => appointmentHours.filter((hour) => !occupiedAppointmentHours.includes(hour)), [occupiedAppointmentHours]);
+
+    useEffect(() => {
+        if (pageKey !== "appointment") {
+            return;
+        }
+
+        if (!availableAppointmentHours.includes(selectedAppointmentTime)) {
+            setSelectedAppointmentTime(availableAppointmentHours[0] || "");
+        }
+    }, [pageKey, availableAppointmentHours, selectedAppointmentTime]);
+
+    const selectedAppointmentTrainer = appointmentTrainerChoices.find((trainer) => trainer.id === selectedTrainerId) || appointmentTrainerChoices[0];
+    const selectedAppointmentDateLabel = selectedAppointmentDate
+        ? formatSectionDate(new Date(`${selectedAppointmentDate}T00:00:00`))
+        : "Pilih tanggal";
+    const appointmentPaymentLabels = paymentGateways.length > 0
+        ? paymentGateways.map((gateway) => gateway.label || gateway.name || gateway.value)
+        : ["Payment gateway drop-in"];
+
 
     return (
         <>
@@ -651,6 +758,199 @@ useEffect(() => {
                                 </div>
                             </div>
                         )}
+                    </section>
+                )}
+
+
+                {pageKey === "appointment" && (
+                    <section className="mx-auto max-w-6xl px-4 pb-16">
+                        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+                            <div className="space-y-6">
+                                <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
+                                    <div className="flex items-center gap-3">
+                                        <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconYoga size={22} /></div>
+                                        <div>
+                                            <h2 className="text-xl font-semibold">1. Pilih kategori / layanan</h2>
+                                            <p className="text-sm text-wellness-muted">Tentukan tipe latihan yang paling sesuai dengan kebutuhan Anda.</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-5 grid gap-4 md:grid-cols-3">
+                                        {appointmentServices.map((service) => {
+                                            const isActive = service.id === selectedServiceId;
+                                            return (
+                                                <button
+                                                    key={service.id}
+                                                    type="button"
+                                                    onClick={() => setSelectedServiceId(service.id)}
+                                                    className={`rounded-3xl border p-5 text-left transition ${isActive ? "border-primary-500 bg-primary-50 shadow-sm" : "border-slate-200 bg-white hover:border-primary-200 hover:bg-primary-50/40"}`}
+                                                >
+                                                    <p className="text-base font-semibold">{service.name}</p>
+                                                    <p className="mt-2 text-sm text-wellness-muted">{service.description}</p>
+                                                    <div className="mt-4 flex items-center justify-between text-sm">
+                                                        <span className="rounded-full bg-white px-3 py-1 text-primary-700">{service.duration}</span>
+                                                        <span className="font-semibold text-primary-700">{formatRupiah(service.price)}</span>
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </article>
+
+                                <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
+                                    <div className="flex items-center gap-3">
+                                        <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconUser size={22} /></div>
+                                        <div>
+                                            <h2 className="text-xl font-semibold">2. Pilih trainer</h2>
+                                            <p className="text-sm text-wellness-muted">Pilih trainer spesifik atau gunakan opsi tercepat dengan “Siapa Saja”.</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-5 grid gap-4 md:grid-cols-2">
+                                        {appointmentTrainerChoices.map((trainer) => {
+                                            const isActive = trainer.id === selectedTrainerId;
+                                            return (
+                                                <button
+                                                    key={trainer.id}
+                                                    type="button"
+                                                    onClick={() => setSelectedTrainerId(trainer.id)}
+                                                    className={`rounded-3xl border p-5 text-left transition ${isActive ? "border-primary-500 bg-primary-50 shadow-sm" : "border-slate-200 bg-white hover:border-primary-200 hover:bg-primary-50/40"}`}
+                                                >
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div>
+                                                            <p className="text-base font-semibold">{trainer.name}</p>
+                                                            <p className="mt-1 text-sm text-wellness-muted">{trainer.expertise}</p>
+                                                        </div>
+                                                        {isActive && <IconCheck size={18} className="text-primary-600" />}
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </article>
+
+                                <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
+                                    <div className="flex items-center gap-3">
+                                        <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconCalendarMonth size={22} /></div>
+                                        <div>
+                                            <h2 className="text-xl font-semibold">3. Pilih tanggal & jam</h2>
+                                            <p className="text-sm text-wellness-muted">Kalender hanya menampilkan slot jam yang trainer-nya tidak sedang bertugas.</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-5 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+                                        <div className="rounded-3xl bg-primary-50/50 p-4">
+                                            <p className="text-sm font-medium text-slate-700">Tanggal tersedia</p>
+                                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                                {appointmentDates.map((date) => {
+                                                    const dateKey = getDateKey(date);
+                                                    const isActive = dateKey === selectedAppointmentDate;
+
+                                                    return (
+                                                        <button
+                                                            key={dateKey}
+                                                            type="button"
+                                                            onClick={() => setSelectedAppointmentDate(dateKey)}
+                                                            className={`rounded-2xl border px-4 py-3 text-left transition ${isActive ? "border-primary-500 bg-white text-primary-700 shadow-sm" : "border-transparent bg-white/80 text-slate-700 hover:border-primary-200"}`}
+                                                        >
+                                                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{formatDayName(date)}</p>
+                                                            <p className="mt-1 text-lg font-semibold">{formatDayNumber(date)}</p>
+                                                            <p className="text-sm text-wellness-muted">{formatMonthYear(date)}</p>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-700">Jam tersedia</p>
+                                            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                                                {availableAppointmentHours.length > 0 ? availableAppointmentHours.map((hour) => {
+                                                    const isActive = hour === selectedAppointmentTime;
+
+                                                    return (
+                                                        <button
+                                                            key={hour}
+                                                            type="button"
+                                                            onClick={() => setSelectedAppointmentTime(hour)}
+                                                            className={`rounded-2xl border px-4 py-3 text-sm font-medium transition ${isActive ? "border-primary-500 bg-primary-600 text-white shadow-sm" : "border-slate-200 bg-white text-slate-700 hover:border-primary-200 hover:bg-primary-50"}`}
+                                                        >
+                                                            {hour}
+                                                        </button>
+                                                    );
+                                                }) : (
+                                                    <div className="sm:col-span-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-wellness-muted">
+                                                        Tidak ada slot kosong untuk trainer dan tanggal ini. Silakan pilih trainer lain atau gunakan opsi “Siapa Saja”.
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="mt-5 rounded-2xl border border-primary-100 bg-primary-50/60 p-4 text-sm text-wellness-muted">
+                                                <p className="font-medium text-wellness-text">Informasi ketersediaan</p>
+                                                <p className="mt-2">Sistem menyaring jam yang bentrok dengan jadwal trainer aktif sehingga Anda hanya melihat waktu yang masih bisa dipesan.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+
+                            <aside className="space-y-6">
+                                <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm lg:sticky lg:top-24">
+                                    <div className="flex items-center gap-3">
+                                        <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconCreditCard size={22} /></div>
+                                        <div>
+                                            <h2 className="text-xl font-semibold">4. Konfirmasi & checkout</h2>
+                                            <p className="text-sm text-wellness-muted">Ringkasan appointment Anda sebelum melanjutkan pembayaran.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-6 space-y-4 rounded-3xl bg-primary-50/60 p-5">
+                                        <div>
+                                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Sesi</p>
+                                            <p className="mt-1 text-lg font-semibold text-wellness-text">{selectedService.name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Trainer</p>
+                                            <p className="mt-1 text-base font-medium text-wellness-text">{selectedAppointmentTrainer.name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Jadwal</p>
+                                            <p className="mt-1 text-base font-medium text-wellness-text">{selectedAppointmentDateLabel}{selectedAppointmentTime ? ` • ${selectedAppointmentTime}` : ""}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Harga</p>
+                                            <p className="mt-1 text-2xl font-bold text-primary-700">{formatRupiah(selectedService.price)}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-6 space-y-3">
+                                        <div className="rounded-2xl border border-primary-100 p-4">
+                                            <p className="text-sm font-semibold text-wellness-text">Metode pembayaran</p>
+                                            <ul className="mt-3 space-y-2 text-sm text-wellness-muted">
+                                                <li className="flex items-start gap-2"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Gunakan credits membership bila sesi termasuk benefit paket aktif Anda.</li>
+                                                <li className="flex items-start gap-2"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Atau lanjutkan dengan payment gateway drop-in: {appointmentPaymentLabels.join(", ")}.</li>
+                                            </ul>
+                                        </div>
+
+                                        <Link
+                                            href={route("welcome.page", "schedule")}
+                                            className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
+                                        >
+                                            Lanjut ke Booking Schedule
+                                        </Link>
+
+                                        {!auth?.user && (
+                                            <p className="text-sm text-wellness-muted">Login diperlukan untuk menyelesaikan checkout appointment dan menggunakan membership credits.</p>
+                                        )}
+                                    </div>
+                                </article>
+
+                                <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
+                                    <h3 className="text-lg font-semibold">Kenapa booking dari appointment?</h3>
+                                    <div className="mt-4 space-y-3 text-sm text-wellness-muted">
+                                        <p className="flex items-start gap-2"><IconUsers size={16} className="mt-0.5 text-primary-600" /> Mudah membandingkan layanan private, duet, dan group class dalam satu alur.</p>
+                                        <p className="flex items-start gap-2"><IconClock size={16} className="mt-0.5 text-primary-600" /> Slot yang tampil sudah difilter agar tidak bentrok dengan jadwal trainer.</p>
+                                        <p className="flex items-start gap-2"><IconSparkles size={16} className="mt-0.5 text-primary-600" /> Ringkasan checkout membantu Anda memastikan sesi, jam, dan harga sebelum bayar.</p>
+                                    </div>
+                                </article>
+                            </aside>
+                        </div>
                     </section>
                 )}
 

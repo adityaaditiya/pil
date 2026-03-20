@@ -89,6 +89,11 @@ class StudioPageController extends Controller
         $page = StudioPage::where('key', $normalizedKey)->first();
         $menuItems = StudioPage::orderBy('id')->get(['name', 'key']);
 
+        $paymentSetting = PaymentSetting::first();
+        $paymentGateways = collect($paymentSetting?->enabledGateways() ?? [])->filter(function ($gateway) {
+            return strtolower($gateway['value'] ?? '') !== 'cash';
+        })->values();
+
         return Inertia::render('WelcomeSection', [
             'page' => $page,
             'pageKey' => $normalizedKey,
@@ -102,7 +107,7 @@ class StudioPageController extends Controller
             'classes' => $normalizedKey === 'classes'
                 ? PilatesClass::with(['trainers:id,name', 'classCategory:id,name'])->latest()->get(['id', 'class_category_id', 'image', 'name', 'duration', 'difficulty_level', 'about', 'equipment', 'price'])
                 : [],
-            'schedules' => $normalizedKey === 'schedule'
+            'schedules' => in_array($normalizedKey, ['schedule', 'appointment'], true)
                 ? PilatesTimetable::with([
                     'pilatesClass:id,class_category_id,name,image,difficulty_level',
                     'pilatesClass.classCategory:id,name',
@@ -118,9 +123,10 @@ class StudioPageController extends Controller
                     ->orderBy('price')
                     ->get(['id', 'name', 'credits', 'price', 'valid_days', 'description'])
                 : [],
-            'trainers' => $normalizedKey === 'trainers'
+            'trainers' => in_array($normalizedKey, ['trainers', 'appointment'], true)
                 ? Trainer::latest()->get(['id', 'name', 'photo', 'gender', 'date_of_birth', 'expertise', 'address', 'biodata'])
                 : [],
+            'paymentGateways' => $normalizedKey === 'appointment' ? $paymentGateways : [],
         ]);
     }
 
