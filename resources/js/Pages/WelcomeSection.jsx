@@ -108,10 +108,21 @@ const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
 const appointmentServices = [
     { id: "private", name: "Private Class", duration: "60 menit", price: 350000, description: "Sesi 1-on-1 dengan program latihan personal." },
     { id: "duet", name: "Duet Private", duration: "60 menit", price: 500000, description: "Latihan privat berdua dengan fokus yang tetap terarah." },
-    { id: "group", name: "Group Class", duration: "50 menit", price: 185000, description: "Kelas kelompok kecil untuk latihan yang dinamis dan suportif." },
+    { id: "group", name: "Group Class", duration: "60 menit", price: 185000, description: "Kelas kelompok kecil untuk latihan yang dinamis dan suportif." },
 ];
 
-const appointmentHours = ["07:00", "08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+const appointmentHours = ["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"];
+const getDaysInMonth = (year, month) => {
+    const date = new Date(year, month, 1);
+    const days = [];
+    // Ambil hari-hari dari bulan sebelumnya untuk mengisi gap (jika ingin pas hari Senin)
+    // Tapi untuk versi simpel, kita mulai dari tanggal 1:
+    while (date.getMonth() === month) {
+        days.push(new Date(date));
+        date.setDate(date.getDate() + 1);
+    }
+    return days;
+};
 
 export default function WelcomeSection({
     page,
@@ -138,6 +149,31 @@ export default function WelcomeSection({
     const [selectedServiceId, setSelectedServiceId] = useState(appointmentServices[0].id);
     const [selectedTrainerId, setSelectedTrainerId] = useState("any");
     const [selectedAppointmentDate, setSelectedAppointmentDate] = useState("");
+        // Tambahkan di deretan useState
+    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+
+    const calendarDays = useMemo(() => {
+        return getDaysInMonth(currentYear, currentMonth);
+    }, [currentMonth, currentYear]);
+
+    const handlePrevMonth = () => {
+        if (currentMonth === 0) {
+            setCurrentMonth(11);
+            setCurrentYear(currentYear - 1);
+        } else {
+            setCurrentMonth(currentMonth - 1);
+        }
+    };
+
+    const handleNextMonth = () => {
+        if (currentMonth === 11) {
+            setCurrentMonth(0);
+            setCurrentYear(currentYear + 1);
+        } else {
+            setCurrentMonth(currentMonth + 1);
+        }
+    };
     const [selectedAppointmentTime, setSelectedAppointmentTime] = useState("");
 
     const handleCalendarChange = (e) => {
@@ -382,7 +418,7 @@ useEffect(() => {
     };
 
     const appointmentTrainerChoices = useMemo(() => ([
-        { id: "any", name: "Siapa Saja", expertise: "Pilih slot tercepat yang tersedia" },
+        
         ...trainers.map((trainer) => ({
             id: String(trainer.id),
             name: trainer.name,
@@ -764,36 +800,54 @@ useEffect(() => {
 
                 {pageKey === "appointment" && (
                     <section className="mx-auto max-w-6xl px-4 pb-16">
-                        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+                        <div className="grid gap-6 lg:grid-cols-[1.6fr_0.8fr]">
                             <div className="space-y-6">
                                 <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
                                     <div className="flex items-center gap-3">
                                         <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconYoga size={22} /></div>
                                         <div>
-                                            <h2 className="text-xl font-semibold">1. Pilih kategori / layanan</h2>
+                                            <h2 className="text-xl font-semibold">1. Pilih Kategori</h2>
                                             <p className="text-sm text-wellness-muted">Tentukan tipe latihan yang paling sesuai dengan kebutuhan Anda.</p>
                                         </div>
                                     </div>
                                     <div className="mt-5 grid gap-4 md:grid-cols-3">
-                                        {appointmentServices.map((service) => {
-                                            const isActive = service.id === selectedServiceId;
-                                            return (
-                                                <button
-                                                    key={service.id}
-                                                    type="button"
-                                                    onClick={() => setSelectedServiceId(service.id)}
-                                                    className={`rounded-3xl border p-5 text-left transition ${isActive ? "border-primary-500 bg-primary-50 shadow-sm" : "border-slate-200 bg-white hover:border-primary-200 hover:bg-primary-50/40"}`}
-                                                >
-                                                    <p className="text-base font-semibold">{service.name}</p>
-                                                    <p className="mt-2 text-sm text-wellness-muted">{service.description}</p>
-                                                    <div className="mt-4 flex items-center justify-between text-sm">
-                                                        <span className="rounded-full bg-white px-3 py-1 text-primary-700">{service.duration}</span>
-                                                        <span className="font-semibold text-primary-700">{formatRupiah(service.price)}</span>
-                                                    </div>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
+    {appointmentServices.map((service) => {
+        const isActive = service.id === selectedServiceId;
+        return (
+            <button
+                key={service.id}
+                type="button"
+                onClick={() => setSelectedServiceId(service.id)}
+                className={`rounded-3xl border p-5 text-left transition ${
+                    isActive
+                        ? "border-primary-500 bg-primary-50 shadow-sm"
+                        : "border-slate-200 bg-white hover:border-primary-200 hover:bg-primary-50/40"
+                }`}
+            >
+                {/* Header: Nama dan Durasi Sejajar */}
+                <div className="flex items-center justify-between">
+                    <span className="text-base font-semibold">{service.name}</span>
+                    <span className="shrink-0 rounded-full bg-white px-2 py-1 text-xs font-medium text-primary-700 shadow-sm border border-primary-100">
+                        {service.duration}
+                    </span>
+                </div>
+
+                <p className="mt-3 text-sm text-wellness-muted leading-relaxed">
+                    {service.description}
+                </p>
+
+                <div className="mt-4 flex items-center justify-between">
+                    <span className="font-bold text-lg text-primary-700">
+                        {formatRupiah(service.price)}
+                    </span>
+                    {isActive && (
+                        <div className="h-2 w-2 rounded-full bg-primary-500 shadow-[0_0_8px_rgba(var(--primary-500),0.6)]" />
+                    )}
+                </div>
+            </button>
+        );
+    })}
+</div>
                                 </article>
 
                                 <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
@@ -801,7 +855,7 @@ useEffect(() => {
                                         <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconUser size={22} /></div>
                                         <div>
                                             <h2 className="text-xl font-semibold">2. Pilih trainer</h2>
-                                            <p className="text-sm text-wellness-muted">Pilih trainer spesifik atau gunakan opsi tercepat dengan “Siapa Saja”.</p>
+                                            <p className="text-sm text-wellness-muted">Select trainer</p>
                                         </div>
                                     </div>
                                     <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -832,59 +886,97 @@ useEffect(() => {
                                         <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconCalendarMonth size={22} /></div>
                                         <div>
                                             <h2 className="text-xl font-semibold">3. Pilih tanggal & jam</h2>
-                                            <p className="text-sm text-wellness-muted">Kalender hanya menampilkan slot jam yang trainer-nya tidak sedang bertugas.</p>
+                                            {/* <p className="text-sm text-wellness-muted">Kalender hanya menampilkan slot jam yang trainer-nya tidak sedang bertugas.</p> */}
+                                            <p className="text-sm text-wellness-muted">Select date and time</p>
                                         </div>
                                     </div>
-                                    <div className="mt-5 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-                                        <div className="rounded-3xl bg-primary-50/50 p-4">
-                                            <p className="text-sm font-medium text-slate-700">Tanggal tersedia</p>
-                                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                                                {appointmentDates.map((date) => {
-                                                    const dateKey = getDateKey(date);
-                                                    const isActive = dateKey === selectedAppointmentDate;
+                                    <div className="mt-5 grid gap-6 lg:grid-cols-[3fr_1.1fr]">
+                                        <div className="rounded-3xl bg-primary-50/50 p-6 text-slate-700 shadow-xl">
+                                    {/* Header Kalender */}
+                                    <div className="mb-8 flex items-center justify-between">
+                                        <button onClick={handlePrevMonth} className="rounded-full bg-white/5 p-2 hover:bg-white/10 transition">
+                                            <IconArrowLeft size={20} />
+                                        </button>
+                                        <h3 className="text-lg font-bold capitalize">
+                                            {new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(new Date(currentYear, currentMonth))}
+                                        </h3>
+                                        <button onClick={handleNextMonth} className="rounded-full bg-white/5 p-2 hover:bg-white/10 transition">
+                                            <IconArrowRight size={20} />
+                                        </button>
+                                    </div>
 
-                                                    return (
-                                                        <button
-                                                            key={dateKey}
-                                                            type="button"
-                                                            onClick={() => setSelectedAppointmentDate(dateKey)}
-                                                            className={`rounded-2xl border px-4 py-3 text-left transition ${isActive ? "border-primary-500 bg-white text-primary-700 shadow-sm" : "border-transparent bg-white/80 text-slate-700 hover:border-primary-200"}`}
-                                                        >
-                                                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{formatDayName(date)}</p>
-                                                            <p className="mt-1 text-lg font-semibold">{formatDayNumber(date)}</p>
-                                                            <p className="text-sm text-wellness-muted">{formatMonthYear(date)}</p>
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
+                                    {/* Header Hari */}
+                                    <div className="mb-4 grid grid-cols-7 text-center text-xs font-bold text-slate-700">
+                                        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
+                                            <div key={i} className="py-2">{day}</div>
+                                        ))}
+                                    </div>
 
-                                        <div>
+                                    {/* Grid Tanggal */}
+                                    <div className="grid grid-cols-7 gap-y-2 text-center">
+                                        {/* Padding untuk hari pertama bulan (opsional, agar posisi hari pas) */}
+                                        {Array.from({ length: (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7 }).map((_, i) => (
+                                            <div key={`empty-${i}`} />
+                                        ))}
+
+                                        {calendarDays.map((date) => {
+                                            const dateKey = getDateKey(date);
+                                            const isActive = dateKey === selectedAppointmentDate;
+                                            const isToday = getDateKey(new Date()) === dateKey;
+
+                                            return (
+                                                <button
+                                                    key={dateKey}
+                                                    type="button"
+                                                    onClick={() => setSelectedAppointmentDate(dateKey)}
+                                                    className={`relative flex h-10 w-full items-center justify-center text-sm transition-all
+                                                        ${isActive 
+                                                            ? "font-bold text-primary-400 after:absolute after:bottom-1 after:h-1 after:w-1 after:rounded-full after:bg-primary-500" 
+                                                            : "text-slate-700 hover:text-primary-500 hover:bg-primary-50/5 rounded-lg"
+                                                        }
+                                                        ${isToday && !isActive ? "text-slate-700 font-bold" : ""}
+                                                    `}
+                                                >
+                                                    {date.getDate()}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                        <div className="mt-0 rounded-3xl border border-primary-100 bg-white p-4 shadow-sm">
                                             <p className="text-sm font-medium text-slate-700">Jam tersedia</p>
-                                            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                                                {availableAppointmentHours.length > 0 ? availableAppointmentHours.map((hour) => {
-                                                    const isActive = hour === selectedAppointmentTime;
-
-                                                    return (
-                                                        <button
-                                                            key={hour}
-                                                            type="button"
-                                                            onClick={() => setSelectedAppointmentTime(hour)}
-                                                            className={`rounded-2xl border px-4 py-3 text-sm font-medium transition ${isActive ? "border-primary-500 bg-primary-600 text-white shadow-sm" : "border-slate-200 bg-white text-slate-700 hover:border-primary-200 hover:bg-primary-50"}`}
-                                                        >
-                                                            {hour}
-                                                        </button>
-                                                    );
-                                                }) : (
-                                                    <div className="sm:col-span-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-wellness-muted">
-                                                        Tidak ada slot kosong untuk trainer dan tanggal ini. Silakan pilih trainer lain atau gunakan opsi “Siapa Saja”.
+                                            {/* grid-cols-2 memastikan 2 kolom di mobile, sm:grid-cols-3/4 untuk layar besar */}
+                                            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+                                                {availableAppointmentHours.length > 0 ? (
+                                                    availableAppointmentHours.map((hour) => {
+                                                        const isActive = hour === selectedAppointmentTime;
+                                                        return (
+                                                            <button
+                                                                key={hour}
+                                                                type="button"
+                                                                onClick={() => setSelectedAppointmentTime(hour)}
+                                                                className={`rounded-2xl border px-3 py-3.5 text-sm font-semibold transition-all ${
+                                                                    isActive
+                                                                        ? "border-primary-500 bg-primary-600 text-white shadow-md"
+                                                                        : "border-slate-200 bg-white text-slate-700 hover:border-primary-200 hover:bg-primary-50"
+                                                                }`}
+                                                            >
+                                                                {hour}
+                                                            </button>
+                                                        );
+                                                    })
+                                                ) : (
+                                                    <div className="col-span-2 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-wellness-muted">
+                                                        Tidak ada slot kosong.
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="mt-5 rounded-2xl border border-primary-100 bg-primary-50/60 p-4 text-sm text-wellness-muted">
+
+                                            {/* <div className="mt-5 rounded-2xl border border-primary-100 bg-primary-50/60 p-4 text-sm text-wellness-muted">
                                                 <p className="font-medium text-wellness-text">Informasi ketersediaan</p>
                                                 <p className="mt-2">Sistem menyaring jam yang bentrok dengan jadwal trainer aktif sehingga Anda hanya melihat waktu yang masih bisa dipesan.</p>
-                                            </div>
+                                            </div> */}
                                         </div>
                                     </div>
                                 </article>
@@ -932,7 +1024,7 @@ useEffect(() => {
                                             href={route("welcome.page", "schedule")}
                                             className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
                                         >
-                                            Lanjut ke Booking Schedule
+                                            Selesaikan Pembayaran
                                         </Link>
 
                                         {!auth?.user && (
