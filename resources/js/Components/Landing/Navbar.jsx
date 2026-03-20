@@ -10,7 +10,7 @@ const defaultNavItems = [
     { name: "Schedule", key: "schedule" },
     { name: "Pricing", key: "pricing" },
     { name: "Trainer", key: "trainer" },
-    { name: "Testimonials", key: "testimonials" },
+    { name: "Appointment", key: "appointment" },
     { name: "Contact", key: "contact" },
 ];
 
