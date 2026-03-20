@@ -811,43 +811,43 @@ useEffect(() => {
                                         </div>
                                     </div>
                                     <div className="mt-5 grid gap-4 md:grid-cols-3">
-    {appointmentServices.map((service) => {
-        const isActive = service.id === selectedServiceId;
-        return (
-            <button
-                key={service.id}
-                type="button"
-                onClick={() => setSelectedServiceId(service.id)}
-                className={`rounded-3xl border p-5 text-left transition ${
-                    isActive
-                        ? "border-primary-500 bg-primary-50 shadow-sm"
-                        : "border-slate-200 bg-white hover:border-primary-200 hover:bg-primary-50/40"
-                }`}
-            >
-                {/* Header: Nama dan Durasi Sejajar */}
-                <div className="flex items-center justify-between">
-                    <span className="text-base font-semibold">{service.name}</span>
-                    <span className="shrink-0 rounded-full bg-white px-2 py-1 text-xs font-medium text-primary-700 shadow-sm border border-primary-100">
-                        {service.duration}
-                    </span>
-                </div>
+                                        {appointmentServices.map((service) => {
+                                            const isActive = service.id === selectedServiceId;
+                                            return (
+                                                <button
+                                                    key={service.id}
+                                                    type="button"
+                                                    onClick={() => setSelectedServiceId(service.id)}
+                                                    className={`rounded-3xl border p-5 text-left transition ${
+                                                        isActive
+                                                            ? "border-primary-500 bg-primary-50 shadow-sm"
+                                                            : "border-slate-200 bg-white hover:border-primary-200 hover:bg-primary-50/40"
+                                                    }`}
+                                                >
+                                                    {/* Header: Nama dan Durasi Sejajar */}
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-base font-semibold">{service.name}</span>
+                                                        <span className="shrink-0 rounded-full bg-white px-2 py-1 text-xs font-medium text-primary-700 shadow-sm border border-primary-100">
+                                                            {service.duration}
+                                                        </span>
+                                                    </div>
 
-                <p className="mt-3 text-sm text-wellness-muted leading-relaxed">
-                    {service.description}
-                </p>
+                                                    <p className="mt-3 text-sm text-wellness-muted leading-relaxed">
+                                                        {service.description}
+                                                    </p>
 
-                <div className="mt-4 flex items-center justify-between">
-                    <span className="font-bold text-lg text-primary-700">
-                        {formatRupiah(service.price)}
-                    </span>
-                    {isActive && (
-                        <div className="h-2 w-2 rounded-full bg-primary-500 shadow-[0_0_8px_rgba(var(--primary-500),0.6)]" />
-                    )}
-                </div>
-            </button>
-        );
-    })}
-</div>
+                                                    <div className="mt-4 flex items-center justify-between">
+                                                        <span className="font-bold text-lg text-primary-700">
+                                                            {formatRupiah(service.price)}
+                                                        </span>
+                                                        {isActive && (
+                                                            <div className="h-2 w-2 rounded-full bg-primary-500 shadow-[0_0_8px_rgba(var(--primary-500),0.6)]" />
+                                                        )}
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </article>
 
                                 <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
@@ -898,7 +898,7 @@ useEffect(() => {
                                             <IconArrowLeft size={20} />
                                         </button>
                                         <h3 className="text-lg font-bold capitalize">
-                                            {new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(new Date(currentYear, currentMonth))}
+                                            {new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric" }).format(new Date(currentYear, currentMonth))}
                                         </h3>
                                         <button onClick={handleNextMonth} className="rounded-full bg-white/5 p-2 hover:bg-white/10 transition">
                                             <IconArrowRight size={20} />
@@ -992,33 +992,33 @@ useEffect(() => {
                                         </div>
                                     </div>
 
-                                    <div className="mt-6 space-y-4 rounded-3xl bg-primary-50/60 p-5">
+                                    <div className="mt-5 space-y-4 rounded-3xl bg-primary-50/60 p-5">
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Sesi</p>
-                                            <p className="mt-1 text-lg font-semibold text-wellness-text">{selectedService.name}</p>
+                                            <p className="text-base font-semibold text-wellness-text">{selectedService.name}</p>
                                         </div>
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Trainer</p>
-                                            <p className="mt-1 text-base font-medium text-wellness-text">{selectedAppointmentTrainer.name}</p>
+                                            <p className="text-base font-semibold text-wellness-text">{selectedAppointmentTrainer.name}</p>
                                         </div>
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Jadwal</p>
-                                            <p className="mt-1 text-base font-medium text-wellness-text">{selectedAppointmentDateLabel}{selectedAppointmentTime ? ` • ${selectedAppointmentTime}` : ""}</p>
+                                            <p className="text-base font-semibold text-wellness-text">{selectedAppointmentDateLabel}{selectedAppointmentTime ? ` • ${selectedAppointmentTime}` : ""} WIB</p>
                                         </div>
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Harga</p>
-                                            <p className="mt-1 text-2xl font-bold text-primary-700">{formatRupiah(selectedService.price)}</p>
+                                            <p className="text-lg font-bold text-primary-700">{formatRupiah(selectedService.price)}</p>
                                         </div>
                                     </div>
 
                                     <div className="mt-6 space-y-3">
-                                        <div className="rounded-2xl border border-primary-100 p-4">
+                                        {/* <div className="rounded-2xl border border-primary-100 p-4">
                                             <p className="text-sm font-semibold text-wellness-text">Metode pembayaran</p>
                                             <ul className="mt-3 space-y-2 text-sm text-wellness-muted">
                                                 <li className="flex items-start gap-2"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Gunakan credits membership bila sesi termasuk benefit paket aktif Anda.</li>
                                                 <li className="flex items-start gap-2"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Atau lanjutkan dengan payment gateway drop-in: {appointmentPaymentLabels.join(", ")}.</li>
                                             </ul>
-                                        </div>
+                                        </div> */}
 
                                         <Link
                                             href={route("welcome.page", "schedule")}
@@ -1034,12 +1034,14 @@ useEffect(() => {
                                 </article>
 
                                 <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
-                                    <h3 className="text-lg font-semibold">Kenapa booking dari appointment?</h3>
-                                    <div className="mt-4 space-y-3 text-sm text-wellness-muted">
-                                        <p className="flex items-start gap-2"><IconUsers size={16} className="mt-0.5 text-primary-600" /> Mudah membandingkan layanan private, duet, dan group class dalam satu alur.</p>
-                                        <p className="flex items-start gap-2"><IconClock size={16} className="mt-0.5 text-primary-600" /> Slot yang tampil sudah difilter agar tidak bentrok dengan jadwal trainer.</p>
-                                        <p className="flex items-start gap-2"><IconSparkles size={16} className="mt-0.5 text-primary-600" /> Ringkasan checkout membantu Anda memastikan sesi, jam, dan harga sebelum bayar.</p>
-                                    </div>
+                                    <h3 className="text-lg font-semibold">Ketentuan Pembatalan</h3>
+                                    <div className="mt-2 rounded-2xl border border-primary-100 p-4">
+                                            {/* <p className="text-sm font-semibold text-wellness-text">Metode pembayaran</p> */}
+                                            <ul className="mt-0 space-y-2 text-sm text-wellness-muted">
+                                                <li className="flex items-start gap-2 text-justify"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Demi kenyamanan bersama, kami sangat menghargai kerja sama Anda untuk tidak melakukan pembatalan mendadak agar jadwal kelas tetap berjalan efektif.</li>
+                                                <li className="flex items-start gap-2 text-justify"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Catatan: Pengembalian kredit/saldo hanya berlaku untuk pembatalan yang dilakukan maksimal 24 jam sebelum sesi dimulai. Pembatalan setelah melewati batas waktu tersebut akan dianggap hangus.</li>
+                                            </ul>
+                                        </div>
                                 </article>
                             </aside>
                         </div>

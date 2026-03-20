@@ -239,7 +239,7 @@ export default function Welcome() {
                                         <div className="mt-6 flex flex-col md:flex-row gap-3">
                                             <Button as={Link} href={route("welcome.page", "classes")}>Find Your Class</Button>
                                             <Link 
-                                            href={route("welcome.page", "schedule")} 
+                                            href={route("welcome.page", "appointment")} 
                                             className="flex items-center justify-center inline-block border border-white text-white px-6 py-2 rounded-full text-sm hover:bg-gray-500"
                                             >
                                             Book An Appointment
