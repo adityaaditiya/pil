@@ -31,7 +31,7 @@ export default function Welcome() {
         { name: "Schedule", key: "schedule" },
         { name: "Pricing", key: "pricing" },
         { name: "Trainer", key: "trainer" },
-        { name: "Testimonials", key: "testimonials" },
+        { name: "Appointment", key: "appointment" },
         { name: "Contact", key: "contact" },
     ];
 
@@ -95,18 +95,26 @@ export default function Welcome() {
     ];
 
 
-    const testimonials = [
+    const appointmentFlow = [
         {
-            quote: "Studio-nya tenang dan instruktur sangat detail. Postur saya jauh membaik dalam 6 minggu.",
-            name: "Cecilia, 32",
+            step: "01",
+            title: "Pilih Kategori / Layanan",
+            desc: "User memilih jenis latihan seperti Private Class, Duet Private, atau Group Class sesuai kebutuhan.",
         },
         {
-            quote: "Saya pemula total, tapi kelasnya ramah dan progresnya terasa konsisten setiap minggu.",
-            name: "Vina, 28",
+            step: "02",
+            title: "Pilih Trainer",
+            desc: "User dapat memilih trainer spesifik atau opsi \"Siapa Saja\" untuk trainer yang tersedia.",
         },
         {
-            quote: "Program private session membantu recovery punggung saya lebih cepat dan aman.",
-            name: "Monica, 37",
+            step: "03",
+            title: "Pilih Tanggal & Jam",
+            desc: "Sistem menampilkan kalender dan hanya menampilkan jam ketika trainer yang dipilih sedang tidak bertugas.",
+        },
+        {
+            step: "04",
+            title: "Konfirmasi & Checkout",
+            desc: "User meninjau ringkasan sesi, jam, dan harga lalu melanjutkan pembayaran menggunakan Credits Membership atau payment gateway drop-in.",
         },
     ];
 
@@ -436,15 +444,18 @@ export default function Welcome() {
                 <section className="bg-wellness-soft px-4 py-20 md:px-6">
                     <div className="mx-auto max-w-7xl">
                         <SectionTitle
-                            eyebrow="Testimonials"
-                            title="Apa kata member kami"
-                            description="Cerita pengalaman nyata dari member yang merasakan perubahan tubuh dan kualitas hidup."
+                            eyebrow="Appointment"
+                            title="Rancangan alur appointment yang mudah diikuti"
+                            description="Flow booking dirancang singkat, jelas, dan fleksibel agar user cepat menyelesaikan reservasi sesi."
                         />
                         <div className="mt-12 grid gap-6 md:grid-cols-3">
-                            {testimonials.map((item) => (
-                                <Card key={item.name}>
-                                    <p className="text-sm leading-relaxed text-wellness-muted">“{item.quote}”</p>
-                                    <p className="mt-6 font-semibold">{item.name}</p>
+                            {appointmentFlow.map((item) => (
+                                <Card key={item.step} className="border border-primary-100">
+                                    <div className="inline-flex rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold tracking-[0.18em] text-primary-700">
+                                        Step {item.step}
+                                    </div>
+                                    <h3 className="mt-4 text-lg font-semibold text-wellness-text">{item.title}</h3>
+                                    <p className="mt-3 text-sm leading-relaxed text-wellness-muted">{item.desc}</p>
                                 </Card>
                             ))}
                         </div>
