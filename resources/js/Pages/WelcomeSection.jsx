@@ -36,6 +36,11 @@ const fallbackMeta = {
         title: "Our Trainers",
         content: "Kenali trainer profesional yang siap membimbing Anda.",
     },
+    appointment: {
+        name: "Appointment",
+        title: "Appointment Flow",
+        content: "Lihat alur booking appointment yang memudahkan user memilih layanan, trainer, jadwal, dan metode checkout.",
+    },
 };
 
 const formatRupiah = (value) =>
@@ -95,6 +100,37 @@ const getRemainingSlots = (item) => {
 };
 
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
+
+const normalizeNavItem = (item) => {
+    if (["testimonial", "testimonials"].includes(item.key)) {
+        return { ...item, name: "Appointment", key: "appointment" };
+    }
+
+    return item;
+};
+
+const appointmentFlow = [
+    {
+        step: "01",
+        title: "Pilih Kategori / Layanan",
+        description: "User memilih jenis latihan seperti Private Class, Duet Private, atau Group Class sesuai kebutuhan sesi.",
+    },
+    {
+        step: "02",
+        title: "Pilih Trainer",
+        description: 'User dapat memilih trainer spesifik atau opsi "Siapa Saja" untuk trainer yang tersedia.',
+    },
+    {
+        step: "03",
+        title: "Pilih Tanggal & Jam",
+        description: "Sistem menampilkan kalender dan hanya menampilkan jam saat trainer yang dipilih sedang tidak bertugas.",
+    },
+    {
+        step: "04",
+        title: "Konfirmasi & Checkout",
+        description: "User melihat ringkasan sesi, jam, dan harga lalu membayar menggunakan Credits Membership atau payment gateway drop-in.",
+    },
+];
 
 export default function WelcomeSection({
     page,
@@ -175,7 +211,7 @@ export default function WelcomeSection({
     }, [pageKey, classes, schedules]);
 
     const hasActiveFilters = Boolean(classNameFilter || difficultyFilter || trainerFilter || classCategoryFilter);
-    const navItems = [{ name: "Home", key: "home" }, ...menuItems.filter((item) => item.key !== "home")];
+    const navItems = [{ name: "Home", key: "home" }, ...menuItems.filter((item) => item.key !== "home").map(normalizeNavItem)];
 
     const filteredClasses = useMemo(() => {
         return classes.filter((classItem) => {
@@ -426,7 +462,8 @@ useEffect(() => {
                                             ))}
                                         </select>
                                     </div>
-                                    {pageKey === "schedule" && (
+
+                {pageKey === "schedule" && (
                                         <>
                                             <div>
                                                 <label className="mb-2 block text-sm font-medium text-slate-700">Trainer</label>
@@ -484,6 +521,77 @@ useEffect(() => {
                                 </div>
                             </article>
                         ))}
+                    </section>
+                )}
+
+                {pageKey === "appointment" && (
+                    <section className="mx-auto max-w-6xl px-4 pb-16">
+                        <div className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+                            <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm md:p-8">
+                                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600">Booking Journey</p>
+                                <h2 className="mt-4 text-2xl font-bold text-slate-900 md:text-3xl">Alur appointment dari pilih layanan sampai checkout.</h2>
+                                <div className="mt-8 space-y-4">
+                                    {appointmentFlow.map((item) => (
+                                        <article key={item.step} className="rounded-2xl border border-primary-100 bg-primary-50/40 p-5">
+                                            <div className="flex items-start gap-4">
+                                                <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary-600 text-sm font-semibold text-white">
+                                                    {item.step}
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
+                                                    <p className="mt-2 text-sm leading-relaxed text-wellness-muted">{item.description}</p>
+                                                </div>
+                                            </div>
+                                        </article>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <aside className="space-y-6">
+                                <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
+                                    <h3 className="text-lg font-semibold text-slate-900">Ringkasan sistem</h3>
+                                    <div className="mt-5 space-y-4">
+                                        <div className="flex items-start gap-3">
+                                            <IconYoga size={20} className="mt-0.5 text-primary-600" />
+                                            <div>
+                                                <p className="font-medium text-slate-900">Kategori fleksibel</p>
+                                                <p className="text-sm text-wellness-muted">Private Class, Duet Private, dan Group Class tersedia dalam satu flow booking.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <IconUser size={20} className="mt-0.5 text-primary-600" />
+                                            <div>
+                                                <p className="font-medium text-slate-900">Pilihan trainer</p>
+                                                <p className="text-sm text-wellness-muted">User bebas memilih trainer tertentu atau menyerahkan ke opsi siapa saja.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <IconCalendarMonth size={20} className="mt-0.5 text-primary-600" />
+                                            <div>
+                                                <p className="font-medium text-slate-900">Slot real-time</p>
+                                                <p className="text-sm text-wellness-muted">Kalender hanya menampilkan jam kosong agar proses reservasi lebih cepat dan minim bentrok jadwal.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <IconCurrencyDollar size={20} className="mt-0.5 text-primary-600" />
+                                            <div>
+                                                <p className="font-medium text-slate-900">Checkout lengkap</p>
+                                                <p className="text-sm text-wellness-muted">Ringkasan sesi, jam, dan harga tersedia sebelum pembayaran memakai credits membership atau gateway drop-in.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="rounded-3xl border border-primary-100 bg-primary-600 p-6 text-white shadow-sm">
+                                    <p className="text-sm uppercase tracking-[0.24em] text-primary-100">Output yang diharapkan</p>
+                                    <ul className="mt-4 space-y-3 text-sm leading-relaxed text-primary-50">
+                                        <li>• User memahami langkah booking tanpa harus bertanya ke admin.</li>
+                                        <li>• Slot yang tampil hanya jam trainer yang tersedia.</li>
+                                        <li>• Metode bayar mencakup credits membership dan payment gateway drop-in.</li>
+                                    </ul>
+                                </div>
+                            </aside>
+                        </div>
                     </section>
                 )}
 
