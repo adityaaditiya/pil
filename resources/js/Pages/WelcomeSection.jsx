@@ -167,6 +167,7 @@ export default function WelcomeSection({
     memberships = [],
     trainers = [],
     paymentGateways = [],
+    classCategories = [],
     initialFilters = {},
 }) {
     const [showFilters, setShowFilters] = useState(false);
@@ -181,7 +182,8 @@ export default function WelcomeSection({
     // Di dekat useRef lainnya
     const dateInputRef = useRef(null); // Tambahkan ini
     const [selectedServiceId, setSelectedServiceId] = useState(appointmentServices[0].id);
-    const [selectedTrainerId, setSelectedTrainerId] = useState("any");
+    const [selectedTrainerId, setSelectedTrainerId] = useState(trainers[0] ? String(trainers[0].id) : "");
+    const [selectedAppointmentCategoryId, setSelectedAppointmentCategoryId] = useState("");
     const [selectedAppointmentDate, setSelectedAppointmentDate] = useState("");
         // Tambahkan di deretan useState
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
@@ -269,7 +271,7 @@ export default function WelcomeSection({
     const hasActiveFilters = Boolean(classNameFilter || difficultyFilter || trainerFilter || classCategoryFilter);
     const navItems = useMemo(() => {
         const mappedItems = menuItems
-            .filter((item) => item.key !== "home" && item.key !== "testimonials")
+            .filter((item) => !["home", "about", "testimonials"].includes(item.key))
             .map((item) => (item.key === "trainer" ? { ...item, key: "trainers" } : item));
 
         if (!mappedItems.some((item) => item.key === "appointment")) {
@@ -292,7 +294,7 @@ export default function WelcomeSection({
             const matchDifficulty = !difficultyFilter || classItem.difficulty_level === difficultyFilter;
             const matchCategory = !classCategoryFilter || classItem.class_category?.name === classCategoryFilter;
 
-            return matchClassName && matchDifficulty;
+            return matchClassName && matchDifficulty && matchCategory;
         });
     }, [classes, classNameFilter, difficultyFilter, classCategoryFilter]);
 
@@ -461,6 +463,20 @@ useEffect(() => {
         })),
     ]), [trainers]);
 
+    const appointmentCategoryOptions = useMemo(() => classCategories.map((category) => ({
+        id: String(category.id),
+        name: category.name,
+    })), [classCategories]);
+
+    const appointmentSchedules = useMemo(() => {
+        return schedules.filter((item) => {
+            const trainerMatches = !selectedTrainerId || String(item.trainer_id ?? item.trainer?.id) === selectedTrainerId;
+            const categoryMatches = !selectedAppointmentCategoryId || String(item.pilates_class?.class_category_id ?? item.pilates_class?.class_category?.id) === selectedAppointmentCategoryId;
+
+            return trainerMatches && categoryMatches;
+        });
+    }, [schedules, selectedTrainerId, selectedAppointmentCategoryId]);
+
     const appointmentDates = useMemo(() => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -489,7 +505,7 @@ useEffect(() => {
             return [];
         }
 
-        return schedules
+        return appointmentSchedules
             .filter((item) => {
                 const itemDateKey = getDateKey(item.start_at);
                 const trainerMatches = selectedTrainerId === "any" || String(item.trainer_id ?? item.trainer?.id) === selectedTrainerId;
@@ -497,7 +513,7 @@ useEffect(() => {
                 return itemDateKey === selectedAppointmentDate && trainerMatches;
             })
             .map((item) => new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(item.start_at)));
-    }, [schedules, selectedAppointmentDate, selectedTrainerId]);
+    }, [appointmentSchedules, selectedAppointmentDate, selectedTrainerId]);
 
     const availableAppointmentHours = useMemo(() => appointmentHours.filter((hour) => !occupiedAppointmentHours.includes(hour)), [occupiedAppointmentHours]);
 
@@ -510,6 +526,27 @@ useEffect(() => {
             setSelectedAppointmentTime(availableAppointmentHours[0] || "");
         }
     }, [pageKey, availableAppointmentHours, selectedAppointmentTime]);
+
+    useEffect(() => {
+        if (pageKey !== "appointment") {
+            return;
+        }
+
+        if (!selectedAppointmentCategoryId && appointmentCategoryOptions[0]) {
+            setSelectedAppointmentCategoryId(appointmentCategoryOptions[0].id);
+        }
+    }, [pageKey, selectedAppointmentCategoryId, appointmentCategoryOptions]);
+
+    useEffect(() => {
+        if (pageKey !== "appointment") {
+            return;
+        }
+
+        const trainerExists = appointmentTrainerChoices.some((trainer) => trainer.id === selectedTrainerId);
+        if (!trainerExists) {
+            setSelectedTrainerId(appointmentTrainerChoices[0]?.id || "");
+        }
+    }, [pageKey, appointmentTrainerChoices, selectedTrainerId]);
 
     const selectedAppointmentTrainer = appointmentTrainerChoices.find((trainer) => trainer.id === selectedTrainerId) || appointmentTrainerChoices[0];
     const selectedAppointmentDateLabel = selectedAppointmentDate
@@ -897,9 +934,44 @@ useEffect(() => {
 
                                 <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
                                     <div className="flex items-center gap-3">
+                                        <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconYoga size={22} /></div>
+                                        <div>
+                                            <h2 className="text-xl font-semibold">2. Pilih kategori kelas</h2>
+                                            <p className="text-sm text-wellness-muted">Kategori diambil dari data Kategori Kelas.</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-5 grid gap-4 md:grid-cols-2">
+                                        {appointmentCategoryOptions.length > 0 ? appointmentCategoryOptions.map((category) => {
+                                            const isActive = category.id === selectedAppointmentCategoryId;
+                                            return (
+                                                <button
+                                                    key={category.id}
+                                                    type="button"
+                                                    onClick={() => setSelectedAppointmentCategoryId(category.id)}
+                                                    className={`rounded-3xl border p-5 text-left transition ${isActive ? "border-primary-500 bg-primary-50 shadow-sm" : "border-slate-200 bg-white hover:border-primary-200 hover:bg-primary-50/40"}`}
+                                                >
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div>
+                                                            <p className="text-base font-semibold">{category.name}</p>
+                                                            <p className="mt-1 text-sm text-wellness-muted">Pilih kategori untuk memfilter jadwal appointment yang tersedia.</p>
+                                                        </div>
+                                                        {isActive && <IconCheck size={18} className="text-primary-600" />}
+                                                    </div>
+                                                </button>
+                                            );
+                                        }) : (
+                                            <div className="md:col-span-2 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-wellness-muted">
+                                                Belum ada kategori kelas tersedia.
+                                            </div>
+                                        )}
+                                    </div>
+                                </article>
+
+                                <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
+                                    <div className="flex items-center gap-3">
                                         <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconUser size={22} /></div>
                                         <div>
-                                            <h2 className="text-xl font-semibold">2. Pilih trainer</h2>
+                                            <h2 className="text-xl font-semibold">3. Pilih trainer</h2>
                                             <p className="text-sm text-wellness-muted">Select trainer</p>
                                         </div>
                                     </div>
@@ -930,7 +1002,7 @@ useEffect(() => {
                                     <div className="flex items-center gap-3">
                                         <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconCalendarMonth size={22} /></div>
                                         <div>
-                                            <h2 className="text-xl font-semibold">3. Pilih tanggal & jam</h2>
+                                            <h2 className="text-xl font-semibold">4. Pilih tanggal & jam</h2>
                                             {/* <p className="text-sm text-wellness-muted">Kalender hanya menampilkan slot jam yang trainer-nya tidak sedang bertugas.</p> */}
                                             <p className="text-sm text-wellness-muted">Select date and time</p>
                                         </div>
@@ -1032,7 +1104,7 @@ useEffect(() => {
                                     <div className="flex items-center gap-3">
                                         <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconCreditCard size={22} /></div>
                                         <div>
-                                            <h2 className="text-xl font-semibold">4. Konfirmasi & checkout</h2>
+                                            <h2 className="text-xl font-semibold">5. Konfirmasi & checkout</h2>
                                             <p className="text-sm text-wellness-muted">Ringkasan appointment Anda sebelum melanjutkan pembayaran.</p>
                                         </div>
                                     </div>
@@ -1043,8 +1115,12 @@ useEffect(() => {
                                             <p className="text-base font-semibold text-wellness-text">{selectedService.name}</p>
                                         </div>
                                         <div>
+                                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Kategori kelas</p>
+                                            <p className="text-base font-semibold text-wellness-text">{appointmentCategoryOptions.find((category) => category.id === selectedAppointmentCategoryId)?.name || "-"}</p>
+                                        </div>
+                                        <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Trainer</p>
-                                            <p className="text-base font-semibold text-wellness-text">{selectedAppointmentTrainer.name}</p>
+                                            <p className="text-base font-semibold text-wellness-text">{selectedAppointmentTrainer?.name || "-"}</p>
                                         </div>
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Jadwal</p>

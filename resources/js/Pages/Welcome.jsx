@@ -26,7 +26,6 @@ export default function Welcome() {
 
     const navItems = [
         { name: "Home", key: "home" },
-        { name: "About", key: "about" },
         { name: "Classes", key: "classes" },
         { name: "Schedule", key: "schedule" },
         { name: "Pricing", key: "pricing" },

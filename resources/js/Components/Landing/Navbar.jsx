@@ -5,7 +5,6 @@ import Button from "@/Components/Landing/Button";
 
 const defaultNavItems = [
     { name: "Home", key: "home" },
-    { name: "About", key: "about" },
     { name: "Classes", key: "classes" },
     { name: "Schedule", key: "schedule" },
     { name: "Pricing", key: "pricing" },
