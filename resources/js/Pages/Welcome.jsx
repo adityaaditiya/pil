@@ -450,7 +450,7 @@ export default function Welcome() {
                     </div>
                 </section>
 
-                <section className="px-4 py-20 md:px-6">
+                <section id="faq" className="px-4 py-20 md:px-6">
                     <div className="mx-auto max-w-5xl">
                         <SectionTitle
                             eyebrow="FAQ"
