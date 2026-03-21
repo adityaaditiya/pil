@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MembershipPlan;
+use App\Models\ClassCategory;
 use App\Models\Customer;
 use App\Models\PilatesBooking;
 use App\Models\PilatesClass;
@@ -28,9 +29,11 @@ class StudioPageController extends Controller
     public function index(): Response
     {
         return Inertia::render('Dashboard/StudioPages/Index', [
-            'studioPages' => StudioPage::when(request()->search, function ($query) {
-                $query->where('name', 'like', '%' . request()->search . '%')
-                    ->orWhere('title', 'like', '%' . request()->search . '%');
+            'studioPages' => StudioPage::where('key', '!=', 'about')->when(request()->search, function ($query) {
+                $query->where(function ($subQuery) {
+                    $subQuery->where('name', 'like', '%' . request()->search . '%')
+                        ->orWhere('title', 'like', '%' . request()->search . '%');
+                });
             })->orderBy('id')->paginate(10),
         ]);
     }
@@ -87,7 +90,7 @@ class StudioPageController extends Controller
         $normalizedKey = $key === 'trainer' ? 'trainers' : $key;
 
         $page = StudioPage::where('key', $normalizedKey)->first();
-        $menuItems = StudioPage::orderBy('id')->get(['name', 'key']);
+        $menuItems = StudioPage::where('key', '!=', 'about')->orderBy('id')->get(['name', 'key']);
 
         $paymentSetting = PaymentSetting::first();
         $paymentGateways = collect($paymentSetting?->enabledGateways() ?? [])->filter(function ($gateway) {
@@ -127,12 +130,13 @@ class StudioPageController extends Controller
                 ? Trainer::latest()->get(['id', 'name', 'photo', 'gender', 'date_of_birth', 'expertise', 'address', 'biodata'])
                 : [],
             'paymentGateways' => $normalizedKey === 'appointment' ? $paymentGateways : [],
+            'classCategories' => $normalizedKey === 'appointment' ? ClassCategory::orderBy('name')->get(['id', 'name']) : [],
         ]);
     }
 
     public function showClassDetail(PilatesClass $pilatesClass): Response
     {
-        $menuItems = StudioPage::orderBy('id')->get(['name', 'key']);
+        $menuItems = StudioPage::where('key', '!=', 'about')->orderBy('id')->get(['name', 'key']);
 
         return Inertia::render('WelcomeClassDetail', [
             'menuItems' => $menuItems,
@@ -142,7 +146,7 @@ class StudioPageController extends Controller
 
     public function showScheduleDetail(PilatesTimetable $pilatesTimetable): Response
     {
-        $menuItems = StudioPage::orderBy('id')->get(['name', 'key']);
+        $menuItems = StudioPage::where('key', '!=', 'about')->orderBy('id')->get(['name', 'key']);
         $schedule = $pilatesTimetable->load([
             'pilatesClass:id,class_category_id,image,name,duration,difficulty_level,about,equipment,price',
             'pilatesClass.classCategory:id,name',
