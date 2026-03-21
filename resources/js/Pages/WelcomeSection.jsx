@@ -290,10 +290,11 @@ export default function WelcomeSection({
         return classes.filter((classItem) => {
             const matchClassName = !classNameFilter || classItem.name === classNameFilter;
             const matchDifficulty = !difficultyFilter || classItem.difficulty_level === difficultyFilter;
+            const matchCategory = !classCategoryFilter || classItem.class_category?.name === classCategoryFilter;
 
             return matchClassName && matchDifficulty;
         });
-    }, [classes, classNameFilter, difficultyFilter]);
+    }, [classes, classNameFilter, difficultyFilter, classCategoryFilter]);
 
     const filteredSchedules = useMemo(() => {
         return schedules.filter((item) => {
@@ -653,6 +654,7 @@ useEffect(() => {
                                         <div className="flex flex-wrap gap-2 text-xs">
                                             <span className="rounded-full bg-primary-50 px-3 py-1">{classItem.duration} menit</span>
                                             <span className="rounded-full bg-primary-50 px-3 py-1">{classItem.difficulty_level}</span>
+                                            {/* <span className="rounded-full bg-primary-50 px-3 py-1">{classItem.class_category?.name}</span> */}
                                         </div>
                                         {/* <p className="text-sm text-wellness-muted">Trainer: {classItem.trainers.map((trainer) => trainer.name).join(", ") || "-"}</p> */}
                                         {/* <p className="font-semibold text-primary-600">{formatRupiah(classItem.price)}</p> */}
