@@ -4,12 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
     IconArrowLeft,
     IconArrowRight,
+    IconBrandInstagram,
+    IconBrandTiktok,
+    IconBrandWhatsapp,
     IconCalendarMonth,
     IconCheck,
     IconClock,
     IconCreditCard,
     IconCurrencyDollar,
     IconFilter,
+    IconMail,
     IconMapPin,
     IconSparkles,
     IconStar,
@@ -104,6 +108,36 @@ const getRemainingSlots = (item) => {
 
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
 
+
+
+const contactFaqs = [
+    {
+        question: "Apakah saya perlu reservasi sebelum datang ke studio?",
+        answer: "Ya, kami menyarankan reservasi terlebih dahulu agar Anda mendapatkan slot kelas, trainer, dan waktu yang paling sesuai.",
+    },
+    {
+        question: "Apakah tersedia kelas untuk pemula?",
+        answer: "Tentu. Tim kami memiliki kelas beginner friendly dan private session untuk membantu Anda mulai dengan aman dan nyaman.",
+    },
+    {
+        question: "Bagaimana cara menghubungi admin untuk konsultasi jadwal?",
+        answer: "Anda dapat menghubungi kami melalui WhatsApp, email, atau DM Instagram dan TikTok untuk respon yang lebih cepat pada jam operasional.",
+    },
+    {
+        question: "Apakah lokasi studio mudah ditemukan?",
+        answer: "Lokasi studio tersedia pada embedded Google Maps di halaman ini agar Anda bisa langsung membuka navigasi menuju studio.",
+    },
+];
+
+const contactInfo = {
+    email: "hello@oropilatesstudio.com",
+    address: "Jl. Layur No. 08, Tegalsari, Kec. Tegal Barat, Kota Tegal, Jawa Tengah 52111",
+    hours: "Senin - Sabtu, 07:00 - 20:00 WIB",
+    instagramUrl: "https://www.instagram.com/oropilatesstudio/",
+    tiktokUrl: "https://www.tiktok.com/@oropilatesstudio",
+    whatsappUrl: "https://wa.me/6282326923196",
+    mapsEmbedUrl: "https://www.google.com/maps?q=Jl.%20Layur%20No.%2008%2C%20Tegal&z=16&output=embed",
+};
 
 const appointmentServices = [
     { id: "private", name: "Private Class", duration: "60 menit", price: 350000, description: "Sesi 1-on-1 dengan program latihan personal." },
@@ -1121,6 +1155,149 @@ useEffect(() => {
                                 </div>
                             </article>
                         ))}
+                    </section>
+                )}
+
+                {pageKey === "contact" && (
+                    <section className="mx-auto max-w-6xl px-4 pb-16">
+                        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                            <div className="space-y-6">
+                                <article className="overflow-hidden rounded-[32px] border border-primary-100 bg-white shadow-[0_30px_80px_-40px_rgba(15,23,42,0.45)]">
+                                    <div className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-primary-900 p-8 text-white">
+                                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.12),transparent_30%)]" />
+                                        <div className="relative">
+                                            <p className="text-sm uppercase tracking-[0.28em] text-primary-100">Contact Experience</p>
+                                            <h2 className="mt-4 text-3xl font-semibold md:text-4xl">Hubungi studio dengan tampilan yang lebih premium.</h2>
+                                            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-primary-100/90 md:text-base">Kami siapkan semua channel komunikasi penting dalam satu halaman: FAQ, lokasi studio, sosial media, business information, dan tombol WhatsApp untuk konsultasi cepat.</p>
+                                            <div className="mt-6 flex flex-wrap gap-3">
+                                                <a
+                                                    href={`${route("welcome")}#faq`}
+                                                    className="inline-flex items-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-primary-50"
+                                                >
+                                                    Lihat FAQ di Welcome
+                                                </a>
+                                                <a
+                                                    href={contactInfo.whatsappUrl}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+                                                >
+                                                    <IconBrandWhatsapp size={18} /> Hubungi Kami
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+
+                                <article className="rounded-[32px] border border-primary-100 bg-white p-6 shadow-sm">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div>
+                                            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600">FAQ</p>
+                                            <h2 className="mt-2 text-2xl font-semibold text-slate-900">Hal yang sering ditanyakan</h2>
+                                        </div>
+                                        <a
+                                            href={`${route("welcome")}#faq`}
+                                            className="inline-flex items-center rounded-full border border-primary-200 px-4 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50"
+                                        >
+                                            Ke FAQ Welcome
+                                        </a>
+                                    </div>
+                                    <div className="mt-6 space-y-4">
+                                        {contactFaqs.map((item) => (
+                                            <details key={item.question} className="group rounded-3xl border border-slate-200 bg-slate-50/70 p-5 open:border-primary-200 open:bg-primary-50/60">
+                                                <summary className="cursor-pointer list-none text-base font-semibold text-slate-900">
+                                                    {item.question}
+                                                </summary>
+                                                <p className="mt-3 text-sm leading-relaxed text-wellness-muted">{item.answer}</p>
+                                            </details>
+                                        ))}
+                                    </div>
+                                </article>
+
+                                <article className="rounded-[32px] border border-primary-100 bg-white p-6 shadow-sm">
+                                    <div className="mb-5 flex items-center justify-between gap-4">
+                                        <div>
+                                            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600">Lokasi Studio</p>
+                                            <h2 className="mt-2 text-2xl font-semibold text-slate-900">Google Maps dengan tampilan premium</h2>
+                                        </div>
+                                        <div className="hidden rounded-full border border-primary-100 bg-primary-50 px-4 py-2 text-sm text-primary-700 md:inline-flex">Easy access navigation</div>
+                                    </div>
+                                    <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-slate-950 p-2 shadow-[0_25px_60px_-30px_rgba(15,23,42,0.55)]">
+                                        <div className="rounded-[24px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 p-3">
+                                            <iframe
+                                                title="ORO Pilates Studio Location"
+                                                src={contactInfo.mapsEmbedUrl}
+                                                className="h-[360px] w-full rounded-[20px] border-0 grayscale-[0.15] contrast-125 saturate-[0.9]"
+                                                loading="lazy"
+                                                referrerPolicy="no-referrer-when-downgrade"
+                                                allowFullScreen
+                                            />
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+
+                            <aside className="space-y-6">
+                                <article className="rounded-[32px] border border-primary-100 bg-white p-6 shadow-sm lg:sticky lg:top-24">
+                                    <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600">Connect</p>
+                                    <h2 className="mt-2 text-2xl font-semibold text-slate-900">Connect dengan sosial media</h2>
+                                    <p className="mt-3 text-sm leading-relaxed text-wellness-muted">Ikuti update class, wellness tips, dan promo terbaru melalui Instagram dan TikTok kami.</p>
+
+                                    <div className="mt-6 grid gap-3">
+                                        <a href={contactInfo.instagramUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 rounded-3xl border border-slate-200 bg-gradient-to-r from-pink-50 via-white to-orange-50 p-4 transition hover:border-primary-200 hover:shadow-sm">
+                                            <div className="rounded-2xl bg-white p-3 text-pink-600 shadow-sm"><IconBrandInstagram size={24} /></div>
+                                            <div>
+                                                <p className="font-semibold text-slate-900">Instagram</p>
+                                                <p className="text-sm text-wellness-muted">Lihat update studio & reels terbaru</p>
+                                            </div>
+                                        </a>
+                                        <a href={contactInfo.tiktokUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-100 via-white to-cyan-50 p-4 transition hover:border-primary-200 hover:shadow-sm">
+                                            <div className="rounded-2xl bg-white p-3 text-slate-900 shadow-sm"><IconBrandTiktok size={24} /></div>
+                                            <div>
+                                                <p className="font-semibold text-slate-900">TikTok</p>
+                                                <p className="text-sm text-wellness-muted">Temukan video singkat tips gerakan</p>
+                                            </div>
+                                        </a>
+                                    </div>
+
+                                    <div className="mt-8 rounded-[28px] border border-primary-100 bg-primary-50/60 p-5">
+                                        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600">Business Information</p>
+                                        <div className="mt-4 space-y-4 text-sm text-slate-700">
+                                            <div className="flex items-start gap-3">
+                                                <div className="rounded-2xl bg-white p-2.5 text-primary-700 shadow-sm"><IconMail size={18} /></div>
+                                                <div>
+                                                    <p className="font-semibold text-slate-900">Email</p>
+                                                    <a href={`mailto:${contactInfo.email}`} className="text-wellness-muted transition hover:text-primary-700">{contactInfo.email}</a>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-start gap-3">
+                                                <div className="rounded-2xl bg-white p-2.5 text-primary-700 shadow-sm"><IconMapPin size={18} /></div>
+                                                <div>
+                                                    <p className="font-semibold text-slate-900">Lokasi</p>
+                                                    <p className="text-wellness-muted">{contactInfo.address}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-start gap-3">
+                                                <div className="rounded-2xl bg-white p-2.5 text-primary-700 shadow-sm"><IconClock size={18} /></div>
+                                                <div>
+                                                    <p className="font-semibold text-slate-900">Jam Operasional</p>
+                                                    <p className="text-wellness-muted">{contactInfo.hours}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <a
+                                        href={contactInfo.whatsappUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-95"
+                                    >
+                                        <IconBrandWhatsapp size={20} /> Hubungi Kami
+                                    </a>
+                                </article>
+                            </aside>
+                        </div>
                     </section>
                 )}
 
