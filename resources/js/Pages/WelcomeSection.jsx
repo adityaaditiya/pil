@@ -466,6 +466,7 @@ useEffect(() => {
     const appointmentCategoryOptions = useMemo(() => classCategories.map((category) => ({
         id: String(category.id),
         name: category.name,
+        description: category.description || "belum ada deskripsi",
     })), [classCategories]);
 
     const appointmentSchedules = useMemo(() => {
@@ -888,7 +889,7 @@ useEffect(() => {
                                     <div className="flex items-center gap-3">
                                         <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconYoga size={22} /></div>
                                         <div>
-                                            <h2 className="text-xl font-semibold">1. Pilih Kategori</h2>
+                                            <h2 className="text-xl font-semibold">1. Tentukan Sesi</h2>
                                             <p className="text-sm text-wellness-muted">Tentukan tipe latihan yang paling sesuai dengan kebutuhan Anda.</p>
                                         </div>
                                     </div>
@@ -933,68 +934,92 @@ useEffect(() => {
                                 </article>
 
                                 <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
-                                    <div className="flex items-center gap-3">
-                                        <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconYoga size={22} /></div>
+                                    <div className="grid gap-8 lg:grid-cols-2">
+                                        
+                                        {/* ================= KOLOM KIRI: KATEGORI KELAS ================= */}
                                         <div>
-                                            <h2 className="text-xl font-semibold">2. Pilih kategori kelas</h2>
-                                            <p className="text-sm text-wellness-muted">Kategori diambil dari data Kategori Kelas.</p>
-                                        </div>
-                                    </div>
-                                    <div className="mt-5 grid gap-4 md:grid-cols-2">
-                                        {appointmentCategoryOptions.length > 0 ? appointmentCategoryOptions.map((category) => {
-                                            const isActive = category.id === selectedAppointmentCategoryId;
-                                            return (
-                                                <button
-                                                    key={category.id}
-                                                    type="button"
-                                                    onClick={() => setSelectedAppointmentCategoryId(category.id)}
-                                                    className={`rounded-3xl border p-5 text-left transition ${isActive ? "border-primary-500 bg-primary-50 shadow-sm" : "border-slate-200 bg-white hover:border-primary-200 hover:bg-primary-50/40"}`}
-                                                >
-                                                    <div className="flex items-start justify-between gap-3">
-                                                        <div>
-                                                            <p className="text-base font-semibold">{category.name}</p>
-                                                            <p className="mt-1 text-sm text-wellness-muted">Pilih kategori untuk memfilter jadwal appointment yang tersedia.</p>
-                                                        </div>
-                                                        {isActive && <IconCheck size={18} className="text-primary-600" />}
-                                                    </div>
-                                                </button>
-                                            );
-                                        }) : (
-                                            <div className="md:col-span-2 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-wellness-muted">
-                                                Belum ada kategori kelas tersedia.
+                                            <div className="flex items-center gap-3">
+                                                <div className="rounded-2xl bg-primary-50 p-3 text-primary-700">
+                                                    <IconYoga size={22} />
+                                                </div>
+                                                <div>
+                                                    <h2 className="text-xl font-semibold">2. Pilih kategori kelas</h2>
+                                                    <p className="text-sm text-wellness-muted">Temukan ritme yang sesuai dengan tujuan kebutuhan Anda hari ini</p>
+                                                </div>
                                             </div>
-                                        )}
-                                    </div>
-                                </article>
 
-                                <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
-                                    <div className="flex items-center gap-3">
-                                        <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconUser size={22} /></div>
-                                        <div>
-                                            <h2 className="text-xl font-semibold">3. Pilih trainer</h2>
-                                            <p className="text-sm text-wellness-muted">Select trainer</p>
-                                        </div>
-                                    </div>
-                                    <div className="mt-5 grid gap-4 md:grid-cols-2">
-                                        {appointmentTrainerChoices.map((trainer) => {
-                                            const isActive = trainer.id === selectedTrainerId;
-                                            return (
-                                                <button
-                                                    key={trainer.id}
-                                                    type="button"
-                                                    onClick={() => setSelectedTrainerId(trainer.id)}
-                                                    className={`rounded-3xl border p-5 text-left transition ${isActive ? "border-primary-500 bg-primary-50 shadow-sm" : "border-slate-200 bg-white hover:border-primary-200 hover:bg-primary-50/40"}`}
-                                                >
-                                                    <div className="flex items-start justify-between gap-3">
-                                                        <div>
-                                                            <p className="text-base font-semibold">{trainer.name}</p>
-                                                            <p className="mt-1 text-sm text-wellness-muted">{trainer.expertise}</p>
-                                                        </div>
-                                                        {isActive && <IconCheck size={18} className="text-primary-600" />}
+                                            <div className="mt-5 grid gap-3">
+                                                {appointmentCategoryOptions.length > 0 ? (
+                                                    appointmentCategoryOptions.map((category) => {
+                                                        const isActive = category.id === selectedAppointmentCategoryId;
+                                                        return (
+                                                            <button
+                                                                key={category.id}
+                                                                type="button"
+                                                                onClick={() => setSelectedAppointmentCategoryId(category.id)}
+                                                                className={`rounded-2xl border p-4 text-left transition ${
+                                                                    isActive 
+                                                                    ? "border-primary-500 bg-primary-50 shadow-sm" 
+                                                                    : "border-slate-200 bg-white hover:border-primary-200"
+                                                                }`}
+                                                            >
+                                                                <div className="flex items-start justify-between gap-3">
+                                                                    <div>
+                                                                        <p className="text-sm font-semibold">{category.name}</p>
+                                                                        <p className="mt-0.5 text-xs text-wellness-muted line-clamp-1">{category.description}</p>
+                                                                    </div>
+                                                                    {isActive && <IconCheck size={16} className="text-primary-600" />}
+                                                                </div>
+                                                            </button>
+                                                        );
+                                                    })
+                                                ) : (
+                                                    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-wellness-muted">
+                                                        Belum ada kategori tersedia.
                                                     </div>
-                                                </button>
-                                            );
-                                        })}
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* ================= KOLOM KANAN: TRAINER ================= */}
+                                        <div className="border-t pt-8 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+                                            <div className="flex items-center gap-3">
+                                                <div className="rounded-2xl bg-primary-50 p-3 text-primary-700">
+                                                    <IconUser size={22} />
+                                                </div>
+                                                <div>
+                                                    <h2 className="text-xl font-semibold">3. Pilih trainer</h2>
+                                                    <p className="text-sm text-wellness-muted">Temukan pendamping profesional yang sesuai dengan kebutuhan Anda</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-5 grid gap-3">
+                                                {appointmentTrainerChoices.map((trainer) => {
+                                                    const isActive = trainer.id === selectedTrainerId;
+                                                    return (
+                                                        <button
+                                                            key={trainer.id}
+                                                            type="button"
+                                                            onClick={() => setSelectedTrainerId(trainer.id)}
+                                                            className={`rounded-2xl border p-4 text-left transition ${
+                                                                isActive 
+                                                                ? "border-primary-500 bg-primary-50 shadow-sm" 
+                                                                : "border-slate-200 bg-white hover:border-primary-200"
+                                                            }`}
+                                                        >
+                                                            <div className="flex items-start justify-between gap-3">
+                                                                <div>
+                                                                    <p className="text-sm font-semibold">{trainer.name}</p>
+                                                                    <p className="mt-0.5 text-xs text-wellness-muted line-clamp-1">{trainer.expertise}</p>
+                                                                </div>
+                                                                {isActive && <IconCheck size={16} className="text-primary-600" />}
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </article>
 
@@ -1004,7 +1029,7 @@ useEffect(() => {
                                         <div>
                                             <h2 className="text-xl font-semibold">4. Pilih tanggal & jam</h2>
                                             {/* <p className="text-sm text-wellness-muted">Kalender hanya menampilkan slot jam yang trainer-nya tidak sedang bertugas.</p> */}
-                                            <p className="text-sm text-wellness-muted">Select date and time</p>
+                                            <p className="text-sm text-wellness-muted">Sesuaikan pengalaman Pilates Anda berdasarkan preferensi dan kenyamanan personal</p>
                                         </div>
                                     </div>
                                     <div className="mt-5 grid gap-6 lg:grid-cols-[3fr_1.1fr]">
@@ -1100,6 +1125,17 @@ useEffect(() => {
                             </div>
 
                             <aside className="space-y-6">
+                                <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
+                                    <h3 className="text-lg font-semibold">Ketentuan Pembatalan</h3>
+                                    <div className="mt-3 rounded-2xl border border-primary-100 p-4">
+                                            {/* <p className="text-sm font-semibold text-wellness-text">Metode pembayaran</p> */}
+                                            <ul className="mt-0 space-y-2 text-sm text-wellness-muted">
+                                                <li className="flex items-start gap-2 text-justify"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Demi kenyamanan bersama, kami sangat menghargai kerja sama Anda untuk tidak melakukan pembatalan mendadak agar jadwal kelas tetap berjalan efektif.</li>
+                                                <li className="flex items-start gap-2 text-justify"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Catatan: Pengembalian kredit/saldo hanya berlaku untuk pembatalan yang dilakukan maksimal 24 jam sebelum sesi dimulai. Pembatalan setelah melewati batas waktu tersebut akan dianggap hangus.</li>
+                                            </ul>
+                                        </div>
+                                </article>
+
                                 <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm lg:sticky lg:top-24">
                                     <div className="flex items-center gap-3">
                                         <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconCreditCard size={22} /></div>
@@ -1154,16 +1190,7 @@ useEffect(() => {
                                     </div>
                                 </article>
 
-                                <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
-                                    <h3 className="text-lg font-semibold">Ketentuan Pembatalan</h3>
-                                    <div className="mt-2 rounded-2xl border border-primary-100 p-4">
-                                            {/* <p className="text-sm font-semibold text-wellness-text">Metode pembayaran</p> */}
-                                            <ul className="mt-0 space-y-2 text-sm text-wellness-muted">
-                                                <li className="flex items-start gap-2 text-justify"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Demi kenyamanan bersama, kami sangat menghargai kerja sama Anda untuk tidak melakukan pembatalan mendadak agar jadwal kelas tetap berjalan efektif.</li>
-                                                <li className="flex items-start gap-2 text-justify"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Catatan: Pengembalian kredit/saldo hanya berlaku untuk pembatalan yang dilakukan maksimal 24 jam sebelum sesi dimulai. Pembatalan setelah melewati batas waktu tersebut akan dianggap hangus.</li>
-                                            </ul>
-                                        </div>
-                                </article>
+                                
                             </aside>
                         </div>
                     </section>

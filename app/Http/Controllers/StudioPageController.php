@@ -130,7 +130,7 @@ class StudioPageController extends Controller
                 ? Trainer::latest()->get(['id', 'name', 'photo', 'gender', 'date_of_birth', 'expertise', 'address', 'biodata'])
                 : [],
             'paymentGateways' => $normalizedKey === 'appointment' ? $paymentGateways : [],
-            'classCategories' => $normalizedKey === 'appointment' ? ClassCategory::orderBy('name')->get(['id', 'name']) : [],
+            'classCategories' => $normalizedKey === 'appointment' ? ClassCategory::orderBy('name')->get(['id', 'name', 'description']) : [],
         ]);
     }
 
