@@ -158,7 +158,7 @@ export default function MyMemberships({ memberships = [], filters = {} }) {
                                         </p>
                                         <p className="inline-flex items-center gap-2">
                                             <IconCreditCard size={16} />
-                                            Metode: {item.payment_method || "-"}
+                                            Payment: {item.payment_method || "-"}
                                         </p>
                                         <p className="inline-flex items-center gap-2">
                                             <IconCalendarEvent size={16} />
