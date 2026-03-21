@@ -943,7 +943,7 @@ useEffect(() => {
                                                     <IconYoga size={22} />
                                                 </div>
                                                 <div>
-                                                    <h2 className="text-xl font-semibold">2. Pilih kategori kelas</h2>
+                                                    <h2 className="text-xl font-semibold">2. Pilih Kategori Kelas</h2>
                                                     <p className="text-sm text-wellness-muted">Temukan ritme yang sesuai dengan tujuan kebutuhan Anda hari ini</p>
                                                 </div>
                                             </div>
@@ -988,8 +988,8 @@ useEffect(() => {
                                                     <IconUser size={22} />
                                                 </div>
                                                 <div>
-                                                    <h2 className="text-xl font-semibold">3. Pilih trainer</h2>
-                                                    <p className="text-sm text-wellness-muted">Temukan pendamping profesional yang sesuai dengan kebutuhan Anda</p>
+                                                    <h2 className="text-xl font-semibold">3. Pilih Trainer</h2>
+                                                    <p className="text-sm text-wellness-muted">Temukan pendamping profesional sesuai dengan kebutuhan Anda</p>
                                                 </div>
                                             </div>
 
@@ -1027,7 +1027,7 @@ useEffect(() => {
                                     <div className="flex items-center gap-3">
                                         <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconCalendarMonth size={22} /></div>
                                         <div>
-                                            <h2 className="text-xl font-semibold">4. Pilih tanggal & jam</h2>
+                                            <h2 className="text-xl font-semibold">4. Pilih Tanggal & Jam</h2>
                                             {/* <p className="text-sm text-wellness-muted">Kalender hanya menampilkan slot jam yang trainer-nya tidak sedang bertugas.</p> */}
                                             <p className="text-sm text-wellness-muted">Sesuaikan pengalaman Pilates Anda berdasarkan preferensi dan kenyamanan personal</p>
                                         </div>
@@ -1140,7 +1140,7 @@ useEffect(() => {
                                     <div className="flex items-center gap-3">
                                         <div className="rounded-2xl bg-primary-50 p-3 text-primary-700"><IconCreditCard size={22} /></div>
                                         <div>
-                                            <h2 className="text-xl font-semibold">5. Konfirmasi & checkout</h2>
+                                            <h2 className="text-xl font-semibold">5. Konfirmasi & Checkout</h2>
                                             <p className="text-sm text-wellness-muted">Ringkasan appointment Anda sebelum melanjutkan pembayaran.</p>
                                         </div>
                                     </div>
