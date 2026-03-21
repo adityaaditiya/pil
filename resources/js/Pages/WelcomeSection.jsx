@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
     IconArrowLeft,
     IconArrowRight,
-    IconBrandWhatsapp,
     IconCalendarMonth,
     IconCheck,
     IconClock,
@@ -12,8 +11,6 @@ import {
     IconCurrencyDollar,
     IconFilter,
     IconMapPin,
-    IconMail,
-    IconSend,
     IconSparkles,
     IconStar,
     IconUser,
@@ -486,19 +483,6 @@ useEffect(() => {
     const appointmentPaymentLabels = paymentGateways.length > 0
         ? paymentGateways.map((gateway) => gateway.label || gateway.name || gateway.value)
         : ["Payment gateway drop-in"];
-
-    const contactDetails = {
-        mapEmbedUrl:
-            "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126756.49909188194!2d110.33364505217713!3d-7.782889414911878!2m3!1f0!2f0!3f0!3m2!1iid!2sid!4v1710000000000!5m2!1sid!2sid",
-        address: "Bella Prana Pilates Studio, Jl. Wellness Avenue No. 18, Yogyakarta 55281",
-        whatsapp: "+62 811-9000-232",
-        email: "hello@bellaprana.com",
-        hours: [
-            "Senin - Jumat · 06.30 - 20.30",
-            "Sabtu · 08.00 - 17.00",
-            "Minggu & Hari Libur · By Appointment",
-        ],
-    };
 
 
     return (
@@ -1168,165 +1152,6 @@ useEffect(() => {
                                 </div>
                             </article>
                         ))}
-                    </section>
-                )}
-
-                {pageKey === "contact" && (
-                    <section className="mx-auto max-w-6xl px-4 pb-16">
-                        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                            <article className="rounded-[2rem] border border-primary-100 bg-white p-6 shadow-sm md:p-8">
-                                <div className="max-w-xl">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-600">Contact Bella Prana</p>
-                                    <h2 className="mt-4 text-3xl font-semibold text-wellness-text md:text-4xl">Mari mulai percakapan yang tenang dan personal.</h2>
-                                    <p className="mt-4 text-sm leading-7 text-wellness-muted md:text-base">
-                                        Tinggalkan pesan Anda untuk konsultasi kelas, private session, atau kunjungan studio. Tim kami akan menghubungi Anda dengan pengalaman yang hangat, cepat, dan profesional.
-                                    </p>
-                                </div>
-
-                                <form className="mt-10 space-y-7">
-                                    <div className="grid gap-7 md:grid-cols-2">
-                                        <label className="block">
-                                            <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.24em] text-wellness-muted">Nama lengkap</span>
-                                            <input
-                                                type="text"
-                                                placeholder="Masukkan nama Anda"
-                                                className="w-full border-0 border-b border-primary-200 bg-transparent px-0 pb-3 pt-1 text-sm text-wellness-text placeholder:text-slate-400 focus:border-primary-600 focus:ring-0"
-                                            />
-                                        </label>
-                                        <label className="block">
-                                            <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.24em] text-wellness-muted">Nomor WhatsApp</span>
-                                            <input
-                                                type="tel"
-                                                placeholder="+62"
-                                                className="w-full border-0 border-b border-primary-200 bg-transparent px-0 pb-3 pt-1 text-sm text-wellness-text placeholder:text-slate-400 focus:border-primary-600 focus:ring-0"
-                                            />
-                                        </label>
-                                    </div>
-
-                                    <div className="grid gap-7 md:grid-cols-2">
-                                        <label className="block">
-                                            <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.24em] text-wellness-muted">Email</span>
-                                            <input
-                                                type="email"
-                                                placeholder="nama@email.com"
-                                                className="w-full border-0 border-b border-primary-200 bg-transparent px-0 pb-3 pt-1 text-sm text-wellness-text placeholder:text-slate-400 focus:border-primary-600 focus:ring-0"
-                                            />
-                                        </label>
-                                        <label className="block">
-                                            <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.24em] text-wellness-muted">Layanan yang diminati</span>
-                                            <input
-                                                type="text"
-                                                placeholder="Private class / Membership"
-                                                className="w-full border-0 border-b border-primary-200 bg-transparent px-0 pb-3 pt-1 text-sm text-wellness-text placeholder:text-slate-400 focus:border-primary-600 focus:ring-0"
-                                            />
-                                        </label>
-                                    </div>
-
-                                    <label className="block">
-                                        <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.24em] text-wellness-muted">Pesan</span>
-                                        <textarea
-                                            rows={5}
-                                            placeholder="Ceritakan kebutuhan Anda, preferensi jadwal, atau pertanyaan seputar studio."
-                                            className="w-full resize-none border-0 border-b border-primary-200 bg-transparent px-0 pb-3 pt-1 text-sm leading-7 text-wellness-text placeholder:text-slate-400 focus:border-primary-600 focus:ring-0"
-                                        />
-                                    </label>
-
-                                    <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
-                                        <p className="max-w-sm text-sm leading-6 text-wellness-muted">
-                                            Dengan mengirim form ini, Anda setuju dihubungi oleh tim studio untuk kebutuhan reservasi dan konsultasi.
-                                        </p>
-                                        <button
-                                            type="submit"
-                                            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
-                                        >
-                                            <IconSend size={18} />
-                                            Kirim Pesan
-                                        </button>
-                                    </div>
-                                </form>
-                            </article>
-
-                            <div className="grid gap-6 lg:grid-rows-[1.2fr_0.8fr]">
-                                <article className="overflow-hidden rounded-[2rem] border border-primary-100 bg-white p-3 shadow-sm transition-transform hover:-translate-y-1">
-                                    <div className="mb-3 flex items-center justify-between px-3 pt-3">
-                                        <div>
-                                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">Visit the studio</p>
-                                            <h3 className="mt-2 text-xl font-semibold text-wellness-text">Our tranquil location</h3>
-                                        </div>
-                                        <div className="rounded-2xl bg-wellness-beige p-3 text-primary-600">
-                                            <IconMapPin size={20} />
-                                        </div>
-                                    </div>
-                                    <iframe
-                                        title="Bella Prana Studio Map"
-                                        src={contactDetails.mapEmbedUrl}
-                                        loading="lazy"
-                                        allowFullScreen
-                                        referrerPolicy="no-referrer-when-downgrade"
-                                        className="h-[320px] w-full rounded-3xl border-0 md:h-[360px]"
-                                    />
-                                </article>
-
-                                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                                    <article className="rounded-[2rem] border border-primary-100 bg-wellness-beige p-6 shadow-sm">
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div>
-                                                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">Studio details</p>
-                                                <h3 className="mt-2 text-xl font-semibold text-wellness-text">Alamat & jam operasional</h3>
-                                            </div>
-                                            <div className="rounded-2xl bg-white p-3 text-primary-600 shadow-sm">
-                                                <IconClock size={20} />
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-6 space-y-5 text-sm leading-7 text-wellness-muted">
-                                            <div className="flex items-start gap-3">
-                                                <IconMapPin size={18} className="mt-1 shrink-0 text-primary-600" />
-                                                <p>{contactDetails.address}</p>
-                                            </div>
-                                            <div className="flex items-start gap-3">
-                                                <IconClock size={18} className="mt-1 shrink-0 text-primary-600" />
-                                                <div>
-                                                    {contactDetails.hours.map((item) => (
-                                                        <p key={item}>{item}</p>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                            <div className="flex items-start gap-3">
-                                                <IconMail size={18} className="mt-1 shrink-0 text-primary-600" />
-                                                <p>{contactDetails.email}</p>
-                                            </div>
-                                        </div>
-                                    </article>
-
-                                    <a
-                                        href={`https://wa.me/${contactDetails.whatsapp.replace(/\D/g, "")}`}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="rounded-[2rem] border border-primary-100 bg-white p-6 shadow-sm transition-transform hover:-translate-y-1"
-                                    >
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div>
-                                                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">WhatsApp concierge</p>
-                                                <h3 className="mt-2 text-xl font-semibold text-wellness-text">Fast response via WhatsApp</h3>
-                                            </div>
-                                            <div className="rounded-2xl bg-green-50 p-3 text-green-600">
-                                                <IconBrandWhatsapp size={20} />
-                                            </div>
-                                        </div>
-
-                                        <p className="mt-6 text-sm leading-7 text-wellness-muted">
-                                            Untuk reservasi cepat, arah studio, atau pertanyaan membership, hubungi tim kami secara langsung.
-                                        </p>
-
-                                        <div className="mt-8 inline-flex items-center gap-3 rounded-full bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700">
-                                            <IconBrandWhatsapp size={18} />
-                                            {contactDetails.whatsapp}
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
                     </section>
                 )}
             </div>
