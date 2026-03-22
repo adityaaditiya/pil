@@ -78,6 +78,7 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
         session_name: "",
         description: "",
         price: "",
+        duration_minutes: "",
         start_date: "",
         end_date: "",
         repeat_schedule: false,
@@ -188,6 +189,21 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
                                 {errors.price && <p className="text-xs text-rose-500">{errors.price}</p>}
                             </div>
 
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Durasi Kelas (Menit)</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    step="1"
+                                    value={data.duration_minutes}
+                                    onChange={(event) => setData("duration_minutes", event.target.value)}
+                                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
+                                    placeholder="Contoh: 60"
+                                />
+                                <p className="text-xs text-slate-500">Kolom ini membagi jam operasional aktif menjadi beberapa sesi appointment sesuai durasi.</p>
+                                {errors.duration_minutes && <p className="text-xs text-rose-500">{errors.duration_minutes}</p>}
+                            </div>
+
                             <div className="grid gap-5 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Tanggal Mulai</label>
@@ -217,7 +233,7 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
                         <div className="space-y-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-950/40">
                             <div>
                                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Pilih Hari & Slot Jam</p>
-                                <p className="mt-1 text-xs text-slate-500">Tiap hari bisa diaktifkan/nonaktifkan dan memiliki lebih dari satu slot. Pilihan jam hanya tersedia dari 06:00 sampai 22:30 dengan interval 30 menit.</p>
+                                <p className="mt-1 text-xs text-slate-500">Tiap hari bisa diaktifkan/nonaktifkan dan memiliki lebih dari satu slot jam operasional. Sistem akan membaginya menjadi sesi appointment mengikuti durasi kelas.</p>
                             </div>
 
                             {errors.schedules && <p className="text-xs text-rose-500">{errors.schedules}</p>}

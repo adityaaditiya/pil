@@ -100,6 +100,7 @@ class PilatesAppointmentController extends Controller
             'session_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
+            'duration_minutes' => ['required', 'integer', 'min:1'],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'repeat_schedule' => ['required', 'boolean'],
@@ -176,6 +177,8 @@ class PilatesAppointmentController extends Controller
     {
         $startDate = Carbon::parse($validated['start_date'], 'Asia/Jakarta')->startOfDay();
         $endDate = Carbon::parse($validated['end_date'], 'Asia/Jakarta')->startOfDay();
+        $durationMinutes = (int) $validated['duration_minutes'];
+
         $schedules = collect($validated['schedules'] ?? [])
             ->mapWithKeys(function (array $schedule, string $day) {
                 $slots = collect(Arr::get($schedule, 'slots', []))
@@ -202,7 +205,6 @@ class PilatesAppointmentController extends Controller
                             'start_minute' => $slot['start_minute'],
                             'end_hour' => $slot['end_hour'],
                             'end_minute' => $slot['end_minute'],
-                            'duration_minutes' => $startAt->diffInMinutes($endAt),
                         ];
                     })
                     ->values();
@@ -231,15 +233,11 @@ class PilatesAppointmentController extends Controller
                 ]);
             }
 
-            return collect($selectedSchedule['slots'])->map(function (array $slot) use ($startDate) {
+            return collect($selectedSchedule['slots'])->flatMap(function (array $slot) use ($startDate, $durationMinutes) {
                 $startAt = $startDate->copy()->setTime((int) $slot['start_hour'], (int) $slot['start_minute']);
                 $endAt = $startDate->copy()->setTime((int) $slot['end_hour'], (int) $slot['end_minute']);
 
-                return [
-                    'start_at' => $startAt,
-                    'end_at' => $endAt,
-                    'duration_minutes' => $slot['duration_minutes'],
-                ];
+                return $this->splitSlotIntoOccurrences($startAt, $endAt, $durationMinutes);
             })->values();
         }
 
@@ -252,17 +250,41 @@ class PilatesAppointmentController extends Controller
                 return [];
             }
 
-            return collect($selectedSchedule['slots'])->map(function (array $slot) use ($date) {
+            return collect($selectedSchedule['slots'])->flatMap(function (array $slot) use ($date, $durationMinutes) {
                 $startAt = $date->copy()->setTime((int) $slot['start_hour'], (int) $slot['start_minute']);
                 $endAt = $date->copy()->setTime((int) $slot['end_hour'], (int) $slot['end_minute']);
 
-                return [
-                    'start_at' => $startAt,
-                    'end_at' => $endAt,
-                    'duration_minutes' => $slot['duration_minutes'],
-                ];
+                return $this->splitSlotIntoOccurrences($startAt, $endAt, $durationMinutes);
             });
         })->values();
+    }
+
+    private function splitSlotIntoOccurrences(Carbon $startAt, Carbon $endAt, int $durationMinutes): Collection
+    {
+        $slotDuration = $startAt->diffInMinutes($endAt);
+
+        if ($slotDuration < $durationMinutes) {
+            throw ValidationException::withMessages([
+                'duration_minutes' => 'Durasi kelas tidak boleh lebih besar dari rentang slot jam aktif.',
+            ]);
+        }
+
+        if ($slotDuration % $durationMinutes !== 0) {
+            throw ValidationException::withMessages([
+                'duration_minutes' => 'Durasi kelas harus membagi slot jam aktif tanpa sisa.',
+            ]);
+        }
+
+        return collect(range(0, (int) ($slotDuration / $durationMinutes) - 1))
+            ->map(function (int $index) use ($startAt, $durationMinutes) {
+                $occurrenceStart = $startAt->copy()->addMinutes($index * $durationMinutes);
+
+                return [
+                    'start_at' => $occurrenceStart,
+                    'end_at' => $occurrenceStart->copy()->addMinutes($durationMinutes),
+                    'duration_minutes' => $durationMinutes,
+                ];
+            });
     }
 
     private function assertNoConflicts(Collection $occurrences, int $trainerId): void
