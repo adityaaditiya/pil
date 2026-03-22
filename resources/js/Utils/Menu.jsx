@@ -4,6 +4,7 @@ import {
     IconBox,
     IconCategory,
     IconCalendarEvent,
+    IconCalendarClock,
     IconChartArrowsVertical,
     IconChartBarPopular,
     IconChartInfographic,
@@ -105,6 +106,13 @@ function Menu() {
                     href: route("classes.index"),
                     active: url.startsWith("/dashboard/classes"),
                     icon: <IconYoga size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["dashboard-access"]),
+                },
+                {
+                    title: "Appointment",
+                    href: route("appointments.index"),
+                    active: url.startsWith("/dashboard/appointments"),
+                    icon: <IconCalendarClock size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["dashboard-access"]),
                 },
                 {

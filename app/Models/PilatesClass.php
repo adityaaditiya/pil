@@ -53,4 +53,9 @@ class PilatesClass extends Model
             ->withPivot('credit_cost')
             ->withTimestamps();
     }
+
+    public function appointments()
+    {
+        return $this->hasMany(PilatesAppointment::class);
+    }
 }
