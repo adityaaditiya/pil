@@ -16,6 +16,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PilatesBookingHistoryController;
 use App\Http\Controllers\PilatesClassController;
 use App\Http\Controllers\PilatesTimetableController;
+use App\Http\Controllers\PilatesAppointmentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Reports\ProfitReportController;
 use App\Http\Controllers\Reports\AuthorizationReportController;
@@ -146,6 +147,19 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::delete('timetable/{timetable}', [PilatesTimetableController::class, 'destroy'])
         ->middleware('permission:dashboard-access')
         ->name('timetable.destroy');
+    Route::get('appointments', [PilatesAppointmentController::class, 'index'])
+        ->middleware('permission:dashboard-access')
+        ->name('appointments.index');
+    Route::get('appointments/create', [PilatesAppointmentController::class, 'create'])
+        ->middleware('permission:dashboard-access')
+        ->name('appointments.create');
+    Route::post('appointments', [PilatesAppointmentController::class, 'store'])
+        ->middleware('permission:dashboard-access')
+        ->name('appointments.store');
+    Route::delete('appointments/{appointment}', [PilatesAppointmentController::class, 'destroy'])
+        ->middleware('permission:dashboard-access')
+        ->name('appointments.destroy');
+    
     Route::get('bookings/history', [PilatesBookingHistoryController::class, 'index'])
         ->middleware('permission:dashboard-access')
         ->name('bookings.history');

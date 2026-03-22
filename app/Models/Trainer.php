@@ -33,4 +33,9 @@ class Trainer extends Model
     {
         return $this->hasMany(PilatesTimetable::class);
     }
+
+    public function appointments()
+    {
+        return $this->hasMany(PilatesAppointment::class);
+    }
 }

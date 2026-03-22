@@ -19,12 +19,16 @@ class PilatesClass extends Model
         'equipment',
         'credit',
         'price',
+        'available_for_timetable',
+        'available_for_appointment',
     ];
 
     protected $casts = [
         'duration' => 'integer',
         'credit' => 'decimal:2',
         'price' => 'decimal:2',
+        'available_for_timetable' => 'boolean',
+        'available_for_appointment' => 'boolean',
     ];
 
     public function classCategory()
@@ -48,5 +52,10 @@ class PilatesClass extends Model
         return $this->belongsToMany(MembershipPlan::class, 'membership_plan_classes')
             ->withPivot('credit_cost')
             ->withTimestamps();
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(PilatesAppointment::class);
     }
 }
