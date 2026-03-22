@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\MembershipPlan;
-use App\Models\ClassCategory;
 use App\Models\Customer;
 use App\Models\PilatesBooking;
 use App\Models\PilatesClass;
@@ -112,11 +111,12 @@ class StudioPageController extends Controller
                 : [],
             'schedules' => in_array($normalizedKey, ['schedule', 'appointment'], true)
                 ? PilatesTimetable::with([
-                    'pilatesClass:id,class_category_id,name,image,difficulty_level',
+                    'pilatesClass:id,class_category_id,name,image,difficulty_level,about,available_for_appointment',
                     'pilatesClass.classCategory:id,name',
                     'trainer:id,name',
                 ])
                     ->where('status', 'scheduled')
+                    ->when($normalizedKey === 'appointment', fn ($query) => $query->whereHas('pilatesClass', fn ($classQuery) => $classQuery->where('available_for_appointment', true)))
                     ->orderBy('start_at')
                     ->get(['id', 'pilates_class_id', 'trainer_id', 'start_at', 'capacity', 'duration_minutes', 'price_override', 'allow_drop_in'])
                 : [],
@@ -130,7 +130,12 @@ class StudioPageController extends Controller
                 ? Trainer::latest()->get(['id', 'name', 'photo', 'gender', 'date_of_birth', 'expertise', 'address', 'biodata'])
                 : [],
             'paymentGateways' => $normalizedKey === 'appointment' ? $paymentGateways : [],
-            'classCategories' => $normalizedKey === 'appointment' ? ClassCategory::orderBy('name')->get(['id', 'name', 'description']) : [],
+            'appointmentClasses' => $normalizedKey === 'appointment'
+                ? PilatesClass::query()
+                    ->where('available_for_appointment', true)
+                    ->orderBy('name')
+                    ->get(['id', 'name', 'about'])
+                : [],
         ]);
     }
 
