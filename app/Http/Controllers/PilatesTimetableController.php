@@ -16,7 +16,7 @@ class PilatesTimetableController extends Controller
     public function create(): Response
     {
         return Inertia::render('Timetable/Create', [
-            'classes' => PilatesClass::query()->select('id', 'name')->orderBy('name')->get(),
+            'classes' => PilatesClass::query()->where('available_for_timetable', true)->select('id', 'name')->orderBy('name')->get(),
             'trainers' => Trainer::query()->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
@@ -24,7 +24,14 @@ class PilatesTimetableController extends Controller
     public function edit(PilatesTimetable $timetable): Response
     {
         return Inertia::render('Timetable/Edit', [
-            'classes' => PilatesClass::query()->select('id', 'name')->orderBy('name')->get(),
+            'classes' => PilatesClass::query()
+                ->where(function ($query) use ($timetable) {
+                    $query->where('available_for_timetable', true)
+                        ->orWhere('id', $timetable->pilates_class_id);
+                })
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get(),
             'trainers' => Trainer::query()->select('id', 'name')->orderBy('name')->get(),
             'session' => [
                 'id' => $timetable->id,

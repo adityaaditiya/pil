@@ -50,6 +50,8 @@ class PilatesClassController extends Controller
             'difficulty_level' => 'required|in:Beginner,Intermediate,Advanced,Open to all',
             'about' => 'required|string',
             'equipment' => 'required|string',
+            'available_for_timetable' => 'required|boolean',
+            'available_for_appointment' => 'required|boolean',
             'trainer_ids' => 'required|array|min:1',
             'trainer_ids.*' => 'required|exists:trainers,id',
         ]);
@@ -86,6 +88,8 @@ class PilatesClassController extends Controller
             'difficulty_level' => 'required|in:Beginner,Intermediate,Advanced,Open to all',
             'about' => 'required|string',
             'equipment' => 'required|string',
+            'available_for_timetable' => 'required|boolean',
+            'available_for_appointment' => 'required|boolean',
             'trainer_ids' => 'required|array|min:1',
             'trainer_ids.*' => 'required|exists:trainers,id',
         ]);

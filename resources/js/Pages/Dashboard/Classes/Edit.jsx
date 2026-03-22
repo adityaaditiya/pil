@@ -18,6 +18,8 @@ export default function Edit({ classItem, trainers, classCategories }) {
         about: classItem.about,
         equipment: classItem.equipment,
         trainer_ids: classItem.trainers.map((trainer) => trainer.id),
+        available_for_timetable: Boolean(classItem.available_for_timetable),
+        available_for_appointment: Boolean(classItem.available_for_appointment),
         _method: "PUT",
     });
 
@@ -74,6 +76,26 @@ export default function Edit({ classItem, trainers, classCategories }) {
                     </div>
                     <Textarea label="About" value={data.about} errors={errors.about} onChange={(e) => setData("about", e.target.value)} rows={3} />
                     <Textarea label="Perlengkapan" value={data.equipment} errors={errors.equipment} onChange={(e) => setData("equipment", e.target.value)} rows={3} />
+
+                    <div className="grid gap-3 md:grid-cols-2">
+                        <label className="inline-flex items-start gap-3 rounded-xl border border-slate-200 p-4 text-sm">
+                            <input type="checkbox" className="mt-1" checked={data.available_for_timetable} onChange={(e) => setData("available_for_timetable", e.target.checked)} />
+                            <span>
+                                <span className="font-medium text-slate-700 dark:text-slate-300">Tersedia untuk Timetable</span>
+                                <span className="mt-1 block text-xs text-slate-500">Kelas akan muncul pada form tambah dan ubah session timetable.</span>
+                            </span>
+                        </label>
+                        <label className="inline-flex items-start gap-3 rounded-xl border border-slate-200 p-4 text-sm">
+                            <input type="checkbox" className="mt-1" checked={data.available_for_appointment} onChange={(e) => setData("available_for_appointment", e.target.checked)} />
+                            <span>
+                                <span className="font-medium text-slate-700 dark:text-slate-300">Tersedia untuk Appointment</span>
+                                <span className="mt-1 block text-xs text-slate-500">Kelas akan tampil pada pilihan kelas di halaman appointment welcome section.</span>
+                            </span>
+                        </label>
+                    </div>
+                    {(errors.available_for_timetable || errors.available_for_appointment) && (
+                        <small className="text-xs text-danger-500">{errors.available_for_timetable || errors.available_for_appointment}</small>
+                    )}
 
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Trainers</label>

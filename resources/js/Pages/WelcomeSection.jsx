@@ -167,7 +167,7 @@ export default function WelcomeSection({
     memberships = [],
     trainers = [],
     paymentGateways = [],
-    classCategories = [],
+    appointmentClasses = [],
     initialFilters = {},
 }) {
     const [showFilters, setShowFilters] = useState(false);
@@ -183,7 +183,7 @@ export default function WelcomeSection({
     const dateInputRef = useRef(null); // Tambahkan ini
     const [selectedServiceId, setSelectedServiceId] = useState(appointmentServices[0].id);
     const [selectedTrainerId, setSelectedTrainerId] = useState(trainers[0] ? String(trainers[0].id) : "");
-    const [selectedAppointmentCategoryId, setSelectedAppointmentCategoryId] = useState("");
+    const [selectedAppointmentClassId, setSelectedAppointmentClassId] = useState("");
     const [selectedAppointmentDate, setSelectedAppointmentDate] = useState("");
         // Tambahkan di deretan useState
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
@@ -463,20 +463,20 @@ useEffect(() => {
         })),
     ]), [trainers]);
 
-    const appointmentCategoryOptions = useMemo(() => classCategories.map((category) => ({
-        id: String(category.id),
-        name: category.name,
-        description: category.description || "belum ada deskripsi",
-    })), [classCategories]);
+    const appointmentClassOptions = useMemo(() => appointmentClasses.map((classItem) => ({
+        id: String(classItem.id),
+        name: classItem.name,
+        description: classItem.about || "belum ada deskripsi",
+    })), [appointmentClasses]);
 
     const appointmentSchedules = useMemo(() => {
         return schedules.filter((item) => {
             const trainerMatches = !selectedTrainerId || String(item.trainer_id ?? item.trainer?.id) === selectedTrainerId;
-            const categoryMatches = !selectedAppointmentCategoryId || String(item.pilates_class?.class_category_id ?? item.pilates_class?.class_category?.id) === selectedAppointmentCategoryId;
+            const classMatches = !selectedAppointmentClassId || String(item.pilates_class?.id) === selectedAppointmentClassId;
 
-            return trainerMatches && categoryMatches;
+            return trainerMatches && classMatches;
         });
-    }, [schedules, selectedTrainerId, selectedAppointmentCategoryId]);
+    }, [schedules, selectedTrainerId, selectedAppointmentClassId]);
 
     const appointmentDates = useMemo(() => {
         const today = new Date();
@@ -533,10 +533,10 @@ useEffect(() => {
             return;
         }
 
-        if (!selectedAppointmentCategoryId && appointmentCategoryOptions[0]) {
-            setSelectedAppointmentCategoryId(appointmentCategoryOptions[0].id);
+        if (!selectedAppointmentClassId && appointmentClassOptions[0]) {
+            setSelectedAppointmentClassId(appointmentClassOptions[0].id);
         }
-    }, [pageKey, selectedAppointmentCategoryId, appointmentCategoryOptions]);
+    }, [pageKey, selectedAppointmentClassId, appointmentClassOptions]);
 
     useEffect(() => {
         if (pageKey !== "appointment") {
@@ -943,20 +943,20 @@ useEffect(() => {
                                                     <IconYoga size={22} />
                                                 </div>
                                                 <div>
-                                                    <h2 className="text-xl font-semibold">2. Pilih Kategori Kelas</h2>
+                                                    <h2 className="text-xl font-semibold">2. Pilih Kelas</h2>
                                                     <p className="text-sm text-wellness-muted">Temukan ritme yang sesuai dengan tujuan kebutuhan Anda hari ini</p>
                                                 </div>
                                             </div>
 
                                             <div className="mt-5 grid gap-3">
-                                                {appointmentCategoryOptions.length > 0 ? (
-                                                    appointmentCategoryOptions.map((category) => {
-                                                        const isActive = category.id === selectedAppointmentCategoryId;
+                                                {appointmentClassOptions.length > 0 ? (
+                                                    appointmentClassOptions.map((category) => {
+                                                        const isActive = category.id === selectedAppointmentClassId;
                                                         return (
                                                             <button
                                                                 key={category.id}
                                                                 type="button"
-                                                                onClick={() => setSelectedAppointmentCategoryId(category.id)}
+                                                                onClick={() => setSelectedAppointmentClassId(category.id)}
                                                                 className={`rounded-2xl border p-4 text-left transition ${
                                                                     isActive 
                                                                     ? "border-primary-500 bg-primary-50 shadow-sm" 
@@ -1151,8 +1151,8 @@ useEffect(() => {
                                             <p className="text-base font-semibold text-wellness-text">{selectedService.name}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Kategori kelas</p>
-                                            <p className="text-base font-semibold text-wellness-text">{appointmentCategoryOptions.find((category) => category.id === selectedAppointmentCategoryId)?.name || "-"}</p>
+                                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Kelas</p>
+                                            <p className="text-base font-semibold text-wellness-text">{appointmentClassOptions.find((category) => category.id === selectedAppointmentClassId)?.name || "-"}</p>
                                         </div>
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Trainer</p>
