@@ -39,7 +39,7 @@ function TimeSelect({ label, hour, minute, onHourChange, onMinuteChange, disable
     return (
         <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-end">
             <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label} - Jam</label>
+                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</label>
                 <select
                     value={hour}
                     onChange={(event) => onHourChange(event.target.value)}
@@ -55,7 +55,7 @@ function TimeSelect({ label, hour, minute, onHourChange, onMinuteChange, disable
             <span className="hidden pb-3 text-center text-slate-400 sm:block">:</span>
 
             <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label} - Menit</label>
+                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</label>
                 <select
                     value={minute}
                     onChange={(event) => onMinuteChange(event.target.value)}
@@ -258,7 +258,7 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
                                                 </button>
                                             </div>
 
-                                            <div className="mt-4 space-y-4">
+                                            <div className="mt-2 space-y-1">
                                                 {daySchedule.slots.map((slot, slotIndex) => (
                                                     <div key={`${day.value}-${slotIndex}`} className={`rounded-2xl border border-dashed p-4 ${daySchedule.active ? "border-slate-200" : "border-slate-100 bg-slate-50 opacity-70"}`}>
                                                         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end">
@@ -271,7 +271,7 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
                                                                 onMinuteChange={(value) => updateSlot(day.value, slotIndex, "start_minute", value)}
                                                             />
                                                             <TimeSelect
-                                                                label="Jam Sampai"
+                                                                label="Sampai"
                                                                 hour={slot.end_hour}
                                                                 minute={slot.end_minute}
                                                                 disabled={!daySchedule.active}
@@ -301,7 +301,7 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
 
                                                 <div className="space-y-1">
                                                     <button type="button" onClick={() => addSlot(day.value)} className="inline-flex items-center gap-2 rounded-xl border border-primary-200 px-4 py-2 text-sm font-semibold text-primary-600 transition hover:bg-primary-50">
-                                                        <IconPlus size={16} /> + Tambah Jam
+                                                        <IconPlus size={16} /> Tambah Jam
                                                     </button>
                                                     {getScheduleError(errors, day.value, "slots") && <p className="text-xs text-rose-500">{getScheduleError(errors, day.value, "slots")}</p>}
                                                     {getScheduleError(errors, day.value, "active") && <p className="text-xs text-rose-500">{getScheduleError(errors, day.value, "active")}</p>}

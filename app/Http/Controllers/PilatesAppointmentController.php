@@ -43,8 +43,8 @@ class PilatesAppointmentController extends Controller
 
         $appointments = PilatesAppointment::query()
             ->with(['pilatesClass:id,name', 'trainer:id,name'])
-            ->where('start_at', '>=', $start->clone()->timezone('UTC'))
-            ->where('start_at', '<=', $end->clone()->timezone('UTC'))
+            ->where('start_at', '>=', $start->clone()->timezone('Asia/Jakarta'))
+            ->where('start_at', '<=', $end->clone()->timezone('Asia/Jakarta'))
             ->orderBy('start_at')
             ->get()
             ->map(function (PilatesAppointment $appointment) {
@@ -241,7 +241,8 @@ class PilatesAppointmentController extends Controller
             })->values();
         }
 
-        return collect(range(0, $startDate->diffInDays($endDate)))->flatMap(function ($offset) use ($startDate, $schedules) {
+        return collect(range(0, $startDate->diffInDays($endDate)))
+            ->flatMap(function ($offset) use ($startDate, $schedules, $durationMinutes) {
             $date = $startDate->copy()->addDays($offset);
             $weekdayKey = strtolower($date->englishDayOfWeek);
             $selectedSchedule = $schedules->get($weekdayKey);
