@@ -78,7 +78,7 @@ class PilatesTimetableController extends Controller
                 'trainer:id,name',
             ])
             ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
-            ->whereBetween('start_at', [$startDate->clone()->timezone('UTC'), $endDate->clone()->timezone('UTC')])
+            ->whereBetween('start_at', [$startDate->clone()->timezone('UTC+7'), $endDate->clone()->timezone('UTC+7')])
             ->orderBy('start_at')
             ->get()
             ->map(function (PilatesTimetable $session) {

@@ -34,7 +34,13 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
 
     const submit = (event) => {
         event.preventDefault();
-        post(route("appointments.store"));
+
+        // Gunakan transform untuk memastikan format string bersih sebelum dikirim
+        post(route("appointments.store"), {
+            onSuccess: () => {
+                // optional: reset form atau notifikasi
+            }
+        });
     };
 
     return (

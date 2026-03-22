@@ -129,8 +129,8 @@ class PilatesAppointmentController extends Controller
                     'description' => $validated['description'] ?? null,
                     'price' => $validated['price'],
                     'duration_minutes' => $validated['duration_minutes'],
-                    'start_at' => $occurrence['start_at']->clone()->timezone('UTC'),
-                    'end_at' => $occurrence['end_at']->clone()->timezone('UTC'),
+                    'start_at' => $occurrence['start_at']->clone()->timezone('Asia/Jakarta'),
+                    'end_at' => $occurrence['end_at']->clone()->timezone('Asia/Jakarta'),
                 ]);
 
                 if ($index === 0) {
@@ -193,8 +193,8 @@ class PilatesAppointmentController extends Controller
 
     private function assertNoConflicts(Collection $occurrences, int $trainerId): void
     {
-        $rangeStart = $occurrences->min(fn ($occurrence) => $occurrence['start_at'])->clone()->timezone('UTC');
-        $rangeEnd = $occurrences->max(fn ($occurrence) => $occurrence['end_at'])->clone()->timezone('UTC');
+        $rangeStart = $occurrences->min(fn ($occurrence) => $occurrence['start_at'])->clone()->timezone('Asia/Jakarta');
+        $rangeEnd = $occurrences->max(fn ($occurrence) => $occurrence['end_at'])->clone()->timezone('Asia/Jakarta');
 
         $timetables = PilatesTimetable::query()
             ->with('pilatesClass:id,duration')
