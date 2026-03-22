@@ -9,8 +9,10 @@ use App\Models\Trainer;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -98,20 +100,32 @@ class PilatesAppointmentController extends Controller
             'session_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
-            'duration_minutes' => ['required', 'integer', 'min:1'],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
-            'start_time' => ['required', 'date_format:H:i'],
             'repeat_schedule' => ['required', 'boolean'],
-            'days' => ['array'],
-            'days.*' => ['in:' . implode(',', array_keys(self::WEEKDAY_MAP))],
+            'schedules' => ['required', 'array'],
         ]);
+
+        $hourOptions = array_map(fn (int $hour) => str_pad((string) $hour, 2, '0', STR_PAD_LEFT), range(6, 22));
+
+        foreach (array_keys(self::WEEKDAY_MAP) as $day) {
+            $request->validate([
+                "schedules.$day.active" => ['required', 'boolean'],
+                "schedules.$day.slots" => ['required', 'array', 'min:1'],
+                "schedules.$day.slots.*.start_hour" => ['required', Rule::in($hourOptions)],
+                "schedules.$day.slots.*.start_minute" => ['required', 'in:00,30'],
+                "schedules.$day.slots.*.end_hour" => ['required', Rule::in($hourOptions)],
+                "schedules.$day.slots.*.end_minute" => ['required', 'in:00,30'],
+            ]);
+        }
+
+        $validated['schedules'] = $request->input('schedules', []);
 
         $occurrences = $this->buildOccurrences($validated);
 
         if ($occurrences->isEmpty()) {
             throw ValidationException::withMessages([
-                'days' => 'Pilih minimal satu hari ketika Ulangi Jadwal dicentang.',
+                'schedules' => 'Tidak ada slot appointment yang dapat dibuat dari pengaturan hari dan jam yang dipilih.',
             ]);
         }
 
@@ -128,7 +142,7 @@ class PilatesAppointmentController extends Controller
                     'session_name' => $validated['session_name'],
                     'description' => $validated['description'] ?? null,
                     'price' => $validated['price'],
-                    'duration_minutes' => $validated['duration_minutes'],
+                    'duration_minutes' => $occurrence['duration_minutes'],
                     'start_at' => $occurrence['start_at']->clone()->timezone('Asia/Jakarta'),
                     'end_at' => $occurrence['end_at']->clone()->timezone('Asia/Jakarta'),
                 ]);
@@ -160,35 +174,95 @@ class PilatesAppointmentController extends Controller
 
     private function buildOccurrences(array $validated): Collection
     {
-        $duration = (int) $validated['duration_minutes'];
         $startDate = Carbon::parse($validated['start_date'], 'Asia/Jakarta')->startOfDay();
         $endDate = Carbon::parse($validated['end_date'], 'Asia/Jakarta')->startOfDay();
-        $time = Carbon::createFromFormat('H:i', $validated['start_time'], 'Asia/Jakarta');
+        $schedules = collect($validated['schedules'] ?? [])
+            ->mapWithKeys(function (array $schedule, string $day) {
+                $slots = collect(Arr::get($schedule, 'slots', []))
+                    ->map(function (array $slot, int $index) use ($day) {
+                        $startAt = Carbon::createFromFormat(
+                            'H:i',
+                            sprintf('%s:%s', $slot['start_hour'], $slot['start_minute']),
+                            'Asia/Jakarta'
+                        );
+                        $endAt = Carbon::createFromFormat(
+                            'H:i',
+                            sprintf('%s:%s', $slot['end_hour'], $slot['end_minute']),
+                            'Asia/Jakarta'
+                        );
 
-        if (! $validated['repeat_schedule']) {
-            $startAt = $startDate->copy()->setTime($time->hour, $time->minute);
-            return collect([[ 
-                'start_at' => $startAt,
-                'end_at' => $startAt->copy()->addMinutes($duration),
-            ]]);
+                        if ($endAt->lessThanOrEqualTo($startAt)) {
+                            throw ValidationException::withMessages([
+                                "schedules.$day.slots.$index.time_range" => 'Jam sampai harus lebih besar dari jam mulai.',
+                            ]);
+                        }
+
+                        return [
+                            'start_hour' => $slot['start_hour'],
+                            'start_minute' => $slot['start_minute'],
+                            'end_hour' => $slot['end_hour'],
+                            'end_minute' => $slot['end_minute'],
+                            'duration_minutes' => $startAt->diffInMinutes($endAt),
+                        ];
+                    })
+                    ->values();
+
+                return [$day => [
+                    'active' => filter_var(Arr::get($schedule, 'active', false), FILTER_VALIDATE_BOOL),
+                    'slots' => $slots,
+                ]];
+            });
+
+        $activeSchedules = $schedules->filter(fn (array $schedule) => $schedule['active'] && collect($schedule['slots'])->isNotEmpty());
+
+        if ($activeSchedules->isEmpty()) {
+            throw ValidationException::withMessages([
+                'schedules' => 'Aktifkan minimal satu hari dan isi minimal satu slot jam.',
+            ]);
         }
 
-        $selectedDays = collect($validated['days'] ?? [])->map(fn ($day) => self::WEEKDAY_MAP[$day] ?? null)->filter()->values();
+        if (! $validated['repeat_schedule']) {
+            $weekdayKey = strtolower($startDate->englishDayOfWeek);
+            $selectedSchedule = $schedules->get($weekdayKey);
 
-        return collect(range(0, $startDate->diffInDays($endDate)))->map(function ($offset) use ($startDate, $time, $duration, $selectedDays) {
-            $date = $startDate->copy()->addDays($offset);
-
-            if (! $selectedDays->contains($date->dayOfWeekIso)) {
-                return null;
+            if (! $selectedSchedule || ! $selectedSchedule['active']) {
+                throw ValidationException::withMessages([
+                    'schedules' => 'Untuk jadwal tunggal, aktifkan hari yang sesuai dengan tanggal mulai.',
+                ]);
             }
 
-            $startAt = $date->copy()->setTime($time->hour, $time->minute);
+            return collect($selectedSchedule['slots'])->map(function (array $slot) use ($startDate) {
+                $startAt = $startDate->copy()->setTime((int) $slot['start_hour'], (int) $slot['start_minute']);
+                $endAt = $startDate->copy()->setTime((int) $slot['end_hour'], (int) $slot['end_minute']);
 
-            return [
-                'start_at' => $startAt,
-                'end_at' => $startAt->copy()->addMinutes($duration),
-            ];
-        })->filter()->values();
+                return [
+                    'start_at' => $startAt,
+                    'end_at' => $endAt,
+                    'duration_minutes' => $slot['duration_minutes'],
+                ];
+            })->values();
+        }
+
+        return collect(range(0, $startDate->diffInDays($endDate)))->flatMap(function ($offset) use ($startDate, $schedules) {
+            $date = $startDate->copy()->addDays($offset);
+            $weekdayKey = strtolower($date->englishDayOfWeek);
+            $selectedSchedule = $schedules->get($weekdayKey);
+
+            if (! $selectedSchedule || ! $selectedSchedule['active']) {
+                return [];
+            }
+
+            return collect($selectedSchedule['slots'])->map(function (array $slot) use ($date) {
+                $startAt = $date->copy()->setTime((int) $slot['start_hour'], (int) $slot['start_minute']);
+                $endAt = $date->copy()->setTime((int) $slot['end_hour'], (int) $slot['end_minute']);
+
+                return [
+                    'start_at' => $startAt,
+                    'end_at' => $endAt,
+                    'duration_minutes' => $slot['duration_minutes'],
+                ];
+            });
+        })->values();
     }
 
     private function assertNoConflicts(Collection $occurrences, int $trainerId): void
@@ -232,7 +306,7 @@ class PilatesAppointmentController extends Controller
 
             if ($timetableConflict || $trainerConflict) {
                 throw ValidationException::withMessages([
-                    'start_time' => 'Jadwal Bentrok.',
+                    'schedules' => 'Jadwal bentrok dengan timetable studio atau appointment trainer lain.',
                 ]);
             }
         }
