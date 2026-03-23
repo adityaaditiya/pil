@@ -71,12 +71,12 @@ function TimeSelect({ label, hour, minute, onHourChange, onMinuteChange, disable
     );
 }
 
-export default function Create({ classes = [], trainers = [], weekdayOptions = [] }) {
+export default function Create({ classes = [], trainers = [], appointmentSessions = [], weekdayOptions = [] }) {
     const { data, setData, post, processing, errors } = useForm({
         pilates_class_id: "",
-        trainer_id: "",
-        session_name: "",
-        description: "",
+        trainer_ids: [],
+        appointment_session_id: "",
+        admin_notes: "",
         price: "",
         start_date: "",
         end_date: "",
@@ -126,6 +126,8 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
         });
     };
 
+    const selectedAppointmentSession = appointmentSessions.find((item) => String(item.id) === String(data.appointment_session_id));
+
     const submit = (event) => {
         event.preventDefault();
         post(route("appointments.store"));
@@ -162,25 +164,47 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
 
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Pilih Trainer</label>
-                                <select value={data.trainer_id} onChange={(event) => setData("trainer_id", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800">
-                                    <option value="">Pilih trainer</option>
+                                <div className="grid gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
                                     {trainers.map((trainer) => (
-                                        <option key={trainer.id} value={trainer.id}>{trainer.name}</option>
+                                        <label key={trainer.id} className="inline-flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                                            <input
+                                                type="checkbox"
+                                                checked={data.trainer_ids.includes(String(trainer.id)) || data.trainer_ids.includes(trainer.id)}
+                                                onChange={(event) => {
+                                                    const trainerId = String(trainer.id);
+                                                    setData("trainer_ids", event.target.checked
+                                                        ? [...data.trainer_ids, trainerId]
+                                                        : data.trainer_ids.filter((id) => String(id) !== trainerId));
+                                                }}
+                                            />
+                                            {trainer.name}
+                                        </label>
+                                    ))}
+                                </div>
+                                {errors.trainer_ids && <p className="text-xs text-rose-500">{errors.trainer_ids}</p>}
+                                {errors["trainer_ids.0"] && <p className="text-xs text-rose-500">{errors["trainer_ids.0"]}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Sesi Appointment</label>
+                                <select value={data.appointment_session_id} onChange={(event) => setData("appointment_session_id", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800">
+                                    <option value="">Pilih sesi appointment</option>
+                                    {appointmentSessions.map((item) => (
+                                        <option key={item.id} value={item.id}>{item.session_name}</option>
                                     ))}
                                 </select>
-                                {errors.trainer_id && <p className="text-xs text-rose-500">{errors.trainer_id}</p>}
+                                {errors.appointment_session_id && <p className="text-xs text-rose-500">{errors.appointment_session_id}</p>}
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Nama Sesi</label>
-                                <input type="text" value={data.session_name} onChange={(event) => setData("session_name", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800" placeholder="Contoh: Private Morning Flow" />
-                                {errors.session_name && <p className="text-xs text-rose-500">{errors.session_name}</p>}
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Deskripsi Sesi</label>
+                                <textarea value={selectedAppointmentSession?.description || ""} readOnly rows={4} className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800" placeholder="Deskripsi akan terisi otomatis dari master sesi appointment" />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Deskripsi</label>
-                                <textarea value={data.description} onChange={(event) => setData("description", event.target.value)} rows={4} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-800" placeholder="Ringkasan sesi appointment" />
-                                {errors.description && <p className="text-xs text-rose-500">{errors.description}</p>}
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Catatan Admin</label>
+                                <textarea value={data.admin_notes} onChange={(event) => setData("admin_notes", event.target.value)} rows={4} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-800" placeholder="Catatan internal untuk admin" />
+                                {errors.admin_notes && <p className="text-xs text-rose-500">{errors.admin_notes}</p>}
                             </div>
 
                             <div className="space-y-2">

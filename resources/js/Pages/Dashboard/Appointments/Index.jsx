@@ -72,29 +72,29 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                             <table className="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
                                 <thead className="bg-slate-50 dark:bg-slate-950/40">
                                     <tr>
-                                        <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Invoice</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Tanggal</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Sesi</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Kelas</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Trainer</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Durasi</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Harga</th>
+                                        <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Catatan Admin</th>
                                         <th className="px-4 py-3 text-right font-semibold text-slate-600 dark:text-slate-300"></th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {appointments.map((appointment) => (
                                         <tr key={appointment.id}>
-                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.invoice || "-"}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.start_at_label} - {appointment.end_at_label}</td>
                                             <td className="px-4 py-3">
                                                 <p className="font-semibold text-slate-800 dark:text-white">{appointment.session_name}</p>
                                                 <p className="text-xs text-slate-500">{appointment.description || "-"}</p>
                                             </td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.pilates_class?.name || "-"}</td>
-                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.trainer?.name || "-"}</td>
+                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.trainers?.join(", ") || "-"}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.duration_minutes} menit</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{formatRupiah(appointment.price)}</td>
+                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.admin_notes || "-"}</td>
                                             <td className="px-4 py-3 text-right">
                                                 <div className="flex justify-end gap-2">
                                                     <Link href={route("appointments.edit", appointment.id)} className="inline-flex items-center gap-1 rounded-xl border border-sky-200 px-3 py-2 text-sm font-medium text-sky-600 transition hover:bg-sky-50">

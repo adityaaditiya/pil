@@ -38,4 +38,10 @@ class Trainer extends Model
     {
         return $this->hasMany(PilatesAppointment::class);
     }
+
+    public function pilatesAppointments()
+    {
+        return $this->belongsToMany(PilatesAppointment::class, 'appointment_trainer')
+            ->withTimestamps();
+    }
 }
