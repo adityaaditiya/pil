@@ -100,6 +100,12 @@ class PilatesAppointmentController extends Controller
 
     public function edit(PilatesAppointment $appointment): Response
     {
+        $seriesAppointments = PilatesAppointment::query()
+            ->where('parent_id', $appointment->parent_id)
+            ->where('start_at', '>=', $appointment->start_at?->clone()->timezone('Asia/Jakarta')->startOfDay())
+            ->orderBy('start_at')
+            ->get();
+
         return Inertia::render('Dashboard/Appointments/Edit', [
             'classes' => PilatesClass::query()
                 ->where(function ($query) use ($appointment) {
@@ -110,6 +116,10 @@ class PilatesAppointmentController extends Controller
                 ->orderBy('name')
                 ->get(),
             'trainers' => Trainer::query()->select('id', 'name')->orderBy('name')->get(),
+            'weekdayOptions' => collect(self::WEEKDAY_MAP)->keys()->map(fn ($day) => [
+                'value' => $day,
+                'label' => ucfirst(__($day)),
+            ])->values(),
             'updateScopeOptions' => [
                 ['value' => self::UPDATE_SCOPE_SINGLE, 'label' => 'Hanya Sesi Ini'],
                 ['value' => self::UPDATE_SCOPE_FOLLOWING, 'label' => 'Sesi Ini dan Semua Seterusnya'],
@@ -125,6 +135,11 @@ class PilatesAppointmentController extends Controller
                 'price' => $appointment->price,
                 'duration_minutes' => $appointment->duration_minutes,
                 'start_at' => $appointment->start_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i'),
+                'start_date' => $appointment->start_at?->timezone('Asia/Jakarta')->toDateString(),
+                'end_date' => $seriesAppointments->last()?->start_at?->timezone('Asia/Jakarta')->toDateString()
+                    ?? $appointment->start_at?->timezone('Asia/Jakarta')->toDateString(),
+                'repeat_schedule' => $seriesAppointments->count() > 1,
+                'schedules' => $this->buildEditSchedules($seriesAppointments->isNotEmpty() ? $seriesAppointments : collect([$appointment])),
             ],
         ]);
     }
@@ -211,32 +226,56 @@ class PilatesAppointmentController extends Controller
             'price' => ['required', 'numeric', 'min:0'],
             'duration_minutes' => ['required', 'integer', 'min:1'],
             'start_at' => ['required', 'date'],
+            'start_date' => ['required', 'date', 'after_or_equal:'.$appointment->start_at?->clone()->timezone('Asia/Jakarta')->toDateString()],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'repeat_schedule' => ['required', 'boolean'],
+            'schedules' => ['required', 'array'],
             'update_scope' => ['required', Rule::in([self::UPDATE_SCOPE_SINGLE, self::UPDATE_SCOPE_FOLLOWING])],
         ]);
 
+        $hourOptions = array_map(fn (int $hour) => str_pad((string) $hour, 2, '0', STR_PAD_LEFT), range(6, 22));
+
+        foreach (array_keys(self::WEEKDAY_MAP) as $day) {
+            $request->validate([
+                "schedules.$day.active" => ['required', 'boolean'],
+                "schedules.$day.slots" => ['required', 'array', 'min:1'],
+                "schedules.$day.slots.*.start_hour" => ['required', Rule::in($hourOptions)],
+                "schedules.$day.slots.*.start_minute" => ['required', 'in:00,30'],
+                "schedules.$day.slots.*.end_hour" => ['required', Rule::in($hourOptions)],
+                "schedules.$day.slots.*.end_minute" => ['required', 'in:00,30'],
+            ]);
+        }
+
+        $validated['schedules'] = $request->input('schedules', []);
         $startAt = Carbon::parse($validated['start_at'], 'Asia/Jakarta');
-        $newTime = [
-            'hour' => $startAt->hour,
-            'minute' => $startAt->minute,
-            'duration_minutes' => (int) $validated['duration_minutes'],
-        ];
 
         if ($validated['update_scope'] === self::UPDATE_SCOPE_FOLLOWING) {
             $appointmentsToUpdate = PilatesAppointment::query()
                 ->where('parent_id', $appointment->parent_id)
                 ->where('start_at', '>=', $appointment->start_at?->clone()->timezone('Asia/Jakarta')->startOfDay())
                 ->orderBy('start_at')
-                ->get();
+                ->get()
+                ->values();
 
-            $occurrences = $appointmentsToUpdate->map(function (PilatesAppointment $item) use ($newTime) {
-                return $this->buildUpdatedOccurrence($item, $newTime);
-            });
+            $occurrences = $this->buildOccurrences($validated);
+
+            if ($occurrences->isEmpty()) {
+                throw ValidationException::withMessages([
+                    'schedules' => 'Tidak ada slot appointment yang dapat dibuat dari pengaturan hari dan jam yang dipilih.',
+                ]);
+            }
 
             $this->assertNoConflicts($occurrences, (int) $validated['trainer_id'], $appointmentsToUpdate->pluck('id')->all());
 
-            DB::transaction(function () use ($appointmentsToUpdate, $validated, $newTime) {
-                foreach ($appointmentsToUpdate as $item) {
-                    $updatedOccurrence = $this->buildUpdatedOccurrence($item, $newTime);
+            DB::transaction(function () use ($appointment, $appointmentsToUpdate, $occurrences, $validated) {
+                $parentId = $appointment->parent_id ?: $appointment->id;
+                $existingAppointments = $appointmentsToUpdate->values();
+                $occurrenceItems = $occurrences->values();
+                $syncCount = min($existingAppointments->count(), $occurrenceItems->count());
+
+                for ($index = 0; $index < $syncCount; $index++) {
+                    $item = $existingAppointments[$index];
+                    $occurrence = $occurrenceItems[$index];
 
                     $item->update([
                         'pilates_class_id' => $validated['pilates_class_id'],
@@ -245,11 +284,34 @@ class PilatesAppointmentController extends Controller
                         'description' => $validated['description'] ?? null,
                         'price' => $validated['price'],
                         'duration_minutes' => $validated['duration_minutes'],
-                        'start_at' => $updatedOccurrence['start_at']->clone()->timezone('Asia/Jakarta'),
-                        'end_at' => $updatedOccurrence['end_at']->clone()->timezone('Asia/Jakarta'),
+                        'start_at' => $occurrence['start_at']->clone()->timezone('Asia/Jakarta'),
+                        'end_at' => $occurrence['end_at']->clone()->timezone('Asia/Jakarta'),
                     ]);
                 }
+
+                if ($occurrenceItems->count() > $existingAppointments->count()) {
+                    foreach ($occurrenceItems->slice($existingAppointments->count()) as $occurrence) {
+                        PilatesAppointment::query()->create([
+                            'invoice' => $this->generateInvoiceNumber(),
+                            'parent_id' => $parentId,
+                            'pilates_class_id' => $validated['pilates_class_id'],
+                            'trainer_id' => $validated['trainer_id'],
+                            'session_name' => $validated['session_name'],
+                            'description' => $validated['description'] ?? null,
+                            'price' => $validated['price'],
+                            'duration_minutes' => $validated['duration_minutes'],
+                            'start_at' => $occurrence['start_at']->clone()->timezone('Asia/Jakarta'),
+                            'end_at' => $occurrence['end_at']->clone()->timezone('Asia/Jakarta'),
+                        ]);
+                    }
+                }
+
+                if ($existingAppointments->count() > $occurrenceItems->count()) {
+                    $existingAppointments->slice($occurrenceItems->count())->each->delete();
+                }
             });
+
+            $date = $occurrences->first()['start_at']->toDateString();
         } else {
             $endAt = $startAt->copy()->addMinutes((int) $validated['duration_minutes']);
             $occurrences = collect([[
@@ -270,9 +332,9 @@ class PilatesAppointmentController extends Controller
                 'start_at' => $startAt->clone()->timezone('Asia/Jakarta'),
                 'end_at' => $endAt->clone()->timezone('Asia/Jakarta'),
             ]);
-        }
 
-        $date = $startAt->toDateString();
+            $date = $startAt->toDateString();
+        }
 
         return redirect()
             ->route('appointments.index', ['start_date' => $date, 'end_date' => $date])
@@ -404,17 +466,65 @@ class PilatesAppointmentController extends Controller
             });
     }
 
-    private function buildUpdatedOccurrence(PilatesAppointment $appointment, array $newTime): array
+    private function buildEditSchedules(Collection $appointments): array
     {
-        $startAt = $appointment->start_at
-            ? $appointment->start_at->clone()->timezone('Asia/Jakarta')->setTime($newTime['hour'], $newTime['minute'])
-            : now('Asia/Jakarta')->setTime($newTime['hour'], $newTime['minute']);
+        $defaultSchedules = collect(array_keys(self::WEEKDAY_MAP))
+            ->mapWithKeys(fn (string $day) => [$day => [
+                'active' => false,
+                'slots' => [[
+                    'start_hour' => '06',
+                    'start_minute' => '00',
+                    'end_hour' => '07',
+                    'end_minute' => '00',
+                ]],
+            ]])
+            ->toArray();
 
-        return [
-            'start_at' => $startAt,
-            'end_at' => $startAt->copy()->addMinutes((int) $newTime['duration_minutes']),
-            'duration_minutes' => (int) $newTime['duration_minutes'],
-        ];
+        foreach ($appointments as $item) {
+            $startAt = $item->start_at?->clone()->timezone('Asia/Jakarta');
+            $endAt = $item->end_at?->clone()->timezone('Asia/Jakarta');
+
+            if (! $startAt || ! $endAt) {
+                continue;
+            }
+
+            $weekdayKey = strtolower($startAt->englishDayOfWeek);
+            $slot = [
+                'start_hour' => $startAt->format('H'),
+                'start_minute' => $startAt->format('i'),
+                'end_hour' => $endAt->format('H'),
+                'end_minute' => $endAt->format('i'),
+            ];
+
+            $existingSlots = collect($defaultSchedules[$weekdayKey]['slots'] ?? [])
+                ->reject(fn (array $candidate) => $candidate === [
+                    'start_hour' => '06',
+                    'start_minute' => '00',
+                    'end_hour' => '07',
+                    'end_minute' => '00',
+                ] && ($defaultSchedules[$weekdayKey]['active'] ?? false))
+                ->values()
+                ->all();
+
+            $slotExists = collect($existingSlots)->contains(fn (array $candidate) => $candidate === $slot);
+
+            $defaultSchedules[$weekdayKey]['active'] = true;
+            $defaultSchedules[$weekdayKey]['slots'] = $slotExists
+                ? $existingSlots
+                : [...$existingSlots, $slot];
+        }
+
+        return collect($defaultSchedules)->map(function (array $schedule) {
+            return [
+                'active' => $schedule['active'],
+                'slots' => count($schedule['slots']) > 0 ? array_values($schedule['slots']) : [[
+                    'start_hour' => '06',
+                    'start_minute' => '00',
+                    'end_hour' => '07',
+                    'end_minute' => '00',
+                ]],
+            ];
+        })->toArray();
     }
 
     private function assertNoConflicts(Collection $occurrences, int $trainerId, array $ignoreAppointmentIds = []): void
