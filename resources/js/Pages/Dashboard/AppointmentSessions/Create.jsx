@@ -1,0 +1,58 @@
+import React from "react";
+import DashboardLayout from "@/Layouts/DashboardLayout";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
+import Input from "@/Components/Dashboard/Input";
+import Textarea from "@/Components/Dashboard/TextArea";
+import { IconArrowLeft, IconCalendarClock, IconDeviceFloppy } from "@tabler/icons-react";
+import toast from "react-hot-toast";
+
+export default function Create() {
+    const { errors } = usePage().props;
+    const { data, setData, post, processing } = useForm({
+        session_name: "",
+        description: "",
+    });
+
+    const submit = (event) => {
+        event.preventDefault();
+        post(route("appointment-sessions.store"), {
+            onSuccess: () => toast.success("Sesi Appointment berhasil ditambahkan"),
+            onError: () => toast.error("Gagal menyimpan sesi appointment"),
+        });
+    };
+
+    return (
+        <>
+            <Head title="Tambah Sesi Appointment" />
+
+            <div className="mb-6">
+                <Link href={route("appointment-sessions.index")} className="mb-3 inline-flex items-center gap-2 text-sm text-slate-500 hover:text-primary-600">
+                    <IconArrowLeft size={16} /> Kembali ke Sesi Appointment
+                </Link>
+                <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900 dark:text-white">
+                    <IconCalendarClock size={28} className="text-primary-500" /> Tambah Sesi Appointment
+                </h1>
+            </div>
+
+            <form onSubmit={submit}>
+                <div className="max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+                    <div className="space-y-4">
+                        <Input label="Nama Sesi" value={data.session_name} onChange={(event) => setData("session_name", event.target.value)} errors={errors.session_name} placeholder="Contoh: Private Morning Flow" />
+                        <Textarea label="Deskripsi" value={data.description} onChange={(event) => setData("description", event.target.value)} errors={errors.description} placeholder="Deskripsi sesi appointment" rows={5} />
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-6 dark:border-slate-800">
+                        <Link href={route("appointment-sessions.index")} className="rounded-xl border border-slate-200 px-5 py-2.5 font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+                            Batal
+                        </Link>
+                        <button type="submit" disabled={processing} className="inline-flex items-center gap-2 rounded-xl bg-primary-500 px-5 py-2.5 font-medium text-white transition-colors hover:bg-primary-600 disabled:opacity-50">
+                            <IconDeviceFloppy size={18} /> {processing ? "Menyimpan..." : "Simpan"}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </>
+    );
+}
+
+Create.layout = (page) => <DashboardLayout children={page} />;

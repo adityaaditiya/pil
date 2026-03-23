@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Apps\CategoryController;
+use App\Http\Controllers\AppointmentSessionController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Apps\CashEntryController;
 use App\Http\Controllers\Apps\ClassCategoryController;
@@ -124,6 +125,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         ->except(['show'])
         ->middleware('permission:dashboard-access');
     Route::resource('classes', PilatesClassController::class)
+        ->except(['show'])
+        ->middleware('permission:dashboard-access');
+    Route::resource('appointment-sessions', AppointmentSessionController::class)
         ->except(['show'])
         ->middleware('permission:dashboard-access');
     Route::resource('trainers', TrainerController::class)
