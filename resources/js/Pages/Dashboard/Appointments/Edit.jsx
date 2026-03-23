@@ -76,7 +76,7 @@ function TimeSelect({ label, hour, minute, onHourChange, onMinuteChange, disable
 export default function Edit({ classes = [], trainers = [], appointment, appointmentSessions = [], weekdayOptions = [], updateScopeOptions = [] }) {
     const { data, setData, put, processing, errors } = useForm({
         pilates_class_id: appointment?.pilates_class_id || "",
-        trainer_id: appointment?.trainer_id || "",
+        trainer_ids: appointment?.trainer_ids || [],
         appointment_session_id: appointment?.appointment_session_id || "",
         admin_notes: appointment?.admin_notes || "",
         price: appointment?.price || "",
@@ -156,11 +156,6 @@ export default function Edit({ classes = [], trainers = [], appointment, appoint
                     <div className="grid gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                         <div className="space-y-5">
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Invoice</label>
-                                <input value={appointment?.invoice || ""} disabled className="h-11 w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800" />
-                            </div>
-
-                            <div className="space-y-2">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Pilihan Edit</label>
                                 <select value={data.update_scope} onChange={(event) => setData("update_scope", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800">
                                     {updateScopeOptions.map((option) => (
@@ -183,13 +178,25 @@ export default function Edit({ classes = [], trainers = [], appointment, appoint
 
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Pilih Trainer</label>
-                                <select value={data.trainer_id} onChange={(event) => setData("trainer_id", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800">
-                                    <option value="">Pilih trainer</option>
+                                <div className="grid gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
                                     {trainers.map((trainer) => (
-                                        <option key={trainer.id} value={trainer.id}>{trainer.name}</option>
+                                        <label key={trainer.id} className="inline-flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                                            <input
+                                                type="checkbox"
+                                                checked={data.trainer_ids.includes(String(trainer.id)) || data.trainer_ids.includes(trainer.id)}
+                                                onChange={(event) => {
+                                                    const trainerId = String(trainer.id);
+                                                    setData("trainer_ids", event.target.checked
+                                                        ? [...data.trainer_ids, trainerId]
+                                                        : data.trainer_ids.filter((id) => String(id) !== trainerId));
+                                                }}
+                                            />
+                                            {trainer.name}
+                                        </label>
                                     ))}
-                                </select>
-                                {errors.trainer_id && <p className="text-xs text-rose-500">{errors.trainer_id}</p>}
+                                </div>
+                                {errors.trainer_ids && <p className="text-xs text-rose-500">{errors.trainer_ids}</p>}
+                                {errors["trainer_ids.0"] && <p className="text-xs text-rose-500">{errors["trainer_ids.0"]}</p>}
                             </div>
 
                             <div className="space-y-2">

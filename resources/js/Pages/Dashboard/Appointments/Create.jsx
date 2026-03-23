@@ -74,7 +74,7 @@ function TimeSelect({ label, hour, minute, onHourChange, onMinuteChange, disable
 export default function Create({ classes = [], trainers = [], appointmentSessions = [], weekdayOptions = [] }) {
     const { data, setData, post, processing, errors } = useForm({
         pilates_class_id: "",
-        trainer_id: "",
+        trainer_ids: [],
         appointment_session_id: "",
         admin_notes: "",
         price: "",
@@ -164,13 +164,25 @@ export default function Create({ classes = [], trainers = [], appointmentSession
 
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Pilih Trainer</label>
-                                <select value={data.trainer_id} onChange={(event) => setData("trainer_id", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800">
-                                    <option value="">Pilih trainer</option>
+                                <div className="grid gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
                                     {trainers.map((trainer) => (
-                                        <option key={trainer.id} value={trainer.id}>{trainer.name}</option>
+                                        <label key={trainer.id} className="inline-flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                                            <input
+                                                type="checkbox"
+                                                checked={data.trainer_ids.includes(String(trainer.id)) || data.trainer_ids.includes(trainer.id)}
+                                                onChange={(event) => {
+                                                    const trainerId = String(trainer.id);
+                                                    setData("trainer_ids", event.target.checked
+                                                        ? [...data.trainer_ids, trainerId]
+                                                        : data.trainer_ids.filter((id) => String(id) !== trainerId));
+                                                }}
+                                            />
+                                            {trainer.name}
+                                        </label>
                                     ))}
-                                </select>
-                                {errors.trainer_id && <p className="text-xs text-rose-500">{errors.trainer_id}</p>}
+                                </div>
+                                {errors.trainer_ids && <p className="text-xs text-rose-500">{errors.trainer_ids}</p>}
+                                {errors["trainer_ids.0"] && <p className="text-xs text-rose-500">{errors["trainer_ids.0"]}</p>}
                             </div>
 
                             <div className="space-y-2">

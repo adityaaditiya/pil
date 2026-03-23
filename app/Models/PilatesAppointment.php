@@ -10,7 +10,6 @@ class PilatesAppointment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'invoice',
         'parent_id',
         'pilates_class_id',
         'appointment_session_id',
@@ -54,5 +53,11 @@ class PilatesAppointment extends Model
     public function trainer()
     {
         return $this->belongsTo(Trainer::class);
+    }
+
+    public function trainers()
+    {
+        return $this->belongsToMany(Trainer::class, 'appointment_trainer')
+            ->withTimestamps();
     }
 }
