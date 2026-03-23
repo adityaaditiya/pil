@@ -88,7 +88,11 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.start_at_label} - {appointment.end_at_label}</td>
                                             <td className="px-4 py-3">
                                                 <p className="font-semibold text-slate-800 dark:text-white">{appointment.session_name}</p>
-                                                <p className="text-xs text-slate-500">{appointment.description || "-"}</p>
+                                                <div className="mt-1 space-y-1 text-xs text-slate-500">
+                                                    {(appointment.session_options || []).length > 0 ? appointment.session_options.map((option, index) => (
+                                                        <p key={`${appointment.id}-session-${index}`}>{option.session_name} - {formatRupiah(option.price)}</p>
+                                                    )) : <p>-</p>}
+                                                </div>
                                             </td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.pilates_class?.name || "-"}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.trainers?.join(", ") || "-"}</td>
