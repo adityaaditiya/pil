@@ -190,19 +190,29 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Durasi Kelas (Menit)</label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    step="1"
-                                    value={data.duration_minutes}
-                                    onChange={(event) => setData("duration_minutes", event.target.value)}
-                                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
-                                    placeholder="Contoh: 60"
-                                />
-                                <p className="text-xs text-slate-500">Kolom ini membagi jam operasional aktif menjadi beberapa sesi appointment sesuai durasi.</p>
-                                {errors.duration_minutes && <p className="text-xs text-rose-500">{errors.duration_minutes}</p>}
-                            </div>
+    <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+        Durasi Kelas (Menit)
+    </label>
+    
+    <select
+    name="duration_minutes"
+    value={data.duration_minutes} // Langsung ikat ke data
+    onChange={(event) => setData("duration_minutes", event.target.value)}
+    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm focus:border-primary-500 focus:ring-primary-500"
+>
+    {/* Tambahkan opsi placeholder jika perlu, atau langsung mulai dari 30 */}
+    <option value="" disabled>Pilih Durasi</option> 
+    {[30, 60, 90, 120, 150, 180].map((val) => (
+        <option key={val} value={val}>
+            {val} Menit
+        </option>
+    ))}
+</select>
+
+    {errors.duration_minutes && (
+        <p className="text-xs text-rose-500">{errors.duration_minutes}</p>
+    )}
+</div>
 
                             <div className="grid gap-5 md:grid-cols-2">
                                 <div className="space-y-2">
@@ -221,19 +231,19 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
                                 <input type="checkbox" className="mt-1" checked={data.repeat_schedule} onChange={(event) => setData("repeat_schedule", event.target.checked)} />
                                 <span>
                                     <span className="font-semibold text-slate-700 dark:text-slate-200">Ulangi Jadwal</span>
-                                    <span className="mt-1 block text-xs text-slate-500">Jika dicentang, sistem akan membuat appointment dari tanggal mulai sampai tanggal berakhir sesuai hari aktif dan semua slot jam yang dipilih.</span>
+                                    <span className="mt-1 block text-xs text-slate-500">Wajib di checklist apabila membuat appointment dari tanggal mulai sampai tanggal berakhir sesuai hari aktif dan semua slot jam yang dipilih.</span>
                                 </span>
                             </label>
 
-                            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-                                Sistem akan menolak penyimpanan bila jadwal bentrok dengan timetable studio atau trainer sudah memiliki appointment lain pada waktu yang sama.
-                            </div>
+                            {/* <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                                Sistem akan menolak penyimpanan bila jadwal bentrok dengan timetable atau trainer sudah memiliki appointment lain pada waktu yang sama.
+                            </div> */}
                         </div>
 
                         <div className="space-y-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-950/40">
                             <div>
                                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Pilih Hari & Slot Jam</p>
-                                <p className="mt-1 text-xs text-slate-500">Tiap hari bisa diaktifkan/nonaktifkan dan memiliki lebih dari satu slot jam operasional. Sistem akan membaginya menjadi sesi appointment mengikuti durasi kelas.</p>
+                                {/* <p className="mt-1 text-xs text-slate-500">Tiap hari bisa diaktifkan/nonaktifkan dan memiliki lebih dari satu slot jam operasional. Sistem akan membaginya menjadi sesi appointment mengikuti durasi kelas.</p> */}
                             </div>
 
                             {errors.schedules && <p className="text-xs text-rose-500">{errors.schedules}</p>}
@@ -247,46 +257,57 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
                                             <div className="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
                                                 <div>
                                                     <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">{weekdayLabels[day.value] || day.label}</h3>
-                                                    <p className="text-xs text-slate-500">Atur satu atau beberapa slot jam untuk hari ini.</p>
+                                                    {/* <p className="text-xs text-slate-500">Atur satu atau beberapa slot jam untuk hari ini.</p> */}
                                                 </div>
                                                 <button
                                                     type="button"
                                                     onClick={() => toggleDayActive(day.value)}
-                                                    className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition ${daySchedule.active ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" : "bg-slate-200 text-slate-600 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200"}`}
+                                                    className={`inline-flex items-center justify-center rounded-full px-4 py-1 text-xs font-semibold transition ${daySchedule.active ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" : "bg-slate-200 text-slate-600 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200"}`}
                                                 >
                                                     {daySchedule.active ? "Aktif" : "Nonaktif"}
                                                 </button>
                                             </div>
 
-                                            <div className="mt-2 space-y-1">
+                                            <div className="mt-2 space-y-2">
                                                 {daySchedule.slots.map((slot, slotIndex) => (
                                                     <div key={`${day.value}-${slotIndex}`} className={`rounded-2xl border border-dashed p-4 ${daySchedule.active ? "border-slate-200" : "border-slate-100 bg-slate-50 opacity-70"}`}>
-                                                        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end">
-                                                            <TimeSelect
-                                                                label="Jam Mulai"
-                                                                hour={slot.start_hour}
-                                                                minute={slot.start_minute}
-                                                                disabled={!daySchedule.active}
-                                                                onHourChange={(value) => updateSlot(day.value, slotIndex, "start_hour", value)}
-                                                                onMinuteChange={(value) => updateSlot(day.value, slotIndex, "start_minute", value)}
-                                                            />
-                                                            <TimeSelect
-                                                                label="Sampai"
-                                                                hour={slot.end_hour}
-                                                                minute={slot.end_minute}
-                                                                disabled={!daySchedule.active}
-                                                                onHourChange={(value) => updateSlot(day.value, slotIndex, "end_hour", value)}
-                                                                onMinuteChange={(value) => updateSlot(day.value, slotIndex, "end_minute", value)}
-                                                            />
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => removeSlot(day.value, slotIndex)}
-                                                                disabled={!daySchedule.active && daySchedule.slots.length === 1}
-                                                                className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-rose-200 text-rose-500 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                                                aria-label={`Hapus slot ${weekdayLabels[day.value] || day.label} ${slotIndex + 1}`}
-                                                            >
-                                                                <IconTrash size={18} />
-                                                            </button>
+                                                        <div className="grid grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-3 lg:gap-4 items-end">
+                                                            {/* Kolom Jam Mulai */}
+                                                            <div className="text-sm text-slate-500">
+                                                                Jam Mulai
+                                                                <TimeSelect
+                                                                    hour={slot.start_hour}
+                                                                    minute={slot.start_minute}
+                                                                    disabled={!daySchedule.active}
+                                                                    onHourChange={(value) => updateSlot(day.value, slotIndex, "start_hour", value)}
+                                                                    onMinuteChange={(value) => updateSlot(day.value, slotIndex, "start_minute", value)}
+                                                                />
+                                                            </div>
+
+                                                            {/* Kolom Sampai */}
+                                                            <div className="text-sm text-slate-500">
+                                                                Sampai
+                                                                <TimeSelect
+                                                                    hour={slot.end_hour}
+                                                                    minute={slot.end_minute}
+                                                                    disabled={!daySchedule.active}
+                                                                    onHourChange={(value) => updateSlot(day.value, slotIndex, "end_hour", value)}
+                                                                    onMinuteChange={(value) => updateSlot(day.value, slotIndex, "end_minute", value)}
+                                                                />
+                                                            </div>
+
+                                                            {/* Tombol Hapus - Di mobile akan turun ke bawah atau bisa diletakkan di samping jika kolomnya cukup */}
+                                                            <div className="col-span-2 lg:col-span-1 flex justify-end lg:block">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => removeSlot(day.value, slotIndex)}
+                                                                    disabled={!daySchedule.active && daySchedule.slots.length === 1}
+                                                                    className="inline-flex h-11 w-full lg:w-11 items-center justify-center rounded-xl border border-rose-200 text-rose-500 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                    aria-label={`Hapus slot ${weekdayLabels[day.value] || day.label} ${slotIndex + 1}`}
+                                                                >
+                                                                    <IconTrash size={18} />
+                                                                </button>
+                                                            </div>
                                                         </div>
 
                                                         <div className="mt-3 space-y-1">
