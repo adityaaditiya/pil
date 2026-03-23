@@ -82,6 +82,7 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
         start_date: "",
         end_date: "",
         repeat_schedule: false,
+        duration_minutes: 60,
         schedules: buildInitialSchedules(weekdayOptions),
     });
 
@@ -185,34 +186,34 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
 
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Harga</label>
-                                <input type="number" min="0" step="0.01" value={data.price} onChange={(event) => setData("price", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800" />
+                                <input placeholder="Harga Sesi Appointment" type="number" min="0" step="0.01" value={data.price} onChange={(event) => setData("price", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800" />
                                 {errors.price && <p className="text-xs text-rose-500">{errors.price}</p>}
                             </div>
 
-                            <div className="space-y-2">
-    <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-        Durasi Kelas (Menit)
-    </label>
-    
-    <select
-    name="duration_minutes"
-    value={data.duration_minutes} // Langsung ikat ke data
-    onChange={(event) => setData("duration_minutes", event.target.value)}
-    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm focus:border-primary-500 focus:ring-primary-500"
->
-    {/* Tambahkan opsi placeholder jika perlu, atau langsung mulai dari 30 */}
-    <option value="" disabled>Pilih Durasi</option> 
-    {[30, 60, 90, 120, 150, 180].map((val) => (
-        <option key={val} value={val}>
-            {val} Menit
-        </option>
-    ))}
-</select>
+                                <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                            Durasi
+                                        </label>
+                                        
+                                        <select
+                                        name="duration_minutes"
+                                        value={data.duration_minutes} // Langsung ikat ke data
+                                        onChange={(event) => setData("duration_minutes", event.target.value)}
+                                        className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm focus:border-primary-500 focus:ring-primary-500"
+                                    >
+                                        {/* Tambahkan opsi placeholder jika perlu, atau langsung mulai dari 30 */}
+                                        <option value="" disabled>Pilih Durasi</option> 
+                                        {[30, 60, 90, 120, 150, 180].map((val) => (
+                                            <option key={val} value={val}>
+                                                {val} Menit
+                                            </option>
+                                        ))}
+                                    </select>
 
-    {errors.duration_minutes && (
-        <p className="text-xs text-rose-500">{errors.duration_minutes}</p>
-    )}
-</div>
+                                        {errors.duration_minutes && (
+                                            <p className="text-xs text-rose-500">{errors.duration_minutes}</p>
+                                        )}
+                                </div>
 
                             <div className="grid gap-5 md:grid-cols-2">
                                 <div className="space-y-2">
