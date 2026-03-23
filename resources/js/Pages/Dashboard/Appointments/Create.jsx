@@ -78,7 +78,6 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
         session_name: "",
         description: "",
         price: "",
-        duration_minutes: "",
         start_date: "",
         end_date: "",
         repeat_schedule: false,

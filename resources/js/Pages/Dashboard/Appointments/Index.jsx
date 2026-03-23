@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link, router } from "@inertiajs/react";
-import { IconCalendarEvent, IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconCalendarEvent, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 
 const formatRupiah = (value) => new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -72,19 +72,20 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                             <table className="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
                                 <thead className="bg-slate-50 dark:bg-slate-950/40">
                                     <tr>
+                                        <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Invoice</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Tanggal</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Sesi</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Kelas</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Trainer</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Durasi</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Harga</th>
-                                        <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Grup Recurring</th>
                                         <th className="px-4 py-3 text-right font-semibold text-slate-600 dark:text-slate-300"></th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {appointments.map((appointment) => (
                                         <tr key={appointment.id}>
+                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.invoice || "-"}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.start_at_label} - {appointment.end_at_label}</td>
                                             <td className="px-4 py-3">
                                                 <p className="font-semibold text-slate-800 dark:text-white">{appointment.session_name}</p>
@@ -94,11 +95,15 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.trainer?.name || "-"}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.duration_minutes} menit</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{formatRupiah(appointment.price)}</td>
-                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-300">#{appointment.parent_id || appointment.id}</td>
                                             <td className="px-4 py-3 text-right">
-                                                <button type="button" onClick={() => handleDelete(appointment.id)} className="inline-flex items-center gap-1 rounded-xl border border-rose-200 px-3 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50">
-                                                    <IconTrash size={15} /> Hapus
-                                                </button>
+                                                <div className="flex justify-end gap-2">
+                                                    <Link href={route("appointments.edit", appointment.id)} className="inline-flex items-center gap-1 rounded-xl border border-sky-200 px-3 py-2 text-sm font-medium text-sky-600 transition hover:bg-sky-50">
+                                                        <IconEdit size={15} /> Ubah Data
+                                                    </Link>
+                                                    <button type="button" onClick={() => handleDelete(appointment.id)} className="inline-flex items-center gap-1 rounded-xl border border-rose-200 px-3 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50">
+                                                        <IconTrash size={15} /> Hapus
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
