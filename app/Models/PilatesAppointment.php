@@ -10,6 +10,7 @@ class PilatesAppointment extends Model
     use HasFactory;
 
     protected $fillable = [
+        'invoice',
         'parent_id',
         'pilates_class_id',
         'trainer_id',
