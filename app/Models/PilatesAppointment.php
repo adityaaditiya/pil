@@ -13,9 +13,11 @@ class PilatesAppointment extends Model
         'invoice',
         'parent_id',
         'pilates_class_id',
+        'appointment_session_id',
         'trainer_id',
         'session_name',
         'description',
+        'admin_notes',
         'price',
         'duration_minutes',
         'start_at',
@@ -42,6 +44,11 @@ class PilatesAppointment extends Model
     public function pilatesClass()
     {
         return $this->belongsTo(PilatesClass::class);
+    }
+
+    public function appointmentSession()
+    {
+        return $this->belongsTo(AppointmentSession::class);
     }
 
     public function trainer()

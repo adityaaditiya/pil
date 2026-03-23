@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AppointmentSession;
 use App\Models\PilatesAppointment;
 use App\Models\PilatesClass;
 use App\Models\PilatesTimetable;
@@ -91,6 +92,7 @@ class PilatesAppointmentController extends Controller
                 ->orderBy('name')
                 ->get(),
             'trainers' => Trainer::query()->select('id', 'name')->orderBy('name')->get(),
+            'appointmentSessions' => AppointmentSession::query()->select('id', 'session_name', 'description')->orderBy('session_name')->get(),
             'weekdayOptions' => collect(self::WEEKDAY_MAP)->keys()->map(fn ($day) => [
                 'value' => $day,
                 'label' => ucfirst(__($day)),
@@ -116,6 +118,7 @@ class PilatesAppointmentController extends Controller
                 ->orderBy('name')
                 ->get(),
             'trainers' => Trainer::query()->select('id', 'name')->orderBy('name')->get(),
+            'appointmentSessions' => AppointmentSession::query()->select('id', 'session_name', 'description')->orderBy('session_name')->get(),
             'weekdayOptions' => collect(self::WEEKDAY_MAP)->keys()->map(fn ($day) => [
                 'value' => $day,
                 'label' => ucfirst(__($day)),
@@ -128,10 +131,12 @@ class PilatesAppointmentController extends Controller
                 'id' => $appointment->id,
                 'invoice' => $appointment->invoice,
                 'parent_id' => $appointment->parent_id,
+                'appointment_session_id' => $appointment->appointment_session_id,
                 'pilates_class_id' => $appointment->pilates_class_id,
                 'trainer_id' => $appointment->trainer_id,
                 'session_name' => $appointment->session_name,
                 'description' => $appointment->description,
+                'admin_notes' => $appointment->admin_notes,
                 'price' => $appointment->price,
                 'duration_minutes' => $appointment->duration_minutes,
                 'start_at' => $appointment->start_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i'),
@@ -149,8 +154,8 @@ class PilatesAppointmentController extends Controller
         $validated = $request->validate([
             'pilates_class_id' => ['required', 'exists:pilates_classes,id'],
             'trainer_id' => ['required', 'exists:trainers,id'],
-            'session_name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'appointment_session_id' => ['required', 'exists:appointment_sessions,id'],
+            'admin_notes' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'duration_minutes' => ['required', 'integer', 'min:1'],
             'start_date' => ['required', 'date'],
@@ -173,6 +178,7 @@ class PilatesAppointmentController extends Controller
         }
 
         $validated['schedules'] = $request->input('schedules', []);
+        $appointmentSession = AppointmentSession::query()->findOrFail($validated['appointment_session_id']);
 
         $occurrences = $this->buildOccurrences($validated);
 
@@ -184,7 +190,7 @@ class PilatesAppointmentController extends Controller
 
         $this->assertNoConflicts($occurrences, (int) $validated['trainer_id']);
 
-        DB::transaction(function () use ($validated, $occurrences) {
+        DB::transaction(function () use ($validated, $occurrences, $appointmentSession) {
             $parent = null;
 
             foreach ($occurrences as $index => $occurrence) {
@@ -192,9 +198,11 @@ class PilatesAppointmentController extends Controller
                     'invoice' => $this->generateInvoiceNumber(),
                     'parent_id' => $parent?->id,
                     'pilates_class_id' => $validated['pilates_class_id'],
+                    'appointment_session_id' => $appointmentSession->id,
                     'trainer_id' => $validated['trainer_id'],
-                    'session_name' => $validated['session_name'],
-                    'description' => $validated['description'] ?? null,
+                    'session_name' => $appointmentSession->session_name,
+                    'description' => $appointmentSession->description,
+                    'admin_notes' => $validated['admin_notes'] ?? null,
                     'price' => $validated['price'],
                     'duration_minutes' => $occurrence['duration_minutes'],
                     'start_at' => $occurrence['start_at']->clone()->timezone('Asia/Jakarta'),
@@ -221,8 +229,8 @@ class PilatesAppointmentController extends Controller
         $validated = $request->validate([
             'pilates_class_id' => ['required', 'exists:pilates_classes,id'],
             'trainer_id' => ['required', 'exists:trainers,id'],
-            'session_name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'appointment_session_id' => ['required', 'exists:appointment_sessions,id'],
+            'admin_notes' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'duration_minutes' => ['required', 'integer', 'min:1'],
             'start_at' => ['required', 'date'],
@@ -247,6 +255,7 @@ class PilatesAppointmentController extends Controller
         }
 
         $validated['schedules'] = $request->input('schedules', []);
+        $appointmentSession = AppointmentSession::query()->findOrFail($validated['appointment_session_id']);
         $startAt = Carbon::parse($validated['start_at'], 'Asia/Jakarta');
 
         if ($validated['update_scope'] === self::UPDATE_SCOPE_FOLLOWING) {
@@ -267,7 +276,7 @@ class PilatesAppointmentController extends Controller
 
             $this->assertNoConflicts($occurrences, (int) $validated['trainer_id'], $appointmentsToUpdate->pluck('id')->all());
 
-            DB::transaction(function () use ($appointment, $appointmentsToUpdate, $occurrences, $validated) {
+            DB::transaction(function () use ($appointment, $appointmentsToUpdate, $occurrences, $validated, $appointmentSession) {
                 $parentId = $appointment->parent_id ?: $appointment->id;
                 $existingAppointments = $appointmentsToUpdate->values();
                 $occurrenceItems = $occurrences->values();
@@ -279,9 +288,11 @@ class PilatesAppointmentController extends Controller
 
                     $item->update([
                         'pilates_class_id' => $validated['pilates_class_id'],
+                        'appointment_session_id' => $appointmentSession->id,
                         'trainer_id' => $validated['trainer_id'],
-                        'session_name' => $validated['session_name'],
-                        'description' => $validated['description'] ?? null,
+                        'session_name' => $appointmentSession->session_name,
+                        'description' => $appointmentSession->description,
+                        'admin_notes' => $validated['admin_notes'] ?? null,
                         'price' => $validated['price'],
                         'duration_minutes' => $validated['duration_minutes'],
                         'start_at' => $occurrence['start_at']->clone()->timezone('Asia/Jakarta'),
@@ -295,9 +306,11 @@ class PilatesAppointmentController extends Controller
                             'invoice' => $this->generateInvoiceNumber(),
                             'parent_id' => $parentId,
                             'pilates_class_id' => $validated['pilates_class_id'],
+                            'appointment_session_id' => $appointmentSession->id,
                             'trainer_id' => $validated['trainer_id'],
-                            'session_name' => $validated['session_name'],
-                            'description' => $validated['description'] ?? null,
+                            'session_name' => $appointmentSession->session_name,
+                            'description' => $appointmentSession->description,
+                            'admin_notes' => $validated['admin_notes'] ?? null,
                             'price' => $validated['price'],
                             'duration_minutes' => $validated['duration_minutes'],
                             'start_at' => $occurrence['start_at']->clone()->timezone('Asia/Jakarta'),
@@ -324,9 +337,11 @@ class PilatesAppointmentController extends Controller
 
             $appointment->update([
                 'pilates_class_id' => $validated['pilates_class_id'],
+                'appointment_session_id' => $appointmentSession->id,
                 'trainer_id' => $validated['trainer_id'],
-                'session_name' => $validated['session_name'],
-                'description' => $validated['description'] ?? null,
+                'session_name' => $appointmentSession->session_name,
+                'description' => $appointmentSession->description,
+                'admin_notes' => $validated['admin_notes'] ?? null,
                 'price' => $validated['price'],
                 'duration_minutes' => $validated['duration_minutes'],
                 'start_at' => $startAt->clone()->timezone('Asia/Jakarta'),

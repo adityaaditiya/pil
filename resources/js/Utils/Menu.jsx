@@ -83,6 +83,13 @@ function Menu() {
                     permissions: hasAnyPermission(["class-categories-access"]),
                 },
                 {
+                    title: "Sesi Appointment",
+                    href: route("appointment-sessions.index"),
+                    active: url.startsWith("/dashboard/appointment-sessions"),
+                    icon: <IconCalendarClock size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["dashboard-access"]),
+                },
+                {
                     title: "Membership Plans",
                     href: route("membership-plans.index"),
                     active: url.startsWith("/dashboard/membership-plans"),
