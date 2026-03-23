@@ -12,11 +12,10 @@ class PilatesAppointment extends Model
     protected $fillable = [
         'parent_id',
         'pilates_class_id',
-        'appointment_session_id',
         'trainer_id',
         'session_name',
-        'description',
         'admin_notes',
+        'session_options',
         'price',
         'duration_minutes',
         'start_at',
@@ -24,6 +23,7 @@ class PilatesAppointment extends Model
     ];
 
     protected $casts = [
+        'session_options' => 'array',
         'price' => 'decimal:2',
         'duration_minutes' => 'integer',
         'start_at' => 'datetime',

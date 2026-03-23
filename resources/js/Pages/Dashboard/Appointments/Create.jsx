@@ -9,6 +9,12 @@ import {
     IconTrash,
 } from "@tabler/icons-react";
 
+const formatRupiah = (value) => new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+}).format(Number(value || 0));
+
 const weekdayLabels = {
     monday: "Senin",
     tuesday: "Selasa",
@@ -75,9 +81,8 @@ export default function Create({ classes = [], trainers = [], appointmentSession
     const { data, setData, post, processing, errors } = useForm({
         pilates_class_id: "",
         trainer_ids: [],
-        appointment_session_id: "",
+        session_options: [],
         admin_notes: "",
-        price: "",
         start_date: "",
         end_date: "",
         repeat_schedule: false,
@@ -126,7 +131,45 @@ export default function Create({ classes = [], trainers = [], appointmentSession
         });
     };
 
-    const selectedAppointmentSession = appointmentSessions.find((item) => String(item.id) === String(data.appointment_session_id));
+    const normalizedTrainerIds = data.trainer_ids.map((id) => String(id));
+    const normalizedSessionOptions = data.session_options.map((item) => ({
+        ...item,
+        appointment_session_id: String(item.appointment_session_id),
+    }));
+    const allTrainerSelected = trainers.length > 0 && normalizedTrainerIds.length === trainers.length;
+    const allSessionSelected = appointmentSessions.length > 0 && normalizedSessionOptions.length === appointmentSessions.length;
+    const totalPrice = normalizedSessionOptions.reduce((sum, item) => sum + Number(item.price || 0), 0);
+
+    const toggleTrainer = (trainerId, checked) => {
+        const normalizedId = String(trainerId);
+        setData("trainer_ids", checked
+            ? Array.from(new Set([...normalizedTrainerIds, normalizedId]))
+            : normalizedTrainerIds.filter((id) => id !== normalizedId));
+    };
+
+    const toggleAllTrainers = (checked) => {
+        setData("trainer_ids", checked ? trainers.map((trainer) => String(trainer.id)) : []);
+    };
+
+    const toggleSession = (session, checked) => {
+        const sessionId = String(session.id);
+        setData("session_options", checked
+            ? [...normalizedSessionOptions, { appointment_session_id: sessionId, session_name: session.session_name, price: "" }]
+            : normalizedSessionOptions.filter((item) => item.appointment_session_id !== sessionId));
+    };
+
+    const toggleAllSessions = (checked) => {
+        setData("session_options", checked
+            ? appointmentSessions.map((session) => ({ appointment_session_id: String(session.id), session_name: session.session_name, price: "" }))
+            : []);
+    };
+
+    const updateSessionPrice = (sessionId, price) => {
+        const normalizedId = String(sessionId);
+        setData("session_options", normalizedSessionOptions.map((item) => (
+            item.appointment_session_id === normalizedId ? { ...item, price } : item
+        )));
+    };
 
     const submit = (event) => {
         event.preventDefault();
@@ -164,41 +207,71 @@ export default function Create({ classes = [], trainers = [], appointmentSession
 
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Pilih Trainer</label>
-                                <div className="grid gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
-                                    {trainers.map((trainer) => (
-                                        <label key={trainer.id} className="inline-flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
-                                            <input
-                                                type="checkbox"
-                                                checked={data.trainer_ids.includes(String(trainer.id)) || data.trainer_ids.includes(trainer.id)}
-                                                onChange={(event) => {
-                                                    const trainerId = String(trainer.id);
-                                                    setData("trainer_ids", event.target.checked
-                                                        ? [...data.trainer_ids, trainerId]
-                                                        : data.trainer_ids.filter((id) => String(id) !== trainerId));
-                                                }}
-                                            />
-                                            {trainer.name}
-                                        </label>
-                                    ))}
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+                                    <label className="mb-3 inline-flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                        <input type="checkbox" checked={allTrainerSelected} onChange={(event) => toggleAllTrainers(event.target.checked)} />
+                                        Centang Semua Trainer
+                                    </label>
+                                    <div className="grid gap-2">
+                                        {trainers.map((trainer) => (
+                                            <label key={trainer.id} className="inline-flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={normalizedTrainerIds.includes(String(trainer.id))}
+                                                    onChange={(event) => toggleTrainer(trainer.id, event.target.checked)}
+                                                />
+                                                {trainer.name}
+                                            </label>
+                                        ))}
+                                    </div>
                                 </div>
                                 {errors.trainer_ids && <p className="text-xs text-rose-500">{errors.trainer_ids}</p>}
                                 {errors["trainer_ids.0"] && <p className="text-xs text-rose-500">{errors["trainer_ids.0"]}</p>}
                             </div>
 
-                            <div className="space-y-2">
+                            <div className="space-y-3">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Sesi Appointment</label>
-                                <select value={data.appointment_session_id} onChange={(event) => setData("appointment_session_id", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800">
-                                    <option value="">Pilih sesi appointment</option>
-                                    {appointmentSessions.map((item) => (
-                                        <option key={item.id} value={item.id}>{item.session_name}</option>
-                                    ))}
-                                </select>
-                                {errors.appointment_session_id && <p className="text-xs text-rose-500">{errors.appointment_session_id}</p>}
-                            </div>
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+                                    <label className="mb-3 inline-flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                        <input type="checkbox" checked={allSessionSelected} onChange={(event) => toggleAllSessions(event.target.checked)} />
+                                        Centang Semua Sesi
+                                    </label>
+                                    <div className="space-y-3">
+                                        {appointmentSessions.map((item) => {
+                                            const selectedOption = normalizedSessionOptions.find((option) => option.appointment_session_id === String(item.id));
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Deskripsi Sesi</label>
-                                <textarea value={selectedAppointmentSession?.description || ""} readOnly rows={4} className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800" placeholder="Deskripsi akan terisi otomatis dari master sesi appointment" />
+                                            return (
+                                                <div key={item.id} className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+                                                    <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px] md:items-center">
+                                                        <label className="inline-flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={Boolean(selectedOption)}
+                                                                onChange={(event) => toggleSession(item, event.target.checked)}
+                                                            />
+                                                            {item.session_name}
+                                                        </label>
+                                                        {selectedOption && (
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                step="0.01"
+                                                                value={selectedOption.price}
+                                                                onChange={(event) => updateSessionPrice(item.id, event.target.value)}
+                                                                placeholder="Harga sesi"
+                                                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
+                                                            />
+                                                        )}
+                                                    </div>
+                                                    {errors[`session_options.${normalizedSessionOptions.findIndex((option) => option.appointment_session_id === String(item.id))}.price`] && (
+                                                        <p className="mt-2 text-xs text-rose-500">{errors[`session_options.${normalizedSessionOptions.findIndex((option) => option.appointment_session_id === String(item.id))}.price`]}</p>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                                {errors.session_options && <p className="text-xs text-rose-500">{errors.session_options}</p>}
                             </div>
 
                             <div className="space-y-2">
@@ -208,9 +281,8 @@ export default function Create({ classes = [], trainers = [], appointmentSession
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Harga</label>
-                                <input placeholder="Harga Sesi Appointment" type="number" min="0" step="0.01" value={data.price} onChange={(event) => setData("price", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800" />
-                                {errors.price && <p className="text-xs text-rose-500">{errors.price}</p>}
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Total Harga</label>
+                                <div className="rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">{formatRupiah(totalPrice)}</div>
                             </div>
 
                                 <div className="space-y-2">
