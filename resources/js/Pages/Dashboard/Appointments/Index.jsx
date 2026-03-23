@@ -41,7 +41,7 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                             <h1 className="flex items-center gap-2 text-2xl font-semibold text-slate-900 dark:text-white">
                                 <IconCalendarEvent size={28} className="text-primary-500" /> Appointment
                             </h1>
-                            <p className="mt-1 text-sm text-slate-500">Kelola jadwal appointment studio dengan filter tanggal dan validasi bentrok.</p>
+                            <p className="mt-1 text-sm text-slate-500">Kelola jadwal appointment Pelanggan.</p>
                         </div>
 
                         <div className="flex w-full flex-col gap-3 md:flex-row lg:w-auto">
@@ -60,13 +60,13 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                 }} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800" />
                             </div>
                             <Link href={route("appointments.create")} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700 md:self-end">
-                                <IconPlus size={16} /> Create Appointment
+                                <IconPlus size={16} /> Tambah Appointment
                             </Link>
                         </div>
                     </div>
                 </section>
 
-                <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     {hasAppointments ? (
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
@@ -98,7 +98,7 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                             <td className="px-4 py-3 text-right">
                                                 <div className="flex justify-end gap-2">
                                                     <Link href={route("appointments.edit", appointment.id)} className="inline-flex items-center gap-1 rounded-xl border border-sky-200 px-3 py-2 text-sm font-medium text-sky-600 transition hover:bg-sky-50">
-                                                        <IconEdit size={15} /> Ubah Data
+                                                        <IconEdit size={15} /> Ubah
                                                     </Link>
                                                     <button type="button" onClick={() => handleDelete(appointment.id)} className="inline-flex items-center gap-1 rounded-xl border border-rose-200 px-3 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50">
                                                         <IconTrash size={15} /> Hapus
