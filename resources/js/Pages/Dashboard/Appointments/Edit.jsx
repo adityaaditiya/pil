@@ -3,7 +3,7 @@ import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { IconArrowLeft, IconEdit, IconDeviceFloppy } from "@tabler/icons-react";
 
-export default function Edit({ classes = [], trainers = [], appointment }) {
+export default function Edit({ classes = [], trainers = [], appointment, updateScopeOptions = [] }) {
     const { data, setData, put, processing, errors } = useForm({
         pilates_class_id: appointment?.pilates_class_id || "",
         trainer_id: appointment?.trainer_id || "",
@@ -12,6 +12,7 @@ export default function Edit({ classes = [], trainers = [], appointment }) {
         price: appointment?.price || "",
         duration_minutes: appointment?.duration_minutes || 60,
         start_at: appointment?.start_at || "",
+        update_scope: updateScopeOptions[0]?.value || "single",
     });
 
     const submit = (event) => {
@@ -64,10 +65,22 @@ export default function Edit({ classes = [], trainers = [], appointment }) {
                         </div>
 
                         <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Pilihan Edit</label>
+                            <select value={data.update_scope} onChange={(event) => setData("update_scope", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800">
+                                {updateScopeOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>{option.label}</option>
+                                ))}
+                            </select>
+                            {errors.update_scope && <p className="text-xs text-rose-500">{errors.update_scope}</p>}
+                            <p className="text-xs text-slate-500">Pilih apakah perubahan berlaku hanya pada sesi ini atau seluruh sesi berulang berikutnya.</p>
+                        </div>
+
+                        <div className="space-y-2">
                             <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Waktu Mulai</label>
                             <input type="datetime-local" value={data.start_at} onChange={(event) => setData("start_at", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800" />
                             {errors.start_at && <p className="text-xs text-rose-500">{errors.start_at}</p>}
                             {errors.schedules && <p className="text-xs text-rose-500">{errors.schedules}</p>}
+                            <p className="text-xs text-slate-500">Jika jam diubah dan Anda memilih sesi ini dan semua seterusnya, tanggal tiap sesi tetap sama tetapi jam akan diseragamkan.</p>
                         </div>
 
                         <div className="space-y-2 md:col-span-2">
