@@ -177,6 +177,12 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::delete('appointments/{appointment}', [PilatesAppointmentController::class, 'destroy'])
         ->middleware('permission:dashboard-access')
         ->name('appointments.destroy');
+    Route::get('appointments/{appointment}/booking', [PilatesAppointmentController::class, 'createBooking'])
+        ->middleware('permission:dashboard-access')
+        ->name('appointments.booking.create');
+    Route::post('appointments/{appointment}/booking', [PilatesAppointmentController::class, 'storeBooking'])
+        ->middleware('permission:dashboard-access')
+        ->name('appointments.booking.store');
     
     Route::get('bookings/history', [PilatesBookingHistoryController::class, 'index'])
         ->middleware('permission:dashboard-access')
