@@ -258,6 +258,13 @@ function Menu() {
                     icon: <IconFileCertificate size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["reports-access"]),
                 },
+                {
+                    title: "Laporan Kelola Stok",
+                    href: route("reports.stock-mutations.index"),
+                    active: url.startsWith("/dashboard/reports/stock-mutations"),
+                    icon: <IconTable size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["reports-access"]),
+                },
             ],
         },
         {

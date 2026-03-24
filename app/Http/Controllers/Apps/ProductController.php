@@ -7,7 +7,10 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\StockMutation;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
@@ -26,6 +29,7 @@ class ProductController extends Controller
         //return inertia
         return Inertia::render('Dashboard/Products/Index', [
             'products' => $products,
+            'allProducts' => Product::select('id', 'title', 'stock')->orderBy('title')->get(),
         ]);
     }
 
@@ -121,7 +125,6 @@ class ProductController extends Controller
             'category_id' => 'required',
             'buy_price' => 'required',
             'sell_price' => 'required',
-            'stock' => 'required',
         ]);
 
         //check image update
@@ -143,7 +146,6 @@ class ProductController extends Controller
                 'category_id' => $request->category_id,
                 'buy_price' => $request->buy_price,
                 'sell_price' => $request->sell_price,
-                'stock' => $request->stock,
             ]);
 
         }
@@ -156,11 +158,65 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'buy_price' => $request->buy_price,
             'sell_price' => $request->sell_price,
-            'stock' => $request->stock,
         ]);
 
         //redirect
         return to_route('products.index');
+    }
+
+    public function addStock(Request $request)
+    {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'qty' => 'required|integer|min:1',
+            'note' => 'nullable|string|max:255',
+        ]);
+
+        DB::transaction(function () use ($validated, $request) {
+            $product = Product::lockForUpdate()->findOrFail($validated['product_id']);
+            $product->increment('stock', (int) $validated['qty']);
+
+            StockMutation::create([
+                'product_id' => $product->id,
+                'user_id' => $request->user()->id,
+                'type' => 'in',
+                'qty' => (int) $validated['qty'],
+                'note' => $validated['note'] ?? null,
+            ]);
+        });
+
+        return back();
+    }
+
+    public function reduceStock(Request $request)
+    {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'qty' => 'required|integer|min:1',
+            'note' => 'nullable|string|max:255',
+        ]);
+
+        DB::transaction(function () use ($validated, $request) {
+            $product = Product::lockForUpdate()->findOrFail($validated['product_id']);
+
+            if ($product->stock < (int) $validated['qty']) {
+                throw ValidationException::withMessages([
+                    'qty' => 'Stok tidak mencukupi untuk dikurangi.',
+                ]);
+            }
+
+            $product->decrement('stock', (int) $validated['qty']);
+
+            StockMutation::create([
+                'product_id' => $product->id,
+                'user_id' => $request->user()->id,
+                'type' => 'out',
+                'qty' => (int) $validated['qty'],
+                'note' => $validated['note'] ?? null,
+            ]);
+        });
+
+        return back();
     }
 
     /**

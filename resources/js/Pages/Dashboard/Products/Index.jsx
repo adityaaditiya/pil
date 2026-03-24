@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, usePage, Link } from "@inertiajs/react";
+import { Head, usePage, Link, useForm } from "@inertiajs/react";
 import Button from "@/Components/Dashboard/Button";
 import {
     IconCirclePlus,
@@ -12,11 +12,15 @@ import {
     IconPhoto,
     IconPackage,
     IconSearch,
+    IconPlus,
+    IconMinus,
+    IconX,
 } from "@tabler/icons-react";
 import Search from "@/Components/Dashboard/Search";
 import Table from "@/Components/Dashboard/Table";
 import Pagination from "@/Components/Dashboard/Pagination";
 import { getProductImageUrl } from "@/Utils/imageUrl";
+import toast from "react-hot-toast";
 
 const formatCurrency = (value = 0) =>
     new Intl.NumberFormat("id-ID", {
@@ -24,6 +28,103 @@ const formatCurrency = (value = 0) =>
         currency: "IDR",
         minimumFractionDigits: 0,
     }).format(value);
+
+function StockModal({
+    title,
+    products,
+    form,
+    setField,
+    errors,
+    processing,
+    onSubmit,
+    onClose,
+}) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60">
+            <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                        {title}
+                    </h3>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                    >
+                        <IconX size={18} />
+                    </button>
+                </div>
+
+                <form onSubmit={onSubmit} className="p-6 space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium mb-2">Nama Produk</label>
+                        <select
+                            value={form.product_id}
+                            onChange={(e) =>
+                                setField("product_id", e.target.value)
+                            }
+                            className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                        >
+                            <option value="">Pilih produk</option>
+                            {products.map((product) => (
+                                <option key={product.id} value={product.id}>
+                                    {product.title} (stok: {product.stock})
+                                </option>
+                            ))}
+                        </select>
+                        {errors.product_id && (
+                            <small className="text-danger-500">{errors.product_id}</small>
+                        )}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-2">Jumlah Stok</label>
+                        <input
+                            type="number"
+                            min="1"
+                            value={form.qty}
+                            onChange={(e) =>
+                                setField("qty", e.target.value)
+                            }
+                            className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                        />
+                        {errors.qty && <small className="text-danger-500">{errors.qty}</small>}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-2">Catatan</label>
+                        <textarea
+                            value={form.note}
+                            onChange={(e) =>
+                                setField("note", e.target.value)
+                            }
+                            rows={3}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                        />
+                        {errors.note && <small className="text-danger-500">{errors.note}</small>}
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-2">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="px-4 py-2.5 rounded-xl bg-primary-500 text-white hover:bg-primary-600"
+                        >
+                            {processing ? "Menyimpan..." : "Simpan"}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
 
 // Product Card for Grid View
 function ProductCard({ product, index, currentPage, perPage }) {
@@ -124,9 +225,57 @@ function ProductCard({ product, index, currentPage, perPage }) {
     );
 }
 
-export default function Index({ products }) {
-    const { roles, permissions, errors } = usePage().props;
+export default function Index({ products, allProducts = [] }) {
+    const { errors } = usePage().props;
     const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'list'
+    const [activeStockModal, setActiveStockModal] = useState(null);
+
+    const {
+        data: stockForm,
+        setData: setStockData,
+        post,
+        processing,
+        reset,
+    } = useForm({
+        product_id: "",
+        qty: "",
+        note: "",
+    });
+
+    const sortedProducts = useMemo(
+        () => [...allProducts].sort((a, b) => a.title.localeCompare(b.title)),
+        [allProducts]
+    );
+
+    const closeModal = () => {
+        setActiveStockModal(null);
+        reset();
+    };
+
+    const submitStock = (type) => (e) => {
+        e.preventDefault();
+        const targetRoute =
+            type === "in" ? "products.stock.add" : "products.stock.reduce";
+
+        post(route(targetRoute), {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.success(
+                    type === "in"
+                        ? "Tambah stok berhasil disimpan"
+                        : "Kurang stok berhasil disimpan"
+                );
+                closeModal();
+            },
+            onError: () => {
+                toast.error(
+                    type === "in"
+                        ? "Gagal menambah stok"
+                        : "Gagal mengurangi stok"
+                );
+            },
+        });
+    };
 
     return (
         <>
@@ -143,15 +292,31 @@ export default function Index({ products }) {
                             {products.total} produk terdaftar
                         </p>
                     </div>
-                    <Button
-                        type={"link"}
-                        icon={<IconCirclePlus size={18} strokeWidth={1.5} />}
-                        className={
-                            "bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/30"
-                        }
-                        label={"Tambah Produk"}
-                        href={route("products.create")}
-                    />
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setActiveStockModal("in")}
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-success-500 hover:bg-success-600 text-white"
+                        >
+                            <IconPlus size={18} /> Tambah Stok
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setActiveStockModal("out")}
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-danger-500 hover:bg-danger-600 text-white"
+                        >
+                            <IconMinus size={18} /> Kurang Stok
+                        </button>
+                        <Button
+                            type={"link"}
+                            icon={<IconCirclePlus size={18} strokeWidth={1.5} />}
+                            className={
+                                "bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/30"
+                            }
+                            label={"Tambah Produk"}
+                            href={route("products.create")}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -325,26 +490,25 @@ export default function Index({ products }) {
                     </Table.Card>
                 )
             ) : (
-                /* Empty State */
-                <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-                    <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                <div className="text-center py-20">
+                    <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                         <IconDatabaseOff
-                            size={32}
+                            size={36}
                             className="text-slate-400"
                             strokeWidth={1.5}
                         />
                     </div>
-                    <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-1">
+                    <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-1">
                         Belum Ada Produk
                     </h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                        Tambahkan produk pertama Anda untuk memulai.
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                        Mulai tambahkan produk pertama Anda
                     </p>
                     <Button
                         type={"link"}
-                        icon={<IconCirclePlus size={18} />}
+                        icon={<IconCirclePlus size={18} strokeWidth={1.5} />}
                         className={
-                            "bg-primary-500 hover:bg-primary-600 text-white"
+                            "bg-primary-500 hover:bg-primary-600 text-white mx-auto"
                         }
                         label={"Tambah Produk"}
                         href={route("products.create")}
@@ -353,6 +517,32 @@ export default function Index({ products }) {
             )}
 
             {products.last_page !== 1 && <Pagination links={products.links} />}
+
+            {activeStockModal === "in" && (
+                <StockModal
+                    title="Tambah Stok"
+                    products={sortedProducts}
+                    form={stockForm}
+                    setField={setStockData}
+                    errors={errors}
+                    processing={processing}
+                    onSubmit={submitStock("in")}
+                    onClose={closeModal}
+                />
+            )}
+
+            {activeStockModal === "out" && (
+                <StockModal
+                    title="Kurang Stok"
+                    products={sortedProducts}
+                    form={stockForm}
+                    setField={setStockData}
+                    errors={errors}
+                    processing={processing}
+                    onSubmit={submitStock("out")}
+                    onClose={closeModal}
+                />
+            )}
         </>
     );
 }
