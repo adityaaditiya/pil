@@ -19,6 +19,7 @@ class StockMutationReportController extends Controller
             'end_date' => $request->input('end_date') ?: $defaultDate,
         ];
 
+        // query untuk list (pakai orderBy boleh)
         $query = StockMutation::query()
             ->with(['product:id,title', 'user:id,name'])
             ->when($filters['start_date'], fn ($q, $start) => $q->whereDate('created_at', '>=', $start))
@@ -27,7 +28,11 @@ class StockMutationReportController extends Controller
 
         $mutations = (clone $query)->paginate(10)->withQueryString();
 
-        $totals = (clone $query)
+
+        // 🔥 query totals (JANGAN pakai orderBy)
+        $totals = StockMutation::query()
+            ->when($filters['start_date'], fn ($q, $start) => $q->whereDate('created_at', '>=', $start))
+            ->when($filters['end_date'], fn ($q, $end) => $q->whereDate('created_at', '<=', $end))
             ->selectRaw("COALESCE(SUM(CASE WHEN type = 'in' THEN qty ELSE 0 END), 0) as total_in")
             ->selectRaw("COALESCE(SUM(CASE WHEN type = 'out' THEN qty ELSE 0 END), 0) as total_out")
             ->first();
