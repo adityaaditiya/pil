@@ -8,6 +8,9 @@ import {
     IconFilter,
     IconPackage,
     IconSearch,
+    IconReceipt,
+    IconReceipt2,
+    IconShoppingBag,
 } from "@tabler/icons-react";
 
 const StockMutations = ({ mutations, filters, summary }) => {
@@ -25,6 +28,49 @@ const StockMutations = ({ mutations, filters, summary }) => {
         });
         setShowFilters(false);
     };
+
+
+    const SummaryCard = ({ icon, title, value, description, gradient }) => (
+        <div
+            className={`relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br ${gradient} text-white shadow-lg`}
+        >
+            <div className="absolute top-0 right-0 w-24 h-24 opacity-20">
+                {React.cloneElement(icon, {
+                    size: 96,
+                    strokeWidth: 0.5,
+                    className: "transform translate-x-4 -translate-y-4",
+                })}
+            </div>
+            <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-2">
+                    <div className="p-2 rounded-xl bg-white/20">
+                        {React.cloneElement(icon, { size: 18 })}
+                    </div>
+                    <span className="text-sm font-medium opacity-90">{title}</span>
+                </div>
+                <p className="text-2xl font-bold">{value}</p>
+                <p className="text-sm opacity-80 mt-1">{description}</p>
+            </div>
+        </div>
+    );
+
+    const summaryCards = [
+        {
+            title: "Total Tambah Barang",
+            value: summary?.total_in ?? 0,
+            description: "Akumulasi qty produk Tambah Barang",
+            icon: <IconShoppingBag size={22} />,
+            gradient: "from-sky-500 to-indigo-600",
+        },
+        {
+            title: "Total Ambil Barang",
+            value: summary?.total_out ?? 0,
+            description: "Jumlah transaksi Ambil Barang",
+            icon: <IconReceipt2 size={22} />,
+            gradient: "from-emerald-500 to-teal-600",
+        },
+
+    ];
 
     const rows = mutations?.data || [];
 
@@ -52,7 +98,7 @@ const StockMutations = ({ mutations, filters, summary }) => {
                     </button>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
+                {/* <div className="grid gap-4 md:grid-cols-2">
                     <div className="rounded-2xl p-5 bg-gradient-to-br from-success-500 to-success-700 text-white shadow-lg">
                         <div className="flex items-center gap-2">
                             <IconArrowUp size={20} />
@@ -67,6 +113,11 @@ const StockMutations = ({ mutations, filters, summary }) => {
                         </div>
                         <p className="text-3xl font-bold mt-2">{summary?.total_out || 0}</p>
                     </div>
+                </div> */}
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {summaryCards.map((card) => (
+                        <SummaryCard key={card.title} {...card} />
+                    ))}
                 </div>
 
                 {showFilters && (

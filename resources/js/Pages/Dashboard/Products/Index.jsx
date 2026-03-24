@@ -292,18 +292,18 @@ export default function Index({ products, allProducts = [] }) {
                             {products.total} produk terdaftar
                         </p>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 grid grid-cols-3">
                         <button
                             type="button"
                             onClick={() => setActiveStockModal("in")}
-                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-success-500 hover:bg-success-600 text-white"
+                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-success-500 hover:bg-success-600 text-white"
                         >
                             <IconPlus size={18} /> Tambah Stok
                         </button>
                         <button
                             type="button"
                             onClick={() => setActiveStockModal("out")}
-                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-danger-500 hover:bg-danger-600 text-white"
+                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-danger-500 hover:bg-danger-600 text-white"
                         >
                             <IconMinus size={18} /> Kurang Stok
                         </button>
