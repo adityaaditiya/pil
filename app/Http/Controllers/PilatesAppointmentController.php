@@ -61,7 +61,7 @@ class PilatesAppointmentController extends Controller
                     'parent_id' => $appointment->parent_id,
                     'session_name' => $appointment->session_name,
                     'session_options' => $appointment->session_options ?? [],
-                    'price' => $appointment->price,
+                    'total_price' => $this->calculateTotalPrice($appointment->session_options ?? []),
                     'duration_minutes' => $appointment->duration_minutes,
                     'start_at' => $appointment->start_at,
                     'end_at' => $appointment->end_at,
@@ -136,7 +136,6 @@ class PilatesAppointmentController extends Controller
                 'trainer_ids' => $appointment->trainers->pluck('id')->whenEmpty(fn ($collection) => collect([$appointment->trainer_id])->filter())->values(),
                 'session_name' => $appointment->session_name,
                 'admin_notes' => $appointment->admin_notes,
-                'price' => $appointment->price,
                 'duration_minutes' => $appointment->duration_minutes,
                 'start_at' => $appointment->start_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i'),
                 'start_date' => $appointment->start_at?->timezone('Asia/Jakarta')->toDateString(),
@@ -204,7 +203,6 @@ class PilatesAppointmentController extends Controller
                     'session_name' => $this->buildSessionName($validated['session_options']),
                     'session_options' => $validated['session_options'],
                     'admin_notes' => $validated['admin_notes'] ?? null,
-                    'price' => $this->calculateTotalPrice($validated['session_options']),
                     'duration_minutes' => $occurrence['duration_minutes'],
                     'start_at' => $occurrence['start_at']->clone()->timezone('Asia/Jakarta'),
                     'end_at' => $occurrence['end_at']->clone()->timezone('Asia/Jakarta'),
@@ -299,7 +297,6 @@ class PilatesAppointmentController extends Controller
                         'session_name' => $this->buildSessionName($validated['session_options']),
                         'session_options' => $validated['session_options'],
                         'admin_notes' => $validated['admin_notes'] ?? null,
-                        'price' => $this->calculateTotalPrice($validated['session_options']),
                         'duration_minutes' => $validated['duration_minutes'],
                         'start_at' => $occurrence['start_at']->clone()->timezone('Asia/Jakarta'),
                         'end_at' => $occurrence['end_at']->clone()->timezone('Asia/Jakarta'),
@@ -318,7 +315,6 @@ class PilatesAppointmentController extends Controller
                             'session_name' => $this->buildSessionName($validated['session_options']),
                             'session_options' => $validated['session_options'],
                             'admin_notes' => $validated['admin_notes'] ?? null,
-                            'price' => $this->calculateTotalPrice($validated['session_options']),
                             'duration_minutes' => $validated['duration_minutes'],
                             'start_at' => $occurrence['start_at']->clone()->timezone('Asia/Jakarta'),
                             'end_at' => $occurrence['end_at']->clone()->timezone('Asia/Jakarta'),
@@ -351,7 +347,6 @@ class PilatesAppointmentController extends Controller
                 'session_name' => $this->buildSessionName($validated['session_options']),
                 'session_options' => $validated['session_options'],
                 'admin_notes' => $validated['admin_notes'] ?? null,
-                'price' => $this->calculateTotalPrice($validated['session_options']),
                 'duration_minutes' => $validated['duration_minutes'],
                 'start_at' => $startAt->clone()->timezone('Asia/Jakarta'),
                 'end_at' => $endAt->clone()->timezone('Asia/Jakarta'),
@@ -393,7 +388,8 @@ class PilatesAppointmentController extends Controller
                 'class_name' => $appointment->pilatesClass?->name,
                 'session_name' => $appointment->session_name,
                 'session_options' => $appointment->session_options ?? [],
-                'price' => $appointment->price,
+                'default_payment_type' => $appointment->pilatesClass?->default_payment_method ?? 'drop_in',
+                'total_price' => $this->calculateTotalPrice($appointment->session_options ?? []),
                 'start_date_label' => $appointment->start_at?->timezone('Asia/Jakarta')->format('d M Y'),
                 'start_at_label' => $appointment->start_at?->timezone('Asia/Jakarta')->format('H:i'),
                 'end_at_label' => $appointment->end_at?->timezone('Asia/Jakarta')->format('H:i'),
@@ -410,6 +406,7 @@ class PilatesAppointmentController extends Controller
         $validated = $request->validate([
             'customer_id' => ['required', 'exists:customers,id'],
             'payment_method' => ['required', 'string', 'max:50'],
+            'payment_type' => ['required', Rule::in(['drop_in', 'credit'])],
             'appointment_session_id' => ['nullable', 'integer'],
         ]);
 
@@ -421,12 +418,19 @@ class PilatesAppointmentController extends Controller
             $selectedSession = $sessionOptions->first();
         }
 
+        if ($validated['payment_type'] === 'credit') {
+            $validated['payment_method'] = 'credits';
+        }
+
         AppointmentBooking::query()->create([
             'appointment_id' => $appointment->id,
             'customer_id' => $validated['customer_id'],
             'appointment_session_id' => $selectedSession['appointment_session_id'] ?? null,
             'session_name' => $selectedSession['session_name'] ?? $appointment->session_name,
-            'price_amount' => (float) ($selectedSession['price'] ?? $appointment->price ?? 0),
+            'price_amount' => $validated['payment_type'] === 'drop_in'
+                ? (float) ($selectedSession['price'] ?? $this->calculateTotalPrice($appointment->session_options ?? []))
+                : 0,
+            'payment_type' => $validated['payment_type'],
             'payment_method' => $validated['payment_method'],
             'booked_at' => now(),
             'status' => 'confirmed',

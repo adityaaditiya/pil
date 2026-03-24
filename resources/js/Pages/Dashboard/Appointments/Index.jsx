@@ -107,7 +107,7 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.pilates_class?.name || "-"}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.trainers?.join(", ") || "-"}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.duration_minutes} menit</td>
-                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{formatRupiah(appointment.price)}</td>
+                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{formatRupiah(appointment.total_price)}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.admin_notes || "-"}</td>
                                             <td className="px-4 py-3 text-right">
                                                 <div className="flex justify-end gap-2">
@@ -147,7 +147,7 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                             <p className="flex items-center gap-2"><IconClock size={15} /> {selectedAppointment.start_at_label} - {selectedAppointment.end_at_label} WIB</p>
                             <p>Sesi: {selectedAppointment.session_name || "-"}</p>
                             <p>Durasi: {selectedAppointment.duration_minutes} menit</p>
-                            <p>Total Harga: {formatRupiah(selectedAppointment.price)}</p>
+                            <p>Total Harga: {formatRupiah(selectedAppointment.total_price)}</p>
                             <p>Catatan Admin: {selectedAppointment.admin_notes || "-"}</p>
                         </div>
 

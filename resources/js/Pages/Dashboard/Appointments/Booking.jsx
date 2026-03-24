@@ -25,11 +25,12 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
 
     const { data, setData, post, processing, errors } = useForm({
         customer_id: "",
-        payment_method: mappedPaymentMethods[0]?.value || "cash",
+        payment_type: appointment?.default_payment_type || "drop_in",
+        payment_method: appointment?.default_payment_type === "credit" ? "credits" : (mappedPaymentMethods[0]?.value || "cash"),
         appointment_session_id: selectedOption?.appointment_session_id || "",
     });
 
-    const price = Number(selectedOption?.price ?? appointment?.price ?? 0);
+    const price = Number(selectedOption?.price ?? appointment?.total_price ?? 0);
 
     const handleSessionChange = (value) => {
         const option = (appointment?.session_options || []).find(
@@ -75,13 +76,37 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                         />
 
                         <div>
+                            <label className="mb-2 block text-sm font-medium">Jenis Pembayaran</label>
+                            <select
+                                value={data.payment_type}
+                                onChange={(event) => {
+                                    const paymentType = event.target.value;
+                                    setData("payment_type", paymentType);
+                                    if (paymentType === "credit") {
+                                        setData("payment_method", "credits");
+                                    } else if (data.payment_method === "credits") {
+                                        setData("payment_method", mappedPaymentMethods[0]?.value || "cash");
+                                    }
+                                }}
+                                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm"
+                            >
+                                <option value="drop_in">Drop-in</option>
+                                <option value="credit">Credits</option>
+                            </select>
+                            {errors.payment_type && <p className="mt-1 text-xs text-red-500">{errors.payment_type}</p>}
+                        </div>
+
+                        <div>
                             <label className="mb-2 block text-sm font-medium">Metode Pembayaran</label>
                             <select
                                 value={data.payment_method}
                                 onChange={(event) => setData("payment_method", event.target.value)}
+                                disabled={data.payment_type === "credit"}
                                 className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm"
                             >
-                                {mappedPaymentMethods.map((method) => (
+                                {(data.payment_type === "credit"
+                                    ? [{ value: "credits", label: "Credits" }]
+                                    : mappedPaymentMethods).map((method) => (
                                     <option key={method.value} value={method.value}>{method.label}</option>
                                 ))}
                             </select>

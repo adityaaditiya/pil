@@ -15,6 +15,7 @@ class AppointmentBooking extends Model
         'appointment_session_id',
         'session_name',
         'price_amount',
+        'payment_type',
         'payment_method',
         'booked_at',
         'status',

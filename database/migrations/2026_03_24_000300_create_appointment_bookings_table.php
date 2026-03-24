@@ -15,6 +15,7 @@ return new class extends Migration
             $table->unsignedBigInteger('appointment_session_id')->nullable();
             $table->string('session_name')->nullable();
             $table->decimal('price_amount', 12, 2)->default(0);
+            $table->enum('payment_type', ['drop_in', 'credit'])->default('drop_in');
             $table->string('payment_method')->default('cash');
             $table->enum('status', ['confirmed', 'cancelled'])->default('confirmed');
             $table->timestamp('booked_at');

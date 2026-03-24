@@ -19,6 +19,7 @@ class PilatesClass extends Model
         'equipment',
         'credit',
         'price',
+        'default_payment_method',
         'available_for_timetable',
         'available_for_appointment',
     ];
@@ -27,6 +28,7 @@ class PilatesClass extends Model
         'duration' => 'integer',
         'credit' => 'decimal:2',
         'price' => 'decimal:2',
+        'default_payment_method' => 'string',
         'available_for_timetable' => 'boolean',
         'available_for_appointment' => 'boolean',
     ];
