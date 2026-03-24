@@ -241,8 +241,10 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/transactions/history', [TransactionController::class, 'history'])->middleware('permission:transactions-access')->name('transactions.history');
     Route::get('/transactions/my', [TransactionController::class, 'myTransactions'])->middleware('permission:my-transactions-access')->name('transactions.my');
     Route::delete('/transactions/{transaction}/cancel', [TransactionController::class, 'cancel'])->middleware('permission:transactions-access')->name('transactions.cancel');
-    Route::get('/transactions/cash', [CashEntryController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.cash.index');
-    Route::post('/transactions/cash', [CashEntryController::class, 'store'])->middleware('permission:transactions-access')->name('transactions.cash.store');
+    Route::get('/transactions/cash/tambah', [CashEntryController::class, 'index'])->middleware('permission:transactions-access')->defaults('type', 'in')->name('transactions.cash.in');
+    Route::post('/transactions/cash/tambah', [CashEntryController::class, 'store'])->middleware('permission:transactions-access')->defaults('type', 'in')->name('transactions.cash.in.store');
+    Route::get('/transactions/cash/ambil', [CashEntryController::class, 'index'])->middleware('permission:transactions-access')->defaults('type', 'out')->name('transactions.cash.out');
+    Route::post('/transactions/cash/ambil', [CashEntryController::class, 'store'])->middleware('permission:transactions-access')->defaults('type', 'out')->name('transactions.cash.out.store');
 
     Route::get('/settings/payments', [PaymentSettingController::class, 'edit'])->middleware('permission:payment-settings-access')->name('settings.payments.edit');
     Route::put('/settings/payments', [PaymentSettingController::class, 'update'])->middleware('permission:payment-settings-access')->name('settings.payments.update');

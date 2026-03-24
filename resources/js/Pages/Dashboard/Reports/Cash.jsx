@@ -60,6 +60,19 @@ const formatCurrency = (value = 0) =>
 const castFilterString = (value) =>
     typeof value === "number" ? String(value) : value ?? "";
 
+const cashEntryCategories = [
+    "BAYAR BUNGA BANK",
+    "BON OPERASIONAL",
+    "BON PRIBADI OWNER",
+    "BON TRANSFER BANK",
+    "DEBIT CREDIT CARD",
+    "KURANG MODAL",
+    "TAMBAH MODAL",
+    "SETOR KE OWNER",
+    "SETOR KE BANK",
+    "UANG LAIN LAIN",
+];
+
 const Cash = ({ transactions, summary, filters, cashiers, customers }) => {
     const [showFilters, setShowFilters] = useState(false);
     const [filterData, setFilterData] = useState({
@@ -330,8 +343,11 @@ const Cash = ({ transactions, summary, filters, cashiers, customers }) => {
                                         <option value="transaksi_penjualan">
                                             Transaksi Penjualan
                                         </option>
-                                        <option value="uang_masuk">Uang Masuk</option>
-                                        <option value="uang_keluar">Uang Keluar</option>
+                                        {cashEntryCategories.map((category) => (
+                                            <option key={category} value={category}>
+                                                {category}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 {/* <InputSelect
