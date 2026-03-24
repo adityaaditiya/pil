@@ -35,7 +35,38 @@ import React from "react";
 
 function Menu() {
     // define use page
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const userRoles = props?.auth?.roles || [];
+    const isCustomerOrTrainer = userRoles.includes("customer") || userRoles.includes("trainer");
+
+    if (isCustomerOrTrainer) {
+        return [
+            {
+                title: "Transaksi",
+                details: [
+                    {
+                        title: "Transaksi Saya",
+                        href: route("transactions.my"),
+                        active: url === "/dashboard/transactions/my",
+                        icon: <IconReceipt size={20} strokeWidth={1.5} />,
+                        permissions: true,
+                    },
+                ],
+            },
+            {
+                title: "Membership",
+                details: [
+                    {
+                        title: "My Memberships",
+                        href: route("memberships.my"),
+                        active: url === "/dashboard/memberships/my",
+                        icon: <IconFileDescription size={20} strokeWidth={1.5} />,
+                        permissions: true,
+                    },
+                ],
+            },
+        ];
+    }
 
     // define menu navigations
     const menuNavigation = [
