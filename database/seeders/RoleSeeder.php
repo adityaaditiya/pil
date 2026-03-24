@@ -12,42 +12,31 @@ class RoleSeeder extends Seeder
      */
     // Refactor the RoleSeeder to improve readability and avoid repetitive code
     public function run(): void
-    {
-        $this->createRoleWithPermissions('users-access', '%users%');
-        $this->createRoleWithPermissions('roles-access', '%roles%');
-        $this->createRoleWithPermissions('permission-access', '%permissions%');
-        $this->createRoleWithPermissions('categories-access', '%categories%');
-        $this->createRoleWithPermissions('products-access', '%products%');
-        $this->createRoleWithPermissions('customers-access', '%customers%');
-        $this->createRoleWithPermissions('class-categories-access', '%class-categories%');
-        $this->createRoleWithPermissions('transactions-access', '%transactions%');
-        $this->createRoleWithPermissions('reports-access', '%reports%');
-        $this->createRoleWithPermissions('profits-access', '%profits%');
-        $this->createRoleWithPermissions('payment-settings-access', '%payment-settings%');
+{
+    // super admin (akses semua)
+    $superAdmin = Role::firstOrCreate(['name' => 'super-admin']);
+    $superAdmin->givePermissionTo(Permission::all());
 
-        Role::create(['name' => 'super-admin']);
+    // cashier
+    $cashier = Role::firstOrCreate(['name' => 'cashier']);
+    $cashier->givePermissionTo([
+        'dashboard-access',
+        'transactions-access',
+        'customers-access',
+        'customers-create',
+    ]);
 
-        // Create cashier role with basic permissions for public registration
-        $cashierRole        = Role::create(['name' => 'cashier']);
-        $cashierPermissions = Permission::whereIn('name', [
-            'dashboard-access',
-            'transactions-access',
-            'customers-access',
-            'customers-create',
-        ])->get();
-        $cashierRole->givePermissionTo($cashierPermissions);
-        $customerRole = Role::create(['name' => 'customer']);
-        $customerPermissions = Permission::whereIn('name', [
-            'my-transactions-access',
-        ])->get();
-        $customerRole->givePermissionTo($customerPermissions);
+    // customer
+    $customer = Role::firstOrCreate(['name' => 'customer']);
+    $customer->givePermissionTo([
+        'my-transactions-access',
+    ]);
 
-    }
-
-    private function createRoleWithPermissions($roleName, $permissionNamePattern)
-    {
-        $permissions = Permission::where('name', 'like', $permissionNamePattern)->get();
-        $role        = Role::create(['name' => $roleName]);
-        $role->givePermissionTo($permissions);
-    }
+    // trainer
+    // $trainer = Role::firstOrCreate(['name' => 'trainer']);
+    // $trainer->givePermissionTo([
+    //     'dashboard-access',
+    //     'trainers-access',
+    // ]);
+}
 }

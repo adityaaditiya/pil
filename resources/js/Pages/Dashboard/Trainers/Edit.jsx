@@ -17,6 +17,8 @@ export default function Edit({ trainer }) {
         _method: "PUT",
     });
 
+    const cleanDate = data.date_of_birth ? data.date_of_birth.split('T')[0] : ''
+
     const submit = (e) => {
         e.preventDefault();
         post(route("trainers.update", trainer.id));
@@ -39,7 +41,7 @@ export default function Edit({ trainer }) {
                     {trainer.photo && <img src={`/storage/trainers/${trainer.photo}`} alt={trainer.name} className="h-24 w-24 rounded-xl object-cover" />}
                     <Input type="file" label="Foto" errors={errors.photo} onChange={(e) => setData("photo", e.target.files[0])} />
                     <Input type="text" label="User Trainer" value={trainer.user?.name || trainer.name || "-"} disabled />
-                    <Input type="date" label="Tanggal Lahir" value={data.date_of_birth} errors={errors.date_of_birth} onChange={(e) => setData("date_of_birth", e.target.value)} />
+                    <Input type="date" label="Tanggal Lahir" value={cleanDate} errors={errors.date_of_birth} onChange={(e) => setData("date_of_birth", e.target.value)}  />
                     <Input type="text" label="Keahlian" value={data.expertise} errors={errors.expertise} onChange={(e) => setData("expertise", e.target.value)} />
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Gender</label>
