@@ -5,10 +5,10 @@ import Input from "@/Components/Dashboard/Input";
 import Textarea from "@/Components/Dashboard/TextArea";
 import { IconArrowLeft, IconDeviceFloppy, IconUserSquare } from "@tabler/icons-react";
 
-export default function Create() {
+export default function Create({ trainerUsers = [] }) {
     const { errors } = usePage().props;
     const { data, setData, post, processing } = useForm({
-        name: "",
+        user_id: "",
         photo: null,
         date_of_birth: "",
         expertise: "",
@@ -37,7 +37,16 @@ export default function Create() {
             <form onSubmit={submit}>
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-w-4xl">
                     <Input type="file" label="Foto" errors={errors.photo} onChange={(e) => setData("photo", e.target.files[0])} />
-                    <Input type="text" label="Nama" value={data.name} errors={errors.name} onChange={(e) => setData("name", e.target.value)} />
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">User Trainer</label>
+                        <select value={data.user_id} onChange={(e) => setData("user_id", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                            <option value="">Pilih user trainer</option>
+                            {trainerUsers.map((user) => (
+                                <option key={user.id} value={user.id}>{user.name} ({user.email})</option>
+                            ))}
+                        </select>
+                        {errors.user_id && <small className="text-xs text-danger-500">{errors.user_id}</small>}
+                    </div>
                     <Input type="date" label="Tanggal Lahir" value={data.date_of_birth} errors={errors.date_of_birth} onChange={(e) => setData("date_of_birth", e.target.value)} />
                     <Input type="text" label="Keahlian" value={data.expertise} errors={errors.expertise} onChange={(e) => setData("expertise", e.target.value)} />
                     <div className="flex flex-col gap-2">

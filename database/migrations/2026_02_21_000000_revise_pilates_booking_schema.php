@@ -11,8 +11,11 @@ return new class extends Migration
     {
         Schema::create('trainers', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('name');
             $table->timestamps();
+
+            $table->unique('user_id');
         });
 
         Schema::create('pilates_class_trainer', function (Blueprint $table) {
@@ -54,6 +57,7 @@ return new class extends Migration
 
                 if (! $trainerId) {
                     $trainerId = DB::table('trainers')->insertGetId([
+                        'user_id' => null,
                         'name' => $name,
                         'created_at' => now(),
                         'updated_at' => now(),
