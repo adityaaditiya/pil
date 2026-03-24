@@ -132,7 +132,7 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         ->middleware('permission:dashboard-access');
     Route::resource('trainers', TrainerController::class)
         ->except(['show'])
-        ->middleware('permission:trainers-access');
+        ->middleware('permission:dashboard-access');
     Route::get('timetable', [PilatesTimetableController::class, 'index'])
         ->middleware('permission:dashboard-access')
         ->name('timetable.index');

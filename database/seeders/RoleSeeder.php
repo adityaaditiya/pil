@@ -19,7 +19,6 @@ class RoleSeeder extends Seeder
         $this->createRoleWithPermissions('categories-access', '%categories%');
         $this->createRoleWithPermissions('products-access', '%products%');
         $this->createRoleWithPermissions('customers-access', '%customers%');
-        $this->createRoleWithPermissions('trainers-access', '%trainers%');
         $this->createRoleWithPermissions('class-categories-access', '%class-categories%');
         $this->createRoleWithPermissions('transactions-access', '%transactions%');
         $this->createRoleWithPermissions('reports-access', '%reports%');
@@ -42,13 +41,6 @@ class RoleSeeder extends Seeder
             'my-transactions-access',
         ])->get();
         $customerRole->givePermissionTo($customerPermissions);
-
-        $trainerRole = Role::create(['name' => 'trainer']);
-        $trainerPermissions = Permission::whereIn('name', [
-            'dashboard-access',
-            'trainers-access',
-        ])->get();
-        $trainerRole->givePermissionTo($trainerPermissions);
 
     }
 

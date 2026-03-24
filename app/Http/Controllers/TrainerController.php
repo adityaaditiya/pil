@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trainer;
-use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -15,14 +14,13 @@ class TrainerController extends Controller
     public function index(): Response
     {
         return Inertia::render('Dashboard/Trainers/Index', [
-            'trainers' => User::query()
-                ->role('trainer')
+            'trainers' => Trainer::query()
                 ->when(request('search'), function ($query, $search) {
                     $query->where('name', 'like', "%{$search}%")
                         ->orWhere('gender', 'like', "%{$search}%")
-                        ->orWhere('address', 'like', "%{$search}%");
+                        ->orWhere('address', 'like', "%{$search}%")
+                        ->orWhere('biodata', 'like', "%{$search}%");
                 })
-                ->select('id', 'name', 'avatar', 'date_of_birth', 'gender', 'address')
                 ->latest()
                 ->paginate(10)
                 ->withQueryString(),
