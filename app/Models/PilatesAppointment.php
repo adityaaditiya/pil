@@ -16,7 +16,6 @@ class PilatesAppointment extends Model
         'session_name',
         'admin_notes',
         'session_options',
-        'price',
         'duration_minutes',
         'start_at',
         'end_at',
@@ -24,7 +23,6 @@ class PilatesAppointment extends Model
 
     protected $casts = [
         'session_options' => 'array',
-        'price' => 'decimal:2',
         'duration_minutes' => 'integer',
         'start_at' => 'datetime',
         'end_at' => 'datetime',

@@ -27,6 +27,19 @@ export default function Create({ classes = [], trainers = [] }) {
         post(route("timetable.store"));
     };
 
+    const handleClassChange = (classId) => {
+        const selectedClass = classes.find((item) => String(item.id) === String(classId));
+        setData("pilates_class_id", classId);
+
+        if (!selectedClass) {
+            return;
+        }
+
+        setData("credit_override", String(selectedClass.credit ?? 0));
+        setData("price_override", String(selectedClass.price ?? 0));
+        setData("allow_drop_in", selectedClass.default_payment_method !== "credit");
+    };
+
     return (
         <>
             <Head title="Tambah Session" />
@@ -53,7 +66,7 @@ export default function Create({ classes = [], trainers = [] }) {
                             <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Class</label>
                             <select
                                 value={data.pilates_class_id}
-                                onChange={(event) => setData("pilates_class_id", event.target.value)}
+                                onChange={(event) => handleClassChange(event.target.value)}
                                 className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800"
                             >
                                 <option value="">Pilih class</option>

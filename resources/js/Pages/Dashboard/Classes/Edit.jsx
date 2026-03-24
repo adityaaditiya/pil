@@ -18,6 +18,7 @@ export default function Edit({ classItem, trainers, classCategories }) {
         about: classItem.about,
         equipment: classItem.equipment,
         trainer_ids: classItem.trainers.map((trainer) => trainer.id),
+        default_payment_method: classItem.default_payment_method || "drop_in",
         available_for_timetable: Boolean(classItem.available_for_timetable),
         available_for_appointment: Boolean(classItem.available_for_appointment),
         _method: "PUT",
@@ -76,6 +77,14 @@ export default function Edit({ classItem, trainers, classCategories }) {
                     </div>
                     <Textarea label="About" value={data.about} errors={errors.about} onChange={(e) => setData("about", e.target.value)} rows={3} />
                     <Textarea label="Perlengkapan" value={data.equipment} errors={errors.equipment} onChange={(e) => setData("equipment", e.target.value)} rows={3} />
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Default Metode Pembayaran</label>
+                        <select value={data.default_payment_method} onChange={(e) => setData("default_payment_method", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                            <option value="drop_in">Drop-in</option>
+                            <option value="credit">Credits</option>
+                        </select>
+                        {errors.default_payment_method && <small className="text-xs text-danger-500">{errors.default_payment_method}</small>}
+                    </div>
 
                     <div className="grid gap-3 md:grid-cols-2">
                         <label className="inline-flex items-start gap-3 rounded-xl border border-slate-200 p-4 text-sm">

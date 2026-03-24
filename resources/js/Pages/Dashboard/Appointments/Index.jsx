@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
+import Modal from "@/Components/Dashboard/Modal";
 import { Head, Link, router } from "@inertiajs/react";
-import { IconCalendarEvent, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconCalendarEvent, IconClock, IconEdit, IconPlus, IconTrash, IconUser } from "@tabler/icons-react";
 
 const formatRupiah = (value) => new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -12,6 +13,7 @@ const formatRupiah = (value) => new Intl.NumberFormat("id-ID", {
 export default function Index({ appointments = [], selectedStartDate, selectedEndDate }) {
     const [startDate, setStartDate] = useState(selectedStartDate);
     const [endDate, setEndDate] = useState(selectedEndDate);
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
 
     const hasAppointments = useMemo(() => appointments.length > 0, [appointments]);
 
@@ -28,6 +30,14 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
             data: { start_date: startDate, end_date: endDate },
             preserveScroll: true,
         });
+    };
+
+    const openAppointmentDetail = (appointment) => {
+        setSelectedAppointment(appointment);
+    };
+
+    const closeAppointmentDetail = () => {
+        setSelectedAppointment(null);
     };
 
     return (
@@ -97,13 +107,16 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.pilates_class?.name || "-"}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.trainers?.join(", ") || "-"}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.duration_minutes} menit</td>
-                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{formatRupiah(appointment.price)}</td>
+                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{formatRupiah(appointment.total_price)}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.admin_notes || "-"}</td>
                                             <td className="px-4 py-3 text-right">
                                                 <div className="flex justify-end gap-2">
                                                     <Link href={route("appointments.edit", appointment.id)} className="inline-flex items-center gap-1 rounded-xl border border-sky-200 px-3 py-2 text-sm font-medium text-sky-600 transition hover:bg-sky-50">
                                                         <IconEdit size={15} /> Ubah
                                                     </Link>
+                                                    <button type="button" onClick={() => openAppointmentDetail(appointment)} className="inline-flex items-center gap-1 rounded-xl border border-primary-200 px-3 py-2 text-sm font-medium text-primary-600 transition hover:bg-primary-50">
+                                                        View Details
+                                                    </button>
                                                     <button type="button" onClick={() => handleDelete(appointment.id)} className="inline-flex items-center gap-1 rounded-xl border border-rose-200 px-3 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50">
                                                         <IconTrash size={15} /> Hapus
                                                     </button>
@@ -119,6 +132,49 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                     )}
                 </section>
             </div>
+
+            <Modal title="Detail Appointment" show={Boolean(selectedAppointment)} onClose={closeAppointmentDetail} maxWidth="2xl">
+                {selectedAppointment && (
+                    <div className="space-y-4 p-1">
+                        <div>
+                            <p className="text-xl font-semibold text-slate-900 dark:text-white">{selectedAppointment.pilates_class?.name || "Appointment"}</p>
+                            <p className="mt-1 flex items-center gap-2 text-sm text-slate-500">
+                                <IconUser size={16} /> {selectedAppointment.trainers?.join(", ") || "-"}
+                            </p>
+                        </div>
+
+                        <div className="grid gap-2 rounded-2xl bg-slate-50 p-4 text-sm dark:bg-slate-800">
+                            <p className="flex items-center gap-2"><IconClock size={15} /> {selectedAppointment.start_at_label} - {selectedAppointment.end_at_label} WIB</p>
+                            <p>Sesi: {selectedAppointment.session_name || "-"}</p>
+                            <p>Durasi: {selectedAppointment.duration_minutes} menit</p>
+                            <p>Total Harga: {formatRupiah(selectedAppointment.total_price)}</p>
+                            <p>Catatan Admin: {selectedAppointment.admin_notes || "-"}</p>
+                        </div>
+
+                        <div>
+                            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Rincian Sesi</p>
+                            <div className="mt-2 space-y-2">
+                                {(selectedAppointment.session_options || []).length > 0 ? selectedAppointment.session_options.map((option, index) => (
+                                    <div key={`${selectedAppointment.id}-detail-${index}`} className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700">
+                                        <span>{option.session_name}</span>
+                                        <span className="font-semibold text-slate-700 dark:text-slate-200">{formatRupiah(option.price)}</span>
+                                    </div>
+                                )) : (
+                                    <p className="text-sm text-slate-500">Belum ada rincian sesi.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => router.get(route("appointments.booking.create", selectedAppointment.id))}
+                            className="w-full rounded-2xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
+                        >
+                            Book Now
+                        </button>
+                    </div>
+                )}
+            </Modal>
         </>
     );
 }

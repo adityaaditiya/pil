@@ -138,7 +138,6 @@ export default function Create({ classes = [], trainers = [], appointmentSession
     }));
     const allTrainerSelected = trainers.length > 0 && normalizedTrainerIds.length === trainers.length;
     const allSessionSelected = appointmentSessions.length > 0 && normalizedSessionOptions.length === appointmentSessions.length;
-    const totalPrice = normalizedSessionOptions.reduce((sum, item) => sum + Number(item.price || 0), 0);
 
     const toggleTrainer = (trainerId, checked) => {
         const normalizedId = String(trainerId);
@@ -281,11 +280,6 @@ export default function Create({ classes = [], trainers = [], appointmentSession
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Total Harga</label>
-                                <div className="rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">{formatRupiah(totalPrice)}</div>
-                            </div>
-
-                                <div className="space-y-2">
                                         <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                                             Durasi
                                         </label>

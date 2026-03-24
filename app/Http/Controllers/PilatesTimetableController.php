@@ -16,7 +16,11 @@ class PilatesTimetableController extends Controller
     public function create(): Response
     {
         return Inertia::render('Timetable/Create', [
-            'classes' => PilatesClass::query()->where('available_for_timetable', true)->select('id', 'name')->orderBy('name')->get(),
+            'classes' => PilatesClass::query()
+                ->where('available_for_timetable', true)
+                ->select('id', 'name', 'credit', 'price', 'default_payment_method')
+                ->orderBy('name')
+                ->get(),
             'trainers' => Trainer::query()->forTrainerRole()->select('id', 'name')->orderBy('name')->get(),
         ]);
     }
@@ -30,6 +34,7 @@ class PilatesTimetableController extends Controller
                         ->orWhere('id', $timetable->pilates_class_id);
                 })
                 ->select('id', 'name')
+                ->addSelect('credit', 'price', 'default_payment_method')
                 ->orderBy('name')
                 ->get(),
             'trainers' => Trainer::query()->forTrainerRole()->select('id', 'name')->orderBy('name')->get(),
@@ -128,11 +133,20 @@ class PilatesTimetableController extends Controller
             'start_at' => ['required', 'date'],
             'capacity' => ['required', 'integer', 'min:1'],
             'duration_minutes' => ['nullable', 'integer', 'min:1'],
-            'credit_override' => ['required', 'numeric', 'min:0'],
-            'price_override' => ['nullable', 'numeric', 'min:0', 'required_if:allow_drop_in,1'],
-            'allow_drop_in' => ['required', 'boolean'],
+            'credit_override' => ['nullable', 'numeric', 'min:0'],
+            'price_override' => ['nullable', 'numeric', 'min:0'],
+            'allow_drop_in' => ['nullable', 'boolean'],
             'status' => ['required', 'in:scheduled,cancelled,closed'],
         ]);
+
+        $pilatesClass = PilatesClass::query()->findOrFail($validated['pilates_class_id']);
+        $defaultAllowDropIn = ($pilatesClass->default_payment_method ?? 'drop_in') === 'drop_in';
+
+        $validated['allow_drop_in'] = array_key_exists('allow_drop_in', $validated)
+            ? (bool) $validated['allow_drop_in']
+            : $defaultAllowDropIn;
+        $validated['credit_override'] = $validated['credit_override'] ?? $pilatesClass->credit;
+        $validated['price_override'] = $validated['price_override'] ?? $pilatesClass->price;
 
         if (! (bool) $validated['allow_drop_in']) {
             $validated['price_override'] = null;
@@ -153,11 +167,20 @@ class PilatesTimetableController extends Controller
             'start_at' => ['required', 'date'],
             'capacity' => ['required', 'integer', 'min:1'],
             'duration_minutes' => ['nullable', 'integer', 'min:1'],
-            'credit_override' => ['required', 'numeric', 'min:0'],
-            'price_override' => ['nullable', 'numeric', 'min:0', 'required_if:allow_drop_in,1'],
-            'allow_drop_in' => ['required', 'boolean'],
+            'credit_override' => ['nullable', 'numeric', 'min:0'],
+            'price_override' => ['nullable', 'numeric', 'min:0'],
+            'allow_drop_in' => ['nullable', 'boolean'],
             'status' => ['required', 'in:scheduled,cancelled,closed'],
         ]);
+
+        $pilatesClass = PilatesClass::query()->findOrFail($validated['pilates_class_id']);
+        $defaultAllowDropIn = ($pilatesClass->default_payment_method ?? 'drop_in') === 'drop_in';
+
+        $validated['allow_drop_in'] = array_key_exists('allow_drop_in', $validated)
+            ? (bool) $validated['allow_drop_in']
+            : $defaultAllowDropIn;
+        $validated['credit_override'] = $validated['credit_override'] ?? $pilatesClass->credit;
+        $validated['price_override'] = $validated['price_override'] ?? $pilatesClass->price;
 
         if (! (bool) $validated['allow_drop_in']) {
             $validated['price_override'] = null;

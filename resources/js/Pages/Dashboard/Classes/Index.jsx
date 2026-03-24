@@ -41,6 +41,7 @@ export default function Index({ classes }) {
                             <Table.Th>Trainers</Table.Th>
                             <Table.Th>Timetable</Table.Th>
                             <Table.Th>Appointment</Table.Th>
+                            <Table.Th>Default Pembayaran</Table.Th>
                             <Table.Th></Table.Th>
                         </tr>
                     </Table.Thead>
@@ -59,6 +60,7 @@ export default function Index({ classes }) {
                                 <Table.Td>{item.trainers.map((trainer) => trainer.name).join(", ")}</Table.Td>
                                 <Table.Td>{item.available_for_timetable ? "Ya" : "Tidak"}</Table.Td>
                                 <Table.Td>{item.available_for_appointment ? "Ya" : "Tidak"}</Table.Td>
+                                <Table.Td>{item.default_payment_method === "credit" ? "Credits" : "Drop-in"}</Table.Td>
                                 <Table.Td>
                                     <div className="flex gap-2">
                                         <Button type="edit" href={route("classes.edit", item.id)} icon={<IconPencilCog size={16} />} className="border bg-warning-100 border-warning-200 text-warning-600" />
