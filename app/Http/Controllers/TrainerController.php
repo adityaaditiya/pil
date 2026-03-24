@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trainer;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -13,17 +14,35 @@ class TrainerController extends Controller
 {
     public function index(): Response
     {
+        $trainers = User::query()
+            ->role('trainer')
+            ->with(['customer:id,user_id,photo,gender,date_of_birth,address'])
+            ->when(request('search'), function ($query, $search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', "%{$search}%")
+                        ->orWhereHas('customer', function ($customerQuery) use ($search) {
+                            $customerQuery->where('gender', 'like', "%{$search}%")
+                                ->orWhere('address', 'like', "%{$search}%");
+                        });
+                });
+            })
+            ->select('id', 'name')
+            ->latest()
+            ->paginate(10)
+            ->withQueryString()
+            ->through(function (User $user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'photo' => $user->customer?->photo,
+                    'gender' => $user->customer?->gender,
+                    'date_of_birth' => optional($user->customer?->date_of_birth)?->toDateString(),
+                    'address' => $user->customer?->address,
+                ];
+            });
+
         return Inertia::render('Dashboard/Trainers/Index', [
-            'trainers' => Trainer::query()
-                ->when(request('search'), function ($query, $search) {
-                    $query->where('name', 'like', "%{$search}%")
-                        ->orWhere('gender', 'like', "%{$search}%")
-                        ->orWhere('address', 'like', "%{$search}%")
-                        ->orWhere('biodata', 'like', "%{$search}%");
-                })
-                ->latest()
-                ->paginate(10)
-                ->withQueryString(),
+            'trainers' => $trainers,
         ]);
     }
 

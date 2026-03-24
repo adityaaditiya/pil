@@ -42,6 +42,7 @@ class RoleSeeder extends Seeder
         ])->get();
         $customerRole->givePermissionTo($customerPermissions);
 
+        Role::firstOrCreate(['name' => 'trainer', 'guard_name' => 'web']);
     }
 
     private function createRoleWithPermissions($roleName, $permissionNamePattern)
