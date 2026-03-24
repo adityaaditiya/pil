@@ -62,6 +62,11 @@ class User extends Authenticatable
         return $this->hasOne(Customer::class);
     }
 
+    public function trainer()
+    {
+        return $this->hasOne(Trainer::class);
+    }
+
     /**
      *  get all permissions users
      */

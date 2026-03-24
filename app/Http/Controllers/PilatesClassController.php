@@ -35,7 +35,7 @@ class PilatesClassController extends Controller
     public function create(): Response
     {
         return Inertia::render('Dashboard/Classes/Create', [
-            'trainers' => Trainer::orderBy('name')->get(['id', 'name']),
+            'trainers' => Trainer::query()->forTrainerRole()->orderBy('name')->get(['id', 'name']),
             'classCategories' => ClassCategory::orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -73,7 +73,7 @@ class PilatesClassController extends Controller
     {
         return Inertia::render('Dashboard/Classes/Edit', [
             'classItem' => $class->load('trainers:id,name'),
-            'trainers' => Trainer::orderBy('name')->get(['id', 'name']),
+            'trainers' => Trainer::query()->forTrainerRole()->orderBy('name')->get(['id', 'name']),
             'classCategories' => ClassCategory::orderBy('name')->get(['id', 'name']),
         ]);
     }

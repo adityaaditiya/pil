@@ -8,7 +8,6 @@ import { IconArrowLeft, IconDeviceFloppy, IconUserSquare } from "@tabler/icons-r
 export default function Edit({ trainer }) {
     const { errors } = usePage().props;
     const { data, setData, post, processing } = useForm({
-        name: trainer.name || "",
         photo: null,
         date_of_birth: trainer.date_of_birth || "",
         expertise: trainer.expertise || "",
@@ -39,7 +38,7 @@ export default function Edit({ trainer }) {
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-w-4xl">
                     {trainer.photo && <img src={`/storage/trainers/${trainer.photo}`} alt={trainer.name} className="h-24 w-24 rounded-xl object-cover" />}
                     <Input type="file" label="Foto" errors={errors.photo} onChange={(e) => setData("photo", e.target.files[0])} />
-                    <Input type="text" label="Nama" value={data.name} errors={errors.name} onChange={(e) => setData("name", e.target.value)} />
+                    <Input type="text" label="User Trainer" value={trainer.user?.name || trainer.name || "-"} disabled />
                     <Input type="date" label="Tanggal Lahir" value={data.date_of_birth} errors={errors.date_of_birth} onChange={(e) => setData("date_of_birth", e.target.value)} />
                     <Input type="text" label="Keahlian" value={data.expertise} errors={errors.expertise} onChange={(e) => setData("expertise", e.target.value)} />
                     <div className="flex flex-col gap-2">
