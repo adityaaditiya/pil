@@ -9,29 +9,59 @@ import {
     IconWallet,
 } from "@tabler/icons-react";
 
+const defaultCategories = [
+    "BAYAR BUNGA BANK",
+    "BON OPERASIONAL",
+    "BON PRIBADI OWNER",
+    "BON TRANSFER BANK",
+    "DEBIT CREDIT CARD",
+    "KURANG MODAL",
+    "TAMBAH MODAL",
+    "SETOR KE OWNER",
+    "SETOR KE BANK",
+    "UANG LAIN LAIN",
+];
+
 export default function CashEntry() {
-    const { errors } = usePage().props;
+    const { errors, entryType = "in", entryCategories = defaultCategories } =
+        usePage().props;
+
+    const isCashIn = entryType === "in";
 
     const { data, setData, post, processing, reset } = useForm({
-        category: "in",
+        transaction_category: entryCategories[0] ?? "",
         description: "",
         amount: "",
     });
 
     const submit = (e) => {
         e.preventDefault();
-        post(route("transactions.cash.store"), {
+
+        const routeName = isCashIn
+            ? "transactions.cash.in.store"
+            : "transactions.cash.out.store";
+
+        post(route(routeName), {
             onSuccess: () => {
-                toast.success("Uang kas berhasil disimpan");
+                toast.success(
+                    isCashIn
+                        ? "Tambah uang kas berhasil disimpan"
+                        : "Ambil uang kas berhasil disimpan"
+                );
                 reset("description", "amount");
             },
-            onError: () => toast.error("Gagal menyimpan uang kas"),
+            onError: () =>
+                toast.error(
+                    isCashIn
+                        ? "Gagal menyimpan tambah uang kas"
+                        : "Gagal menyimpan ambil uang kas"
+                ),
         });
     };
 
     return (
         <>
-            <Head title="Uang Kas" />
+            <Head title={isCashIn ? "Tambah Uang Kas" : "Ambil Uang Kas"} />
 
             <div className="mb-6">
                 <Link
@@ -43,11 +73,12 @@ export default function CashEntry() {
                 </Link>
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <IconWallet size={28} className="text-primary-500" />
-                    Uang Kas
+                    {isCashIn ? "Tambah Uang Kas" : "Ambil Uang Kas"}
                 </h1>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Catat uang masuk dan uang keluar yang akan masuk ke laporan
-                    keuangan cash.
+                    {isCashIn
+                        ? "Catat transaksi untuk menambah uang kas ke laporan keuangan cash."
+                        : "Catat transaksi untuk mengambil uang kas ke laporan keuangan cash."}
                 </p>
             </div>
 
@@ -60,9 +91,12 @@ export default function CashEntry() {
                                     Kategori
                                 </label>
                                 <select
-                                    value={data.category}
+                                    value={data.transaction_category}
                                     onChange={(e) =>
-                                        setData("category", e.target.value)
+                                        setData(
+                                            "transaction_category",
+                                            e.target.value
+                                        )
                                     }
                                     className={`
                                         w-full h-11 px-4 text-sm rounded-xl
@@ -72,18 +106,21 @@ export default function CashEntry() {
                                         focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500
                                         transition-all duration-200
                                         ${
-                                            errors.category
+                                            errors.transaction_category
                                                 ? "border-danger-500 focus:border-danger-500 focus:ring-danger-500/20"
                                                 : ""
                                         }
                                     `}
                                 >
-                                    <option value="in">Uang Masuk</option>
-                                    <option value="out">Uang Keluar</option>
+                                    {entryCategories.map((category) => (
+                                        <option key={category} value={category}>
+                                            {category}
+                                        </option>
+                                    ))}
                                 </select>
-                                {errors.category && (
+                                {errors.transaction_category && (
                                     <small className="text-xs text-danger-500 dark:text-danger-400">
-                                        {errors.category}
+                                        {errors.transaction_category}
                                     </small>
                                 )}
                             </div>

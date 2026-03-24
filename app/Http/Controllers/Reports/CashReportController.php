@@ -16,6 +16,19 @@ use Inertia\Inertia;
 
 class CashReportController extends Controller
 {
+    private const CASH_ENTRY_CATEGORIES = [
+        'BAYAR BUNGA BANK',
+        'BON OPERASIONAL',
+        'BON PRIBADI OWNER',
+        'BON TRANSFER BANK',
+        'DEBIT CREDIT CARD',
+        'KURANG MODAL',
+        'TAMBAH MODAL',
+        'SETOR KE OWNER',
+        'SETOR KE BANK',
+        'UANG LAIN LAIN',
+    ];
+
     /**
      * Display the cash flow report.
      */
@@ -33,7 +46,7 @@ class CashReportController extends Controller
         ];
 
         $includeTransactions = empty($filters['transaction_category']) || $filters['transaction_category'] === 'transaksi_penjualan';
-        $includeCashEntries = empty($filters['transaction_category']) || in_array($filters['transaction_category'], ['uang_masuk', 'uang_keluar'], true);
+        $includeCashEntries = empty($filters['transaction_category']) || in_array($filters['transaction_category'], self::CASH_ENTRY_CATEGORIES, true);
 
         $transactionQuery = $this->applyFilters(
             Transaction::query()->notCanceled()
@@ -60,7 +73,7 @@ class CashReportController extends Controller
         $cashEntryList = $includeCashEntries
             ? (clone $cashEntryQuery)->get()->map(fn ($entry) => [
                 'id' => 'cash-entry-' . $entry->id,
-                'category' => $entry->category === 'in' ? 'Uang Masuk' : 'Uang Keluar',
+                'category' => $entry->transaction_category ?: 'UANG LAIN LAIN',
                 'description' => $entry->description,
                 'cash_in' => $entry->category === 'in' ? (int) $entry->amount : 0,
                 'cash_out' => $entry->category === 'out' ? (int) $entry->amount : 0,
@@ -126,7 +139,7 @@ class CashReportController extends Controller
         ];
 
         $includeTransactions = empty($filters['transaction_category']) || $filters['transaction_category'] === 'transaksi_penjualan';
-        $includeCashEntries = empty($filters['transaction_category']) || in_array($filters['transaction_category'], ['uang_masuk', 'uang_keluar'], true);
+        $includeCashEntries = empty($filters['transaction_category']) || in_array($filters['transaction_category'], self::CASH_ENTRY_CATEGORIES, true);
 
         $transactionQuery = $this->applyFilters(
             Transaction::query()->notCanceled()
@@ -151,7 +164,7 @@ class CashReportController extends Controller
 
         $cashEntryList = $includeCashEntries
             ? (clone $cashEntryQuery)->get()->map(fn ($entry) => [
-                'category' => $entry->category === 'in' ? 'Uang Masuk' : 'Uang Keluar',
+                'category' => $entry->transaction_category ?: 'UANG LAIN LAIN',
                 'description' => $entry->description,
                 'cash_in' => $entry->category === 'in' ? (int) $entry->amount : 0,
                 'cash_out' => $entry->category === 'out' ? (int) $entry->amount : 0,
@@ -194,7 +207,7 @@ class CashReportController extends Controller
         ];
 
         $includeTransactions = empty($filters['transaction_category']) || $filters['transaction_category'] === 'transaksi_penjualan';
-        $includeCashEntries = empty($filters['transaction_category']) || in_array($filters['transaction_category'], ['uang_masuk', 'uang_keluar'], true);
+        $includeCashEntries = empty($filters['transaction_category']) || in_array($filters['transaction_category'], self::CASH_ENTRY_CATEGORIES, true);
 
         $transactionQuery = $this->applyFilters(
             Transaction::query()->notCanceled()
@@ -218,7 +231,7 @@ class CashReportController extends Controller
 
         $cashEntryList = $includeCashEntries
             ? (clone $cashEntryQuery)->get()->map(fn ($entry) => [
-                'category' => $entry->category === 'in' ? 'Uang Masuk' : 'Uang Keluar',
+                'category' => $entry->transaction_category ?: 'UANG LAIN LAIN',
                 'description' => $entry->description,
                 'cash_in' => $entry->category === 'in' ? (int) $entry->amount : 0,
                 'cash_out' => $entry->category === 'out' ? (int) $entry->amount : 0,
@@ -278,12 +291,8 @@ class CashReportController extends Controller
             ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('created_at', '>=', $start))
             ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('created_at', '<=', $end));
 
-        if (($filters['transaction_category'] ?? null) === 'uang_masuk') {
-            $query->where('category', 'in');
-        }
-
-        if (($filters['transaction_category'] ?? null) === 'uang_keluar') {
-            $query->where('category', 'out');
+        if (! empty($filters['transaction_category']) && $filters['transaction_category'] !== 'transaksi_penjualan') {
+            $query->where('transaction_category', $filters['transaction_category']);
         }
 
         if (($filters['shift'] ?? null) === 'pagi') {

@@ -24,6 +24,7 @@ use App\Http\Controllers\Reports\AuthorizationReportController;
 use App\Http\Controllers\Reports\CashReportController;
 use App\Http\Controllers\Reports\SalesReportController;
 use App\Http\Controllers\Reports\SoldItemsReportController;
+use App\Http\Controllers\Reports\StockMutationReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StudioPageController;
 use App\Http\Controllers\TrainerController;
@@ -104,6 +105,12 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         ->middlewareFor(['create', 'store'], 'permission:products-create')
         ->middlewareFor(['edit', 'update'], 'permission:products-edit')
         ->middlewareFor('destroy', 'permission:products-delete');
+    Route::post('products/stock/tambah', [ProductController::class, 'addStock'])
+        ->middleware('permission:products-edit')
+        ->name('products.stock.add');
+    Route::post('products/stock/kurang', [ProductController::class, 'reduceStock'])
+        ->middleware('permission:products-edit')
+        ->name('products.stock.reduce');
     Route::resource('customers', CustomerController::class)
         ->middlewareFor(['index', 'show'], 'permission:customers-access')
         ->middlewareFor(['create', 'store'], 'permission:customers-create')
@@ -241,8 +248,10 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/transactions/history', [TransactionController::class, 'history'])->middleware('permission:transactions-access')->name('transactions.history');
     Route::get('/transactions/my', [TransactionController::class, 'myTransactions'])->middleware('permission:my-transactions-access')->name('transactions.my');
     Route::delete('/transactions/{transaction}/cancel', [TransactionController::class, 'cancel'])->middleware('permission:transactions-access')->name('transactions.cancel');
-    Route::get('/transactions/cash', [CashEntryController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.cash.index');
-    Route::post('/transactions/cash', [CashEntryController::class, 'store'])->middleware('permission:transactions-access')->name('transactions.cash.store');
+    Route::get('/transactions/cash/tambah', [CashEntryController::class, 'index'])->middleware('permission:transactions-access')->defaults('type', 'in')->name('transactions.cash.in');
+    Route::post('/transactions/cash/tambah', [CashEntryController::class, 'store'])->middleware('permission:transactions-access')->defaults('type', 'in')->name('transactions.cash.in.store');
+    Route::get('/transactions/cash/ambil', [CashEntryController::class, 'index'])->middleware('permission:transactions-access')->defaults('type', 'out')->name('transactions.cash.out');
+    Route::post('/transactions/cash/ambil', [CashEntryController::class, 'store'])->middleware('permission:transactions-access')->defaults('type', 'out')->name('transactions.cash.out.store');
 
     Route::get('/settings/payments', [PaymentSettingController::class, 'edit'])->middleware('permission:payment-settings-access')->name('settings.payments.edit');
     Route::put('/settings/payments', [PaymentSettingController::class, 'update'])->middleware('permission:payment-settings-access')->name('settings.payments.update');
@@ -264,6 +273,7 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/reports/cash/export', [CashReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.cash.export');
     Route::get('/reports/cash/export-pdf', [CashReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.cash.export-pdf');
     Route::get('/reports/authorizations', [AuthorizationReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.authorizations.index');
+    Route::get('/reports/stock-mutations', [StockMutationReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.stock-mutations.index');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

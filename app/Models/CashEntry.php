@@ -10,6 +10,7 @@ class CashEntry extends Model
     protected $fillable = [
         'cashier_id',
         'category',
+        'transaction_category',
         'description',
         'amount',
     ];
