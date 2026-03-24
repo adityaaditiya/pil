@@ -141,7 +141,7 @@ function Menu() {
                     href: route("trainers.index"),
                     active: url.startsWith("/dashboard/trainers"),
                     icon: <IconUserSquare size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["dashboard-access"]),
+                    permissions: hasAnyPermission(["trainers-access"]),
                 },
             ],
         },

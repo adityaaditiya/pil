@@ -58,6 +58,9 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'class-categories-edit']);
         Permission::create(['name' => 'class-categories-delete']);
 
+        //permission trainers
+        Permission::create(['name' => 'trainers-access']);
+
         //permission transactions
         Permission::create(['name' => 'transactions-access']);
         Permission::create(['name' => 'my-transactions-access']);
