@@ -47,6 +47,7 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion'     => PHP_VERSION,
         'trainers'       => Trainer::query()
+            ->forTrainerRole()
             ->latest()
             ->get(['id', 'name', 'photo', 'expertise']),
         'membershipPlans' => MembershipPlan::query()

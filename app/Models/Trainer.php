@@ -10,6 +10,7 @@ class Trainer extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'name',
         'photo',
         'gender',
@@ -22,6 +23,16 @@ class Trainer extends Model
     protected $casts = [
         'date_of_birth' => 'date',
     ];
+
+    public function scopeForTrainerRole($query)
+    {
+        return $query->whereHas('user', fn ($userQuery) => $userQuery->role('trainer'));
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function pilatesClasses()
     {
