@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -15,34 +14,41 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::create([
-            'name' => 'Aditya',
-            'email' => 'aditya@gmail.com',
-            'password' => bcrypt('poskamplingpadel'),
-        ]);
+        // ========================
+        // SUPER ADMIN
+        // ========================
+        $user = User::firstOrCreate(
+            ['email' => 'aditya@gmail.com'],
+            [
+                'name' => 'Aditya',
+                'password' => bcrypt('poskamplingpadel'),
+            ]
+        );
 
-        // get admin role
         $role = Role::where('name', 'super-admin')->first();
-
-        // get all permissions
         $permissions = Permission::all();
 
-        // assign role to user
-        $user->syncPermissions($permissions);
+        if ($role) {
+            $user->syncRoles([$role]); // reset + assign role
+        }
 
-        // assign a role to user
-        $user->assignRole($role);
+        $user->syncPermissions($permissions); // semua permission
 
-        $cashier = User::create([
-            'name' => 'cashier',
-            'email' => 'cashier@gmail.com',
-            'password' => bcrypt('Orokasir123'),
-        ]);
+        // ========================
+        // CASHIER
+        // ========================
+        $cashier = User::firstOrCreate(
+            ['email' => 'cashier@gmail.com'],
+            [
+                'name' => 'cashier',
+                'password' => bcrypt('Orokasir123'),
+            ]
+        );
 
         $cashierRole = Role::where('name', 'cashier')->first();
 
         if ($cashierRole) {
-            $cashier->assignRole($cashierRole);
+            $cashier->syncRoles([$cashierRole]);
         }
     }
 }

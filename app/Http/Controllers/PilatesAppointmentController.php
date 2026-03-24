@@ -89,7 +89,7 @@ class PilatesAppointmentController extends Controller
                 ->orderBy('name')
                 ->get(),
             'trainers' => Trainer::query()->forTrainerRole()->select('id', 'name')->orderBy('name')->get(),
-            'appointmentSessions' => AppointmentSession::query()->select('id', 'session_name')->orderBy('session_name')->get(),
+            'appointmentSessions' => AppointmentSession::query()->select('id', 'session_name')->orderBy('id', 'asc')->get(),
             'weekdayOptions' => collect(self::WEEKDAY_MAP)->keys()->map(fn ($day) => [
                 'value' => $day,
                 'label' => ucfirst(__($day)),
@@ -116,7 +116,7 @@ class PilatesAppointmentController extends Controller
                 ->orderBy('name')
                 ->get(),
             'trainers' => Trainer::query()->forTrainerRole()->select('id', 'name')->orderBy('name')->get(),
-            'appointmentSessions' => AppointmentSession::query()->select('id', 'session_name')->orderBy('session_name')->get(),
+            'appointmentSessions' => AppointmentSession::query()->select('id', 'session_name')->orderBy('id', 'asc')->get(),
             'weekdayOptions' => collect(self::WEEKDAY_MAP)->keys()->map(fn ($day) => [
                 'value' => $day,
                 'label' => ucfirst(__($day)),

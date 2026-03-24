@@ -19,7 +19,7 @@ class AppointmentSessionController extends Controller
                 $query->where('session_name', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
             })
-            ->latest()
+            ->orderBy('id', 'asc')
             ->paginate(10)
             ->withQueryString();
 
