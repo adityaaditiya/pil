@@ -236,6 +236,11 @@ export default function Edit({ classes = [], trainers = [], appointment, appoint
                                 </select>
                                 {errors.pilates_class_id && <p className="text-xs text-rose-500">{errors.pilates_class_id}</p>}
                             </div>
+                             <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Keterangan</label>
+                                <textarea value={data.admin_notes} onChange={(event) => setData("admin_notes", event.target.value)} rows={4} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-800" placeholder="Catatan internal untuk admin" />
+                                {errors.admin_notes && <p className="text-xs text-rose-500">{errors.admin_notes}</p>}
+                            </div>
 
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Pilih Trainer</label>
@@ -292,6 +297,15 @@ export default function Edit({ classes = [], trainers = [], appointment, appoint
                                                         </label>
                                                         {selectedOption && (
                                                             <div className="grid gap-2">
+                                                                <select
+                                                                    value={selectedOption.payment_method || "allow_drop_in"}
+                                                                    onChange={(event) => updateSessionField(item.id, "payment_method", event.target.value)}
+                                                                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
+                                                                >
+                                                                    {paymentMethodOptions.map((option) => (
+                                                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                                                    ))}
+                                                                </select>
                                                                 <input
                                                                     type="number"
                                                                     min="0"
@@ -310,15 +324,7 @@ export default function Edit({ classes = [], trainers = [], appointment, appoint
                                                                     placeholder="Harga credits"
                                                                     className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
                                                                 />
-                                                                <select
-                                                                    value={selectedOption.payment_method || "allow_drop_in"}
-                                                                    onChange={(event) => updateSessionField(item.id, "payment_method", event.target.value)}
-                                                                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
-                                                                >
-                                                                    {paymentMethodOptions.map((option) => (
-                                                                        <option key={option.value} value={option.value}>{option.label}</option>
-                                                                    ))}
-                                                                </select>
+                                                                
                                                             </div>
                                                         )}
                                                     </div>
@@ -339,11 +345,7 @@ export default function Edit({ classes = [], trainers = [], appointment, appoint
                                 {errors.session_options && <p className="text-xs text-rose-500">{errors.session_options}</p>}
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Catatan Admin</label>
-                                <textarea value={data.admin_notes} onChange={(event) => setData("admin_notes", event.target.value)} rows={4} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-800" placeholder="Catatan internal untuk admin" />
-                                {errors.admin_notes && <p className="text-xs text-rose-500">{errors.admin_notes}</p>}
-                            </div>
+                           
 
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Durasi</label>
