@@ -175,8 +175,14 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                     <div key={`${selectedAppointment.id}-detail-${index}`} className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700">
                                         <span>{option.session_name}</span>
                                         <span className="font-semibold text-slate-700 dark:text-slate-200">
-                                            <span> {formatRupiah(option.price_drop_in ?? option.price)} /</span>
-                                            <span> Credit: {option.price_credit}  pts  </span>              
+                                            {(option.payment_method || "allow_drop_in") === "credit_only" ? (
+                                                <span>Credit: {option.price_credit} pts</span>
+                                            ) : (
+                                                <>
+                                                    <span>{formatRupiah(option.price_drop_in ?? option.price)} / </span>
+                                                    <span>Credit: {option.price_credit} pts</span>
+                                                </>
+                                            )}
                                         </span>
                                     </div>
                                 )) : (
