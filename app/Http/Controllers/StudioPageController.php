@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MembershipPlan;
 use App\Models\Customer;
 use App\Models\AppointmentSession;
+use App\Models\AppointmentBooking;
 use App\Models\PilatesBooking;
 use App\Models\PilatesAppointment;
 use App\Models\PilatesClass;
@@ -147,7 +148,46 @@ class StudioPageController extends Controller
                 : [],
             'appointmentSlots' => $appointmentData['appointmentSlots'],
             'appointmentSessionOptions' => $appointmentData['appointmentSessionOptions'],
+            'appointmentAvailableMemberships' => $normalizedKey === 'appointment' ? $this->getAvailableAppointmentMembershipsForAuthUser() : [],
         ]);
+    }
+
+    private function getAvailableAppointmentMembershipsForAuthUser(): array
+    {
+        $userId = Auth::id();
+
+        if (! $userId) {
+            return [];
+        }
+
+        return UserMembership::query()
+            ->with(['plan.classRules'])
+            ->where('user_id', $userId)
+            ->where('status', 'active')
+            ->where('credits_remaining', '>', 0)
+            ->where(function ($query) {
+                $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->get()
+            ->map(function (UserMembership $membership) {
+                $classRules = collect($membership->plan?->classRules ?? [])
+                    ->map(fn ($rule) => [
+                        'pilates_class_id' => (int) $rule->pilates_class_id,
+                        'credit_cost' => (float) ($rule->credit_cost ?? 0),
+                    ])
+                    ->values()
+                    ->all();
+
+                return [
+                    'id' => $membership->id,
+                    'plan_name' => $membership->plan?->name,
+                    'credits_remaining' => (int) $membership->credits_remaining,
+                    'expires_at' => $membership->expires_at?->timezone('Asia/Jakarta')?->format('d M Y H:i'),
+                    'class_rules' => $classRules,
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     private function buildAppointmentLandingData(): array
@@ -231,6 +271,123 @@ class StudioPageController extends Controller
             'appointmentSlots' => $appointmentSlots,
             'appointmentSessionOptions' => $appointmentSessionOptions,
         ];
+    }
+
+    public function processAppointmentLandingPayment(Request $request, PilatesAppointment $appointment): RedirectResponse
+    {
+        $validated = $request->validate([
+            'appointment_session_id' => ['required', 'integer'],
+            'payment_type' => ['required', 'in:drop_in,credit'],
+            'payment_method' => ['nullable', 'string', 'max:50'],
+            'user_membership_id' => ['nullable', 'integer', 'required_if:payment_type,credit', 'exists:user_memberships,id'],
+        ]);
+
+        $customer = Customer::query()
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (! $customer) {
+            throw ValidationException::withMessages([
+                'payment_type' => 'Akun Anda belum terhubung sebagai pelanggan.',
+            ]);
+        }
+
+        $alreadyBooked = AppointmentBooking::query()
+            ->where('appointment_id', $appointment->id)
+            ->where('customer_id', $customer->id)
+            ->exists();
+
+        if ($alreadyBooked) {
+            throw ValidationException::withMessages([
+                'payment_type' => 'Anda sudah melakukan booking pada appointment ini.',
+            ]);
+        }
+
+        $isAppointmentTaken = AppointmentBooking::query()
+            ->where('appointment_id', $appointment->id)
+            ->where('status', 'confirmed')
+            ->exists();
+
+        if ($isAppointmentTaken) {
+            throw ValidationException::withMessages([
+                'payment_type' => 'Slot appointment sudah dibooking pelanggan lain.',
+            ]);
+        }
+
+        $selectedSession = collect($appointment->session_options ?? [])
+            ->first(fn (array $option) => (int) ($option['appointment_session_id'] ?? 0) === (int) $validated['appointment_session_id']);
+
+        if (! $selectedSession) {
+            throw ValidationException::withMessages([
+                'appointment_session_id' => 'Sesi appointment tidak valid.',
+            ]);
+        }
+
+        $sessionPaymentMethod = $selectedSession['payment_method'] ?? 'allow_drop_in';
+        if ($sessionPaymentMethod === 'credit_only' && $validated['payment_type'] !== 'credit') {
+            throw ValidationException::withMessages([
+                'payment_type' => 'Sesi ini hanya menerima pembayaran credit.',
+            ]);
+        }
+
+        $selectedMembership = null;
+        if ($validated['payment_type'] === 'credit') {
+            $selectedMembership = UserMembership::query()
+                ->with(['plan.classRules' => fn ($query) => $query->where('pilates_class_id', $appointment->pilates_class_id)])
+                ->where('id', (int) ($validated['user_membership_id'] ?? 0))
+                ->where('user_id', Auth::id())
+                ->where('status', 'active')
+                ->where(function ($query) {
+                    $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+                })
+                ->first();
+
+            $rule = $selectedMembership?->plan?->classRules?->first();
+
+            if (! $selectedMembership || ! $rule) {
+                throw ValidationException::withMessages([
+                    'user_membership_id' => 'Membership tidak valid untuk kelas appointment ini.',
+                ]);
+            }
+
+            $creditCost = (int) ($rule->credit_cost ?? 0);
+            if ($creditCost <= 0) {
+                throw ValidationException::withMessages([
+                    'user_membership_id' => 'Biaya credit sesi belum tersedia.',
+                ]);
+            }
+
+            if ((int) $selectedMembership->credits_remaining < $creditCost) {
+                throw ValidationException::withMessages([
+                    'user_membership_id' => 'Credit membership tidak cukup.',
+                ]);
+            }
+        }
+
+        DB::transaction(function () use ($appointment, $validated, $selectedSession, $selectedMembership, $customer) {
+            AppointmentBooking::query()->create([
+                'appointment_id' => $appointment->id,
+                'customer_id' => $customer->id,
+                'appointment_session_id' => $selectedSession['appointment_session_id'] ?? null,
+                'session_name' => $selectedSession['session_name'] ?? $appointment->session_name,
+                'price_amount' => $validated['payment_type'] === 'drop_in'
+                    ? (float) ($selectedSession['price_drop_in'] ?? $selectedSession['price'] ?? 0)
+                    : 0,
+                'payment_type' => $validated['payment_type'],
+                'payment_method' => $validated['payment_type'] === 'credit'
+                    ? 'credits'
+                    : ($validated['payment_method'] ?? 'cash'),
+                'booked_at' => now(),
+                'status' => 'confirmed',
+            ]);
+
+            if ($validated['payment_type'] === 'credit' && $selectedMembership) {
+                $creditCost = (int) (($selectedMembership->plan?->classRules?->first()?->credit_cost) ?? 0);
+                $selectedMembership->decrement('credits_remaining', $creditCost);
+            }
+        });
+
+        return back()->with('success', 'Booking appointment berhasil disimpan.');
     }
 
     public function showClassDetail(PilatesClass $pilatesClass): Response
