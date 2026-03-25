@@ -10,6 +10,14 @@ import Navbar from "@/Components/Landing/Navbar";
 
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
 export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
+    const isAvailableForTimetable = Boolean(classItem.available_for_timetable);
+    const isAvailableForAppointment = Boolean(classItem.available_for_appointment);
+    const bookNowHref = isAvailableForTimetable
+        ? route("welcome.page", { key: "schedule", class_name: classItem.name })
+        : isAvailableForAppointment
+            ? route("welcome.page", "appointment")
+            : route("welcome.page", { key: "schedule", class_name: classItem.name });
+
     const detailRows = [
         { label: "Claesses Name", value: classItem.name || "-" },
         { label: "Classes Category", value: classItem.class_category?.name || "-" },
@@ -69,7 +77,7 @@ export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
                                     <p className="text-2xl font-bold">{formatRupiah(classItem.price)}</p>
                                 </div> */}
                                 <Link
-                                    href={route("welcome.page", { key: "schedule", class_name: classItem.name })}
+                                    href={bookNowHref}
                                     className="inline-flex rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
                                 >
                                     Book Now
