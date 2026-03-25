@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import Navbar from "@/Components/Landing/Navbar";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -163,6 +163,7 @@ export default function WelcomeSection({
     appointmentClasses = [],
     appointmentSlots = [],
     appointmentSessionOptions = [],
+    appointmentAvailableMemberships = [],
     initialFilters = {},
 }) {
     const [showFilters, setShowFilters] = useState(false);
@@ -185,6 +186,7 @@ export default function WelcomeSection({
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [selectedAppointmentPaymentType, setSelectedAppointmentPaymentType] = useState("credit");
     const [selectedAppointmentPaymentGateway, setSelectedAppointmentPaymentGateway] = useState(paymentGateways[0]?.value || "");
+    const [selectedAppointmentMembershipId, setSelectedAppointmentMembershipId] = useState("");
 
     const calendarDays = useMemo(() => {
         return getDaysInMonth(currentYear, currentMonth);
@@ -690,6 +692,62 @@ useEffect(() => {
 
         return "-";
     }, [canShowAppointmentPrice, selectedAppointmentSessionOption, selectedAppointmentPaymentType, appointmentPaymentConfig, selectedDropInGatewayLabel]);
+
+    const membershipOptionsForSelectedClass = useMemo(() => {
+        if (!selectedAppointmentClassId) {
+            return [];
+        }
+
+        return (appointmentAvailableMemberships || [])
+            .map((membership) => {
+                const rule = (membership.class_rules || []).find(
+                    (item) => String(item.pilates_class_id) === String(selectedAppointmentClassId)
+                );
+
+                if (!rule || Number(rule.credit_cost || 0) <= 0) {
+                    return null;
+                }
+
+                return {
+                    id: String(membership.id),
+                    planName: membership.plan_name,
+                    creditsRemaining: Number(membership.credits_remaining || 0),
+                    creditCost: Number(rule.credit_cost || 0),
+                    expiresAt: membership.expires_at,
+                };
+            })
+            .filter(Boolean);
+    }, [appointmentAvailableMemberships, selectedAppointmentClassId]);
+
+    useEffect(() => {
+        if (!membershipOptionsForSelectedClass.some((membership) => membership.id === selectedAppointmentMembershipId)) {
+            setSelectedAppointmentMembershipId(membershipOptionsForSelectedClass[0]?.id || "");
+        }
+    }, [membershipOptionsForSelectedClass, selectedAppointmentMembershipId]);
+
+    const hasMembershipCreditForSelection = membershipOptionsForSelectedClass.length > 0;
+
+    const submitAppointmentCheckout = () => {
+        if (!auth?.user) {
+            router.get(route("login", { redirect: route("welcome.page", "appointment", false) }));
+            return;
+        }
+
+        if (!selectedAppointmentSlot || !selectedServiceId) {
+            return;
+        }
+
+        const payload = {
+            appointment_session_id: Number(selectedServiceId),
+            payment_type: selectedAppointmentPaymentType,
+            payment_method: selectedAppointmentPaymentType === "drop_in" ? selectedAppointmentPaymentGateway : null,
+            user_membership_id: selectedAppointmentPaymentType === "credit" ? Number(selectedAppointmentMembershipId) : null,
+        };
+
+        router.post(route("welcome.appointment-payment.process", selectedAppointmentSlot.id), payload, {
+            preserveScroll: true,
+        });
+    };
 
 
     return (
@@ -1326,9 +1384,30 @@ useEffect(() => {
                                                             {selectedAppointmentPaymentType === "credit" && (
                                                                 <div className="rounded-xl border border-primary-100 bg-primary-50/60 p-3">
                                                                     <p className="text-xs font-medium text-primary-700">Pilih Membership</p>
-                                                                    <Link href={route("welcome.page", "pricing")} className="mt-2 inline-flex items-center text-sm font-semibold text-primary-700 hover:text-primary-800">
-                                                                        Lihat paket membership
-                                                                    </Link>
+                                                                    {hasMembershipCreditForSelection ? (
+                                                                        <div className="mt-2 space-y-2">
+                                                                            <select
+                                                                                value={selectedAppointmentMembershipId}
+                                                                                onChange={(event) => setSelectedAppointmentMembershipId(event.target.value)}
+                                                                                className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-700"
+                                                                            >
+                                                                                {membershipOptionsForSelectedClass.map((membership) => (
+                                                                                    <option key={membership.id} value={membership.id}>
+                                                                                        {membership.planName} • sisa {membership.creditsRemaining} credits • biaya {membership.creditCost}/sesi
+                                                                                    </option>
+                                                                                ))}
+                                                                            </select>
+                                                                            {membershipOptionsForSelectedClass.find((membership) => membership.id === selectedAppointmentMembershipId)?.expiresAt && (
+                                                                                <p className="text-xs text-wellness-muted">
+                                                                                    Berlaku sampai {membershipOptionsForSelectedClass.find((membership) => membership.id === selectedAppointmentMembershipId)?.expiresAt} WIB
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <Link href={route("welcome.page", "pricing")} className="mt-2 inline-flex items-center text-sm font-semibold text-primary-700 hover:text-primary-800">
+                                                                            Lihat paket membership
+                                                                        </Link>
+                                                                    )}
                                                                 </div>
                                                             )}
                                                         </>
@@ -1373,12 +1452,14 @@ useEffect(() => {
                                             )}
                                         </div>
 
-                                        <Link
-                                            href={route("welcome.page", "schedule")}
+                                        <button
+                                            type="button"
+                                            onClick={submitAppointmentCheckout}
+                                            disabled={!canShowAppointmentPrice || (selectedAppointmentPaymentType === "credit" && !hasMembershipCreditForSelection)}
                                             className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
                                         >
                                             Selesaikan Pembayaran
-                                        </Link>
+                                        </button>
 
                                         {!auth?.user && (
                                             <p className="text-sm text-wellness-muted">Login diperlukan untuk menyelesaikan checkout appointment dan menggunakan membership credits.</p>
