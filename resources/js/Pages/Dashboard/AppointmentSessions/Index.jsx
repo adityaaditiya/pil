@@ -31,6 +31,9 @@ export default function Index({ appointmentSessions }) {
                             <Table.Th className="w-10">No</Table.Th>
                             <Table.Th>Nama Sesi</Table.Th>
                             <Table.Th>Deskripsi</Table.Th>
+                            <Table.Th>Harga Drop-in</Table.Th>
+                            <Table.Th>Harga Credits</Table.Th>
+                            <Table.Th>Metode Pembayaran</Table.Th>
                             <Table.Th className="w-32">Aksi</Table.Th>
                         </tr>
                     </Table.Thead>
@@ -46,6 +49,9 @@ export default function Index({ appointmentSessions }) {
                                 <Table.Td>
                                     <p className="line-clamp-2 text-sm text-slate-500 dark:text-slate-400">{item.description || "-"}</p>
                                 </Table.Td>
+                                <Table.Td>{Number(item.default_price_drop_in || 0).toLocaleString("id-ID")}</Table.Td>
+                                <Table.Td>{Number(item.default_price_credit || 0).toLocaleString("id-ID")}</Table.Td>
+                                <Table.Td>{item.default_payment_method === "credit_only" ? "Hanya bisa pakai credits" : "Bisa pakai credit atau drop-in"}</Table.Td>
                                 <Table.Td>
                                     <div className="flex gap-2">
                                         <Link href={route("appointment-sessions.edit", item.id)} className="inline-flex items-center justify-center rounded-xl border border-warning-200 bg-warning-100 p-2 text-warning-600 transition hover:bg-warning-200">
