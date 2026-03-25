@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\MembershipPlan;
 use App\Models\Customer;
+use App\Models\AppointmentSession;
 use App\Models\PilatesBooking;
+use App\Models\PilatesAppointment;
 use App\Models\PilatesClass;
 use App\Models\PilatesTimetable;
 use App\Models\PaymentSetting;
@@ -19,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -87,6 +90,12 @@ class StudioPageController extends Controller
     public function showByKey(string $key): Response
     {
         $normalizedKey = $key === 'trainer' ? 'trainers' : $key;
+        $appointmentData = $normalizedKey === 'appointment'
+            ? $this->buildAppointmentLandingData()
+            : [
+                'appointmentSlots' => collect(),
+                'appointmentSessionOptions' => collect(),
+            ];
 
         $page = StudioPage::where('key', $normalizedKey)->first();
         $menuItems = StudioPage::where('key', '!=', 'about')->orderBy('id')->get(['name', 'key']);
@@ -136,7 +145,92 @@ class StudioPageController extends Controller
                     ->orderBy('name')
                     ->get(['id', 'name', 'about'])
                 : [],
+            'appointmentSlots' => $appointmentData['appointmentSlots'],
+            'appointmentSessionOptions' => $appointmentData['appointmentSessionOptions'],
         ]);
+    }
+
+    private function buildAppointmentLandingData(): array
+    {
+        $timezone = 'Asia/Jakarta';
+        $appointments = PilatesAppointment::query()
+            ->with([
+                'pilatesClass:id,name',
+                'trainers:id,name',
+            ])
+            ->withCount([
+                'bookings as active_bookings_count' => fn ($query) => $query->whereIn('status', ['pending', 'pending_payment', 'confirmed']),
+            ])
+            ->where('start_at', '>=', now($timezone)->startOfDay())
+            ->orderBy('start_at')
+            ->get(['id', 'pilates_class_id', 'session_options', 'start_at', 'end_at', 'duration_minutes']);
+
+        $sessionIds = $appointments
+            ->pluck('session_options')
+            ->flatten(1)
+            ->pluck('appointment_session_id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        $sessionMap = AppointmentSession::query()
+            ->whereIn('id', $sessionIds)
+            ->get(['id', 'session_name', 'description'])
+            ->keyBy('id');
+
+        $appointmentSlots = $appointments->map(function (PilatesAppointment $appointment) use ($sessionMap, $timezone) {
+            $slotStart = $appointment->start_at?->copy()->timezone($timezone);
+
+            return [
+                'id' => $appointment->id,
+                'date_key' => $slotStart?->toDateString(),
+                'start_time' => $slotStart?->format('H:i'),
+                'start_at_label' => $slotStart?->format('d M Y, H:i'),
+                'duration_minutes' => $appointment->duration_minutes,
+                'pilates_class_id' => (string) $appointment->pilates_class_id,
+                'pilates_class_name' => $appointment->pilatesClass?->name,
+                'trainer_ids' => $appointment->trainers->pluck('id')->map(fn ($id) => (string) $id)->values()->all(),
+                'trainer_names' => $appointment->trainers->pluck('name')->values()->all(),
+                'is_available' => ((int) $appointment->active_bookings_count) === 0,
+                'session_options' => collect($appointment->session_options ?? [])->map(function (array $option) use ($sessionMap) {
+                    $sessionId = (int) ($option['appointment_session_id'] ?? 0);
+                    $master = $sessionMap->get($sessionId);
+
+                    return [
+                        'appointment_session_id' => (string) $sessionId,
+                        'session_name' => $master?->session_name ?? ($option['session_name'] ?? ''),
+                        'description' => $master?->description,
+                        'price_drop_in' => (float) ($option['price_drop_in'] ?? $option['price'] ?? 0),
+                        'payment_method' => $option['payment_method'] ?? 'allow_drop_in',
+                    ];
+                })->filter(fn (array $option) => filled($option['session_name']))->values()->all(),
+            ];
+        })->values();
+
+        $appointmentSessionOptions = $appointmentSlots
+            ->pluck('session_options')
+            ->flatten(1)
+            ->groupBy('appointment_session_id')
+            ->map(function (Collection $items, string $sessionId) {
+                $prices = $items->pluck('price_drop_in')->map(fn ($price) => (float) $price)->filter(fn ($price) => $price > 0)->unique()->sort()->values();
+
+                return [
+                    'id' => $sessionId,
+                    'name' => $items->first()['session_name'] ?? 'Session',
+                    'description' => $items->first()['description'] ?? '',
+                    'payment_methods' => $items->pluck('payment_method')->filter()->unique()->values()->all(),
+                    'price_min' => $prices->first() ?? 0,
+                    'price_max' => $prices->last() ?? 0,
+                ];
+            })
+            ->sortBy('name')
+            ->values();
+
+        return [
+            'appointmentSlots' => $appointmentSlots,
+            'appointmentSessionOptions' => $appointmentSessionOptions,
+        ];
     }
 
     public function showClassDetail(PilatesClass $pilatesClass): Response
