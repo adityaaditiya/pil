@@ -190,7 +190,8 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                                 >
                                     {(appointment.session_options || []).map((option) => (
                                         <option key={option.appointment_session_id} value={option.appointment_session_id}>
-                                            {option.session_name} - {formatCurrency(option.price_drop_in ?? option.price)}
+                                            {/* {option.session_name} - Drop-in: {formatCurrency(option.price_drop_in ?? option.price)} - Credits: {creditPerSession} pts */}
+                                            {option.session_name} 
                                         </option>
                                     ))}
                                 </select>
@@ -200,13 +201,13 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                     </div>
 
                     <div className="space-y-3 rounded-2xl border bg-white p-5 h-fit">
-                        <p className="font-semibold">Ringkasan Booking Appointment</p>
-                        <p className="text-sm">Tanggal: <span className="font-medium">{appointment?.start_date_label}</span></p>
-                        <p className="text-sm">Jam: <span className="font-medium">{appointment?.start_at_label} - {appointment?.end_at_label}</span></p>
-                        <p className="text-sm">Trainer: <span className="font-medium">{appointment?.trainers?.join(", ") || "-"}</span></p>
+                        <p className="font-semibold ">Ringkasan Booking Appointment</p>
+                        <p className="text-sm">Tanggal: <span className="font-medium">{appointment?.start_date_label} | Jam: {appointment?.start_at_label} - {appointment?.end_at_label}</span></p>
+                        {/* <p className="text-sm">Jam: <span className="font-medium">{appointment?.start_at_label} - {appointment?.end_at_label}</span></p> */}
                         <p className="text-sm">Sesi Dipilih: <span className="font-medium">{selectedOption?.session_name || appointment?.session_name || "-"}</span></p>
-                        <p className="text-sm">Harga Credit / sesi: <span className="font-medium">{creditPerSession}</span></p>
+                        <p className="text-sm">Trainer: <span className="font-medium">{appointment?.trainers?.join(", ") || "-"}</span></p>
                         <p className="text-sm">Harga Drop-in: <span className="font-medium">{formatCurrency(dropInPrice)}</span></p>
+                        <p className="text-sm">Harga Credit / sesi: <span className="font-medium">{creditPerSession}</span></p>
                         {data.payment_type === "drop_in" ? (
                             <>
                                 <div>
