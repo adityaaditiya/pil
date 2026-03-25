@@ -447,6 +447,16 @@ class PilatesAppointmentController extends Controller
             'user_membership_id' => ['nullable', 'integer'],
         ]);
 
+        $alreadyBooked = AppointmentBooking::where('appointment_id', $appointment->id)
+        ->where('customer_id', $validated['customer_id'])
+        ->exists();
+
+    if ($alreadyBooked) {
+        throw ValidationException::withMessages([
+            'customer_id' => 'Pelanggan ini sudah terdaftar di jadwal ini. Tidak bisa double booking.',
+        ]);
+    }
+
         $sessionOptions = collect($appointment->session_options ?? []);
         $selectedSession = $sessionOptions
             ->first(fn (array $option) => (int) ($option['appointment_session_id'] ?? 0) === (int) ($validated['appointment_session_id'] ?? 0));
