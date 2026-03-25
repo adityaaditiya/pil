@@ -87,7 +87,7 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Kelas</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Trainer</th>
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Durasi</th>
-                                        <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Harga</th>
+                                        {/* <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Harga</th> */}
                                         <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Catatan Admin</th>
                                         <th className="px-4 py-3 text-right font-semibold text-slate-600 dark:text-slate-300"></th>
                                     </tr>
@@ -96,18 +96,35 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                     {appointments.map((appointment) => (
                                         <tr key={appointment.id}>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.start_at_label} - {appointment.end_at_label}</td>
-                                            <td className="px-4 py-3">
+                                            <td className="px-4 py-3 whitespace-pre-line">
                                                 <p className="font-semibold text-slate-800 dark:text-white">{appointment.session_name}</p>
-                                                <div className="mt-1 space-y-1 text-xs text-slate-500">
+                                                {/* <div className="mt-1 space-y-1 text-xs text-slate-500">
                                                     {(appointment.session_options || []).length > 0 ? appointment.session_options.map((option, index) => (
                                                         <p key={`${appointment.id}-session-${index}`}>{option.session_name} - {formatRupiah(option.price)}</p>
                                                     )) : <p>-</p>}
-                                                </div>
+                                                </div> */}
                                             </td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.pilates_class?.name || "-"}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.trainers?.join(", ") || "-"}</td>
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.duration_minutes} menit</td>
-                                            <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{formatRupiah(appointment.total_price)}</td>
+                                            {/* <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                                                <div className="flex flex-col gap-2">
+                                                    {(appointment.session_options || []).map((option) => (
+                                                        <div key={option.appointment_session_id} className="border-b border-slate-100 dark:border-slate-700 last:border-0 pb-1">
+                                                            
+                                                            <div className="text-xs flex flex-col text-slate-500">
+                                                                {option.session_name}
+                                                            </div>
+                                                            
+                                                            
+                                                            <div className="text-xs flex flex-col text-slate-500">
+                                                                {formatRupiah(option.price_drop_in ?? option.price)} / 
+                                                                {option.price_credit}  pts
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </td> */}
                                             <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{appointment.admin_notes || "-"}</td>
                                             <td className="px-4 py-3 text-right">
                                                 <div className="flex justify-end gap-2">
@@ -147,7 +164,7 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                             <p className="flex items-center gap-2"><IconClock size={15} /> {selectedAppointment.start_at_label} - {selectedAppointment.end_at_label} WIB</p>
                             <p>Sesi: {selectedAppointment.session_name || "-"}</p>
                             <p>Durasi: {selectedAppointment.duration_minutes} menit</p>
-                            <p>Total Harga: {formatRupiah(selectedAppointment.total_price)}</p>
+                            {/* <p>Total Harga: {formatRupiah(selectedAppointment.total_price)}</p> */}
                             <p>Catatan Admin: {selectedAppointment.admin_notes || "-"}</p>
                         </div>
 
@@ -157,7 +174,10 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                 {(selectedAppointment.session_options || []).length > 0 ? selectedAppointment.session_options.map((option, index) => (
                                     <div key={`${selectedAppointment.id}-detail-${index}`} className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700">
                                         <span>{option.session_name}</span>
-                                        <span className="font-semibold text-slate-700 dark:text-slate-200">{formatRupiah(option.price)}</span>
+                                        <span className="font-semibold text-slate-700 dark:text-slate-200">
+                                            <span> {formatRupiah(option.price_drop_in ?? option.price)} /</span>
+                                            <span> Credit: {option.price_credit}  pts  </span>              
+                                        </span>
                                     </div>
                                 )) : (
                                     <p className="text-sm text-slate-500">Belum ada rincian sesi.</p>
