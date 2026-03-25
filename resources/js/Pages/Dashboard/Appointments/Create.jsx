@@ -28,6 +28,10 @@ const weekdayLabels = {
 const hourOptions = Array.from({ length: 17 }, (_, index) => String(index + 6).padStart(2, "0"));
 const minuteOptions = ["00", "30"];
 const createEmptySlot = () => ({ start_hour: "06", start_minute: "00", end_hour: "07", end_minute: "00" });
+const paymentMethodOptions = [
+    { value: "credit_only", label: "Hanya bisa pakai credits" },
+    { value: "allow_drop_in", label: "Bisa pakai credit atau drop-in" },
+];
 
 const buildInitialSchedules = (weekdayOptions) => weekdayOptions.reduce((carry, day) => {
     carry[day.value] = {
@@ -135,6 +139,9 @@ export default function Create({ classes = [], trainers = [], appointmentSession
     const normalizedSessionOptions = data.session_options.map((item) => ({
         ...item,
         appointment_session_id: String(item.appointment_session_id),
+        price_drop_in: item.price_drop_in ?? item.price ?? "",
+        price_credit: item.price_credit ?? "",
+        payment_method: item.payment_method || "allow_drop_in",
     }));
     const allTrainerSelected = trainers.length > 0 && normalizedTrainerIds.length === trainers.length;
     const allSessionSelected = appointmentSessions.length > 0 && normalizedSessionOptions.length === appointmentSessions.length;
@@ -153,20 +160,32 @@ export default function Create({ classes = [], trainers = [], appointmentSession
     const toggleSession = (session, checked) => {
         const sessionId = String(session.id);
         setData("session_options", checked
-            ? [...normalizedSessionOptions, { appointment_session_id: sessionId, session_name: session.session_name, price: "" }]
+            ? [...normalizedSessionOptions, {
+                appointment_session_id: sessionId,
+                session_name: session.session_name,
+                price_drop_in: String(session.default_price_drop_in ?? 0),
+                price_credit: String(session.default_price_credit ?? 0),
+                payment_method: session.default_payment_method || "allow_drop_in",
+            }]
             : normalizedSessionOptions.filter((item) => item.appointment_session_id !== sessionId));
     };
 
     const toggleAllSessions = (checked) => {
         setData("session_options", checked
-            ? appointmentSessions.map((session) => ({ appointment_session_id: String(session.id), session_name: session.session_name, price: "" }))
+            ? appointmentSessions.map((session) => ({
+                appointment_session_id: String(session.id),
+                session_name: session.session_name,
+                price_drop_in: String(session.default_price_drop_in ?? 0),
+                price_credit: String(session.default_price_credit ?? 0),
+                payment_method: session.default_payment_method || "allow_drop_in",
+            }))
             : []);
     };
 
-    const updateSessionPrice = (sessionId, price) => {
+    const updateSessionField = (sessionId, field, value) => {
         const normalizedId = String(sessionId);
         setData("session_options", normalizedSessionOptions.map((item) => (
-            item.appointment_session_id === normalizedId ? { ...item, price } : item
+            item.appointment_session_id === normalizedId ? { ...item, [field]: value } : item
         )));
     };
 
@@ -251,19 +270,45 @@ export default function Create({ classes = [], trainers = [], appointmentSession
                                                             {item.session_name}
                                                         </label>
                                                         {selectedOption && (
-                                                            <input
-                                                                type="number"
-                                                                min="0"
-                                                                step="0.01"
-                                                                value={selectedOption.price}
-                                                                onChange={(event) => updateSessionPrice(item.id, event.target.value)}
-                                                                placeholder="Harga sesi"
-                                                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
-                                                            />
+                                                            <div className="grid gap-2">
+                                                                <input
+                                                                    type="number"
+                                                                    min="0"
+                                                                    step="0.01"
+                                                                    value={selectedOption.price_drop_in ?? ""}
+                                                                    onChange={(event) => updateSessionField(item.id, "price_drop_in", event.target.value)}
+                                                                    placeholder="Harga drop-in"
+                                                                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
+                                                                />
+                                                                <input
+                                                                    type="number"
+                                                                    min="0"
+                                                                    step="0.01"
+                                                                    value={selectedOption.price_credit ?? ""}
+                                                                    onChange={(event) => updateSessionField(item.id, "price_credit", event.target.value)}
+                                                                    placeholder="Harga credits"
+                                                                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
+                                                                />
+                                                                <select
+                                                                    value={selectedOption.payment_method || "allow_drop_in"}
+                                                                    onChange={(event) => updateSessionField(item.id, "payment_method", event.target.value)}
+                                                                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
+                                                                >
+                                                                    {paymentMethodOptions.map((option) => (
+                                                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
                                                         )}
                                                     </div>
-                                                    {errors[`session_options.${normalizedSessionOptions.findIndex((option) => option.appointment_session_id === String(item.id))}.price`] && (
-                                                        <p className="mt-2 text-xs text-rose-500">{errors[`session_options.${normalizedSessionOptions.findIndex((option) => option.appointment_session_id === String(item.id))}.price`]}</p>
+                                                    {errors[`session_options.${normalizedSessionOptions.findIndex((option) => option.appointment_session_id === String(item.id))}.price_drop_in`] && (
+                                                        <p className="mt-2 text-xs text-rose-500">{errors[`session_options.${normalizedSessionOptions.findIndex((option) => option.appointment_session_id === String(item.id))}.price_drop_in`]}</p>
+                                                    )}
+                                                    {errors[`session_options.${normalizedSessionOptions.findIndex((option) => option.appointment_session_id === String(item.id))}.price_credit`] && (
+                                                        <p className="mt-2 text-xs text-rose-500">{errors[`session_options.${normalizedSessionOptions.findIndex((option) => option.appointment_session_id === String(item.id))}.price_credit`]}</p>
+                                                    )}
+                                                    {errors[`session_options.${normalizedSessionOptions.findIndex((option) => option.appointment_session_id === String(item.id))}.payment_method`] && (
+                                                        <p className="mt-2 text-xs text-rose-500">{errors[`session_options.${normalizedSessionOptions.findIndex((option) => option.appointment_session_id === String(item.id))}.payment_method`]}</p>
                                                     )}
                                                 </div>
                                             );

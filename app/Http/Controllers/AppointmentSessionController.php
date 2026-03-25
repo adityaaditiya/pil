@@ -38,6 +38,9 @@ class AppointmentSessionController extends Controller
         $validated = $request->validate([
             'session_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'default_price_drop_in' => ['required', 'numeric', 'min:0'],
+            'default_price_credit' => ['required', 'numeric', 'min:0'],
+            'default_payment_method' => ['required', 'in:credit_only,allow_drop_in'],
         ]);
 
         AppointmentSession::query()->create($validated);
@@ -58,6 +61,9 @@ class AppointmentSessionController extends Controller
         $validated = $request->validate([
             'session_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'default_price_drop_in' => ['required', 'numeric', 'min:0'],
+            'default_price_credit' => ['required', 'numeric', 'min:0'],
+            'default_payment_method' => ['required', 'in:credit_only,allow_drop_in'],
         ]);
 
         $appointmentSession->update($validated);

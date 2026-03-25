@@ -92,7 +92,10 @@ class PilatesAppointmentController extends Controller
                 ->orderBy('name')
                 ->get(),
             'trainers' => Trainer::query()->forTrainerRole()->select('id', 'name')->orderBy('name')->get(),
-            'appointmentSessions' => AppointmentSession::query()->select('id', 'session_name')->orderBy('id', 'asc')->get(),
+            'appointmentSessions' => AppointmentSession::query()
+                ->select('id', 'session_name', 'default_price_drop_in', 'default_price_credit', 'default_payment_method')
+                ->orderBy('id', 'asc')
+                ->get(),
             'weekdayOptions' => collect(self::WEEKDAY_MAP)->keys()->map(fn ($day) => [
                 'value' => $day,
                 'label' => ucfirst(__($day)),
@@ -119,7 +122,10 @@ class PilatesAppointmentController extends Controller
                 ->orderBy('name')
                 ->get(),
             'trainers' => Trainer::query()->forTrainerRole()->select('id', 'name')->orderBy('name')->get(),
-            'appointmentSessions' => AppointmentSession::query()->select('id', 'session_name')->orderBy('id', 'asc')->get(),
+            'appointmentSessions' => AppointmentSession::query()
+                ->select('id', 'session_name', 'default_price_drop_in', 'default_price_credit', 'default_payment_method')
+                ->orderBy('id', 'asc')
+                ->get(),
             'weekdayOptions' => collect(self::WEEKDAY_MAP)->keys()->map(fn ($day) => [
                 'value' => $day,
                 'label' => ucfirst(__($day)),
@@ -155,7 +161,9 @@ class PilatesAppointmentController extends Controller
             'trainer_ids.*' => ['required', 'exists:trainers,id'],
             'session_options' => ['required', 'array', 'min:1'],
             'session_options.*.appointment_session_id' => ['required', 'exists:appointment_sessions,id'],
-            'session_options.*.price' => ['required', 'numeric', 'min:0'],
+            'session_options.*.price_drop_in' => ['required', 'numeric', 'min:0'],
+            'session_options.*.price_credit' => ['required', 'numeric', 'min:0'],
+            'session_options.*.payment_method' => ['required', Rule::in(['credit_only', 'allow_drop_in'])],
             'admin_notes' => ['nullable', 'string'],
             'duration_minutes' => ['required', 'integer', 'min:1'],
             'start_date' => ['required', 'date'],
@@ -233,7 +241,9 @@ class PilatesAppointmentController extends Controller
             'trainer_ids.*' => ['required', 'exists:trainers,id'],
             'session_options' => ['required', 'array', 'min:1'],
             'session_options.*.appointment_session_id' => ['required', 'exists:appointment_sessions,id'],
-            'session_options.*.price' => ['required', 'numeric', 'min:0'],
+            'session_options.*.price_drop_in' => ['required', 'numeric', 'min:0'],
+            'session_options.*.price_credit' => ['required', 'numeric', 'min:0'],
+            'session_options.*.payment_method' => ['required', Rule::in(['credit_only', 'allow_drop_in'])],
             'admin_notes' => ['nullable', 'string'],
             'duration_minutes' => ['required', 'integer', 'min:1'],
             'start_at' => ['required', 'date'],
@@ -428,7 +438,7 @@ class PilatesAppointmentController extends Controller
             'appointment_session_id' => $selectedSession['appointment_session_id'] ?? null,
             'session_name' => $selectedSession['session_name'] ?? $appointment->session_name,
             'price_amount' => $validated['payment_type'] === 'drop_in'
-                ? (float) ($selectedSession['price'] ?? $this->calculateTotalPrice($appointment->session_options ?? []))
+                ? (float) ($selectedSession['price_drop_in'] ?? $selectedSession['price'] ?? $this->calculateTotalPrice($appointment->session_options ?? []))
                 : 0,
             'payment_type' => $validated['payment_type'],
             'payment_method' => $validated['payment_method'],
@@ -452,18 +462,22 @@ class PilatesAppointmentController extends Controller
             ->unique()
             ->values();
 
-        $sessionNames = AppointmentSession::query()
+        $sessions = AppointmentSession::query()
             ->whereIn('id', $selectedSessionIds)
-            ->pluck('session_name', 'id');
+            ->get(['id', 'session_name', 'default_price_drop_in', 'default_price_credit', 'default_payment_method'])
+            ->keyBy('id');
 
         return collect($sessionOptions)
-            ->map(function (array $option) use ($sessionNames) {
+            ->map(function (array $option) use ($sessions) {
                 $sessionId = (int) $option['appointment_session_id'];
+                $session = $sessions->get($sessionId);
 
                 return [
                     'appointment_session_id' => $sessionId,
-                    'session_name' => $sessionNames->get($sessionId),
-                    'price' => (float) $option['price'],
+                    'session_name' => $session?->session_name,
+                    'price_drop_in' => (float) ($option['price_drop_in'] ?? $session?->default_price_drop_in ?? 0),
+                    'price_credit' => (float) ($option['price_credit'] ?? $session?->default_price_credit ?? 0),
+                    'payment_method' => $option['payment_method'] ?? $session?->default_payment_method ?? 'allow_drop_in',
                 ];
             })
             ->filter(fn (array $option) => filled($option['session_name']))
@@ -481,7 +495,7 @@ class PilatesAppointmentController extends Controller
 
     private function calculateTotalPrice(array $sessionOptions): float
     {
-        return (float) collect($sessionOptions)->sum(fn (array $option) => (float) ($option['price'] ?? 0));
+        return (float) collect($sessionOptions)->sum(fn (array $option) => (float) ($option['price_drop_in'] ?? 0));
     }
 
     private function buildOccurrences(array $validated): Collection

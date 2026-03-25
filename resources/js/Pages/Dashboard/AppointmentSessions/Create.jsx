@@ -11,6 +11,9 @@ export default function Create() {
     const { data, setData, post, processing } = useForm({
         session_name: "",
         description: "",
+        default_price_drop_in: "0",
+        default_price_credit: "0",
+        default_payment_method: "allow_drop_in",
     });
 
     const submit = (event) => {
@@ -39,6 +42,20 @@ export default function Create() {
                     <div className="space-y-4">
                         <Input label="Nama Sesi" value={data.session_name} onChange={(event) => setData("session_name", event.target.value)} errors={errors.session_name} placeholder="Contoh: Private Morning Flow" />
                         <Textarea label="Deskripsi" value={data.description} onChange={(event) => setData("description", event.target.value)} errors={errors.description} placeholder="Deskripsi sesi appointment" rows={5} />
+                        <Input type="number" min="0" step="0.01" label="Harga Drop-in Default" value={data.default_price_drop_in} onChange={(event) => setData("default_price_drop_in", event.target.value)} errors={errors.default_price_drop_in} placeholder="0" />
+                        <Input type="number" min="0" step="0.01" label="Harga Credits Default" value={data.default_price_credit} onChange={(event) => setData("default_price_credit", event.target.value)} errors={errors.default_price_credit} placeholder="0" />
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Metode Pembayaran</label>
+                            <select
+                                value={data.default_payment_method}
+                                onChange={(event) => setData("default_payment_method", event.target.value)}
+                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
+                            >
+                                <option value="credit_only">Hanya bisa pakai credits</option>
+                                <option value="allow_drop_in">Bisa pakai credit atau drop-in</option>
+                            </select>
+                            {errors.default_payment_method && <small className="text-xs text-danger-500">{errors.default_payment_method}</small>}
+                        </div>
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-6 dark:border-slate-800">

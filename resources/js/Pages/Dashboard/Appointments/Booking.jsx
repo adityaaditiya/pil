@@ -30,7 +30,7 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
         appointment_session_id: selectedOption?.appointment_session_id || "",
     });
 
-    const price = Number(selectedOption?.price ?? appointment?.total_price ?? 0);
+    const price = Number(selectedOption?.price_drop_in ?? selectedOption?.price ?? appointment?.total_price ?? 0);
 
     const handleSessionChange = (value) => {
         const option = (appointment?.session_options || []).find(
@@ -123,7 +123,7 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                                 >
                                     {(appointment.session_options || []).map((option) => (
                                         <option key={option.appointment_session_id} value={option.appointment_session_id}>
-                                            {option.session_name} - {formatCurrency(option.price)}
+                                            {option.session_name} - {formatCurrency(option.price_drop_in ?? option.price)}
                                         </option>
                                     ))}
                                 </select>
