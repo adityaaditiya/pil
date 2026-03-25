@@ -183,6 +183,8 @@ export default function WelcomeSection({
         // Tambahkan di deretan useState
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+    const [selectedAppointmentPaymentType, setSelectedAppointmentPaymentType] = useState("credit");
+    const [selectedAppointmentPaymentGateway, setSelectedAppointmentPaymentGateway] = useState(paymentGateways[0]?.value || "");
 
     const calendarDays = useMemo(() => {
         return getDaysInMonth(currentYear, currentMonth);
@@ -615,23 +617,79 @@ useEffect(() => {
     const selectedAppointmentDateLabel = selectedAppointmentDate
         ? formatSectionDate(new Date(`${selectedAppointmentDate}T00:00:00`))
         : "Pilih tanggal";
-    const appointmentPaymentLabels = useMemo(() => {
-        const methods = selectedService?.paymentMethods || [];
-        const labels = [];
 
-        if (methods.includes("credit_only")) {
-            labels.push("Credit Membership");
+    const selectedAppointmentSessionOption = useMemo(() => {
+        if (!selectedAppointmentSlot) {
+            return null;
         }
 
-        if (methods.includes("allow_drop_in")) {
-            const gatewayLabels = paymentGateways.length > 0
-                ? paymentGateways.map((gateway) => gateway.label || gateway.name || gateway.value)
-                : ["Payment gateway drop-in"];
-            labels.push(...gatewayLabels);
+        return (selectedAppointmentSlot.session_options || []).find(
+            (option) => String(option.appointment_session_id) === String(selectedServiceId)
+        ) || null;
+    }, [selectedAppointmentSlot, selectedServiceId]);
+
+    const canShowAppointmentPrice = Boolean(selectedAppointmentSlot && selectedAppointmentClassId && selectedTrainerId && selectedAppointmentTime);
+    const appointmentDropInPrice = Number(selectedAppointmentSessionOption?.price_drop_in || 0);
+    const appointmentDurationMinutes = Number(selectedAppointmentSlot?.duration_minutes || 0);
+
+    const appointmentPaymentConfig = useMemo(() => {
+        const paymentMethod = selectedAppointmentSessionOption?.payment_method || "";
+        const canUseCredit = paymentMethod === "credit_only" || paymentMethod === "allow_drop_in";
+        const canUseDropIn = paymentMethod === "allow_drop_in";
+
+        return {
+            canUseCredit,
+            canUseDropIn,
+        };
+    }, [selectedAppointmentSessionOption]);
+
+    useEffect(() => {
+        if (!appointmentPaymentConfig.canUseCredit && appointmentPaymentConfig.canUseDropIn) {
+            setSelectedAppointmentPaymentType("drop_in");
+            return;
         }
 
-        return [...new Set(labels)];
-    }, [selectedService, paymentGateways]);
+        if (appointmentPaymentConfig.canUseCredit) {
+            setSelectedAppointmentPaymentType((prev) => {
+                if (prev === "drop_in" && !appointmentPaymentConfig.canUseDropIn) {
+                    return "credit";
+                }
+
+                return prev || "credit";
+            });
+        }
+    }, [appointmentPaymentConfig]);
+
+    useEffect(() => {
+        if (!paymentGateways.some((gateway) => gateway.value === selectedAppointmentPaymentGateway)) {
+            setSelectedAppointmentPaymentGateway(paymentGateways[0]?.value || "");
+        }
+    }, [paymentGateways, selectedAppointmentPaymentGateway]);
+
+    const selectedDropInGatewayLabel = useMemo(() => {
+        if (!selectedAppointmentPaymentGateway) {
+            return "Drop-in";
+        }
+
+        const selectedGateway = paymentGateways.find((gateway) => gateway.value === selectedAppointmentPaymentGateway);
+        return selectedGateway?.label || selectedGateway?.name || selectedGateway?.value || "Drop-in";
+    }, [paymentGateways, selectedAppointmentPaymentGateway]);
+
+    const appointmentSummaryPaymentLabel = useMemo(() => {
+        if (!canShowAppointmentPrice || !selectedAppointmentSessionOption) {
+            return "-";
+        }
+
+        if (selectedAppointmentPaymentType === "drop_in" && appointmentPaymentConfig.canUseDropIn) {
+            return `Drop-in (${selectedDropInGatewayLabel})`;
+        }
+
+        if (appointmentPaymentConfig.canUseCredit) {
+            return "Credit Membership";
+        }
+
+        return "-";
+    }, [canShowAppointmentPrice, selectedAppointmentSessionOption, selectedAppointmentPaymentType, appointmentPaymentConfig, selectedDropInGatewayLabel]);
 
 
     return (
@@ -983,26 +1041,19 @@ useEffect(() => {
                                                             : "border-slate-200 bg-white hover:border-primary-200 hover:bg-primary-50/40"
                                                     }`}
                                                 >
-                                                    {/* Header: Nama dan Durasi Sejajar */}
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-base font-semibold">{service.name}</span>
-                                                        <span className="shrink-0 rounded-full bg-white px-2 py-1 text-xs font-medium text-primary-700 shadow-sm border border-primary-100">
-                                                            {service.duration_minutes} menit
-                                                        </span>
                                                     </div>
 
                                                     <p className="mt-3 text-sm text-wellness-muted leading-relaxed">
                                                         {service.description}
                                                     </p>
 
-                                                    <div className="mt-4 flex items-center justify-between">
-                                                        <span className="font-bold text-lg text-primary-700">
-                                                            {service.priceLabel}
-                                                        </span>
-                                                        {isActive && (
+                                                    {isActive && (
+                                                        <div className="mt-4 flex justify-end">
                                                             <div className="h-2 w-2 rounded-full bg-primary-500 shadow-[0_0_8px_rgba(var(--primary-500),0.6)]" />
-                                                        )}
-                                                    </div>
+                                                        </div>
+                                                    )}
                                                 </button>
                                             );
                                         })}
@@ -1244,22 +1295,83 @@ useEffect(() => {
                                         </div>
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Harga</p>
-                                            <p className="text-lg font-bold text-primary-700">{selectedService?.priceLabel || "-"}</p>
+                                            <p className="text-lg font-bold text-primary-700">{canShowAppointmentPrice ? formatRupiah(appointmentDropInPrice) : "-"}{canShowAppointmentPrice && appointmentDurationMinutes > 0 ? ` • ${appointmentDurationMinutes} menit` : ""}</p>
                                         </div>
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Metode pembayaran</p>
-                                            <p className="text-base font-semibold text-wellness-text">{appointmentPaymentLabels.join(", ") || "-"}</p>
+                                            <p className="text-base font-semibold text-wellness-text">{appointmentSummaryPaymentLabel}</p>
                                         </div>
                                     </div>
 
                                     <div className="mt-6 space-y-3">
-                                        {/* <div className="rounded-2xl border border-primary-100 p-4">
-                                            <p className="text-sm font-semibold text-wellness-text">Metode pembayaran</p>
-                                            <ul className="mt-3 space-y-2 text-sm text-wellness-muted">
-                                                <li className="flex items-start gap-2"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Gunakan credits membership bila sesi termasuk benefit paket aktif Anda.</li>
-                                                <li className="flex items-start gap-2"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Atau lanjutkan dengan payment gateway drop-in: {appointmentPaymentLabels.join(", ")}.</li>
-                                            </ul>
-                                        </div> */}
+                                        <div className="rounded-2xl border border-primary-100 p-4">
+                                            <p className="text-sm font-semibold text-wellness-text">Metode Pembayaran</p>
+                                            {!canShowAppointmentPrice ? (
+                                                <p className="mt-2 text-sm text-wellness-muted">Pilih kelas, trainer, dan jam terlebih dahulu untuk melihat opsi pembayaran.</p>
+                                            ) : (
+                                                <div className="mt-3 space-y-3">
+                                                    {appointmentPaymentConfig.canUseCredit && (
+                                                        <>
+                                                            <label className="flex items-start gap-3 rounded-xl border border-slate-200 p-3">
+                                                                <input
+                                                                    type="radio"
+                                                                    checked={selectedAppointmentPaymentType === "credit"}
+                                                                    onChange={() => setSelectedAppointmentPaymentType("credit")}
+                                                                />
+                                                                <div>
+                                                                    <p className="text-sm font-semibold text-wellness-text">Credit</p>
+                                                                    <p className="text-xs text-wellness-muted">Gunakan membership aktif untuk pembayaran sesi.</p>
+                                                                </div>
+                                                            </label>
+                                                            {selectedAppointmentPaymentType === "credit" && (
+                                                                <div className="rounded-xl border border-primary-100 bg-primary-50/60 p-3">
+                                                                    <p className="text-xs font-medium text-primary-700">Pilih Membership</p>
+                                                                    <Link href={route("welcome.page", "pricing")} className="mt-2 inline-flex items-center text-sm font-semibold text-primary-700 hover:text-primary-800">
+                                                                        Lihat paket membership
+                                                                    </Link>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    )}
+
+                                                    {appointmentPaymentConfig.canUseDropIn && (
+                                                        <>
+                                                            <label className="flex items-start gap-3 rounded-xl border border-slate-200 p-3">
+                                                                <input
+                                                                    type="radio"
+                                                                    checked={selectedAppointmentPaymentType === "drop_in"}
+                                                                    onChange={() => setSelectedAppointmentPaymentType("drop_in")}
+                                                                />
+                                                                <div>
+                                                                    <p className="text-sm font-semibold text-wellness-text">Drop-in</p>
+                                                                    <p className="text-xs text-wellness-muted">Bayar per sesi sesuai slot yang dipilih.</p>
+                                                                </div>
+                                                            </label>
+                                                            {selectedAppointmentPaymentType === "drop_in" && (
+                                                                <div>
+                                                                    <label className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Pilih payment gateway</label>
+                                                                    <select
+                                                                        value={selectedAppointmentPaymentGateway}
+                                                                        onChange={(event) => setSelectedAppointmentPaymentGateway(event.target.value)}
+                                                                        className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-700"
+                                                                    >
+                                                                        {paymentGateways.length > 0 ? (
+                                                                            paymentGateways.map((gateway) => (
+                                                                                <option key={gateway.value} value={gateway.value}>
+                                                                                    {gateway.label || gateway.name || gateway.value}
+                                                                                </option>
+                                                                            ))
+                                                                        ) : (
+                                                                            <option value="">Drop-in</option>
+                                                                        )}
+                                                                    </select>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
 
                                         <Link
                                             href={route("welcome.page", "schedule")}
