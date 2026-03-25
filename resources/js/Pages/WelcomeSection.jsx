@@ -1393,13 +1393,21 @@ useEffect(() => {
                                                                             >
                                                                                 {membershipOptionsForSelectedClass.map((membership) => (
                                                                                     <option key={membership.id} value={membership.id}>
-                                                                                        {membership.planName} • sisa {membership.creditsRemaining} credits • biaya {membership.creditCost}/sesi
+                                                                                        {membership.planName} • sisa {membership.creditsRemaining} credits 
                                                                                     </option>
                                                                                 ))}
                                                                             </select>
                                                                             {membershipOptionsForSelectedClass.find((membership) => membership.id === selectedAppointmentMembershipId)?.expiresAt && (
+                                                                                // <p className="text-xs text-wellness-muted">
+                                                                                //     Berlaku sampai {membershipOptionsForSelectedClass.find((membership) => membership.id === selectedAppointmentMembershipId)?.expiresAt} WIB
+                                                                                // </p>
                                                                                 <p className="text-xs text-wellness-muted">
-                                                                                    Berlaku sampai {membershipOptionsForSelectedClass.find((membership) => membership.id === selectedAppointmentMembershipId)?.expiresAt} WIB
+                                                                                    {membershipOptionsForSelectedClass.map((membership) => (
+                                                                                    <option key={membership.id} value={membership.id}>
+                                                                                        biaya {membership.creditCost} credits / sesi
+                                                                                    </option>
+                                                                                ))}
+                                                                                    
                                                                                 </p>
                                                                             )}
                                                                         </div>
@@ -1462,7 +1470,7 @@ useEffect(() => {
                                         </button>
 
                                         {!auth?.user && (
-                                            <p className="text-sm text-wellness-muted">Login diperlukan untuk menyelesaikan checkout appointment dan menggunakan membership credits.</p>
+                                            <p className="text-sm text-wellness-muted">Login diperlukan untuk menyelesaikan pembayaran appointment.</p>
                                         )}
                                     </div>
                                 </article>
