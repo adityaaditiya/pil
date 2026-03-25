@@ -86,20 +86,6 @@ function Menu() {
             title: "Data Management",
             details: [
                 {
-                    title: "Kategori Produk",
-                    href: route("categories.index"),
-                    active: url === "/dashboard/categories" ? true : false, // Update comparison here
-                    icon: <IconFolder size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["categories-access"]),
-                },
-                {
-                    title: "Produk",
-                    href: route("products.index"),
-                    active: url === "/dashboard/products" ? true : false, // Update comparison here
-                    icon: <IconBox size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["products-access"]),
-                },
-                {
                     title: "Pelanggan",
                     href: route("customers.index"),
                     active: url === "/dashboard/customers" ? true : false, // Update comparison here
@@ -107,11 +93,67 @@ function Menu() {
                     permissions: hasAnyPermission(["customers-access"]),
                 },
                 {
+                    title: "Data Produk ",
+                    icon: <IconBox size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["products-access"]),
+                    subdetails: [
+                        {
+                    title: "Kategori Produk",
+                    href: route("categories.index"),
+                    active: url === "/dashboard/categories" ? true : false, // Update comparison here
+                    icon: <IconFolder size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["categories-access"]),
+                        },
+                        {
+                    title: "Produk",
+                    href: route("products.index"),
+                    active: url === "/dashboard/products" ? true : false, // Update comparison here
+                    icon: <IconBox size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["products-access"]),
+                        },
+                    ],
+                },
+                // {
+                //     title: "Kategori Produk",
+                //     href: route("categories.index"),
+                //     active: url === "/dashboard/categories" ? true : false, // Update comparison here
+                //     icon: <IconFolder size={20} strokeWidth={1.5} />,
+                //     permissions: hasAnyPermission(["categories-access"]),
+                // },
+                // {
+                //     title: "Produk",
+                //     href: route("products.index"),
+                //     active: url === "/dashboard/products" ? true : false, // Update comparison here
+                //     icon: <IconBox size={20} strokeWidth={1.5} />,
+                //     permissions: hasAnyPermission(["products-access"]),
+                // },
+                {
+                    title: "Data Classes",
+                    icon: <IconYoga size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["dashboard-access"]),
+                    subdetails: [
+                        {
                     title: "Kategori Kelas",
                     href: route("class-categories.index"),
                     active: url.startsWith("/dashboard/class-categories"),
                     icon: <IconCategory size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["class-categories-access"]),
+                        },
+                        {
+                    title: "Classes",
+                    href: route("classes.index"),
+                    active: url.startsWith("/dashboard/classes"),
+                    icon: <IconYoga size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["dashboard-access"]),
+                        },
+                    ],
+                },
+                {
+                    title: "Trainer",
+                    href: route("trainers.index"),
+                    active: url.startsWith("/dashboard/trainers"),
+                    icon: <IconUserSquare size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["dashboard-access"]),
                 },
                 {
                     title: "Sesi Appointment",
@@ -139,13 +181,13 @@ function Menu() {
                     icon: <IconHome2 size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["dashboard-access"]),
                 },
-                {
-                    title: "Classes",
-                    href: route("classes.index"),
-                    active: url.startsWith("/dashboard/classes"),
-                    icon: <IconYoga size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["dashboard-access"]),
-                },
+                // {
+                //     title: "Classes",
+                //     href: route("classes.index"),
+                //     active: url.startsWith("/dashboard/classes"),
+                //     icon: <IconYoga size={20} strokeWidth={1.5} />,
+                //     permissions: hasAnyPermission(["dashboard-access"]),
+                // },
                 {
                     title: "Appointment",
                     href: route("appointments.index"),
@@ -167,20 +209,14 @@ function Menu() {
                     icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["dashboard-access"]),
                 },
-                {
-                    title: "Trainer",
-                    href: route("trainers.index"),
-                    active: url.startsWith("/dashboard/trainers"),
-                    icon: <IconUserSquare size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["dashboard-access"]),
-                },
+                
             ],
         },
         {
             title: "Transaksi",
             details: [
                 {
-                    title: "Transaksi",
+                    title: "Transaksi Penjualan",
                     href: route("transactions.index"),
                     active: url === "/dashboard/transactions" ? true : false, // Update comparison here
                     icon: <IconShoppingCart size={20} strokeWidth={1.5} />,
@@ -194,13 +230,11 @@ function Menu() {
                     permissions: hasAnyPermission(["transactions-access"]),
                 },
                 {
-                    title: "Transaksi Saya",
-                    href: route("transactions.my"),
-                    active: url === "/dashboard/transactions/my" ? true : false,
-                    icon: <IconReceipt size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["my-transactions-access"]),
-                },
-                {
+                    title: "Uang Kas",
+                    icon: <IconWallet size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["transactions-access"]),
+                    subdetails: [
+                        {
                     title: "Tambah Uang Kas",
                     href: route("transactions.cash.in"),
                     active: url === "/dashboard/transactions/cash/tambah" ? true : false,
@@ -213,6 +247,15 @@ function Menu() {
                     active: url === "/dashboard/transactions/cash/ambil" ? true : false,
                     icon: <IconWallet size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["transactions-access"]),
+                },
+                    ],
+                },
+                {
+                    title: "Transaksi Saya",
+                    href: route("transactions.my"),
+                    active: url === "/dashboard/transactions/my" ? true : false,
+                    icon: <IconReceipt size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["my-transactions-access"]),
                 },
             ],
         },
@@ -252,17 +295,17 @@ function Menu() {
                     permissions: hasAnyPermission(["reports-access"]),
                 },
                 {
-                    title: "Laporan Otorisasi",
-                    href: route("reports.authorizations.index"),
-                    active: url.startsWith("/dashboard/reports/authorizations"),
-                    icon: <IconFileCertificate size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["reports-access"]),
-                },
-                {
                     title: "Laporan Kelola Stok",
                     href: route("reports.stock-mutations.index"),
                     active: url.startsWith("/dashboard/reports/stock-mutations"),
                     icon: <IconTable size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["reports-access"]),
+                },
+                {
+                    title: "Laporan Otorisasi",
+                    href: route("reports.authorizations.index"),
+                    active: url.startsWith("/dashboard/reports/authorizations"),
+                    icon: <IconFileCertificate size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["reports-access"]),
                 },
             ],
@@ -324,17 +367,17 @@ function Menu() {
                     permissions: true,
                 },
                 {
-                    title: "My Memberships",
-                    href: route("memberships.my"),
-                    active: url === "/dashboard/memberships/my",
-                    icon: <IconFileDescription size={20} strokeWidth={1.5} />,
-                    permissions: true,
-                },
-                {
                     title: "Riwayat Membership",
                     href: route("memberships.history"),
                     active: url === "/dashboard/memberships/history",
                     icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
+                    permissions: true,
+                },
+                {
+                    title: "My Memberships",
+                    href: route("memberships.my"),
+                    active: url === "/dashboard/memberships/my",
+                    icon: <IconFileDescription size={20} strokeWidth={1.5} />,
                     permissions: true,
                 },
             ],

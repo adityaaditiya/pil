@@ -4,16 +4,25 @@ import { IconLayoutGrid } from "@tabler/icons-react";
 import LinkItem from "@/Components/Dashboard/LinkItem";
 import LinkItemDropdown from "@/Components/Dashboard/LinkItemDropdown";
 import { Menu } from "@/Utils/Menu";
+import { useEffect } from "react";
 
 export default function Sidebar({ sidebarOpen }) {
     const { auth } = usePage().props;
     const menuNavigation = Menu();
+    useEffect(() => {
+        if (sidebarOpen && window.innerWidth < 768) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+    }, [sidebarOpen]);
 
     return (
         <div
             className={`
             ${sidebarOpen ? "w-[260px]" : "w-[80px]"}
-            hidden md:flex flex-col min-h-screen
+            
+            hidden md:flex flex-col h-screen sticky top-0
             border-r border-slate-200 dark:border-slate-800
             bg-white dark:bg-slate-900
             transition-all duration-300 ease-in-out
@@ -74,7 +83,7 @@ export default function Sidebar({ sidebarOpen }) {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 overflow-y-auto py-3 scrollbar-thin">
+            <nav className="flex-1 overflow-y-auto overscroll-contain py-3 custom-scrollbar h-full">
                 {menuNavigation.map((section, index) => {
                     const hasPermission = section.details.some(
                         (detail) => detail.permissions === true
@@ -137,7 +146,7 @@ export default function Sidebar({ sidebarOpen }) {
             {sidebarOpen && (
                 <div className="p-4 border-t border-slate-100 dark:border-slate-800">
                     <p className="text-[10px] text-slate-400 dark:text-slate-600 text-center">
-                        Point of Sales v1.0
+                        Pilates v1.0
                     </p>
                 </div>
             )}

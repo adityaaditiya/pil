@@ -26,3 +26,14 @@ body {
 .hero-wellness-gradient {
     background: linear-gradient(145deg, var(--warm-beige) 0%, #f2e8dc 55%, var(--soft-beige) 100%);
 }
+
+/* Sembunyikan scrollbar untuk Chrome, Safari dan Opera */
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sembunyikan scrollbar untuk IE, Edge dan Firefox */
+.custom-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
