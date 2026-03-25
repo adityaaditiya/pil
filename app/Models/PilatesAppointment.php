@@ -58,4 +58,9 @@ class PilatesAppointment extends Model
         return $this->belongsToMany(Trainer::class, 'appointment_trainer')
             ->withTimestamps();
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(AppointmentBooking::class, 'appointment_id');
+    }
 }

@@ -139,13 +139,6 @@ const contactInfo = {
     mapsEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.267416072759!2d109.13153807480896!3d-6.858518693139926!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e6fb73855438ee5%3A0x9a72d2d730a422fc!2sOro%20Padel%20Tegal!5e0!3m2!1sid!2sid!4v1773433907949!5m2!1sid!2sid",
 };
 
-const appointmentServices = [
-    { id: "private", name: "Private Class", duration: "60 menit", price: 350000, description: "Sesi 1-on-1 dengan program latihan personal." },
-    { id: "duet", name: "Duet Private", duration: "60 menit", price: 500000, description: "Latihan privat berdua dengan fokus yang tetap terarah." },
-    { id: "group", name: "Group Class", duration: "60 menit", price: 185000, description: "Kelas kelompok kecil untuk latihan yang dinamis dan suportif." },
-];
-
-const appointmentHours = ["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"];
 const getDaysInMonth = (year, month) => {
     const date = new Date(year, month, 1);
     const days = [];
@@ -168,6 +161,8 @@ export default function WelcomeSection({
     trainers = [],
     paymentGateways = [],
     appointmentClasses = [],
+    appointmentSlots = [],
+    appointmentSessionOptions = [],
     initialFilters = {},
 }) {
     const [showFilters, setShowFilters] = useState(false);
@@ -181,7 +176,7 @@ export default function WelcomeSection({
     const { auth } = usePage().props;
     // Di dekat useRef lainnya
     const dateInputRef = useRef(null); // Tambahkan ini
-    const [selectedServiceId, setSelectedServiceId] = useState(appointmentServices[0].id);
+    const [selectedServiceId, setSelectedServiceId] = useState(appointmentSessionOptions[0]?.id || "");
     const [selectedTrainerId, setSelectedTrainerId] = useState(trainers[0] ? String(trainers[0].id) : "");
     const [selectedAppointmentClassId, setSelectedAppointmentClassId] = useState("");
     const [selectedAppointmentDate, setSelectedAppointmentDate] = useState("");
@@ -469,25 +464,18 @@ useEffect(() => {
         description: classItem.about || "belum ada deskripsi",
     })), [appointmentClasses]);
 
-    const appointmentSchedules = useMemo(() => {
-        return schedules.filter((item) => {
-            const trainerMatches = !selectedTrainerId || String(item.trainer_id ?? item.trainer?.id) === selectedTrainerId;
-            const classMatches = !selectedAppointmentClassId || String(item.pilates_class?.id) === selectedAppointmentClassId;
-
-            return trainerMatches && classMatches;
-        });
-    }, [schedules, selectedTrainerId, selectedAppointmentClassId]);
-
     const appointmentDates = useMemo(() => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const uniqueDates = [...new Set(
+            appointmentSlots
+                .filter((slot) => slot?.is_available)
+                .map((slot) => slot?.date_key)
+                .filter(Boolean)
+        )];
 
-        return Array.from({ length: 14 }, (_, index) => {
-            const next = new Date(today);
-            next.setDate(today.getDate() + index);
-            return next;
-        });
-    }, []);
+        return uniqueDates
+            .map((dateKey) => new Date(`${dateKey}T00:00:00`))
+            .sort((a, b) => a - b);
+    }, [appointmentSlots]);
 
     useEffect(() => {
         if (pageKey !== "appointment") {
@@ -499,24 +487,96 @@ useEffect(() => {
         }
     }, [pageKey, selectedAppointmentDate, appointmentDates]);
 
-    const selectedService = useMemo(() => appointmentServices.find((service) => service.id === selectedServiceId) || appointmentServices[0], [selectedServiceId]);
+    const appointmentServices = useMemo(() => appointmentSessionOptions.map((option) => {
+        const isRange = Number(option.price_min) !== Number(option.price_max);
 
-    const occupiedAppointmentHours = useMemo(() => {
+        return {
+            id: String(option.id),
+            name: option.name,
+            description: option.description || "Sesi latihan pilates tersedia sesuai jadwal appointment.",
+            paymentMethods: option.payment_methods || [],
+            price: Number(option.price_min || 0),
+            priceLabel: isRange
+                ? `${formatRupiah(option.price_min)} - ${formatRupiah(option.price_max)}`
+                : formatRupiah(option.price_min),
+        };
+    }), [appointmentSessionOptions]);
+
+    const selectedService = useMemo(() => appointmentServices.find((service) => service.id === selectedServiceId) || appointmentServices[0], [selectedServiceId, appointmentServices]);
+
+    const filteredAppointmentSlots = useMemo(() => {
+        const now = new Date();
+
+        return appointmentSlots.filter((slot) => {
+            if (!slot?.is_available) {
+                return false;
+            }
+
+            if (selectedServiceId && !(slot.session_options || []).some((option) => String(option.appointment_session_id) === String(selectedServiceId))) {
+                return false;
+            }
+
+            if (selectedAppointmentClassId && String(slot.pilates_class_id) !== String(selectedAppointmentClassId)) {
+                return false;
+            }
+
+            if (selectedTrainerId && !(slot.trainer_ids || []).includes(String(selectedTrainerId))) {
+                return false;
+            }
+
+            if (!slot.date_key || !slot.start_time) {
+                return false;
+            }
+
+            const slotDateTime = new Date(`${slot.date_key}T${slot.start_time}:00`);
+            return slotDateTime >= now;
+        });
+    }, [appointmentSlots, selectedServiceId, selectedAppointmentClassId, selectedTrainerId]);
+
+    const availableDateKeys = useMemo(() => [...new Set(filteredAppointmentSlots.map((slot) => slot.date_key))], [filteredAppointmentSlots]);
+
+    const availableAppointmentHours = useMemo(() => {
         if (!selectedAppointmentDate) {
             return [];
         }
 
-        return appointmentSchedules
-            .filter((item) => {
-                const itemDateKey = getDateKey(item.start_at);
-                const trainerMatches = selectedTrainerId === "any" || String(item.trainer_id ?? item.trainer?.id) === selectedTrainerId;
+        return [...new Set(
+            filteredAppointmentSlots
+                .filter((slot) => slot.date_key === selectedAppointmentDate)
+                .map((slot) => slot.start_time)
+                .filter(Boolean)
+        )].sort();
+    }, [filteredAppointmentSlots, selectedAppointmentDate]);
 
-                return itemDateKey === selectedAppointmentDate && trainerMatches;
-            })
-            .map((item) => new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(item.start_at)));
-    }, [appointmentSchedules, selectedAppointmentDate, selectedTrainerId]);
+    const selectedAppointmentSlot = useMemo(() => {
+        if (!selectedAppointmentDate || !selectedAppointmentTime) {
+            return null;
+        }
 
-    const availableAppointmentHours = useMemo(() => appointmentHours.filter((hour) => !occupiedAppointmentHours.includes(hour)), [occupiedAppointmentHours]);
+        return filteredAppointmentSlots.find((slot) => (
+            slot.date_key === selectedAppointmentDate && slot.start_time === selectedAppointmentTime
+        )) || null;
+    }, [filteredAppointmentSlots, selectedAppointmentDate, selectedAppointmentTime]);
+
+    useEffect(() => {
+        if (pageKey !== "appointment") {
+            return;
+        }
+
+        if (!selectedServiceId && appointmentServices[0]) {
+            setSelectedServiceId(appointmentServices[0].id);
+        }
+    }, [pageKey, selectedServiceId, appointmentServices]);
+
+    useEffect(() => {
+        if (pageKey !== "appointment") {
+            return;
+        }
+
+        if (!selectedAppointmentDate || !availableDateKeys.includes(selectedAppointmentDate)) {
+            setSelectedAppointmentDate(availableDateKeys[0] || "");
+        }
+    }, [pageKey, selectedAppointmentDate, availableDateKeys]);
 
     useEffect(() => {
         if (pageKey !== "appointment") {
@@ -549,13 +609,29 @@ useEffect(() => {
         }
     }, [pageKey, appointmentTrainerChoices, selectedTrainerId]);
 
-    const selectedAppointmentTrainer = appointmentTrainerChoices.find((trainer) => trainer.id === selectedTrainerId) || appointmentTrainerChoices[0];
+    const selectedAppointmentTrainer = selectedAppointmentSlot
+        ? { name: selectedAppointmentSlot.trainer_names?.join(", ") || "-" }
+        : (appointmentTrainerChoices.find((trainer) => trainer.id === selectedTrainerId) || appointmentTrainerChoices[0]);
     const selectedAppointmentDateLabel = selectedAppointmentDate
         ? formatSectionDate(new Date(`${selectedAppointmentDate}T00:00:00`))
         : "Pilih tanggal";
-    const appointmentPaymentLabels = paymentGateways.length > 0
-        ? paymentGateways.map((gateway) => gateway.label || gateway.name || gateway.value)
-        : ["Payment gateway drop-in"];
+    const appointmentPaymentLabels = useMemo(() => {
+        const methods = selectedService?.paymentMethods || [];
+        const labels = [];
+
+        if (methods.includes("credit_only")) {
+            labels.push("Credit Membership");
+        }
+
+        if (methods.includes("allow_drop_in")) {
+            const gatewayLabels = paymentGateways.length > 0
+                ? paymentGateways.map((gateway) => gateway.label || gateway.name || gateway.value)
+                : ["Payment gateway drop-in"];
+            labels.push(...gatewayLabels);
+        }
+
+        return [...new Set(labels)];
+    }, [selectedService, paymentGateways]);
 
 
     return (
@@ -911,7 +987,7 @@ useEffect(() => {
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-base font-semibold">{service.name}</span>
                                                         <span className="shrink-0 rounded-full bg-white px-2 py-1 text-xs font-medium text-primary-700 shadow-sm border border-primary-100">
-                                                            {service.duration}
+                                                            Opsi Sesi
                                                         </span>
                                                     </div>
 
@@ -921,7 +997,7 @@ useEffect(() => {
 
                                                     <div className="mt-4 flex items-center justify-between">
                                                         <span className="font-bold text-lg text-primary-700">
-                                                            {formatRupiah(service.price)}
+                                                            {service.priceLabel}
                                                         </span>
                                                         {isActive && (
                                                             <div className="h-2 w-2 rounded-full bg-primary-500 shadow-[0_0_8px_rgba(var(--primary-500),0.6)]" />
@@ -1065,16 +1141,20 @@ useEffect(() => {
                                             const dateKey = getDateKey(date);
                                             const isActive = dateKey === selectedAppointmentDate;
                                             const isToday = getDateKey(new Date()) === dateKey;
+                                            const isAvailableDate = availableDateKeys.includes(dateKey);
 
                                             return (
                                                 <button
                                                     key={dateKey}
                                                     type="button"
-                                                    onClick={() => setSelectedAppointmentDate(dateKey)}
+                                                    onClick={() => isAvailableDate && setSelectedAppointmentDate(dateKey)}
+                                                    disabled={!isAvailableDate}
                                                     className={`relative flex h-10 w-full items-center justify-center text-sm transition-all
                                                         ${isActive 
                                                             ? "font-bold text-primary-400 after:absolute after:bottom-1 after:h-1 after:w-1 after:rounded-full after:bg-primary-500" 
-                                                            : "text-slate-700 hover:text-primary-500 hover:bg-primary-50/5 rounded-lg"
+                                                            : isAvailableDate
+                                                                ? "text-slate-700 hover:text-primary-500 hover:bg-primary-50/5 rounded-lg"
+                                                                : "cursor-not-allowed text-slate-300"
                                                         }
                                                         ${isToday && !isActive ? "text-slate-700 font-bold" : ""}
                                                     `}
@@ -1148,11 +1228,11 @@ useEffect(() => {
                                     <div className="mt-5 space-y-4 rounded-3xl bg-primary-50/60 p-5">
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Sesi</p>
-                                            <p className="text-base font-semibold text-wellness-text">{selectedService.name}</p>
+                                            <p className="text-base font-semibold text-wellness-text">{selectedService?.name || "-"}</p>
                                         </div>
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Kelas</p>
-                                            <p className="text-base font-semibold text-wellness-text">{appointmentClassOptions.find((category) => category.id === selectedAppointmentClassId)?.name || "-"}</p>
+                                            <p className="text-base font-semibold text-wellness-text">{selectedAppointmentSlot?.pilates_class_name || appointmentClassOptions.find((category) => category.id === selectedAppointmentClassId)?.name || "-"}</p>
                                         </div>
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Trainer</p>
@@ -1164,7 +1244,11 @@ useEffect(() => {
                                         </div>
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Harga</p>
-                                            <p className="text-lg font-bold text-primary-700">{formatRupiah(selectedService.price)}</p>
+                                            <p className="text-lg font-bold text-primary-700">{selectedService?.priceLabel || "-"}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Metode pembayaran</p>
+                                            <p className="text-base font-semibold text-wellness-text">{appointmentPaymentLabels.join(", ") || "-"}</p>
                                         </div>
                                     </div>
 
