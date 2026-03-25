@@ -189,7 +189,13 @@ export default function Edit({ classes = [], trainers = [], appointment, appoint
     const updateSessionField = (sessionId, field, value) => {
         const normalizedId = String(sessionId);
         setData("session_options", normalizedSessionOptions.map((item) => (
-            item.appointment_session_id === normalizedId ? { ...item, [field]: value } : item
+            item.appointment_session_id === normalizedId
+                ? {
+                    ...item,
+                    [field]: value,
+                    ...(field === "payment_method" && value === "credit_only" ? { price_drop_in: "0" } : {}),
+                }
+                : item
         )));
     };
 
@@ -313,7 +319,8 @@ export default function Edit({ classes = [], trainers = [], appointment, appoint
                                                                     value={selectedOption.price_drop_in ?? ""}
                                                                     onChange={(event) => updateSessionField(item.id, "price_drop_in", event.target.value)}
                                                                     placeholder="Harga drop-in"
-                                                                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
+                                                                    disabled={(selectedOption.payment_method || "allow_drop_in") === "credit_only"}
+                                                                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800"
                                                                 />
                                                                 <input
                                                                     type="number"
