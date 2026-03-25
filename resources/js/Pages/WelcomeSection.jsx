@@ -185,6 +185,7 @@ export default function WelcomeSection({
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [selectedAppointmentPaymentType, setSelectedAppointmentPaymentType] = useState("credit");
     const [selectedAppointmentPaymentGateway, setSelectedAppointmentPaymentGateway] = useState(paymentGateways[0]?.value || "");
+    const [appointmentSearchMessage, setAppointmentSearchMessage] = useState("");
 
     const calendarDays = useMemo(() => {
         return getDaysInMonth(currentYear, currentMonth);
@@ -536,6 +537,10 @@ useEffect(() => {
     }, [appointmentSlots, selectedServiceId, selectedAppointmentClassId, selectedTrainerId]);
 
     const availableDateKeys = useMemo(() => [...new Set(filteredAppointmentSlots.map((slot) => slot.date_key))], [filteredAppointmentSlots]);
+    const sortedAvailableDateKeys = useMemo(
+        () => [...availableDateKeys].sort((a, b) => new Date(`${a}T00:00:00`) - new Date(`${b}T00:00:00`)),
+        [availableDateKeys]
+    );
 
     const availableAppointmentHours = useMemo(() => {
         if (!selectedAppointmentDate) {
@@ -591,6 +596,20 @@ useEffect(() => {
     }, [pageKey, availableAppointmentHours, selectedAppointmentTime]);
 
     useEffect(() => {
+        if (pageKey !== "appointment" || !selectedAppointmentDate) {
+            return;
+        }
+
+        const selectedDate = new Date(`${selectedAppointmentDate}T00:00:00`);
+        if (Number.isNaN(selectedDate.getTime())) {
+            return;
+        }
+
+        setCurrentMonth(selectedDate.getMonth());
+        setCurrentYear(selectedDate.getFullYear());
+    }, [pageKey, selectedAppointmentDate]);
+
+    useEffect(() => {
         if (pageKey !== "appointment") {
             return;
         }
@@ -610,6 +629,14 @@ useEffect(() => {
             setSelectedTrainerId(appointmentTrainerChoices[0]?.id || "");
         }
     }, [pageKey, appointmentTrainerChoices, selectedTrainerId]);
+
+    useEffect(() => {
+        if (pageKey !== "appointment") {
+            return;
+        }
+
+        setAppointmentSearchMessage("");
+    }, [pageKey, selectedServiceId, selectedAppointmentClassId, selectedTrainerId, selectedAppointmentDate]);
 
     const selectedAppointmentTrainer = selectedAppointmentSlot
         ? { name: selectedAppointmentSlot.trainer_names?.join(", ") || "-" }
@@ -631,6 +658,28 @@ useEffect(() => {
     const canShowAppointmentPrice = Boolean(selectedAppointmentSlot && selectedAppointmentClassId && selectedTrainerId && selectedAppointmentTime);
     const appointmentDropInPrice = Number(selectedAppointmentSessionOption?.price_drop_in || 0);
     const appointmentDurationMinutes = Number(selectedAppointmentSlot?.duration_minutes || 0);
+
+    const handleFindOtherSchedule = () => {
+        setAppointmentSearchMessage("");
+
+        const baseDate = selectedAppointmentDate
+            ? new Date(`${selectedAppointmentDate}T00:00:00`)
+            : new Date();
+
+        const nearestDateKey = sortedAvailableDateKeys.find((dateKey) => (
+            new Date(`${dateKey}T00:00:00`) >= baseDate
+        )) || sortedAvailableDateKeys[0];
+
+        if (!nearestDateKey) {
+            setAppointmentSearchMessage("Maaf, semua kelas penuh");
+            return;
+        }
+
+        const nearestDate = new Date(`${nearestDateKey}T00:00:00`);
+        setCurrentMonth(nearestDate.getMonth());
+        setCurrentYear(nearestDate.getFullYear());
+        setSelectedAppointmentDate(nearestDateKey);
+    };
 
     const appointmentPaymentConfig = useMemo(() => {
         const paymentMethod = selectedAppointmentSessionOption?.payment_method || "";
@@ -1240,8 +1289,20 @@ useEffect(() => {
                                                         );
                                                     })
                                                 ) : (
-                                                    <div className="col-span-2 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-wellness-muted">
-                                                        Tidak ada jam tersedia.
+                                                    <div className="col-span-2 space-y-3">
+                                                        <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-wellness-muted">
+                                                            Tidak ada jam tersedia.
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleFindOtherSchedule}
+                                                            className="w-full rounded-2xl border border-primary-200 bg-primary-50 px-4 py-3 text-sm font-semibold text-primary-700 transition hover:border-primary-300 hover:bg-primary-100"
+                                                        >
+                                                            Cari Jadwal Lainnya
+                                                        </button>
+                                                        {appointmentSearchMessage ? (
+                                                            <p className="text-center text-sm font-medium text-rose-600">{appointmentSearchMessage}</p>
+                                                        ) : null}
                                                     </div>
                                                 )}
                                             </div>
