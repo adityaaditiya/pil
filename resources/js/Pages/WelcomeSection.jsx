@@ -987,7 +987,7 @@ useEffect(() => {
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-base font-semibold">{service.name}</span>
                                                         <span className="shrink-0 rounded-full bg-white px-2 py-1 text-xs font-medium text-primary-700 shadow-sm border border-primary-100">
-                                                            Opsi Sesi
+                                                            {service.duration_minutes} menit
                                                         </span>
                                                     </div>
 
@@ -1190,7 +1190,7 @@ useEffect(() => {
                                                     })
                                                 ) : (
                                                     <div className="col-span-2 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-wellness-muted">
-                                                        Tidak ada slot kosong.
+                                                        Tidak ada jam tersedia.
                                                     </div>
                                                 )}
                                             </div>
