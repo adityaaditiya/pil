@@ -1297,17 +1297,17 @@ useEffect(() => {
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Harga</p>
                                             <p className="text-lg font-bold text-primary-700">{canShowAppointmentPrice ? formatRupiah(appointmentDropInPrice) : "-"}{canShowAppointmentPrice && appointmentDurationMinutes > 0 ? ` • ${appointmentDurationMinutes} menit` : ""}</p>
                                         </div>
-                                        <div>
+                                        {/* <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Metode pembayaran</p>
                                             <p className="text-base font-semibold text-wellness-text">{appointmentSummaryPaymentLabel}</p>
-                                        </div>
+                                        </div> */}
                                     </div>
 
                                     <div className="mt-6 space-y-3">
                                         <div className="rounded-2xl border border-primary-100 p-4">
                                             <p className="text-sm font-semibold text-wellness-text">Metode Pembayaran</p>
                                             {!canShowAppointmentPrice ? (
-                                                <p className="mt-2 text-sm text-wellness-muted">Pilih kelas, trainer, dan jam terlebih dahulu untuk melihat opsi pembayaran.</p>
+                                                <p className="mt-2 text-sm text-wellness-muted">Pilih kelas, trainer, dan jam terlebih dahulu untuk melakukan pembayaran.</p>
                                             ) : (
                                                 <div className="mt-3 space-y-3">
                                                     {appointmentPaymentConfig.canUseCredit && (
