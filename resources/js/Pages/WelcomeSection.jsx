@@ -185,6 +185,7 @@ export default function WelcomeSection({
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [selectedAppointmentPaymentType, setSelectedAppointmentPaymentType] = useState("credit");
     const [selectedAppointmentPaymentGateway, setSelectedAppointmentPaymentGateway] = useState(paymentGateways[0]?.value || "");
+    const [appointmentSearchMessage, setAppointmentSearchMessage] = useState("");
 
     const calendarDays = useMemo(() => {
         return getDaysInMonth(currentYear, currentMonth);
@@ -550,6 +551,16 @@ useEffect(() => {
         )].sort();
     }, [filteredAppointmentSlots, selectedAppointmentDate]);
 
+    const nearestAppointmentDateKey = useMemo(() => {
+        const sortedDateKeys = [...new Set(
+            filteredAppointmentSlots
+                .map((slot) => slot.date_key)
+                .filter(Boolean)
+        )].sort();
+
+        return sortedDateKeys.find((dateKey) => dateKey !== selectedAppointmentDate) || "";
+    }, [filteredAppointmentSlots, selectedAppointmentDate]);
+
     const selectedAppointmentSlot = useMemo(() => {
         if (!selectedAppointmentDate || !selectedAppointmentTime) {
             return null;
@@ -589,6 +600,16 @@ useEffect(() => {
             setSelectedAppointmentTime(availableAppointmentHours[0] || "");
         }
     }, [pageKey, availableAppointmentHours, selectedAppointmentTime]);
+
+    useEffect(() => {
+        if (pageKey !== "appointment") {
+            return;
+        }
+
+        if (appointmentSearchMessage) {
+            setAppointmentSearchMessage("");
+        }
+    }, [pageKey, selectedServiceId, selectedAppointmentClassId, selectedTrainerId, selectedAppointmentDate]);
 
     useEffect(() => {
         if (pageKey !== "appointment") {
@@ -690,6 +711,32 @@ useEffect(() => {
 
         return "-";
     }, [canShowAppointmentPrice, selectedAppointmentSessionOption, selectedAppointmentPaymentType, appointmentPaymentConfig, selectedDropInGatewayLabel]);
+
+    const handleFindNearestSchedule = () => {
+        const targetDateKey = nearestAppointmentDateKey;
+
+        if (!targetDateKey) {
+            setAppointmentSearchMessage("Maaf, semua kelas penuh.");
+            return;
+        }
+
+        const date = new Date(`${targetDateKey}T00:00:00`);
+        if (!Number.isNaN(date.getTime())) {
+            setCurrentMonth(date.getMonth());
+            setCurrentYear(date.getFullYear());
+        }
+
+        const targetHours = [...new Set(
+            filteredAppointmentSlots
+                .filter((slot) => slot.date_key === targetDateKey)
+                .map((slot) => slot.start_time)
+                .filter(Boolean)
+        )].sort();
+
+        setSelectedAppointmentDate(targetDateKey);
+        setSelectedAppointmentTime(targetHours[0] || "");
+        setAppointmentSearchMessage("");
+    };
 
 
     return (
@@ -1240,8 +1287,18 @@ useEffect(() => {
                                                         );
                                                     })
                                                 ) : (
-                                                    <div className="col-span-2 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-wellness-muted">
-                                                        Tidak ada jam tersedia.
+                                                    <div className="col-span-2 space-y-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-wellness-muted">
+                                                        <p>Tidak ada jam tersedia.</p>
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleFindNearestSchedule}
+                                                            className="inline-flex items-center justify-center rounded-xl border border-primary-200 bg-white px-4 py-2 text-sm font-semibold text-primary-700 transition hover:border-primary-300 hover:bg-primary-50"
+                                                        >
+                                                            Cari Jadwal Terdekat
+                                                        </button>
+                                                        {appointmentSearchMessage && (
+                                                            <p className="text-sm font-medium text-rose-600">{appointmentSearchMessage}</p>
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>
