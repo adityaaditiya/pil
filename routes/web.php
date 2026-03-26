@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Apps\CategoryController;
 use App\Http\Controllers\AppointmentSessionController;
+use App\Http\Controllers\AppointmentBookingHistoryController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Apps\CashEntryController;
 use App\Http\Controllers\Apps\ClassCategoryController;
@@ -188,6 +189,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('bookings/history', [PilatesBookingHistoryController::class, 'index'])
         ->middleware('permission:dashboard-access')
         ->name('bookings.history');
+    Route::get('appointments/history', [AppointmentBookingHistoryController::class, 'index'])
+        ->middleware('permission:dashboard-access')
+        ->name('appointments.history');
     Route::get('bookings/{invoice}/print', [PilatesBookingHistoryController::class, 'print'])
         ->middleware('permission:dashboard-access')
         ->name('bookings.print');
