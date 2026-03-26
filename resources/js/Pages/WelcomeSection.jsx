@@ -648,6 +648,7 @@ useEffect(() => {
 
     const canShowAppointmentPrice = Boolean(selectedAppointmentSlot && selectedAppointmentClassId && selectedTrainerId && selectedAppointmentTime);
     const appointmentDropInPrice = Number(selectedAppointmentSessionOption?.price_drop_in || 0);
+    const appointmentCreditPrice = Number(selectedAppointmentSessionOption?.price_credit || 0);
     const appointmentDurationMinutes = Number(selectedAppointmentSlot?.duration_minutes || 0);
 
     const appointmentPaymentConfig = useMemo(() => {
@@ -1414,19 +1415,9 @@ useEffect(() => {
                                                                                     </option>
                                                                                 ))}
                                                                             </select>
-                                                                            {membershipOptionsForSelectedClass.find((membership) => membership.id === selectedAppointmentMembershipId)?.expiresAt && (
-                                                                                // <p className="text-xs text-wellness-muted">
-                                                                                //     Berlaku sampai {membershipOptionsForSelectedClass.find((membership) => membership.id === selectedAppointmentMembershipId)?.expiresAt} WIB
-                                                                                // </p>
-                                                                                <p className="text-xs text-wellness-muted">
-                                                                                    {membershipOptionsForSelectedClass.map((membership) => (
-                                                                                    <option key={membership.id} value={membership.id}>
-                                                                                        biaya {membership.creditCost} credits / sesi
-                                                                                    </option>
-                                                                                ))}
-                                                                                    
-                                                                                </p>
-                                                                            )}
+                                                                            <p className="text-xs text-wellness-muted">
+                                                                                Biaya {appointmentCreditPrice} credits / sesi
+                                                                            </p>
                                                                         </div>
                                                                     ) : (
                                                                         <Link href={route("welcome.page", "pricing")} className="mt-2 inline-flex items-center text-sm font-semibold text-primary-700 hover:text-primary-800">
