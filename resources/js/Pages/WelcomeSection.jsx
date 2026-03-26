@@ -216,6 +216,17 @@ export default function WelcomeSection({
     };
     const [selectedAppointmentTime, setSelectedAppointmentTime] = useState("");
 
+    useEffect(() => {
+        if (pageKey === "appointment" && selectedAppointmentDate) {
+            const dateObj = new Date(selectedAppointmentDate);
+            // Pastikan date valid sebelum update state
+            if (!isNaN(dateObj.getTime())) {
+                setCurrentMonth(dateObj.getMonth());
+                setCurrentYear(dateObj.getFullYear());
+            }
+        }
+    }, [selectedAppointmentDate, pageKey]);
+
     const handleCalendarChange = (e) => {
     const selectedDate = e.target.value; // Format: YYYY-MM-DD
     if (selectedDate) {
