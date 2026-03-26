@@ -192,6 +192,12 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('appointments/history', [AppointmentBookingHistoryController::class, 'index'])
         ->middleware('permission:dashboard-access')
         ->name('appointments.history');
+    Route::get('appointments/{invoice}/print', [AppointmentBookingHistoryController::class, 'print'])
+        ->middleware('permission:dashboard-access')
+        ->name('appointments.print');
+    Route::delete('appointments/{booking}/cancel', [AppointmentBookingHistoryController::class, 'cancel'])
+        ->middleware('permission:dashboard-access')
+        ->name('appointments.cancel');
     Route::get('bookings/{invoice}/print', [PilatesBookingHistoryController::class, 'print'])
         ->middleware('permission:dashboard-access')
         ->name('bookings.print');

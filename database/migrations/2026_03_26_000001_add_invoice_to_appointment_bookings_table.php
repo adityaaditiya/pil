@@ -10,6 +10,8 @@ return new class extends Migration
     {
         Schema::table('appointment_bookings', function (Blueprint $table) {
             $table->string('invoice', 14)->nullable()->after('customer_id')->unique();
+            $table->foreignId('user_membership_id')->nullable()->after('payment_method')->constrained('user_memberships')->nullOnDelete();
+            $table->unsignedInteger('credit_used')->default(0)->after('user_membership_id');
         });
     }
 
@@ -17,7 +19,8 @@ return new class extends Migration
     {
         Schema::table('appointment_bookings', function (Blueprint $table) {
             $table->dropUnique('appointment_bookings_invoice_unique');
-            $table->dropColumn('invoice');
+            $table->dropConstrainedForeignId('user_membership_id');
+            $table->dropColumn(['invoice', 'credit_used']);
         });
     }
 };

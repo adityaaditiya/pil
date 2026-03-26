@@ -448,14 +448,15 @@ class PilatesAppointmentController extends Controller
         ]);
 
         $alreadyBooked = AppointmentBooking::where('appointment_id', $appointment->id)
-        ->where('customer_id', $validated['customer_id'])
-        ->exists();
+            ->where('customer_id', $validated['customer_id'])
+            ->where('status', '!=', 'cancelled')
+            ->exists();
 
-    if ($alreadyBooked) {
-        throw ValidationException::withMessages([
-            'customer_id' => 'Pelanggan ini sudah terdaftar di jadwal ini. Tidak bisa double booking.',
-        ]);
-    }
+        if ($alreadyBooked) {
+            throw ValidationException::withMessages([
+                'customer_id' => 'Pelanggan ini sudah terdaftar di jadwal ini. Tidak bisa double booking.',
+            ]);
+        }
 
         $sessionOptions = collect($appointment->session_options ?? []);
         $selectedSession = $sessionOptions
@@ -516,6 +517,10 @@ class PilatesAppointmentController extends Controller
         }
 
         DB::transaction(function () use ($appointment, $validated, $selectedSession, $selectedMembership) {
+            $creditUsed = $validated['payment_type'] === 'credit'
+                ? (int) ($selectedSession['price_credit'] ?? 0)
+                : 0;
+
             AppointmentBooking::query()->create([
                 'appointment_id' => $appointment->id,
                 'customer_id' => $validated['customer_id'],
@@ -526,12 +531,14 @@ class PilatesAppointmentController extends Controller
                     : 0,
                 'payment_type' => $validated['payment_type'],
                 'payment_method' => $validated['payment_method'],
+                'user_membership_id' => $selectedMembership?->id,
+                'credit_used' => $creditUsed,
                 'booked_at' => now(),
                 'status' => 'confirmed',
             ]);
 
             if ($validated['payment_type'] === 'credit' && $selectedMembership) {
-                $selectedMembership->decrement('credits_remaining', (int) ($selectedSession['price_credit'] ?? 0));
+                $selectedMembership->decrement('credits_remaining', $creditUsed);
             }
         });
 

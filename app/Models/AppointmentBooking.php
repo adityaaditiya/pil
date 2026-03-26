@@ -19,6 +19,8 @@ class AppointmentBooking extends Model
         'price_amount',
         'payment_type',
         'payment_method',
+        'user_membership_id',
+        'credit_used',
         'booked_at',
         'status',
     ];
@@ -26,6 +28,7 @@ class AppointmentBooking extends Model
     protected $casts = [
         'booked_at' => 'datetime',
         'price_amount' => 'decimal:2',
+        'credit_used' => 'integer',
     ];
 
     protected static function booted(): void
@@ -54,5 +57,10 @@ class AppointmentBooking extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function userMembership()
+    {
+        return $this->belongsTo(UserMembership::class);
     }
 }

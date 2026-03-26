@@ -295,6 +295,7 @@ class StudioPageController extends Controller
         $alreadyBooked = AppointmentBooking::query()
             ->where('appointment_id', $appointment->id)
             ->where('customer_id', $customer->id)
+            ->where('status', '!=', 'cancelled')
             ->exists();
 
         if ($alreadyBooked) {
@@ -365,6 +366,11 @@ class StudioPageController extends Controller
         }
 
         DB::transaction(function () use ($appointment, $validated, $selectedSession, $selectedMembership, $customer) {
+            $creditUsed = 0;
+            if ($validated['payment_type'] === 'credit' && $selectedMembership) {
+                $creditUsed = (int) (($selectedMembership->plan?->classRules?->first()?->credit_cost) ?? 0);
+            }
+
             AppointmentBooking::query()->create([
                 'appointment_id' => $appointment->id,
                 'customer_id' => $customer->id,
@@ -377,13 +383,14 @@ class StudioPageController extends Controller
                 'payment_method' => $validated['payment_type'] === 'credit'
                     ? 'credits'
                     : ($validated['payment_method'] ?? 'cash'),
+                'user_membership_id' => $selectedMembership?->id,
+                'credit_used' => $creditUsed,
                 'booked_at' => now(),
                 'status' => 'confirmed',
             ]);
 
             if ($validated['payment_type'] === 'credit' && $selectedMembership) {
-                $creditCost = (int) (($selectedMembership->plan?->classRules?->first()?->credit_cost) ?? 0);
-                $selectedMembership->decrement('credits_remaining', $creditCost);
+                $selectedMembership->decrement('credits_remaining', $creditUsed);
             }
         });
 
