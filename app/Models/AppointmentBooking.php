@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class AppointmentBooking extends Model
 {
@@ -12,11 +13,14 @@ class AppointmentBooking extends Model
     protected $fillable = [
         'appointment_id',
         'customer_id',
+        'invoice',
         'appointment_session_id',
         'session_name',
         'price_amount',
         'payment_type',
         'payment_method',
+        'user_membership_id',
+        'credit_used',
         'booked_at',
         'status',
     ];
@@ -24,7 +28,26 @@ class AppointmentBooking extends Model
     protected $casts = [
         'booked_at' => 'datetime',
         'price_amount' => 'decimal:2',
+        'credit_used' => 'integer',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $booking) {
+            if (! $booking->invoice) {
+                $booking->invoice = self::generateInvoice();
+            }
+        });
+    }
+
+    public static function generateInvoice(): string
+    {
+        do {
+            $invoice = 'APT-' . strtoupper(Str::random(10));
+        } while (self::query()->where('invoice', $invoice)->exists());
+
+        return $invoice;
+    }
 
     public function appointment()
     {
@@ -34,5 +57,10 @@ class AppointmentBooking extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function userMembership()
+    {
+        return $this->belongsTo(UserMembership::class);
     }
 }

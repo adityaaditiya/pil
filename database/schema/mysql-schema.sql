@@ -11,21 +11,27 @@ CREATE TABLE `appointment_bookings` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `appointment_id` bigint(20) unsigned NOT NULL,
   `customer_id` bigint(20) unsigned NOT NULL,
+  `invoice` varchar(14) DEFAULT NULL,
   `appointment_session_id` bigint(20) unsigned DEFAULT NULL,
   `session_name` varchar(255) DEFAULT NULL,
   `price_amount` decimal(12,2) NOT NULL DEFAULT 0.00,
   `payment_type` varchar(255) DEFAULT NULL,
   `payment_method` varchar(255) NOT NULL DEFAULT 'cash',
+  `user_membership_id` bigint(20) unsigned DEFAULT NULL,
+  `credit_used` int(10) unsigned NOT NULL DEFAULT 0,
   `status` enum('confirmed','cancelled') NOT NULL DEFAULT 'confirmed',
   `booked_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `appointment_bookings_appointment_id_customer_id_unique` (`appointment_id`,`customer_id`),
+  UNIQUE KEY `appointment_bookings_invoice_unique` (`invoice`),
   KEY `appointment_bookings_customer_id_foreign` (`customer_id`),
+  KEY `appointment_bookings_user_membership_id_foreign` (`user_membership_id`),
   KEY `appointment_bookings_appointment_id_status_index` (`appointment_id`,`status`),
   CONSTRAINT `appointment_bookings_appointment_id_foreign` FOREIGN KEY (`appointment_id`) REFERENCES `pilates_appointments` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `appointment_bookings_customer_id_foreign` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE
+  CONSTRAINT `appointment_bookings_customer_id_foreign` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `appointment_bookings_user_membership_id_foreign` FOREIGN KEY (`user_membership_id`) REFERENCES `user_memberships` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `appointment_sessions`;
