@@ -264,7 +264,7 @@ class StudioPageController extends Controller
                     'price_max' => $prices->last() ?? 0,
                 ];
             })
-            ->sortBy('name')
+            ->sortBy('id')
             ->values();
 
         return [

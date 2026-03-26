@@ -48,6 +48,11 @@ const fallbackMeta = {
         title: "Book Your Appointment",
         content: "Pilih layanan, trainer, tanggal, dan checkout sesi pilates Anda dengan alur booking yang praktis.",
     },
+    contact: {
+        name: "Contact",
+        title: "Konsultasi Personal",
+        content: "Dapatkan panduan latihan yang tepat. Hubungi tim ahli kami untuk mendiskusikan tujuan kebugaran dan postur tubuh Anda.",
+    },
 };
 
 const formatRupiah = (value) =>
@@ -1273,8 +1278,9 @@ useEffect(() => {
                                             );
                                         })}
                                     </div>
+                                
+                                {/* APPOINTMENT JAM */}
                                 </div>
-
                                         <div className="mt-0 rounded-3xl border border-primary-100 bg-white p-4 shadow-sm">
                                             <p className="text-sm font-medium text-slate-700">Jam tersedia</p>
                                             {/* grid-cols-2 memastikan 2 kolom di mobile, sm:grid-cols-3/4 untuk layar besar */}
@@ -1313,12 +1319,12 @@ useEffect(() => {
                                 </article>
                             </div>
 
-                            <aside className="space-y-6">
+                            <aside className="space-y-5">
                                 <article className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
                                     <h3 className="text-lg font-semibold">Ketentuan Pembatalan</h3>
-                                    <div className="mt-3 rounded-2xl border border-primary-100 p-4">
+                                    <div className="mt-3 rounded-3xl border border-primary-100 p-4">
                                             {/* <p className="text-sm font-semibold text-wellness-text">Metode pembayaran</p> */}
-                                            <ul className="mt-0 space-y-2 text-sm text-wellness-muted">
+                                            <ul className="space-y-2 text-sm text-wellness-muted">
                                                 <li className="flex items-start gap-2 text-justify"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Demi kenyamanan bersama, kami sangat menghargai kerja sama Anda untuk tidak melakukan pembatalan mendadak agar jadwal kelas tetap berjalan efektif.</li>
                                                 <li className="flex items-start gap-2 text-justify"><IconCheck size={16} className="mt-0.5 text-primary-600" /> Catatan: Pengembalian kredit/saldo hanya berlaku untuk pembatalan yang dilakukan maksimal 24 jam sebelum sesi dimulai. Pembatalan setelah melewati batas waktu tersebut akan dianggap hangus.</li>
                                             </ul>
