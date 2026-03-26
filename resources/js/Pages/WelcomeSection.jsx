@@ -648,7 +648,6 @@ useEffect(() => {
 
     const canShowAppointmentPrice = Boolean(selectedAppointmentSlot && selectedAppointmentClassId && selectedTrainerId && selectedAppointmentTime);
     const appointmentDropInPrice = Number(selectedAppointmentSessionOption?.price_drop_in || 0);
-    const appointmentCreditPrice = Number(selectedAppointmentSessionOption?.price_credit || 0);
     const appointmentDurationMinutes = Number(selectedAppointmentSlot?.duration_minutes || 0);
 
     const appointmentPaymentConfig = useMemo(() => {
@@ -721,7 +720,7 @@ useEffect(() => {
                     (item) => String(item.pilates_class_id) === String(selectedAppointmentClassId)
                 );
 
-                if (!rule) {
+                if (!rule || Number(rule.credit_cost || 0) <= 0) {
                     return null;
                 }
 
@@ -729,12 +728,12 @@ useEffect(() => {
                     id: String(membership.id),
                     planName: membership.plan_name,
                     creditsRemaining: Number(membership.credits_remaining || 0),
-                    creditCost: appointmentCreditPrice,
+                    creditCost: Number(rule.credit_cost || 0),
                     expiresAt: membership.expires_at,
                 };
             })
             .filter(Boolean);
-    }, [appointmentAvailableMemberships, selectedAppointmentClassId, appointmentCreditPrice]);
+    }, [appointmentAvailableMemberships, selectedAppointmentClassId]);
 
     useEffect(() => {
         if (!membershipOptionsForSelectedClass.some((membership) => membership.id === selectedAppointmentMembershipId)) {
@@ -1371,14 +1370,7 @@ useEffect(() => {
                                         </div>
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Harga</p>
-                                            <p className="text-lg font-bold text-primary-700">
-                                                {!canShowAppointmentPrice
-                                                    ? "-"
-                                                    : selectedAppointmentPaymentType === "credit"
-                                                        ? `${appointmentCreditPrice} credit / sesi`
-                                                        : formatRupiah(appointmentDropInPrice)}
-                                                {canShowAppointmentPrice && appointmentDurationMinutes > 0 ? ` • ${appointmentDurationMinutes} menit` : ""}
-                                            </p>
+                                            <p className="text-lg font-bold text-primary-700">{canShowAppointmentPrice ? formatRupiah(appointmentDropInPrice) : "-"}{canShowAppointmentPrice && appointmentDurationMinutes > 0 ? ` • ${appointmentDurationMinutes} menit` : ""}</p>
                                         </div>
                                         {/* <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Metode pembayaran</p>
@@ -1427,7 +1419,12 @@ useEffect(() => {
                                                                                 //     Berlaku sampai {membershipOptionsForSelectedClass.find((membership) => membership.id === selectedAppointmentMembershipId)?.expiresAt} WIB
                                                                                 // </p>
                                                                                 <p className="text-xs text-wellness-muted">
-                                                                                    biaya {appointmentCreditPrice} credit / sesi
+                                                                                    {membershipOptionsForSelectedClass.map((membership) => (
+                                                                                    <option key={membership.id} value={membership.id}>
+                                                                                        biaya {membership.creditCost} credits / sesi
+                                                                                    </option>
+                                                                                ))}
+                                                                                    
                                                                                 </p>
                                                                             )}
                                                                         </div>
