@@ -210,6 +210,14 @@ function Menu() {
                     permissions: hasAnyPermission(["dashboard-access"]),
                 },
                 
+                {
+                    title: "Riwayat Appointment",
+                    href: route("appointments.history"),
+                    active: url === "/dashboard/appointments/history",
+                    icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["dashboard-access"]),
+                },
+
             ],
         },
         {
