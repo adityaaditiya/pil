@@ -429,7 +429,7 @@ class PilatesAppointmentController extends Controller
                 'start_at_label' => $appointment->start_at?->timezone('Asia/Jakarta')->format('H:i'),
                 'end_at_label' => $appointment->end_at?->timezone('Asia/Jakarta')->format('H:i'),
                 'duration_minutes' => $appointment->duration_minutes,
-                'trainers' => $appointment->trainers()->pluck('name')->values(),
+                'trainers' => $appointment->trainers()->select('trainers.id', 'trainers.name')->get(),
             ],
             'customers' => $customers,
             'paymentMethods' => $paymentSetting?->enabledGateways() ?? [],
@@ -441,11 +441,19 @@ class PilatesAppointmentController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => ['required', 'exists:customers,id'],
+            'trainer_id' => ['required', 'exists:trainers,id'],
             'payment_method' => ['required', 'string', 'max:50'],
             'payment_type' => ['required', Rule::in(['drop_in', 'credit'])],
             'appointment_session_id' => ['nullable', 'integer'],
             'user_membership_id' => ['nullable', 'integer'],
         ]);
+
+        $appointmentTrainerIds = $appointment->trainers()->pluck('trainers.id');
+        if (! $appointmentTrainerIds->contains((int) $validated['trainer_id'])) {
+            throw ValidationException::withMessages([
+                'trainer_id' => 'Trainer yang dipilih tidak tersedia untuk appointment ini.',
+            ]);
+        }
 
         $alreadyBooked = AppointmentBooking::where('appointment_id', $appointment->id)
             ->where('customer_id', $validated['customer_id'])
@@ -524,6 +532,7 @@ class PilatesAppointmentController extends Controller
             AppointmentBooking::query()->create([
                 'appointment_id' => $appointment->id,
                 'customer_id' => $validated['customer_id'],
+                'trainer_id' => $validated['trainer_id'],
                 'appointment_session_id' => $selectedSession['appointment_session_id'] ?? null,
                 'session_name' => $selectedSession['session_name'] ?? $appointment->session_name,
                 'price_amount' => $validated['payment_type'] === 'drop_in'

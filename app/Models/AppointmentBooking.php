@@ -13,6 +13,7 @@ class AppointmentBooking extends Model
     protected $fillable = [
         'appointment_id',
         'customer_id',
+        'trainer_id',
         'invoice',
         'appointment_session_id',
         'session_name',
@@ -57,6 +58,11 @@ class AppointmentBooking extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function trainer()
+    {
+        return $this->belongsTo(Trainer::class);
     }
 
     public function userMembership()

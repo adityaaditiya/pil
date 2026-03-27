@@ -53,7 +53,7 @@ export default function Print({ booking }) {
                                 <p><span className="text-slate-500">No. Telp:</span> {booking.customer?.no_telp || "-"}</p>
                                 <p><span className="text-slate-500">Kelas:</span> {booking.appointment?.pilates_class?.name || "-"}</p>
                                 <p><span className="text-slate-500">Sesi:</span> {booking.session_name || "-"}</p>
-                                <p><span className="text-slate-500">Trainer:</span> {(booking.appointment?.trainers || []).map((trainer) => trainer.name).join(", ") || "-"}</p>
+                                <p><span className="text-slate-500">Trainer:</span> {booking.trainer?.name || "-"}</p>
                                 <p><span className="text-slate-500">Jadwal:</span> {formatDateTime(booking.appointment?.start_at)}</p>
                                 <p><span className="text-slate-500">Durasi:</span> {booking.appointment?.duration_minutes || 0} menit</p>
                                 <p><span className="text-slate-500">Pembayaran:</span> {booking.payment_type || "-"} ({booking.payment_method || "-"})</p>

@@ -30,6 +30,7 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
 
     const { data, setData, post, processing, errors } = useForm({
         customer_id: "",
+        trainer_id: appointment?.trainers?.[0]?.id ? String(appointment.trainers[0].id) : "",
         payment_type: allowDropIn ? "drop_in" : "credit",
         payment_method: allowDropIn ? (mappedPaymentMethods[0]?.value || "cash") : "credits",
         appointment_session_id: selectedOption?.appointment_session_id || "",
@@ -124,7 +125,24 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                                 </select>
                                 {errors.appointment_session_id && <p className="mt-1 text-xs text-red-500">{errors.appointment_session_id}</p>}
                             </div>
-                        )} 
+                        )}
+
+                        <div>
+                            <label className="mb-2 block text-sm font-medium">Pilih Trainer</label>
+                            <select
+                                value={data.trainer_id}
+                                onChange={(event) => setData("trainer_id", event.target.value)}
+                                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm"
+                            >
+                                <option value="">Pilih trainer</option>
+                                {(appointment?.trainers || []).map((trainer) => (
+                                    <option key={trainer.id} value={trainer.id}>
+                                        {trainer.name}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.trainer_id && <p className="mt-1 text-xs text-red-500">{errors.trainer_id}</p>}
+                        </div>
 
                         <div>
                             <p className="mb-2 text-sm font-medium">Jenis Pembayaran</p>
@@ -207,7 +225,7 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                         <p className="text-sm">Tanggal: <span className="font-medium">{appointment?.start_date_label} | Jam: {appointment?.start_at_label} - {appointment?.end_at_label}</span></p>
                         {/* <p className="text-sm">Jam: <span className="font-medium">{appointment?.start_at_label} - {appointment?.end_at_label}</span></p> */}
                         <p className="text-sm">Sesi Dipilih: <span className="font-medium">{selectedOption?.session_name || appointment?.session_name || "-"}</span></p>
-                        <p className="text-sm">Trainer: <span className="font-medium">{appointment?.trainers?.join(", ") || "-"}</span></p>
+                        <p className="text-sm">Trainer: <span className="font-medium">{appointment?.trainers?.find((trainer) => String(trainer.id) === String(data.trainer_id))?.name || "-"}</span></p>
                         <p className="text-sm">Harga Drop-in: <span className="font-medium">{formatCurrency(dropInPrice)}</span></p>
                         <p className="text-sm">Harga Credit / sesi: <span className="font-medium">{creditPerSession}</span></p>
                         {data.payment_type === "drop_in" ? (

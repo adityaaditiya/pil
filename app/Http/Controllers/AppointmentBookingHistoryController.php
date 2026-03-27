@@ -25,7 +25,7 @@ class AppointmentBookingHistoryController extends Controller
                 'customer:id,name',
                 'appointment:id,pilates_class_id,start_at,end_at',
                 'appointment.pilatesClass:id,name',
-                'appointment.trainers:id,name',
+                'trainer:id,name',
             ])
             ->latest('booked_at');
 
@@ -56,7 +56,7 @@ class AppointmentBookingHistoryController extends Controller
                     'customer' => $booking->customer?->name,
                     'class_name' => $booking->appointment?->pilatesClass?->name,
                     'session_name' => $booking->session_name,
-                    'trainer_names' => $booking->appointment?->trainers?->pluck('name')?->values() ?? [],
+                    'trainer_names' => collect([$booking->trainer?->name])->filter()->values(),
                     'schedule_at' => $booking->appointment?->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
                 ];
             });
@@ -78,7 +78,7 @@ class AppointmentBookingHistoryController extends Controller
                 'customer:id,name,no_telp,address',
                 'appointment:id,pilates_class_id,start_at,end_at,duration_minutes',
                 'appointment.pilatesClass:id,name',
-                'appointment.trainers:id,name',
+                'trainer:id,name',
             ])
             ->where('invoice', $invoice)
             ->firstOrFail();
