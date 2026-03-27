@@ -192,6 +192,7 @@ export default function WelcomeSection({
     const [selectedAppointmentPaymentType, setSelectedAppointmentPaymentType] = useState("credit");
     const [selectedAppointmentPaymentGateway, setSelectedAppointmentPaymentGateway] = useState(paymentGateways[0]?.value || "");
     const [selectedAppointmentMembershipId, setSelectedAppointmentMembershipId] = useState("");
+    const [showAppointmentConfirmModal, setShowAppointmentConfirmModal] = useState(false);
 
     const calendarDays = useMemo(() => {
         return getDaysInMonth(currentYear, currentMonth);
@@ -748,7 +749,7 @@ useEffect(() => {
         ? Number(selectedMembershipOption.creditsRemaining || 0) >= appointmentCreditCost
         : false;
 
-    const submitAppointmentCheckout = () => {
+    const processAppointmentCheckout = () => {
         if (!auth?.user) {
             router.get(route("login", { redirect: route("welcome.page", "appointment", false) }));
             return;
@@ -768,7 +769,21 @@ useEffect(() => {
 
         router.post(route("welcome.appointment-payment.process", selectedAppointmentSlot.id), payload, {
             preserveScroll: true,
+            onFinish: () => setShowAppointmentConfirmModal(false),
         });
+    };
+
+    const submitAppointmentCheckout = () => {
+        if (!auth?.user) {
+            router.get(route("login", { redirect: route("welcome.page", "appointment", false) }));
+            return;
+        }
+
+        if (!selectedAppointmentSlot || !selectedServiceId) {
+            return;
+        }
+
+        setShowAppointmentConfirmModal(true);
     };
 
 
@@ -1503,7 +1518,7 @@ useEffect(() => {
                                             disabled={!canShowAppointmentPrice || (selectedAppointmentPaymentType === "credit" && (!hasMembershipCreditForSelection || !hasEnoughCreditForSession))}
                                             className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
                                         >
-                                            Selesaikan Pembayaran
+                                            {selectedAppointmentPaymentType === "drop_in" ? "Selesaikan Transaksi Drop-In" : "Selesaikan Pembayaran"}
                                         </button>
 
                                         {!auth?.user && (
@@ -1592,6 +1607,43 @@ useEffect(() => {
                             </article>
                         ))}
                     </section>
+                )}
+
+                {pageKey === "appointment" && showAppointmentConfirmModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
+                        <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+                            <h2 className="text-xl font-bold text-primary-700">Konfirmasi Pembayaran</h2>
+                            <p className="mt-3 text-sm text-slate-700">
+                                Metode pembayaran dipilih:{" "}
+                                <span className="font-semibold">{appointmentSummaryPaymentLabel}</span>.
+                            </p>
+                            <p className="mt-2 text-sm text-slate-700">
+                                Sesi: <span className="font-semibold">{selectedService?.name || "-"}</span>.
+                            </p>
+                            <p className="mt-2 text-sm text-slate-700">
+                                Trainer: <span className="font-semibold">{selectedAppointmentTrainer?.name || "-"}</span>.
+                            </p>
+                            <p className="mt-2 text-sm text-slate-700">
+                                Jadwal: <span className="font-semibold">{selectedAppointmentDateLabel}{selectedAppointmentTime ? ` • ${selectedAppointmentTime}` : ""} WIB</span>.
+                            </p>
+                            <div className="mt-6 flex justify-end gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowAppointmentConfirmModal(false)}
+                                    className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={processAppointmentCheckout}
+                                    className="rounded-full bg-primary-600 px-5 py-2 text-sm font-semibold text-white"
+                                >
+                                    Konfirmasi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
 
                 {pageKey === "contact" && (
