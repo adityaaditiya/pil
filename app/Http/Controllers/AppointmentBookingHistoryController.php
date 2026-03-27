@@ -57,7 +57,11 @@ class AppointmentBookingHistoryController extends Controller
                     'class_name' => $booking->appointment?->pilatesClass?->name,
                     'session_name' => $booking->session_name,
                     'trainer_names' => collect([$booking->trainer?->name])->filter()->values(),
-                    'schedule_at' => $booking->appointment?->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
+                    // 'schedule_at' => $booking->appointment?->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
+                    'schedule_at' => $booking->appointment 
+                    ? $booking->appointment->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') . ' - ' . $booking->appointment->end_at?->timezone('Asia/Jakarta')->format('H:i')
+                    : '-',
+                    'credit_used' => $booking->credit_used,
                 ];
             });
 

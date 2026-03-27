@@ -17,8 +17,8 @@ const statusClass = {
 };
 
 const paymentTypeLabel = {
-    drop_in: "Drop In",
-    credit: "Membership Credit",
+    drop_in: "Drop-In",
+    credit: "Membership",
 };
 
 const formatCurrency = (value = 0) =>
@@ -268,7 +268,7 @@ export default function History({ bookings, filters = {} }) {
                                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Jadwal</th>
                                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Pembayaran</th>
                                     <th className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Nominal</th>
-                                    <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Trainer</th>
+                                    <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Credit</th>
                                     <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
                                     <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500"></th>
                                 </tr>
@@ -302,8 +302,9 @@ export default function History({ bookings, filters = {} }) {
                                                 {formatCurrency(booking.price_amount || 0)}
                                             </td>
                                             <td className="px-4 py-4 text-center text-sm text-slate-700 dark:text-slate-300">
+                                                {booking.credit_used || 0} credit
                                                 {/* Cek apakah menggunakan trainer_names (array) atau trainer (string) */}
-                                                {booking.trainer || (booking.trainer_names && booking.trainer_names.join(", ")) || "-"}
+                                                {/* {booking.trainer || (booking.trainer_names && booking.trainer_names.join(", ")) || "-"} */}
                                             </td>
                                             <td className="px-4 py-4 text-center">
                                                 <span className={`rounded-md px-2.5 py-1 text-xs font-semibold capitalize ${statusClass[booking.status] || "bg-slate-100 text-slate-700"}`}>

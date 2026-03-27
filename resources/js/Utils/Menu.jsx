@@ -196,6 +196,13 @@ function Menu() {
                     permissions: hasAnyPermission(["dashboard-access"]),
                 },
                 {
+                    title: "Riwayat Appointment",
+                    href: route("appointments.history"),
+                    active: url === "/dashboard/appointments/history",
+                    icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["dashboard-access"]),
+                },
+                {
                     title: "Timetable",
                     href: route("timetable.index"),
                     active: url.startsWith("/dashboard/timetable"),
@@ -210,14 +217,7 @@ function Menu() {
                     permissions: hasAnyPermission(["dashboard-access"]),
                 },
                 
-                {
-                    title: "Riwayat Appointment",
-                    href: route("appointments.history"),
-                    active: url === "/dashboard/appointments/history",
-                    icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["dashboard-access"]),
-                },
-
+            
             ],
         },
         {

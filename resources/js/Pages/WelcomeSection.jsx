@@ -1376,7 +1376,20 @@ useEffect(() => {
                                         </div>
                                         <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Harga</p>
-                                            <p className="text-lg font-bold text-primary-700">{canShowAppointmentPrice ? formatRupiah(appointmentDropInPrice) : "-"}{canShowAppointmentPrice && appointmentDurationMinutes > 0 ? ` • ${appointmentDurationMinutes} menit` : ""}</p>
+                                            <p className="text-lg font-bold text-primary-700">
+                                                {canShowAppointmentPrice ? (
+                                                    selectedAppointmentPaymentType === "credit" ? (
+                                                        /* Tampilan jika bayar pakai Credit */
+                                                        `${selectedAppointmentSessionOption?.price_credit || 0} Credits`
+                                                    ) : (
+                                                        /* Tampilan jika bayar pakai Rupiah (Drop-in) */
+                                                        formatRupiah(appointmentDropInPrice)
+                                                    )
+                                                ) : (
+                                                    "-"
+                                                )}
+                                                {canShowAppointmentPrice && appointmentDurationMinutes > 0 ? ` • ${appointmentDurationMinutes} menit` : ""}
+                                            </p>
                                         </div>
                                         {/* <div>
                                             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Metode pembayaran</p>
