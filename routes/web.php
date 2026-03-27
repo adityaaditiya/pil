@@ -32,6 +32,7 @@ use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserMembershipController;
 use App\Http\Controllers\UserMembershipHistoryController;
+use App\Http\Controllers\UserAppointmentController;
 use App\Http\Controllers\UserScheduleController;
 use App\Models\LandingPageSetting;
 use App\Models\MembershipPlan;
@@ -77,6 +78,7 @@ Route::middleware('auth')->post('/welcome/schedule/bookings/{booking}/payment-pr
 Route::middleware('auth')->delete('/welcome/schedule/bookings/{booking}/cancel', [StudioPageController::class, 'cancelDropInTransaction'])->name('welcome.schedule-payment.cancel-transaction');
 
 Route::middleware('auth')->get('/user/my-schedule', [UserScheduleController::class, 'index'])->name('user.my-schedule');
+Route::middleware('auth')->get('/user/my-appointment', [UserAppointmentController::class, 'index'])->name('user.my-appointment');
 Route::middleware('auth')->get('/user/my-memberships', [UserMembershipHistoryController::class, 'index'])->name('user.my-memberships');
 
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
