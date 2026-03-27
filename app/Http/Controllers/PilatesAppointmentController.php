@@ -454,7 +454,7 @@ class PilatesAppointmentController extends Controller
 
         if ($alreadyBooked) {
             throw ValidationException::withMessages([
-                'customer_id' => 'Pelanggan ini sudah terdaftar di jadwal ini. Tidak bisa double booking.',
+                'customer_id' => 'Pelanggan sudah terdaftar',
             ]);
         }
 
