@@ -242,6 +242,7 @@ class StudioPageController extends Controller
                         'session_name' => $master?->session_name ?? ($option['session_name'] ?? ''),
                         'description' => $master?->description,
                         'price_drop_in' => (float) ($option['price_drop_in'] ?? $option['price'] ?? 0),
+                        'price_credit' => (int) ($option['price_credit'] ?? 0),
                         'payment_method' => $option['payment_method'] ?? 'allow_drop_in',
                     ];
                 })->filter(fn (array $option) => filled($option['session_name']))->values()->all(),
@@ -277,10 +278,18 @@ class StudioPageController extends Controller
     {
         $validated = $request->validate([
             'appointment_session_id' => ['required', 'integer'],
+            'trainer_id' => ['required', 'integer', 'exists:trainers,id'],
             'payment_type' => ['required', 'in:drop_in,credit'],
             'payment_method' => ['nullable', 'string', 'max:50'],
             'user_membership_id' => ['nullable', 'integer', 'required_if:payment_type,credit', 'exists:user_memberships,id'],
         ]);
+
+        $appointmentTrainerIds = $appointment->trainers()->pluck('trainers.id');
+        if (! $appointmentTrainerIds->contains((int) $validated['trainer_id'])) {
+            throw ValidationException::withMessages([
+                'trainer_id' => 'Trainer yang dipilih tidak tersedia untuk appointment ini.',
+            ]);
+        }
 
         $customer = Customer::query()
             ->where('user_id', Auth::id())
@@ -351,7 +360,7 @@ class StudioPageController extends Controller
                 ]);
             }
 
-            $creditCost = (int) ($rule->credit_cost ?? 0);
+            $creditCost = (int) ($selectedSession['price_credit'] ?? 0);
             if ($creditCost <= 0) {
                 throw ValidationException::withMessages([
                     'user_membership_id' => 'Biaya credit sesi belum tersedia.',
@@ -368,13 +377,13 @@ class StudioPageController extends Controller
         DB::transaction(function () use ($appointment, $validated, $selectedSession, $selectedMembership, $customer) {
             $creditUsed = 0;
             if ($validated['payment_type'] === 'credit' && $selectedMembership) {
-                $creditUsed = (int) (($selectedMembership->plan?->classRules?->first()?->credit_cost) ?? 0);
+                $creditUsed = (int) ($selectedSession['price_credit'] ?? 0);
             }
 
             AppointmentBooking::query()->create([
                 'appointment_id' => $appointment->id,
                 'customer_id' => $customer->id,
-                'trainer_id' => $appointment->trainers()->value('trainers.id') ?? $appointment->trainer_id,
+                'trainer_id' => (int) $validated['trainer_id'],
                 'appointment_session_id' => $selectedSession['appointment_session_id'] ?? null,
                 'session_name' => $selectedSession['session_name'] ?? $appointment->session_name,
                 'price_amount' => $validated['payment_type'] === 'drop_in'
