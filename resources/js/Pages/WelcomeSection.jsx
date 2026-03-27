@@ -1433,14 +1433,15 @@ useEffect(() => {
                                                                                     </option>
                                                                                 ))}
                                                                             </select>
-                                                                            <p className="text-xs text-wellness-muted">
-                                                                                Biaya {appointmentCreditCost > 0 ? appointmentCreditCost : "-"} credits / sesi
-                                                                            </p>
+                                                                            
                                                                             {selectedMembershipOption?.expiresAt && (
                                                                                 <p className="text-xs text-wellness-muted">
-                                                                                    Masa aktif hingga {selectedMembershipOption.expiresAt}
+                                                                                    Membership aktif hingga {selectedMembershipOption.expiresAt}.
                                                                                 </p>
                                                                             )}
+                                                                            <p className="text-center text-xs text-wellness-muted">
+                                                                                Biaya {appointmentCreditCost > 0 ? appointmentCreditCost : "-"} credits / sesi
+                                                                            </p>
                                                                             {appointmentCreditCost > 0 && selectedMembershipOption && !hasEnoughCreditForSession && (
                                                                                 <p className="text-xs font-medium text-rose-600">
                                                                                     Credit membership tidak cukup untuk sesi ini.
