@@ -300,7 +300,7 @@ class StudioPageController extends Controller
 
         if ($alreadyBooked) {
             throw ValidationException::withMessages([
-                'payment_type' => 'Anda sudah melakukan booking pada appointment ini.',
+                'payment_type' => 'Pelanggan sudah terdaftar',
             ]);
         }
 
