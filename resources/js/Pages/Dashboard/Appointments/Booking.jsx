@@ -106,6 +106,25 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                             error={errors.customer_id}
                             label="Pelanggan"
                         />
+                        
+                        {(appointment?.session_options || []).length > 0 && (
+                            <div>
+                                <label className="mb-2 block text-sm font-medium">Pilih Sesi Appointment</label>
+                                <select
+                                    value={data.appointment_session_id}
+                                    onChange={(event) => handleSessionChange(event.target.value)}
+                                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm"
+                                >
+                                    {(appointment.session_options || []).map((option) => (
+                                        <option key={option.appointment_session_id} value={option.appointment_session_id}>
+                                            {/* {option.session_name} - Drop-in: {formatCurrency(option.price_drop_in ?? option.price)} - Credits: {creditPerSession} pts */}
+                                            {option.session_name} 
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.appointment_session_id && <p className="mt-1 text-xs text-red-500">{errors.appointment_session_id}</p>}
+                            </div>
+                        )} 
 
                         <div>
                             <p className="mb-2 text-sm font-medium">Jenis Pembayaran</p>
@@ -121,7 +140,7 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                                     />
                                     <div>
                                         <p className="text-sm font-semibold">Credits Pelanggan</p>
-                                        <p className="text-xs text-slate-500">Sisa credit lama: {customerCredit}</p>
+                                        {/* <p className="text-xs text-slate-500">Sisa credit lama: {customerCredit}</p> */}
                                     </div>
                                 </label>
 
@@ -134,7 +153,7 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                                         <option value="">Pilih membership pelanggan</option>
                                         {customerMemberships.map((membership) => (
                                             <option key={membership.id} value={membership.id}>
-                                                {membership.plan_name} - sisa {membership.credits_remaining} credits (biaya {membership.credit_cost}/sesi)
+                                                {membership.plan_name} - sisa {membership.credits_remaining} credits (biaya {creditPerSession} /sesi)
                                             </option>
                                         ))}
                                     </select>
@@ -180,24 +199,7 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                             {errors.user_membership_id && <p className="mt-1 text-xs text-red-500">{errors.user_membership_id}</p>}
                         </div>
 
-                        {(appointment?.session_options || []).length > 0 && (
-                            <div>
-                                <label className="mb-2 block text-sm font-medium">Pilih Sesi Appointment</label>
-                                <select
-                                    value={data.appointment_session_id}
-                                    onChange={(event) => handleSessionChange(event.target.value)}
-                                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm"
-                                >
-                                    {(appointment.session_options || []).map((option) => (
-                                        <option key={option.appointment_session_id} value={option.appointment_session_id}>
-                                            {/* {option.session_name} - Drop-in: {formatCurrency(option.price_drop_in ?? option.price)} - Credits: {creditPerSession} pts */}
-                                            {option.session_name} 
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.appointment_session_id && <p className="mt-1 text-xs text-red-500">{errors.appointment_session_id}</p>}
-                            </div>
-                        )}
+                        
                     </div>
 
                     <div className="space-y-3 rounded-2xl border bg-white p-5 h-fit">
@@ -262,7 +264,7 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                                 </div>
                             </>
                         ) : (
-                            <p className="text-sm">Credit Dipakai: <span className="font-semibold text-primary-600">{neededCredits}</span></p>
+                            <p className="text-sm">Credit Dipakai: <span className="font-semibold text-primary-600">{creditPerSession}</span></p>
                         )}
 
                         <button type="submit" disabled={processing} className="mt-4 w-full rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white">
