@@ -629,9 +629,9 @@ useEffect(() => {
         }
     }, [pageKey, appointmentTrainerChoices, selectedTrainerId]);
 
-    const selectedAppointmentTrainer = selectedAppointmentSlot
-        ? { name: selectedAppointmentSlot.trainer_names?.join(", ") || "-" }
-        : (appointmentTrainerChoices.find((trainer) => trainer.id === selectedTrainerId) || appointmentTrainerChoices[0]);
+    const selectedAppointmentTrainer = appointmentTrainerChoices.find((trainer) => trainer.id === selectedTrainerId)
+        || appointmentTrainerChoices[0]
+        || null;
     const selectedAppointmentDateLabel = selectedAppointmentDate
         ? formatSectionDate(new Date(`${selectedAppointmentDate}T00:00:00`))
         : "Pilih tanggal";
@@ -648,6 +648,7 @@ useEffect(() => {
 
     const canShowAppointmentPrice = Boolean(selectedAppointmentSlot && selectedAppointmentClassId && selectedTrainerId && selectedAppointmentTime);
     const appointmentDropInPrice = Number(selectedAppointmentSessionOption?.price_drop_in || 0);
+    const appointmentCreditCost = Number(selectedAppointmentSessionOption?.price_credit || 0);
     const appointmentDurationMinutes = Number(selectedAppointmentSlot?.duration_minutes || 0);
 
     const appointmentPaymentConfig = useMemo(() => {
@@ -741,7 +742,11 @@ useEffect(() => {
         }
     }, [membershipOptionsForSelectedClass, selectedAppointmentMembershipId]);
 
+    const selectedMembershipOption = membershipOptionsForSelectedClass.find((membership) => membership.id === selectedAppointmentMembershipId) || null;
     const hasMembershipCreditForSelection = membershipOptionsForSelectedClass.length > 0;
+    const hasEnoughCreditForSession = selectedMembershipOption
+        ? Number(selectedMembershipOption.creditsRemaining || 0) >= appointmentCreditCost
+        : false;
 
     const submitAppointmentCheckout = () => {
         if (!auth?.user) {
@@ -755,6 +760,7 @@ useEffect(() => {
 
         const payload = {
             appointment_session_id: Number(selectedServiceId),
+            trainer_id: Number(selectedTrainerId),
             payment_type: selectedAppointmentPaymentType,
             payment_method: selectedAppointmentPaymentType === "drop_in" ? selectedAppointmentPaymentGateway : null,
             user_membership_id: selectedAppointmentPaymentType === "credit" ? Number(selectedAppointmentMembershipId) : null,
@@ -1414,17 +1420,17 @@ useEffect(() => {
                                                                                     </option>
                                                                                 ))}
                                                                             </select>
-                                                                            {membershipOptionsForSelectedClass.find((membership) => membership.id === selectedAppointmentMembershipId)?.expiresAt && (
-                                                                                // <p className="text-xs text-wellness-muted">
-                                                                                //     Berlaku sampai {membershipOptionsForSelectedClass.find((membership) => membership.id === selectedAppointmentMembershipId)?.expiresAt} WIB
-                                                                                // </p>
+                                                                            <p className="text-xs text-wellness-muted">
+                                                                                Biaya {appointmentCreditCost > 0 ? appointmentCreditCost : "-"} credits / sesi
+                                                                            </p>
+                                                                            {selectedMembershipOption?.expiresAt && (
                                                                                 <p className="text-xs text-wellness-muted">
-                                                                                    {membershipOptionsForSelectedClass.map((membership) => (
-                                                                                    <option key={membership.id} value={membership.id}>
-                                                                                        biaya {membership.creditCost} credits / sesi
-                                                                                    </option>
-                                                                                ))}
-                                                                                    
+                                                                                    Masa aktif hingga {selectedMembershipOption.expiresAt}
+                                                                                </p>
+                                                                            )}
+                                                                            {appointmentCreditCost > 0 && selectedMembershipOption && !hasEnoughCreditForSession && (
+                                                                                <p className="text-xs font-medium text-rose-600">
+                                                                                    Credit membership tidak cukup untuk sesi ini.
                                                                                 </p>
                                                                             )}
                                                                         </div>
@@ -1480,7 +1486,7 @@ useEffect(() => {
                                         <button
                                             type="button"
                                             onClick={submitAppointmentCheckout}
-                                            disabled={!canShowAppointmentPrice || (selectedAppointmentPaymentType === "credit" && !hasMembershipCreditForSelection)}
+                                            disabled={!canShowAppointmentPrice || (selectedAppointmentPaymentType === "credit" && (!hasMembershipCreditForSelection || !hasEnoughCreditForSession))}
                                             className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
                                         >
                                             Selesaikan Pembayaran
