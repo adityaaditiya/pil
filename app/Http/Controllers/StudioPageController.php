@@ -374,6 +374,7 @@ class StudioPageController extends Controller
             AppointmentBooking::query()->create([
                 'appointment_id' => $appointment->id,
                 'customer_id' => $customer->id,
+                'trainer_id' => $appointment->trainers()->value('trainers.id') ?? $appointment->trainer_id,
                 'appointment_session_id' => $selectedSession['appointment_session_id'] ?? null,
                 'session_name' => $selectedSession['session_name'] ?? $appointment->session_name,
                 'price_amount' => $validated['payment_type'] === 'drop_in'
