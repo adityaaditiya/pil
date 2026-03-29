@@ -21,6 +21,7 @@ import {
     IconUsers,
     IconYoga,
 } from "@tabler/icons-react";
+import toast, { Toaster } from "react-hot-toast";
 
 const fallbackMeta = {
     classes: {
@@ -192,7 +193,7 @@ export default function WelcomeSection({
     const [activeDateKey, setActiveDateKey] = useState("");
     const [selectedMonthAnchor, setSelectedMonthAnchor] = useState(null);
     const dateStripRef = useRef(null);
-    const { auth } = usePage().props;
+    const { auth, flash } = usePage().props;
     // Di dekat useRef lainnya
     const dateInputRef = useRef(null); // Tambahkan ini
     const [selectedServiceId, setSelectedServiceId] = useState(appointmentSessionOptions[0]?.id || "");
@@ -240,6 +241,16 @@ export default function WelcomeSection({
             }
         }
     }, [selectedAppointmentDate, pageKey]);
+
+    useEffect(() => {
+        if (
+            pageKey === "appointment" &&
+            typeof flash?.success === "string" &&
+            flash.success.toLowerCase().includes("booking appointment berhasil")
+        ) {
+            toast.success(flash.success);
+        }
+    }, [flash?.success, pageKey]);
 
     const handleCalendarChange = (e) => {
     const selectedDate = e.target.value; // Format: YYYY-MM-DD
@@ -807,6 +818,7 @@ useEffect(() => {
     return (
         <>
             <Head title={`${meta.name} | ORO Pilates Studio`} />
+            <Toaster position="top-right" toastOptions={{ className: "text-sm", duration: 3000 }} />
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
                 <Navbar navItems={navItems} currentKey={pageKey} />
 
