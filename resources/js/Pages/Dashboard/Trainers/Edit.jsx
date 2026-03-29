@@ -8,16 +8,11 @@ import { IconArrowLeft, IconDeviceFloppy, IconUserSquare } from "@tabler/icons-r
 export default function Edit({ trainer }) {
     const { errors } = usePage().props;
     const { data, setData, post, processing } = useForm({
-        photo: null,
-        date_of_birth: trainer.date_of_birth || "",
         expertise: trainer.expertise || "",
-        gender: trainer.gender || "Laki-laki",
-        address: trainer.address || "",
         biodata: trainer.biodata || "",
         _method: "PUT",
     });
-
-    const cleanDate = data.date_of_birth ? data.date_of_birth.split('T')[0] : ''
+    const cleanDate = trainer.date_of_birth ? trainer.date_of_birth.split('T')[0] : "-";
 
     const submit = (e) => {
         e.preventDefault();
@@ -38,19 +33,15 @@ export default function Edit({ trainer }) {
 
             <form onSubmit={submit}>
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-w-4xl">
-                    {trainer.photo && <img src={`/storage/trainers/${trainer.photo}`} alt={trainer.name} className="h-24 w-24 rounded-xl object-cover" />}
-                    <Input type="file" label="Foto" errors={errors.photo} onChange={(e) => setData("photo", e.target.files[0])} />
+                    {trainer.photo && <img src={`/storage/customers/${trainer.photo}`} alt={trainer.name} className="h-24 w-24 rounded-xl object-cover" />}
                     <Input type="text" label="User Trainer" value={trainer.user?.name || trainer.name || "-"} disabled />
-                    <Input type="date" label="Tanggal Lahir" value={cleanDate} errors={errors.date_of_birth} onChange={(e) => setData("date_of_birth", e.target.value)}  />
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Gender</label>
-                        <select value={data.gender} onChange={(e) => setData("gender", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                            <option value="Laki-laki">Laki-laki</option>
-                            <option value="Perempuan">Perempuan</option>
-                        </select>
-                        {errors.gender && <small className="text-xs text-danger-500">{errors.gender}</small>}
+                    <Input type="text" label="Tanggal Lahir" value={cleanDate} disabled />
+                    <Input type="text" label="Gender" value={trainer.gender || "-"} disabled />
+                    <Textarea label="Alamat" value={trainer.address || "-"} disabled rows={3} />
+                    <div className="rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-sm text-primary-700">
+                        Foto, tanggal lahir, gender, dan alamat diambil dari data pelanggan.
+                        Ubah data tersebut melalui menu Dashboard Pelanggan.
                     </div>
-                    <Textarea label="Alamat" value={data.address} errors={errors.address} onChange={(e) => setData("address", e.target.value)} rows={3} />
                     <Input type="text" label="Keahlian" value={data.expertise} errors={errors.expertise} onChange={(e) => setData("expertise", e.target.value)} />
                     <Textarea label="Biodata" value={data.biodata} errors={errors.biodata} onChange={(e) => setData("biodata", e.target.value)} rows={4} />
 
