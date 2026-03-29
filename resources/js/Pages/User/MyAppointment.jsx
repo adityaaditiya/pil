@@ -45,8 +45,17 @@ const statusClass = (status) => {
 
     if (value === "confirmed") return "bg-emerald-50 text-emerald-700";
     if (value === "cancelled") return "bg-rose-50 text-rose-700";
+    if (value === "expired") return "bg-slate-100 text-slate-700";
 
     return "bg-amber-50 text-amber-700";
+};
+
+const handleCancelTransaction = (bookingId) => {
+    if (!window.confirm("Batalkan transaksi ini?")) return;
+
+    router.delete(route("welcome.appointment-payment.cancel-transaction", bookingId), {
+        preserveScroll: true,
+    });
 };
 
 const applyFilters = (filters) => {
@@ -122,7 +131,10 @@ export default function MyAppointment({ bookings = [], filters = {} }) {
                                     className="w-full rounded-xl border border-slate-300 px-3 py-2"
                                 >
                                     <option value="">Semua Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="pending_payment">Pending Payment</option>
                                     <option value="confirmed">Confirmed</option>
+                                    <option value="expired">Expired</option>
                                     <option value="cancelled">Cancelled</option>
                                 </select>
                             </label>
@@ -148,6 +160,9 @@ export default function MyAppointment({ bookings = [], filters = {} }) {
                             {bookings.map((booking) => {
                                 const appointment = booking.appointment || {};
                                 const classItem = appointment.class || {};
+                                const isPendingPayment = ["pending", "pending_payment"].includes(
+                                    String(booking.status || "").toLowerCase(),
+                                );
 
                                 return (
                                     <article
@@ -177,7 +192,7 @@ export default function MyAppointment({ bookings = [], filters = {} }) {
                                                     <span
                                                         className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusClass(booking.status)}`}
                                                     >
-                                                        {booking.status || "-"}
+                                                        {booking.status || "pending"}
                                                     </span>
                                                 </div>
 
@@ -209,6 +224,56 @@ export default function MyAppointment({ bookings = [], filters = {} }) {
                                                     <p>Booked at: {formatDate(booking.booked_at)}</p>
                                                     <p>Session: {booking.session_name || "-"}</p>
                                                     <p>Method: {booking.payment_method || "-"}</p>
+                                                </div>
+
+                                                {isPendingPayment &&
+                                                    booking.payment_type === "drop_in" &&
+                                                    !booking.payment_proof_image &&
+                                                    booking.payment_due_at && (
+                                                        <p className="mt-4 text-sm text-slate-500">
+                                                            Batas upload bukti pembayaran:{" "}
+                                                            <span className="font-semibold">
+                                                                {formatDate(booking.payment_due_at)}
+                                                            </span>
+                                                        </p>
+                                                    )}
+
+                                                <div className="mt-5 flex flex-wrap gap-2">
+                                                    {isPendingPayment &&
+                                                        booking.payment_type === "drop_in" &&
+                                                        !booking.payment_proof_image &&
+                                                        appointment.id && (
+                                                            <Link
+                                                                href={route("welcome.appointment-payment.drop-in-checkout", {
+                                                                    appointment: appointment.id,
+                                                                    booking_id: booking.id,
+                                                                })}
+                                                                className="inline-flex rounded-full border border-primary-200 px-5 py-2 text-sm font-semibold text-primary-700 transition hover:bg-primary-50"
+                                                            >
+                                                                Upload Foto Bukti Pembayaran
+                                                            </Link>
+                                                        )}
+                                                    {booking.payment_proof_image && (
+                                                        <a
+                                                            href={imageUrl("", booking.payment_proof_image)}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="inline-flex rounded-full border border-emerald-200 px-5 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                                                        >
+                                                            Lihat Foto Bukti Pembayaran
+                                                        </a>
+                                                    )}
+                                                    {isPendingPayment &&
+                                                        booking.payment_type === "drop_in" &&
+                                                        !booking.payment_proof_image && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleCancelTransaction(booking.id)}
+                                                                className="inline-flex rounded-full border border-rose-200 px-5 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                                                            >
+                                                                Batalkan transaksi
+                                                            </button>
+                                                        )}
                                                 </div>
                                             </div>
                                         </div>
