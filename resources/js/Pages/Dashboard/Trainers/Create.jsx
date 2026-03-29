@@ -9,11 +9,7 @@ export default function Create({ trainerUsers = [] }) {
     const { errors } = usePage().props;
     const { data, setData, post, processing } = useForm({
         user_id: "",
-        photo: null,
-        date_of_birth: "",
         expertise: "",
-        gender: "Laki-laki",
-        address: "",
         biodata: "",
     });
 
@@ -46,19 +42,10 @@ export default function Create({ trainerUsers = [] }) {
                         </select>
                         {errors.user_id && <small className="text-xs text-danger-500">{errors.user_id}</small>}
                     </div>
-                    <Input type="file" label="Foto" errors={errors.photo} onChange={(e) => setData("photo", e.target.files[0])} />
-                    
-                    <Input type="date" label="Tanggal Lahir" value={data.date_of_birth} errors={errors.date_of_birth} onChange={(e) => setData("date_of_birth", e.target.value)} />
-                    
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Jenis Kelamin</label>
-                        <select value={data.gender} onChange={(e) => setData("gender", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                            <option value="Laki-laki">Laki-laki</option>
-                            <option value="Perempuan">Perempuan</option>
-                        </select>
-                        {errors.gender && <small className="text-xs text-danger-500">{errors.gender}</small>}
+                    <div className="rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-sm text-primary-700">
+                        Foto, tanggal lahir, gender, dan alamat otomatis diambil dari data pelanggan.
+                        Perubahan data tersebut dilakukan melalui menu Dashboard Pelanggan.
                     </div>
-                    <Textarea label="Alamat" value={data.address} errors={errors.address} onChange={(e) => setData("address", e.target.value)} rows={3} />
                     <Input type="text" label="Keahlian" value={data.expertise} errors={errors.expertise} onChange={(e) => setData("expertise", e.target.value)} />
                     <Textarea label="Biodata" value={data.biodata} errors={errors.biodata} onChange={(e) => setData("biodata", e.target.value)} rows={4} />
 

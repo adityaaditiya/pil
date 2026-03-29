@@ -6,7 +6,6 @@ use App\Models\Trainer;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -40,6 +39,7 @@ class TrainerController extends Controller
             'trainerUsers' => User::query()
                 ->role('trainer')
                 ->whereDoesntHave('trainer')
+                ->whereHas('customer')
                 ->orderBy('name')
                 ->get(['id', 'name', 'email']),
         ]);
@@ -53,20 +53,24 @@ class TrainerController extends Controller
                 Rule::exists('users', 'id'),
                 Rule::unique('trainers', 'user_id'),
             ],
-            'photo' => 'required|image|max:2048',
-            'date_of_birth' => 'required|date|before:today',
             'expertise' => 'required|string|max:255',
-            'gender' => 'required|in:Laki-laki,Perempuan',
-            'address' => 'required|string',
             'biodata' => 'required|string',
         ]);
 
-        $photo = $request->file('photo');
-        $photo->storeAs('public/trainers', $photo->hashName());
-        $data['photo'] = $photo->hashName();
-        $data['name'] = User::query()->role('trainer')->whereKey($data['user_id'])->value('name');
+        $user = User::query()
+            ->role('trainer')
+            ->with('customer')
+            ->whereKey($data['user_id'])
+            ->first();
 
-        abort_if(! $data['name'], 422, 'User trainer tidak valid.');
+        abort_if(! $user, 422, 'User trainer tidak valid.');
+        abort_if(! $user->customer, 422, 'Data pelanggan trainer tidak ditemukan.');
+
+        $data['name'] = $user->name;
+        $data['photo'] = $user->customer->photo;
+        $data['date_of_birth'] = $user->customer->date_of_birth;
+        $data['gender'] = $user->customer->gender;
+        $data['address'] = $user->customer->address;
 
         Trainer::create($data);
 
@@ -83,27 +87,22 @@ class TrainerController extends Controller
     public function update(Request $request, Trainer $trainer): RedirectResponse
     {
         $data = $request->validate([
-            'photo' => 'nullable|image|max:2048',
-            'date_of_birth' => 'required|date|before:today',
             'expertise' => 'required|string|max:255',
-            'gender' => 'required|in:Laki-laki,Perempuan',
-            'address' => 'required|string',
             'biodata' => 'required|string',
         ]);
 
-        if ($request->file('photo')) {
-            if ($trainer->photo) {
-                Storage::disk('local')->delete('public/trainers/' . basename($trainer->photo));
-            }
+        $trainer->load('user.customer');
+        $trainerName = $trainer->user?->name;
+        $customer = $trainer->user?->customer;
 
-            $photo = $request->file('photo');
-            $photo->storeAs('public/trainers', $photo->hashName());
-            $data['photo'] = $photo->hashName();
-        }
-
-        $trainerName = $trainer->user()->role('trainer')->value('name');
         abort_if(! $trainerName, 422, 'User trainer tidak valid.');
+        abort_if(! $customer, 422, 'Data pelanggan trainer tidak ditemukan.');
+
         $data['name'] = $trainerName;
+        $data['photo'] = $customer->photo;
+        $data['date_of_birth'] = $customer->date_of_birth;
+        $data['gender'] = $customer->gender;
+        $data['address'] = $customer->address;
 
         $trainer->update($data);
 
@@ -112,10 +111,6 @@ class TrainerController extends Controller
 
     public function destroy(Trainer $trainer): RedirectResponse
     {
-        if ($trainer->photo) {
-            Storage::disk('local')->delete('public/trainers/' . basename($trainer->photo));
-        }
-
         $trainer->delete();
 
         return to_route('trainers.index');
