@@ -773,6 +773,10 @@ useEffect(() => {
         });
     };
 
+    const showCashierOnlyNotice =
+        selectedAppointmentPaymentType === "drop_in" &&
+        ["debit", "credit_card"].includes(selectedAppointmentPaymentGateway);
+
     const submitAppointmentCheckout = () => {
         if (!auth?.user) {
             router.get(route("login", { redirect: route("welcome.page", "appointment", false) }));
@@ -1511,6 +1515,12 @@ useEffect(() => {
                                                 </div>
                                             )}
                                         </div>
+
+                                        {showCashierOnlyNotice && (
+                                        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-medium text-amber-800">
+                                            Pembayaran booking menggunakan metode DEBIT & CREDIT CARD hanya bisa dilakukan saat berada di kasir.
+                                        </div>
+                                    )}
 
                                         <button
                                             type="button"
