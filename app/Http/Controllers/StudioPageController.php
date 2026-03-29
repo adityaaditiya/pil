@@ -125,10 +125,18 @@ class StudioPageController extends Controller
                     'pilatesClass.classCategory:id,name',
                     'trainer:id,name',
                 ])
+                    ->withSum(['bookings as booked_slots' => fn ($query) => $this->bookingSlotsQuery($query)], 'participants')
                     ->where('status', 'scheduled')
                     ->when($normalizedKey === 'appointment', fn ($query) => $query->whereHas('pilatesClass', fn ($classQuery) => $classQuery->where('available_for_appointment', true)))
                     ->orderBy('start_at')
                     ->get(['id', 'pilates_class_id', 'trainer_id', 'start_at', 'capacity', 'duration_minutes', 'price_override', 'allow_drop_in'])
+                    ->map(function (PilatesTimetable $schedule) {
+                        $bookedSlots = (int) ($schedule->booked_slots ?? 0);
+                        $schedule->remaining_slots = max(0, ((int) $schedule->capacity) - $bookedSlots);
+
+                        return $schedule;
+                    })
+                    ->values()
                 : [],
             'memberships' => $normalizedKey === 'pricing'
                 ? MembershipPlan::with(['classes:id,name'])

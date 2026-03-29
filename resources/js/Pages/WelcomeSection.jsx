@@ -96,16 +96,24 @@ const getDateKey = (date) => {
 };
 
 const getRemainingSlots = (item) => {
-    if (typeof item.remaining_slots === "number") {
-        return item.remaining_slots;
+    const toNumber = (value) => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const remainingSlots = toNumber(item.remaining_slots);
+    if (remainingSlots !== null) {
+        return Math.max(0, remainingSlots);
     }
 
-    if (typeof item.slots_left === "number") {
-        return item.slots_left;
+    const slotsLeft = toNumber(item.slots_left);
+    if (slotsLeft !== null) {
+        return Math.max(0, slotsLeft);
     }
 
-    if (typeof item.booked_count === "number") {
-        return Math.max(0, Number(item.capacity || 0) - item.booked_count);
+    const bookedCount = toNumber(item.booked_count);
+    if (bookedCount !== null) {
+        return Math.max(0, Number(item.capacity || 0) - bookedCount);
     }
 
     return Number(item.capacity || 0);
@@ -1530,8 +1538,12 @@ useEffect(() => {
                                         <button
                                             type="button"
                                             onClick={submitAppointmentCheckout}
-                                            disabled={!canShowAppointmentPrice || (selectedAppointmentPaymentType === "credit" && (!hasMembershipCreditForSelection || !hasEnoughCreditForSession))}
-                                            className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
+                                            disabled={
+                                                showCashierOnlyNotice ||
+                                                !canShowAppointmentPrice ||
+                                                (selectedAppointmentPaymentType === "credit" && (!hasMembershipCreditForSelection || !hasEnoughCreditForSession))
+                                            }
+                                            className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:bg-slate-400"
                                         >
                                             {selectedAppointmentPaymentType === "drop_in" ? "Selesaikan Pembayaran" : "Selesaikan Pembayaran"}
                                         </button>
