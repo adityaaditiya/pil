@@ -305,7 +305,7 @@ class StudioPageController extends Controller
         $alreadyBooked = AppointmentBooking::query()
             ->where('appointment_id', $appointment->id)
             ->where('customer_id', $customer->id)
-            ->where('status', '!=', 'cancelled')
+            ->whereNotIn('status', ['cancelled', 'expired'])
             ->exists();
 
         if ($alreadyBooked) {
