@@ -52,6 +52,7 @@ class AppointmentBookingHistoryController extends Controller
                     'status' => $booking->status,
                     'payment_type' => $booking->payment_type,
                     'payment_method' => $booking->payment_method,
+                    'payment_proof_image' => $booking->payment_proof_image,
                     'price_amount' => $booking->price_amount,
                     'customer' => $booking->customer?->name,
                     'class_name' => $booking->appointment?->pilatesClass?->name,
@@ -129,5 +130,43 @@ class AppointmentBookingHistoryController extends Controller
         });
 
         return back()->with('success', 'Transaksi appointment berhasil dibatalkan. Credit customer dan slot appointment telah dikembalikan.');
+    }
+
+    public function confirmPayment(AppointmentBooking $booking): RedirectResponse
+    {
+        if (! in_array($booking->status, ['pending', 'pending_payment'], true)) {
+            return back()->withErrors([
+                'message' => 'Pembayaran appointment tidak dapat dikonfirmasi.',
+            ]);
+        }
+
+        $booking->update([
+            'status' => 'confirmed',
+        ]);
+
+        return back()->with('success', 'Pembayaran appointment berhasil dikonfirmasi.');
+    }
+
+    public function rejectPayment(AppointmentBooking $booking): RedirectResponse
+    {
+        if (! in_array($booking->status, ['pending', 'pending_payment'], true)) {
+            return back()->withErrors([
+                'message' => 'Pembayaran appointment tidak dapat ditolak.',
+            ]);
+        }
+
+        DB::transaction(function () use ($booking) {
+            $booking->loadMissing('userMembership');
+
+            if ($booking->payment_type === 'credit' && $booking->userMembership && (int) $booking->credit_used > 0) {
+                $booking->userMembership->increment('credits_remaining', (int) $booking->credit_used);
+            }
+
+            $booking->update([
+                'status' => 'cancelled',
+            ]);
+        });
+
+        return back()->with('success', 'Pembayaran appointment berhasil ditolak dan transaksi dibatalkan.');
     }
 }
