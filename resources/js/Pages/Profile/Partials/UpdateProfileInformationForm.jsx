@@ -8,7 +8,7 @@ import { Transition } from '@headlessui/react';
 export default function UpdateProfileInformation({ mustVerifyEmail, status, customer, className = '' }) {
     const user = usePage().props.auth.user;
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
+    const { data, setData, post, errors, processing, recentlySuccessful } = useForm({
         name: user.name,
         email: user.email,
         no_telp: customer?.no_telp ? String(customer.no_telp) : '',
@@ -16,12 +16,15 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, cust
         gender: customer?.gender || 'Laki-laki',
         date_of_birth: customer?.date_of_birth || '',
         photo: null,
+        _method: 'patch',
     });
 
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'));
+        post(route('profile.update'), {
+            forceFormData: true,
+        });
     };
 
     return (
