@@ -162,8 +162,8 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                                     )}
                                     <button
                                         type="submit"
-                                        disabled={!auth?.user || !paymentGateways.length || processing}
-                                        className="w-full rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+                                        disabled={!auth?.user || !paymentGateways.length || processing || showCashierOnlyNotice}
+                                        className="w-full rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:bg-slate-400"
                                     >
                                         Selesaikan Pembayaran
                                     </button>

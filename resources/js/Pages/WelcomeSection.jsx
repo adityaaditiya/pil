@@ -21,6 +21,7 @@ import {
     IconUsers,
     IconYoga,
 } from "@tabler/icons-react";
+import toast, { Toaster } from "react-hot-toast";
 
 const fallbackMeta = {
     classes: {
@@ -96,16 +97,24 @@ const getDateKey = (date) => {
 };
 
 const getRemainingSlots = (item) => {
-    if (typeof item.remaining_slots === "number") {
-        return item.remaining_slots;
+    const toNumber = (value) => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const remainingSlots = toNumber(item.remaining_slots);
+    if (remainingSlots !== null) {
+        return Math.max(0, remainingSlots);
     }
 
-    if (typeof item.slots_left === "number") {
-        return item.slots_left;
+    const slotsLeft = toNumber(item.slots_left);
+    if (slotsLeft !== null) {
+        return Math.max(0, slotsLeft);
     }
 
-    if (typeof item.booked_count === "number") {
-        return Math.max(0, Number(item.capacity || 0) - item.booked_count);
+    const bookedCount = toNumber(item.booked_count);
+    if (bookedCount !== null) {
+        return Math.max(0, Number(item.capacity || 0) - bookedCount);
     }
 
     return Number(item.capacity || 0);
@@ -184,7 +193,7 @@ export default function WelcomeSection({
     const [activeDateKey, setActiveDateKey] = useState("");
     const [selectedMonthAnchor, setSelectedMonthAnchor] = useState(null);
     const dateStripRef = useRef(null);
-    const { auth } = usePage().props;
+    const { auth, flash } = usePage().props;
     // Di dekat useRef lainnya
     const dateInputRef = useRef(null); // Tambahkan ini
     const [selectedServiceId, setSelectedServiceId] = useState(appointmentSessionOptions[0]?.id || "");
@@ -232,6 +241,16 @@ export default function WelcomeSection({
             }
         }
     }, [selectedAppointmentDate, pageKey]);
+
+    useEffect(() => {
+        if (
+            pageKey === "appointment" &&
+            typeof flash?.success === "string" &&
+            flash.success.toLowerCase().includes("booking appointment berhasil")
+        ) {
+            toast.success(flash.success);
+        }
+    }, [flash?.success, pageKey]);
 
     const handleCalendarChange = (e) => {
     const selectedDate = e.target.value; // Format: YYYY-MM-DD
@@ -799,6 +818,7 @@ useEffect(() => {
     return (
         <>
             <Head title={`${meta.name} | ORO Pilates Studio`} />
+            <Toaster position="top-right" toastOptions={{ className: "text-sm", duration: 3000 }} />
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
                 <Navbar navItems={navItems} currentKey={pageKey} />
 
@@ -1530,8 +1550,12 @@ useEffect(() => {
                                         <button
                                             type="button"
                                             onClick={submitAppointmentCheckout}
-                                            disabled={!canShowAppointmentPrice || (selectedAppointmentPaymentType === "credit" && (!hasMembershipCreditForSelection || !hasEnoughCreditForSession))}
-                                            className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
+                                            disabled={
+                                                showCashierOnlyNotice ||
+                                                !canShowAppointmentPrice ||
+                                                (selectedAppointmentPaymentType === "credit" && (!hasMembershipCreditForSelection || !hasEnoughCreditForSession))
+                                            }
+                                            className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:bg-slate-400"
                                         >
                                             {selectedAppointmentPaymentType === "drop_in" ? "Selesaikan Pembayaran" : "Selesaikan Pembayaran"}
                                         </button>

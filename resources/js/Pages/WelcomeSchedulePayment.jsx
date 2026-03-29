@@ -441,11 +441,12 @@ export default function WelcomeSchedulePayment({
                                     <button
                                         type="submit"
                                         disabled={
+                                            showCashierOnlyNotice ||
                                             processing ||
                                             remainingSlots < 1 ||
                                             alreadyBooked
                                         }
-                                        className="inline-flex rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+                                        className="inline-flex rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:bg-slate-400"
                                     >
                                         Selesaikan Pembayaran
                                     </button>
