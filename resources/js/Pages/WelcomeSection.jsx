@@ -1,6 +1,7 @@
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import Navbar from "@/Components/Landing/Navbar";
 import { useEffect, useMemo, useRef, useState } from "react";
+// import { Toaster } from "react-hot-toast";
 import {
     IconArrowLeft,
     IconArrowRight,
@@ -243,14 +244,13 @@ export default function WelcomeSection({
     }, [selectedAppointmentDate, pageKey]);
 
     useEffect(() => {
-        if (
-            pageKey === "appointment" &&
-            typeof flash?.success === "string" &&
-            flash.success.toLowerCase().includes("booking appointment berhasil")
-        ) {
-            toast.success(flash.success);
-        }
-    }, [flash?.success, pageKey]);
+    if (flash?.success) {
+        toast.success(flash.success);
+    }
+    if (flash?.error) {
+        toast.error(flash.error);
+    }
+}, [flash]);
 
     const handleCalendarChange = (e) => {
     const selectedDate = e.target.value; // Format: YYYY-MM-DD
@@ -818,7 +818,17 @@ useEffect(() => {
     return (
         <>
             <Head title={`${meta.name} | ORO Pilates Studio`} />
-            <Toaster position="top-right" toastOptions={{ className: "text-sm", duration: 3000 }} />
+            <Toaster 
+                position="top-right" 
+                toastOptions={{ 
+                    className: "text-sm", 
+                    duration: 3000,
+                    style: {
+                        background: '#363636',
+                        color: '#fff',
+                    },
+                }} 
+            />
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
                 <Navbar navItems={navItems} currentKey={pageKey} />
 
