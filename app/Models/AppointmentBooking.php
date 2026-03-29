@@ -22,12 +22,15 @@ class AppointmentBooking extends Model
         'payment_method',
         'user_membership_id',
         'credit_used',
+        'payment_proof_image',
+        'expired_at',
         'booked_at',
         'status',
     ];
 
     protected $casts = [
         'booked_at' => 'datetime',
+        'expired_at' => 'datetime',
         'price_amount' => 'decimal:2',
         'credit_used' => 'integer',
     ];

@@ -276,6 +276,7 @@ class StudioPageController extends Controller
 
     public function processAppointmentLandingPayment(Request $request, PilatesAppointment $appointment): RedirectResponse
     {
+        $this->expirePendingAppointmentBookings($appointment->id);
         $validated = $request->validate([
             'appointment_session_id' => ['required', 'integer'],
             'trainer_id' => ['required', 'integer', 'exists:trainers,id'],
@@ -340,6 +341,19 @@ class StudioPageController extends Controller
             ]);
         }
 
+        if ($validated['payment_type'] === 'drop_in') {
+            $paymentSetting = PaymentSetting::first();
+            $availableGatewayValues = collect($paymentSetting?->enabledGateways() ?? [])
+                ->pluck('value')
+                ->map(fn ($value) => strtolower((string) $value));
+
+            if (! $availableGatewayValues->contains(strtolower((string) ($validated['payment_method'] ?? '')))) {
+                throw ValidationException::withMessages([
+                    'payment_method' => 'Metode pembayaran drop-in tidak tersedia.',
+                ]);
+            }
+        }
+
         $selectedMembership = null;
         if ($validated['payment_type'] === 'credit') {
             $selectedMembership = UserMembership::query()
@@ -374,13 +388,13 @@ class StudioPageController extends Controller
             }
         }
 
-        DB::transaction(function () use ($appointment, $validated, $selectedSession, $selectedMembership, $customer) {
+        $booking = DB::transaction(function () use ($appointment, $validated, $selectedSession, $selectedMembership, $customer) {
             $creditUsed = 0;
             if ($validated['payment_type'] === 'credit' && $selectedMembership) {
                 $creditUsed = (int) ($selectedSession['price_credit'] ?? 0);
             }
 
-            AppointmentBooking::query()->create([
+            $booking = AppointmentBooking::query()->create([
                 'appointment_id' => $appointment->id,
                 'customer_id' => $customer->id,
                 'trainer_id' => (int) $validated['trainer_id'],
@@ -396,15 +410,146 @@ class StudioPageController extends Controller
                 'user_membership_id' => $selectedMembership?->id,
                 'credit_used' => $creditUsed,
                 'booked_at' => now(),
-                'status' => 'confirmed',
+                'status' => $validated['payment_type'] === 'drop_in' ? 'pending_payment' : 'confirmed',
+                'expired_at' => $validated['payment_type'] === 'drop_in' ? Carbon::now()->addMinutes(15) : null,
             ]);
 
             if ($validated['payment_type'] === 'credit' && $selectedMembership) {
                 $selectedMembership->decrement('credits_remaining', $creditUsed);
             }
+
+            return $booking;
         });
 
+        if ($validated['payment_type'] === 'drop_in') {
+            return to_route('welcome.appointment-payment.drop-in-checkout', [
+                'appointment' => $appointment->id,
+                'booking_id' => $booking->id,
+            ]);
+        }
+
         return back()->with('success', 'Booking appointment berhasil disimpan.');
+    }
+
+    public function showAppointmentDropInCheckout(Request $request, PilatesAppointment $appointment): Response|RedirectResponse
+    {
+        $this->expirePendingAppointmentBookings($appointment->id);
+        $customer = Customer::query()
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (! $customer) {
+            return to_route('welcome.page', 'appointment');
+        }
+
+        $bookingId = (int) $request->integer('booking_id');
+        $booking = AppointmentBooking::query()
+            ->where('appointment_id', $appointment->id)
+            ->where('customer_id', $customer->id)
+            ->where('payment_type', 'drop_in')
+            ->whereIn('status', ['pending', 'pending_payment'])
+            ->when($bookingId > 0, fn ($query) => $query->where('id', $bookingId))
+            ->where(function ($query) {
+                $query
+                    ->where('expired_at', '>', now())
+                    ->orWhere(function ($fallback) {
+                        $fallback->whereNull('expired_at')->where('created_at', '>', now()->subMinutes(15));
+                    });
+            })
+            ->latest('id')
+            ->first();
+
+        $paymentSetting = PaymentSetting::first();
+        $paymentGateways = collect($paymentSetting?->enabledGateways() ?? [])->filter(function ($gateway) {
+            return strtolower($gateway['value'] ?? '') !== 'cash';
+        })->values();
+
+        $selectedGateway = $paymentGateways->firstWhere('value', $booking?->payment_method);
+
+        if (! $booking || ! $selectedGateway) {
+            return to_route('welcome.page', 'appointment');
+        }
+
+        $appointment->loadMissing(['pilatesClass:id,name,image']);
+
+        return Inertia::render('WelcomeAppointmentDropInCheckout', [
+            'appointment' => [
+                'id' => $appointment->id,
+                'date_label' => $appointment->start_at?->timezone('Asia/Jakarta')->format('d M Y'),
+                'time_label' => $appointment->start_at?->timezone('Asia/Jakarta')->format('H:i') . ' - ' . $appointment->end_at?->timezone('Asia/Jakarta')->format('H:i'),
+                'pilates_class' => [
+                    'name' => $appointment->pilatesClass?->name,
+                    'image' => $appointment->pilatesClass?->image,
+                ],
+            ],
+            'booking' => [
+                'id' => $booking->id,
+                'invoice' => $booking->invoice,
+                'session_name' => $booking->session_name,
+                'trainer_name' => $booking->trainer?->name,
+                'price_amount' => $booking->price_amount,
+                'payment_proof_image' => $booking->payment_proof_image,
+                'expired_at' => $booking->expired_at?->toISOString(),
+            ],
+            'selectedGateway' => $selectedGateway,
+            'paymentInstructions' => [
+                'qris_full_name' => $paymentSetting?->qris_full_name,
+                'qris_image' => $paymentSetting?->qris_image,
+                'bank_name' => $paymentSetting?->bank_name,
+                'bank_account_name' => $paymentSetting?->bank_account_name,
+                'bank_account_number' => $paymentSetting?->bank_account_number,
+            ],
+        ]);
+    }
+
+    public function uploadAppointmentPaymentProof(Request $request, AppointmentBooking $booking): RedirectResponse
+    {
+        $this->expirePendingAppointmentBookings($booking->appointment_id);
+        $booking->refresh();
+
+        $customer = Customer::query()->where('user_id', Auth::id())->first();
+        if (! $customer || (int) $booking->customer_id !== (int) $customer->id || ! in_array($booking->status, ['pending', 'pending_payment'], true) || $booking->payment_type !== 'drop_in') {
+            return to_route('welcome.page', 'appointment')->withErrors(['payment_proof' => 'Transaksi tidak ditemukan atau sudah tidak aktif.']);
+        }
+
+        $data = $request->validate([
+            'payment_proof' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ]);
+
+        $storedPath = $data['payment_proof']->store('appointment-payment-proofs', 'public');
+
+        if ($booking->payment_proof_image) {
+            Storage::disk('public')->delete($booking->payment_proof_image);
+        }
+
+        $booking->update([
+            'payment_proof_image' => $storedPath,
+            'status' => 'pending',
+        ]);
+
+        return back()->with('success', 'Foto bukti pembayaran berhasil diupload. Menunggu konfirmasi admin.');
+    }
+
+    public function cancelAppointmentTransaction(AppointmentBooking $booking): RedirectResponse
+    {
+        $this->expirePendingAppointmentBookings($booking->appointment_id);
+        $booking->refresh();
+
+        $customer = Customer::query()->where('user_id', Auth::id())->first();
+        if (! $customer || (int) $booking->customer_id !== (int) $customer->id || ! in_array($booking->status, ['pending', 'pending_payment'], true) || $booking->payment_type !== 'drop_in') {
+            return to_route('welcome.page', 'appointment')->withErrors(['payment_proof' => 'Transaksi tidak ditemukan atau sudah tidak aktif.']);
+        }
+
+        if ($booking->payment_proof_image) {
+            Storage::disk('public')->delete($booking->payment_proof_image);
+        }
+
+        $booking->update([
+            'status' => 'cancelled',
+            'payment_proof_image' => null,
+        ]);
+
+        return to_route('welcome.page', 'appointment')->with('success', 'Transaksi berhasil dibatalkan.');
     }
 
     public function showClassDetail(PilatesClass $pilatesClass): Response
@@ -935,6 +1080,28 @@ class StudioPageController extends Controller
                             });
                     });
             });
+    }
+
+    private function expirePendingAppointmentBookings(?int $appointmentId = null): void
+    {
+        $query = AppointmentBooking::query()
+            ->whereIn('status', ['pending', 'pending_payment'])
+            ->where('payment_type', 'drop_in')
+            ->where(function ($builder) {
+                $builder
+                    ->where('expired_at', '<=', now())
+                    ->orWhere(function ($fallback) {
+                        $fallback->whereNull('expired_at')->where('created_at', '<=', now()->subMinutes(15));
+                    });
+            });
+
+        if ($appointmentId) {
+            $query->where('appointment_id', $appointmentId);
+        }
+
+        $query->update([
+            'status' => 'expired',
+        ]);
     }
 
     private function expirePendingMemberships(?int $userId = null): void

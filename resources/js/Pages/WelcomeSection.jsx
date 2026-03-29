@@ -1518,7 +1518,6 @@ useEffect(() => {
                                             disabled={!canShowAppointmentPrice || (selectedAppointmentPaymentType === "credit" && (!hasMembershipCreditForSelection || !hasEnoughCreditForSession))}
                                             className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
                                         >
-                                            {/* {selectedAppointmentPaymentType === "drop_in" ? "Selesaikan Transaksi Drop-In" : "Selesaikan Pembayaran"} */}
                                             {selectedAppointmentPaymentType === "drop_in" ? "Selesaikan Pembayaran" : "Selesaikan Pembayaran"}
                                         </button>
 
@@ -1640,7 +1639,7 @@ useEffect(() => {
                                     onClick={processAppointmentCheckout}
                                     className="rounded-full bg-primary-600 px-5 py-2 text-sm font-semibold text-white"
                                 >
-                                    Konfirmasi
+                                    Konfirmasi Pembayaran
                                 </button>
                             </div>
                         </div>
