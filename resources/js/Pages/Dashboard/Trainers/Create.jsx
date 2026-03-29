@@ -36,7 +36,6 @@ export default function Create({ trainerUsers = [] }) {
 
             <form onSubmit={submit}>
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-w-4xl">
-                    <Input type="file" label="Foto" errors={errors.photo} onChange={(e) => setData("photo", e.target.files[0])} />
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">User Trainer</label>
                         <select value={data.user_id} onChange={(e) => setData("user_id", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
@@ -47,8 +46,10 @@ export default function Create({ trainerUsers = [] }) {
                         </select>
                         {errors.user_id && <small className="text-xs text-danger-500">{errors.user_id}</small>}
                     </div>
+                    <Input type="file" label="Foto" errors={errors.photo} onChange={(e) => setData("photo", e.target.files[0])} />
+                    
                     <Input type="date" label="Tanggal Lahir" value={data.date_of_birth} errors={errors.date_of_birth} onChange={(e) => setData("date_of_birth", e.target.value)} />
-                    <Input type="text" label="Keahlian" value={data.expertise} errors={errors.expertise} onChange={(e) => setData("expertise", e.target.value)} />
+                    
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Jenis Kelamin</label>
                         <select value={data.gender} onChange={(e) => setData("gender", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
@@ -58,6 +59,7 @@ export default function Create({ trainerUsers = [] }) {
                         {errors.gender && <small className="text-xs text-danger-500">{errors.gender}</small>}
                     </div>
                     <Textarea label="Alamat" value={data.address} errors={errors.address} onChange={(e) => setData("address", e.target.value)} rows={3} />
+                    <Input type="text" label="Keahlian" value={data.expertise} errors={errors.expertise} onChange={(e) => setData("expertise", e.target.value)} />
                     <Textarea label="Biodata" value={data.biodata} errors={errors.biodata} onChange={(e) => setData("biodata", e.target.value)} rows={4} />
 
                     <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">

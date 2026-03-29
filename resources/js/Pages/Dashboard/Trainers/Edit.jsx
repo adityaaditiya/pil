@@ -42,7 +42,6 @@ export default function Edit({ trainer }) {
                     <Input type="file" label="Foto" errors={errors.photo} onChange={(e) => setData("photo", e.target.files[0])} />
                     <Input type="text" label="User Trainer" value={trainer.user?.name || trainer.name || "-"} disabled />
                     <Input type="date" label="Tanggal Lahir" value={cleanDate} errors={errors.date_of_birth} onChange={(e) => setData("date_of_birth", e.target.value)}  />
-                    <Input type="text" label="Keahlian" value={data.expertise} errors={errors.expertise} onChange={(e) => setData("expertise", e.target.value)} />
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Gender</label>
                         <select value={data.gender} onChange={(e) => setData("gender", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
@@ -52,6 +51,7 @@ export default function Edit({ trainer }) {
                         {errors.gender && <small className="text-xs text-danger-500">{errors.gender}</small>}
                     </div>
                     <Textarea label="Alamat" value={data.address} errors={errors.address} onChange={(e) => setData("address", e.target.value)} rows={3} />
+                    <Input type="text" label="Keahlian" value={data.expertise} errors={errors.expertise} onChange={(e) => setData("expertise", e.target.value)} />
                     <Textarea label="Biodata" value={data.biodata} errors={errors.biodata} onChange={(e) => setData("biodata", e.target.value)} rows={4} />
 
                     <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
