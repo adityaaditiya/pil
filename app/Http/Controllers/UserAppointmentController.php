@@ -32,11 +32,16 @@ class UserAppointmentController extends Controller
             ->when($startDate !== '', fn ($query) => $query->whereHas('appointment', fn ($appointmentQuery) => $appointmentQuery->where('start_at', '>=', Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay()->timezone('UTC'))))
             ->when($endDate !== '', fn ($query) => $query->whereHas('appointment', fn ($appointmentQuery) => $appointmentQuery->where('start_at', '<=', Carbon::parse($endDate, 'Asia/Jakarta')->endOfDay()->timezone('UTC'))))
             ->when($status !== '', fn ($query) => $query->where('status', $status))
-            ->orderByRaw("CASE status WHEN 'confirmed' THEN 0 WHEN 'cancelled' THEN 1 ELSE 2 END")
+            ->orderByRaw("CASE status WHEN 'pending' THEN 0 WHEN 'pending_payment' THEN 1 WHEN 'confirmed' THEN 2 ELSE 3 END")
             ->latest('booked_at')
             ->latest('id')
             ->get()
             ->map(function (AppointmentBooking $booking) {
+                if (in_array($booking->status, ['pending', 'pending_payment'], true) && $booking->expired_at && $booking->expired_at->isPast()) {
+                    $booking->forceFill(['status' => 'expired'])->saveQuietly();
+                    $booking->status = 'expired';
+                }
+
                 return [
                     'id' => $booking->id,
                     'invoice' => $booking->invoice,
@@ -47,6 +52,8 @@ class UserAppointmentController extends Controller
                     'price_amount' => (float) $booking->price_amount,
                     'credit_used' => $booking->credit_used,
                     'booked_at' => optional($booking->booked_at)->toISOString(),
+                    'payment_proof_image' => $booking->payment_proof_image,
+                    'payment_due_at' => optional($booking->expired_at)->toISOString(),
                     'appointment' => [
                         'id' => $booking->appointment?->id,
                         'start_at' => optional($booking->appointment?->start_at)->toISOString(),
