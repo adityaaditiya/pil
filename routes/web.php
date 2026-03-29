@@ -26,6 +26,7 @@ use App\Http\Controllers\Reports\CashReportController;
 use App\Http\Controllers\Reports\SalesReportController;
 use App\Http\Controllers\Reports\SoldItemsReportController;
 use App\Http\Controllers\Reports\StockMutationReportController;
+use App\Http\Controllers\Reports\StudioTransactionReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StudioPageController;
 use App\Http\Controllers\TrainerController;
@@ -294,6 +295,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/reports/sold-items', [SoldItemsReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.sold-items.index');
     Route::get('/reports/sold-items/export', [SoldItemsReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.sold-items.export');
     Route::get('/reports/sold-items/export-pdf', [SoldItemsReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.sold-items.export-pdf');
+    Route::get('/reports/booking', [StudioTransactionReportController::class, 'booking'])->middleware('permission:reports-access')->name('reports.booking.index');
+    Route::get('/reports/appointment', [StudioTransactionReportController::class, 'appointment'])->middleware('permission:reports-access')->name('reports.appointment.index');
+    Route::get('/reports/membership', [StudioTransactionReportController::class, 'membership'])->middleware('permission:reports-access')->name('reports.membership.index');
     Route::get('/reports/profits', [ProfitReportController::class, 'index'])->middleware('permission:profits-access')->name('reports.profits.index');
     Route::get('/reports/profits/export', [ProfitReportController::class, 'export'])->middleware('permission:profits-access')->name('reports.profits.export');
     Route::get('/reports/profits/export-pdf', [ProfitReportController::class, 'exportPdf'])->middleware('permission:profits-access')->name('reports.profits.export-pdf');

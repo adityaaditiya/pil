@@ -287,6 +287,27 @@ function Menu() {
                     permissions: hasAnyPermission(["reports-access"]),
                 },
                 {
+                    title: "Laporan Booking",
+                    href: route("reports.booking.index"),
+                    active: url.startsWith("/dashboard/reports/booking"),
+                    icon: <IconCalendarEvent size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["reports-access"]),
+                },
+                {
+                    title: "Laporan Appointment",
+                    href: route("reports.appointment.index"),
+                    active: url.startsWith("/dashboard/reports/appointment"),
+                    icon: <IconCalendarClock size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["reports-access"]),
+                },
+                {
+                    title: "Laporan Membership",
+                    href: route("reports.membership.index"),
+                    active: url.startsWith("/dashboard/reports/membership"),
+                    icon: <IconBadge size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["reports-access"]),
+                },
+                {
                     title: "Laporan Keuntungan",
                     href: route("reports.profits.index"),
                     active: url.startsWith("/dashboard/reports/profits"),
