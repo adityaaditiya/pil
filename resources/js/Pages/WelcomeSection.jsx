@@ -111,9 +111,14 @@ const getRemainingSlots = (item) => {
     return Number(item.capacity || 0);
 };
 
-const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
+// const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
 
-
+const imageUrl = (folder, file) => {
+    if (!file) return null;
+    // Jika data berasal dari profil user/pelanggan, gunakan folder customers
+    const targetFolder = folder === 'trainers' ? 'customers' : folder;
+    return `/storage/${targetFolder}/${file}`;
+};
 
 const contactFaqs = [
     {

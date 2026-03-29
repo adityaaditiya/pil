@@ -45,9 +45,20 @@ export default function Index({ trainers }) {
                     <Table.Tbody>
                         {trainers.data.map((item) => (
                             <tr key={item.id}>
-                                <Table.Td>
+                                {/* <Table.Td>
                                     {item.photo ? (
                                         <img src={`/storage/trainers/${item.photo}`} alt={item.name} className="h-12 w-12 rounded-lg object-cover" />
+                                    ) : (
+                                        <div className="h-12 w-12 rounded-lg bg-slate-100" />
+                                    )}
+                                </Table.Td> */}
+                                <Table.Td>
+                                    {item.photo ? (
+                                        <img 
+                                            src={`/storage/customers/${item.photo}`} 
+                                            alt={item.name} 
+                                            className="h-12 w-12 rounded-lg object-cover" 
+                                        />
                                     ) : (
                                         <div className="h-12 w-12 rounded-lg bg-slate-100" />
                                     )}

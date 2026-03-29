@@ -419,7 +419,7 @@ export default function Welcome() {
                             {trainers.map((trainer) => (
                                 <Card key={trainer.name} className="text-center">
                                     <img
-                                        src={trainer.photo ? `/storage/trainers/${trainer.photo}` : "https://images.unsplash.com/photo-1595079835353-fb3cf0f83f20?auto=format&fit=crop&w=500&q=80"}
+                                        src={trainer.photo ? `/storage/customers/${trainer.photo}` : "https://images.unsplash.com/photo-1595079835353-fb3cf0f83f20?auto=format&fit=crop&w=500&q=80"}
                                         alt={trainer.name}
                                         className="mx-auto h-64 w-full rounded-2xl object-cover"
                                     />
