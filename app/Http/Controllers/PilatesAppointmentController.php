@@ -457,7 +457,7 @@ class PilatesAppointmentController extends Controller
 
         $alreadyBooked = AppointmentBooking::where('appointment_id', $appointment->id)
             ->where('customer_id', $validated['customer_id'])
-            ->where('status', '!=', 'cancelled')
+            ->whereNotIn('status', ['cancelled', 'expired'])
             ->exists();
 
         if ($alreadyBooked) {
