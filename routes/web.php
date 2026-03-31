@@ -30,6 +30,7 @@ use App\Http\Controllers\Reports\StudioTransactionReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StudioPageController;
 use App\Http\Controllers\TrainerController;
+use App\Http\Controllers\TrainerFlowController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserMembershipController;
 use App\Http\Controllers\UserMembershipHistoryController;
@@ -84,6 +85,8 @@ Route::middleware('auth')->delete('/welcome/schedule/bookings/{booking}/cancel',
 Route::middleware('auth')->get('/user/my-schedule', [UserScheduleController::class, 'index'])->name('user.my-schedule');
 Route::middleware('auth')->get('/user/my-appointment', [UserAppointmentController::class, 'index'])->name('user.my-appointment');
 Route::middleware('auth')->get('/user/my-memberships', [UserMembershipHistoryController::class, 'index'])->name('user.my-memberships');
+Route::middleware('auth')->get('/user/my-flow', [TrainerFlowController::class, 'index'])->name('user.my-flow');
+Route::middleware('auth')->patch('/user/my-flow/attendance', [TrainerFlowController::class, 'updateAttendance'])->name('user.my-flow.attendance');
 
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'permission:dashboard-access'])->name('dashboard');
