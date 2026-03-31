@@ -19,6 +19,7 @@ class PilatesBooking extends Model
         'membership_plan_id',
         'participants',
         'status',
+        'attendance_status',
         'booked_at',
         'payment_type',
         'payment_method',

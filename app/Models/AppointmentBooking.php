@@ -26,6 +26,7 @@ class AppointmentBooking extends Model
         'expired_at',
         'booked_at',
         'status',
+        'attendance_status',
     ];
 
     protected $casts = [
