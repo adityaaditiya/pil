@@ -46,11 +46,14 @@ class TrainerFlowController extends Controller
         $timetableSessions = PilatesTimetable::query()
             ->with([
                 'pilatesClass:id,name,available_for_timetable',
-                'bookings:id,timetable_id,user_id,status,attendance_status',
+                'bookings' => fn ($query) => $query
+                    ->select('id', 'timetable_id', 'user_id', 'status', 'attendance_status')
+                    ->where('status', 'confirmed'),
                 'bookings.user:id,name',
             ])
             ->where('trainer_id', $trainerId)
             ->whereBetween('start_at', [$filterStartUtc, $filterEndUtc])
+            ->whereHas('bookings', fn ($query) => $query->where('status', 'confirmed'))
             ->when($classType === 'timetable', fn ($query) => $query->whereHas('pilatesClass', fn ($classQuery) => $classQuery->where('available_for_timetable', true)))
             ->when($classType === 'appointment', fn ($query) => $query->whereRaw('1 = 0'))
             ->orderBy('start_at')
@@ -60,11 +63,14 @@ class TrainerFlowController extends Controller
         $appointmentSessions = PilatesAppointment::query()
             ->with([
                 'pilatesClass:id,name,available_for_appointment',
-                'bookings:id,appointment_id,customer_id,status,attendance_status',
+                'bookings' => fn ($query) => $query
+                    ->select('id', 'appointment_id', 'customer_id', 'status', 'attendance_status')
+                    ->where('status', 'confirmed'),
                 'bookings.customer:id,name',
             ])
             ->where('trainer_id', $trainerId)
             ->whereBetween('start_at', [$filterStartUtc, $filterEndUtc])
+            ->whereHas('bookings', fn ($query) => $query->where('status', 'confirmed'))
             ->when($classType === 'appointment', fn ($query) => $query->whereHas('pilatesClass', fn ($classQuery) => $classQuery->where('available_for_appointment', true)))
             ->when($classType === 'timetable', fn ($query) => $query->whereRaw('1 = 0'))
             ->orderBy('start_at')
