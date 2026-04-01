@@ -33,11 +33,11 @@ class TrainerFlowController extends Controller
 
         $todayJakarta = Carbon::now('Asia/Jakarta');
         $filterStartUtc = $startDate !== ''
-            ? Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay()->timezone('UTC')
-            : $todayJakarta->copy()->startOfDay()->timezone('UTC');
+            ? Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay()
+            : $todayJakarta->copy()->startOfDay();
         $filterEndUtc = $endDate !== ''
-            ? Carbon::parse($endDate, 'Asia/Jakarta')->endOfDay()->timezone('UTC')
-            : $todayJakarta->copy()->endOfDay()->timezone('UTC');
+            ? Carbon::parse($endDate, 'Asia/Jakarta')->endOfDay()
+            : $todayJakarta->copy()->endOfDay();
 
         if ($filterEndUtc->lt($filterStartUtc)) {
             [$filterStartUtc, $filterEndUtc] = [$filterEndUtc->copy()->startOfDay(), $filterStartUtc->copy()->endOfDay()];
@@ -149,8 +149,8 @@ class TrainerFlowController extends Controller
 
     private function mapTimetableSession(PilatesTimetable $session): array
     {
-        $startAt = optional($session->start_at)->toISOString();
-        $endAt = $session->start_at?->copy()->addMinutes((int) ($session->duration_minutes ?? 0))->toISOString();
+        $startAt = $session->start_at?->timezone('Asia/Jakarta')->toDateTimeString();
+        $endAt = $session->start_at?->copy()->addMinutes((int)$session->duration_minutes)->timezone('Asia/Jakarta')->toDateTimeString();
 
         return [
             'id' => $session->id,
@@ -177,8 +177,8 @@ class TrainerFlowController extends Controller
             'session_type' => 'appointment',
             'indicator' => 'appointment',
             'title' => $session->session_name ?: ($session->pilatesClass?->name ?? 'Private Appointment'),
-            'start_at' => optional($session->start_at)->toISOString(),
-            'end_at' => optional($session->end_at)->toISOString(),
+            'start_at' => $session->start_at?->timezone('Asia/Jakarta')->toDateTimeString(),
+            'end_at' => $session->end_at?->timezone('Asia/Jakarta')->toDateTimeString(),
             'duration_minutes' => (int) ($session->duration_minutes ?? 0),
             'session_status' => $this->resolveSessionStatus($session->start_at, $session->duration_minutes, $session->end_at),
             'clients' => $session->bookings->map(fn (AppointmentBooking $booking) => [

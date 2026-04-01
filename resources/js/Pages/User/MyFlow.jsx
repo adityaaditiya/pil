@@ -15,23 +15,27 @@ const applyFilters = (filters) => {
     });
 };
 
-const formatDate = (date) =>
-    date
-        ? new Intl.DateTimeFormat("id-ID", {
-              weekday: "long",
-              day: "2-digit",
-              month: "long",
-              year: "numeric",
-          }).format(new Date(date))
-        : "-";
+const formatDate = (date) => {
+    if (!date) return "-";
+    // Tambahkan pengecekan agar JS tidak menganggap ini UTC
+    const d = new Date(date.replace(' ', 'T')); 
+    return new Intl.DateTimeFormat("id-ID", {
+        weekday: "long",
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+    }).format(d);
+};
 
-const formatTime = (date) =>
-    date
-        ? new Intl.DateTimeFormat("id-ID", {
-              hour: "2-digit",
-              minute: "2-digit",
-          }).format(new Date(date))
-        : "-";
+const formatTime = (date) => {
+    if (!date) return "-";
+    const d = new Date(date.replace(' ', 'T'));
+    return new Intl.DateTimeFormat("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false // Opsional: paksa format 24 jam
+    }).format(d);
+};
 
 const sessionStatusStyle = {
     upcoming: "bg-sky-50 text-sky-700",
