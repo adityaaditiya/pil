@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AppointmentBooking;
 use App\Models\PilatesBooking;
 use App\Models\PilatesAppointment;
+use App\Models\PilatesClass;
 use App\Models\PilatesTimetable;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -23,30 +24,49 @@ class TrainerFlowController extends Controller
         $trainerId = optional($user->trainer)->id;
         abort_unless($trainerId, 403);
 
+        $startDate = trim((string) $request->string('start_date'));
+        $endDate = trim((string) $request->string('end_date'));
+        $classType = trim((string) $request->string('class_type'));
+        if (! in_array($classType, ['', 'appointment', 'timetable'], true)) {
+            $classType = '';
+        }
+
         $todayJakarta = Carbon::now('Asia/Jakarta');
-        $todayStartUtc = $todayJakarta->copy()->startOfDay()->timezone('UTC');
-        $todayEndUtc = $todayJakarta->copy()->endOfDay()->timezone('UTC');
+        $filterStartUtc = $startDate !== ''
+            ? Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay()->timezone('UTC')
+            : $todayJakarta->copy()->startOfDay()->timezone('UTC');
+        $filterEndUtc = $endDate !== ''
+            ? Carbon::parse($endDate, 'Asia/Jakarta')->endOfDay()->timezone('UTC')
+            : $todayJakarta->copy()->endOfDay()->timezone('UTC');
+
+        if ($filterEndUtc->lt($filterStartUtc)) {
+            [$filterStartUtc, $filterEndUtc] = [$filterEndUtc->copy()->startOfDay(), $filterStartUtc->copy()->endOfDay()];
+        }
 
         $timetableSessions = PilatesTimetable::query()
             ->with([
-                'pilatesClass:id,name',
+                'pilatesClass:id,name,available_for_timetable',
                 'bookings:id,timetable_id,user_id,status,attendance_status',
                 'bookings.user:id,name',
             ])
             ->where('trainer_id', $trainerId)
-            ->whereBetween('start_at', [$todayStartUtc, $todayEndUtc])
+            ->whereBetween('start_at', [$filterStartUtc, $filterEndUtc])
+            ->when($classType === 'timetable', fn ($query) => $query->whereHas('pilatesClass', fn ($classQuery) => $classQuery->where('available_for_timetable', true)))
+            ->when($classType === 'appointment', fn ($query) => $query->whereRaw('1 = 0'))
             ->orderBy('start_at')
             ->get()
             ->map(fn (PilatesTimetable $session) => $this->mapTimetableSession($session));
 
         $appointmentSessions = PilatesAppointment::query()
             ->with([
-                'pilatesClass:id,name',
+                'pilatesClass:id,name,available_for_appointment',
                 'bookings:id,appointment_id,customer_id,status,attendance_status',
                 'bookings.customer:id,name',
             ])
             ->where('trainer_id', $trainerId)
-            ->whereBetween('start_at', [$todayStartUtc, $todayEndUtc])
+            ->whereBetween('start_at', [$filterStartUtc, $filterEndUtc])
+            ->when($classType === 'appointment', fn ($query) => $query->whereHas('pilatesClass', fn ($classQuery) => $classQuery->where('available_for_appointment', true)))
+            ->when($classType === 'timetable', fn ($query) => $query->whereRaw('1 = 0'))
             ->orderBy('start_at')
             ->get()
             ->map(fn (PilatesAppointment $session) => $this->mapAppointmentSession($session));
@@ -76,12 +96,26 @@ class TrainerFlowController extends Controller
 
         $remainingTodaySessions = $sessions->filter(fn (array $session) => $session['session_status'] !== 'completed')->count();
 
+        $classTypeOptions = PilatesClass::query()
+            ->selectRaw('MAX(CASE WHEN available_for_timetable = 1 THEN 1 ELSE 0 END) as has_timetable')
+            ->selectRaw('MAX(CASE WHEN available_for_appointment = 1 THEN 1 ELSE 0 END) as has_appointment')
+            ->first();
+
         return Inertia::render('User/MyFlow', [
             'sessions' => $sessions,
             'stats' => [
                 'week_hours' => $weekHours,
                 'month_hours' => $monthHours,
                 'remaining_today_sessions' => $remainingTodaySessions,
+            ],
+            'filters' => [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'class_type' => $classType,
+            ],
+            'classTypeOptions' => [
+                'timetable' => (bool) ($classTypeOptions?->has_timetable ?? false),
+                'appointment' => (bool) ($classTypeOptions?->has_appointment ?? false),
             ],
         ]);
     }
