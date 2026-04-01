@@ -202,10 +202,12 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                                             <IconPlayerPlay size={16} />
                                             Durasi: {session.duration_minutes || 0} menit
                                         </p>
-                                        <p className="inline-flex items-center gap-2">
-                                            <IconChecklist size={16} />
-                                            Peserta: {(session.clients || []).length}
-                                        </p>
+                                        {session.session_type === "timetable" && (
+                                            <p className="inline-flex items-center gap-2">
+                                                <IconChecklist size={16} />
+                                                Peserta: {(session.clients || []).length}
+                                            </p>
+                                        )}
                                     </div>
 
                                     <div className="mt-6">

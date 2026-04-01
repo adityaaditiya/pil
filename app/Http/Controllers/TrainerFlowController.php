@@ -64,7 +64,7 @@ class TrainerFlowController extends Controller
             ->with([
                 'pilatesClass:id,name,available_for_appointment',
                 'bookings' => fn ($query) => $query
-                    ->select('id', 'appointment_id', 'customer_id', 'status', 'attendance_status')
+                    ->select('id', 'appointment_id', 'customer_id', 'session_name', 'status', 'attendance_status')
                     ->where('status', 'confirmed'),
                 'bookings.customer:id,name',
             ])
@@ -180,11 +180,17 @@ class TrainerFlowController extends Controller
 
     private function mapAppointmentSession(PilatesAppointment $session): array
     {
+        $sessionTitle = $session->bookings
+            ->pluck('session_name')
+            ->filter()
+            ->unique()
+            ->implode(', ');
+
         return [
             'id' => $session->id,
             'session_type' => 'appointment',
             'indicator' => 'appointment',
-            'title' => $session->session_name ?: ($session->pilatesClass?->name ?? 'Private Appointment'),
+            'title' => $sessionTitle !== '' ? $sessionTitle : ($session->session_name ?: ($session->pilatesClass?->name ?? 'Private Appointment')),
             'start_at' => $session->start_at?->timezone('Asia/Jakarta')->toDateTimeString(),
             'end_at' => $session->end_at?->timezone('Asia/Jakarta')->toDateTimeString(),
             'duration_minutes' => (int) ($session->duration_minutes ?? 0),
