@@ -214,18 +214,22 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                                             <div className="space-y-3">
                                                 {session.clients.map((client) => (
                                                     <div key={client.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 px-4 py-3">
-                                                        <div>
+                                                        <div className="grid grid-cols-1 gap-1">
                                                             <p className="inline-flex items-center gap-2 font-medium text-slate-800">
                                                                 <IconUser size={16} />
                                                                 {client.name}
+                                                            
+                                                            <span className={`rounded-full border px-3 py-0.9 text-xs font-semibold ${attendanceStyle[client.attendance_status] || attendanceStyle.pending}`}>
+                                                                {attendanceText[client.attendance_status] || attendanceText.pending}
+                                                            </span>
                                                             </p>
-                                                            <p className="text-xs text-slate-500">Status Booking: {client.booking_status || "-"}</p>
+                                                            <span className="text-xs text-slate-500">Status Booking: {client.booking_status || "-"}</span>
                                                         </div>
 
                                                         <div className="flex flex-wrap items-center gap-2">
-                                                            <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${attendanceStyle[client.attendance_status] || attendanceStyle.pending}`}>
+                                                            {/* <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${attendanceStyle[client.attendance_status] || attendanceStyle.pending}`}>
                                                                 {attendanceText[client.attendance_status] || attendanceText.pending}
-                                                            </span>
+                                                            </span> */}
                                                             <button
                                                                 type="button"
                                                                 onClick={() => updateAttendance(session.session_type, client.id, "present")}
