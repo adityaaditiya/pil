@@ -76,7 +76,7 @@ const updateAttendance = (bookingType, bookingId, attendanceStatus) => {
     );
 };
 
-export default function MyFlow({ sessions = [], stats = {}, filters = {}, classTypeOptions = {} }) {
+export default function MyFlow({ sessions = [], appointmentBookings = [], stats = {}, filters = {}, classTypeOptions = {} }) {
     const handleFilterChange = (key, value) => {
         applyFilters({
             ...filters,
@@ -248,6 +248,52 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                             ))}
                         </div>
                     )}
+
+                    <section className="mt-8 overflow-hidden rounded-3xl border border-primary-100 bg-white shadow-sm">
+                        <div className="border-b border-slate-200 px-6 py-4">
+                            <h2 className="text-lg font-semibold text-slate-800">Data Appointment Booking</h2>
+                            <p className="mt-1 text-sm text-slate-500">
+                                Tabel ini hanya menampilkan booking appointment milik trainer yang sedang login.
+                            </p>
+                        </div>
+
+                        {appointmentBookings.length === 0 ? (
+                            <p className="px-6 py-8 text-sm text-slate-500">Belum ada data booking appointment pada rentang filter ini.</p>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-slate-200 text-sm">
+                                    <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+                                        <tr>
+                                            <th className="px-4 py-3">Jadwal</th>
+                                            <th className="px-4 py-3">Jam</th>
+                                            <th className="px-4 py-3">Sesi</th>
+                                            <th className="px-4 py-3">Customer</th>
+                                            <th className="px-4 py-3">Status Booking</th>
+                                            <th className="px-4 py-3">Kehadiran</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {appointmentBookings.map((booking) => (
+                                            <tr key={`appointment-booking-${booking.booking_id}`} className="align-top">
+                                                <td className="px-4 py-3 text-slate-700">{formatDate(booking.session_start_at)}</td>
+                                                <td className="px-4 py-3 text-slate-700">
+                                                    {formatTime(booking.session_start_at)} - {formatTime(booking.session_end_at)} WIB
+                                                </td>
+                                                <td className="px-4 py-3 font-medium text-slate-800">{booking.session_title || "-"}</td>
+                                                <td className="px-4 py-3 text-slate-700">{booking.customer_name || "-"}</td>
+                                                <td className="px-4 py-3 text-slate-700">{booking.booking_status || "-"}</td>
+                                                <td className="px-4 py-3">
+                                                    <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${attendanceStyle[booking.attendance_status] || attendanceStyle.pending}`}>
+                                                        {attendanceText[booking.attendance_status] || attendanceText.pending}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </section>
                 </section>
             </div>
         </>

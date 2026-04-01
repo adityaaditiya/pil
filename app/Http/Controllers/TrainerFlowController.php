@@ -71,6 +71,24 @@ class TrainerFlowController extends Controller
             ->get()
             ->map(fn (PilatesAppointment $session) => $this->mapAppointmentSession($session));
 
+        $appointmentBookings = $appointmentSessions
+            ->flatMap(function (array $session): array {
+                return collect($session['clients'] ?? [])->map(function (array $client) use ($session): array {
+                    return [
+                        'session_id' => $session['id'],
+                        'session_title' => $session['title'],
+                        'session_start_at' => $session['start_at'],
+                        'session_end_at' => $session['end_at'],
+                        'booking_id' => $client['id'],
+                        'customer_name' => $client['name'],
+                        'booking_status' => $client['booking_status'],
+                        'attendance_status' => $client['attendance_status'],
+                    ];
+                })->all();
+            })
+            ->sortBy('session_start_at')
+            ->values();
+
         $sessions = $timetableSessions
             ->concat($appointmentSessions)
             ->sortBy('start_at')
@@ -103,6 +121,7 @@ class TrainerFlowController extends Controller
 
         return Inertia::render('User/MyFlow', [
             'sessions' => $sessions,
+            'appointmentBookings' => $appointmentBookings,
             'stats' => [
                 'week_hours' => $weekHours,
                 'month_hours' => $monthHours,
