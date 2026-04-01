@@ -336,7 +336,18 @@ class PilatesAppointmentController extends Controller
                 }
 
                 if ($existingAppointments->count() > $occurrenceItems->count()) {
-                    $existingAppointments->slice($occurrenceItems->count())->each->delete();
+                    $existingAppointments
+                        ->slice($occurrenceItems->count())
+                        ->each(function (PilatesAppointment $item) {
+                            $hasActiveBookings = AppointmentBooking::query()
+                                ->where('appointment_id', $item->id)
+                                ->whereNotIn('status', ['cancelled', 'expired'])
+                                ->exists();
+
+                            if (! $hasActiveBookings) {
+                                $item->delete();
+                            }
+                        });
                 }
             });
 
