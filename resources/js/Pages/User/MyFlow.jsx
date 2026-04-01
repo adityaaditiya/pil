@@ -8,6 +8,13 @@ import {
     IconUser,
 } from "@tabler/icons-react";
 
+const applyFilters = (filters) => {
+    router.get(route("user.my-flow"), filters, {
+        preserveState: true,
+        replace: true,
+    });
+};
+
 const formatDate = (date) =>
     date
         ? new Intl.DateTimeFormat("id-ID", {
@@ -69,7 +76,22 @@ const updateAttendance = (bookingType, bookingId, attendanceStatus) => {
     );
 };
 
-export default function MyFlow({ sessions = [], stats = {} }) {
+export default function MyFlow({ sessions = [], stats = {}, filters = {}, classTypeOptions = {} }) {
+    const handleFilterChange = (key, value) => {
+        applyFilters({
+            ...filters,
+            [key]: value,
+        });
+    };
+
+    const resetFilters = () => {
+        applyFilters({
+            start_date: "",
+            end_date: "",
+            class_type: "",
+        });
+    };
+
     return (
         <>
             <Head title="My Flow" />
@@ -98,6 +120,50 @@ export default function MyFlow({ sessions = [], stats = {} }) {
                             <p className="text-sm text-slate-500">Sisa Sesi Hari Ini</p>
                             <p className="mt-2 text-2xl font-bold text-slate-800">{stats.remaining_today_sessions || 0} sesi</p>
                         </article>
+                    </div>
+
+                    <div className="mb-6 rounded-3xl border border-primary-100 bg-white p-4 shadow-sm">
+                        <div className="grid gap-4 md:grid-cols-4">
+                            <label className="text-sm text-slate-600">
+                                <span className="mb-1 block font-medium text-slate-700">Tanggal Mulai</span>
+                                <input
+                                    type="date"
+                                    value={filters.start_date || ""}
+                                    onChange={(event) => handleFilterChange("start_date", event.target.value)}
+                                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                                />
+                            </label>
+                            <label className="text-sm text-slate-600">
+                                <span className="mb-1 block font-medium text-slate-700">Tanggal Akhir</span>
+                                <input
+                                    type="date"
+                                    value={filters.end_date || ""}
+                                    onChange={(event) => handleFilterChange("end_date", event.target.value)}
+                                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                                />
+                            </label>
+                            <label className="text-sm text-slate-600">
+                                <span className="mb-1 block font-medium text-slate-700">Jenis Kelas</span>
+                                <select
+                                    value={filters.class_type || ""}
+                                    onChange={(event) => handleFilterChange("class_type", event.target.value)}
+                                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                                >
+                                    <option value="">Semua Jenis</option>
+                                    {classTypeOptions.appointment && <option value="appointment">Appointment</option>}
+                                    {classTypeOptions.timetable && <option value="timetable">Fixed Timetable</option>}
+                                </select>
+                            </label>
+                            <div className="flex items-end">
+                                <button
+                                    type="button"
+                                    onClick={resetFilters}
+                                    className="w-full rounded-xl border border-slate-300 px-4 py-2 font-semibold text-slate-700 transition hover:bg-slate-50"
+                                >
+                                    Reset Filter
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     {sessions.length === 0 ? (
