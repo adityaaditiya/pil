@@ -85,9 +85,11 @@ class TrainerFlowController extends Controller
         $weekHours = $this->calculateDurationHours(
             PilatesTimetable::query()->where('trainer_id', $trainerId)
                 ->whereBetween('start_at', [$todayJakarta->copy()->startOfWeek()->timezone('UTC'), $todayJakarta->copy()->endOfWeek()->timezone('UTC')])
+                ->whereHas('bookings', fn ($query) => $query->where('status', 'confirmed'))
                 ->sum('duration_minutes'),
             PilatesAppointment::query()->where('trainer_id', $trainerId)
                 ->whereBetween('start_at', [$todayJakarta->copy()->startOfWeek()->timezone('UTC'), $todayJakarta->copy()->endOfWeek()->timezone('UTC')])
+                ->whereHas('bookings', fn ($query) => $query->where('status', 'confirmed'))
                 ->sum('duration_minutes')
         );
 
