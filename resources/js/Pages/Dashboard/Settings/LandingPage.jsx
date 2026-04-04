@@ -9,18 +9,18 @@ import toast from "react-hot-toast";
 const imageFields = [
     {
         key: "hero_background_image",
-        title: "Gambar Background Section Pilates Studio Premium",
-        description: "Digunakan pada section utama welcome dengan headline Pilates Studio Premium.",
+        title: "Header Utama",
+        description: "kesan pertama saat pelanggan membuka website.",
     },
     {
         key: "schedule_background_image",
-        title: "Gambar Background SectionTitle Schedule",
-        description: "Digunakan pada section Schedule di halaman landing page (welcome).",
+        title: "Gambar Background Banner Menu Schedule",
+        description: "Digunakan pada section Schedule di halaman landing page.",
     },
     {
         key: "classes_background_image",
-        title: "Gambar Background SectionTitle Classes",
-        description: "Digunakan pada section Classes di halaman landing page (welcome).",
+        title: "Gambar Background Banner Menu Classes",
+        description: "Digunakan pada section Classes di halaman landing page.",
     },
 ];
 
@@ -75,7 +75,7 @@ export default function LandingPage({ setting }) {
                     Kelola Gambar Landing Page
                 </h1>
                 <p className="mt-2 max-w-3xl text-sm text-slate-500 dark:text-slate-400">
-                    Kelola gambar pada halaman landing page (welcome) untuk background section Pilates Studio Premium, Schedule, dan Classes.
+                    Personalisasi tampilan landing page. Atur foto latar belakang terbaik untuk menarik minat pelanggan.
                 </p>
             </div>
 
