@@ -50,7 +50,7 @@ class StudioTransactionReportController extends Controller
         return Inertia::render('Dashboard/Reports/StudioTransactionReport', [
             'report' => [
                 'title' => 'Laporan Booking',
-                'description' => 'Laporan transaksi booking dengan status confirmed.',
+                'description' => 'Laporan transaksi booking',
                 'route' => 'reports.booking.index',
             ],
             'filters' => $filters,
@@ -100,7 +100,7 @@ class StudioTransactionReportController extends Controller
         return Inertia::render('Dashboard/Reports/StudioTransactionReport', [
             'report' => [
                 'title' => 'Laporan Appointment',
-                'description' => 'Laporan transaksi appointment dengan status confirmed.',
+                'description' => 'Laporan transaksi appointment',
                 'route' => 'reports.appointment.index',
             ],
             'filters' => $filters,
@@ -152,7 +152,7 @@ class StudioTransactionReportController extends Controller
         return Inertia::render('Dashboard/Reports/StudioTransactionReport', [
             'report' => [
                 'title' => 'Laporan Membership',
-                'description' => 'Laporan transaksi membership yang sudah diinput (bukan menunggu pembayaran, cancelled, atau expired).',
+                'description' => 'Laporan transaksi membership',
                 'route' => 'reports.membership.index',
             ],
             'filters' => $filters,
