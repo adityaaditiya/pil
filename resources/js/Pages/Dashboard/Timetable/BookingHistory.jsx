@@ -248,7 +248,7 @@ export default function BookingHistory({ bookings, filters = {} }) {
 
     return (
         <>
-            <Head title="Riwayat Booking" />
+            <Head title="Riwayat Booking Schedule" />
 
             <div className="space-y-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -258,7 +258,7 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                 size={28}
                                 className="text-primary-500"
                             />
-                            Riwayat Booking
+                            Riwayat Booking Schedule
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
                             {bookings?.total || 0} booking customer tercatat
@@ -515,7 +515,7 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                             colSpan={11}
                                             className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400"
                                         >
-                                            Belum ada data riwayat booking.
+                                            Belum ada data riwayat booking schedule.
                                         </td>
                                     </tr>
                                 )}

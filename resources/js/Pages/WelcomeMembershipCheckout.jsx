@@ -152,11 +152,11 @@ export default function WelcomeMembershipCheckout({
                         </div>
                     )}
 
-                    {membership?.payment_proof_image && (
+                    {/* {membership?.payment_proof_image && (
                         <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
                             Bukti pembayaran sudah diupload. Menunggu konfirmasi admin.
                         </div>
-                    )}
+                    )} */}
 
                     {secondsLeft === 0 && !membership?.payment_proof_image && (
                         <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
