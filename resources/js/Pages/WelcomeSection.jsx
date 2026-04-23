@@ -1859,9 +1859,9 @@ useEffect(() => {
                             <article key={trainer.id} className="overflow-hidden rounded-3xl border border-primary-100 bg-white shadow-sm">
                                 {trainer.photo && <img src={imageUrl("trainers", trainer.photo)} alt={trainer.name} className="h-64 w-full object-cover" />}
                                 <div className="space-y-2 p-6">
-                                    <h3 className="text-xl font-semibold flex items-center gap-2">
+                                    <h3 className="text-xl font-semibold flex items-center gap-3">
                                         <IconUser size={16} /> {trainer.name}
-                                        <span className="mx-0.2">|</span>
+                                        <span className="mx-0.2">●</span>
                                         <p className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
                                             <IconYoga size={16} /> {trainer.expertise || "Spesialisasi trainer belum diisi."}
                                         </p>

@@ -83,7 +83,7 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                                             <td className="px-4 py-3 text-slate-700">{plan?.valid_days ? `${plan.valid_days} hari` : "Tanpa batas waktu"}</td>
                                         </tr>
                                         <tr>
-                                            <td className="bg-slate-50 px-4 py-3 font-medium text-slate-700">Rule Class yang Diizinkan</td>
+                                            <td className="bg-slate-50 px-4 py-3 font-medium text-slate-700">Pilihan Kelas</td>
                                             <td className="px-4 py-3 text-slate-700">
                                                 {allowedClasses.length ? (
                                                     <ul className="space-y-2">

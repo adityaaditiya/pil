@@ -180,7 +180,8 @@ export default function Welcome() {
                             <img
                                 src={heroBackgroundImage}
                                 alt="Pilates class"
-                                className="h-full min-h-[420px] w-full object-cover"
+                                className="h-auto w-full md:w-full object-contain mx-auto"
+                                style={{ maxWidth: "100%", height: "auto" }}
                             />
                         </div>
                     </div>

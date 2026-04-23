@@ -137,7 +137,7 @@ export default function BookingHistory({ bookings, filters = {} }) {
         }
 
         Swal.fire({
-            title: "Upload Foto Bukti Pembayaran",
+            title: "Foto Bukti Pembayaran",
             html: `
                 <div class="space-y-4">
                     <img src="/storage/${booking.payment_proof_image}" alt="Bukti Pembayaran" class="mx-auto max-h-[60vh] rounded-lg border border-slate-200" />

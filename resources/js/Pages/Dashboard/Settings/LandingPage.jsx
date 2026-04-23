@@ -25,7 +25,7 @@ const imageFields = [
     {
         key: "studio_logo_image",
         title: "Logo Studio Navbar",
-        description: "Digunakan sebagai logo pada navbar landing page untuk mengganti icon yoga default.",
+        description: "Digunakan sebagai logo pada navbar landing page.",
     },
 ];
 
