@@ -22,6 +22,11 @@ const imageFields = [
         title: "Gambar Background Banner Menu Classes",
         description: "Digunakan pada section Classes di halaman landing page.",
     },
+    {
+        key: "studio_logo_image",
+        title: "Logo Studio Navbar",
+        description: "Digunakan sebagai logo pada navbar landing page untuk mengganti icon yoga default.",
+    },
 ];
 
 export default function LandingPage({ setting }) {
@@ -31,6 +36,7 @@ export default function LandingPage({ setting }) {
         hero_background_image: null,
         schedule_background_image: null,
         classes_background_image: null,
+        studio_logo_image: null,
         _method: "PUT",
     });
 
@@ -53,8 +59,18 @@ export default function LandingPage({ setting }) {
                 data.classes_background_image instanceof File
                     ? URL.createObjectURL(data.classes_background_image)
                     : getImageUrl(setting?.classes_background_image, "landing-page"),
+            studio_logo_image:
+                data.studio_logo_image instanceof File
+                    ? URL.createObjectURL(data.studio_logo_image)
+                    : getImageUrl(setting?.studio_logo_image, "landing-page"),
         }),
-        [data.classes_background_image, data.hero_background_image, data.schedule_background_image, setting],
+        [
+            data.classes_background_image,
+            data.hero_background_image,
+            data.schedule_background_image,
+            data.studio_logo_image,
+            setting,
+        ],
     );
 
     const handleSubmit = (event) => {

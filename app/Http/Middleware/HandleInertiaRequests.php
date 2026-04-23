@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\LandingPageSetting;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -40,7 +41,8 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
             'success' => $request->session()->get('success'),
             'error' => $request->session()->get('error'),
-        ],
+            ],
+            'landingPageSetting' => fn () => LandingPageSetting::firstOrCreate([], LandingPageSetting::defaultAttributes()),
         ];
     }
 }
