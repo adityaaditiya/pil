@@ -10,6 +10,7 @@ class PilatesTimetable extends Model
     use HasFactory;
 
     protected $fillable = [
+        'parent_id',
         'pilates_class_id',
         'trainer_id',
         'start_at',
@@ -19,9 +20,11 @@ class PilatesTimetable extends Model
         'credit_override',
         'allow_drop_in',
         'status',
+        'admin_notes',
     ];
 
     protected $casts = [
+        'parent_id' => 'integer',
         'start_at' => 'datetime',
         'capacity' => 'integer',
         'duration_minutes' => 'integer',
@@ -29,6 +32,16 @@ class PilatesTimetable extends Model
         'credit_override' => 'decimal:2',
         'allow_drop_in' => 'boolean',
     ];
+
+    public function parent()
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
 
     public function pilatesClass()
     {
