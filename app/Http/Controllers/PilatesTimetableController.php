@@ -21,14 +21,14 @@ use Inertia\Response;
 class PilatesTimetableController extends Controller
 {
     private const WEEKDAY_MAP = [
-        'monday' => Carbon::MONDAY,
-        'tuesday' => Carbon::TUESDAY,
-        'wednesday' => Carbon::WEDNESDAY,
-        'thursday' => Carbon::THURSDAY,
-        'friday' => Carbon::FRIDAY,
-        'saturday' => Carbon::SATURDAY,
-        'sunday' => Carbon::SUNDAY,
-    ];
+    'senin'  => Carbon::MONDAY,
+    'selasa' => Carbon::TUESDAY,
+    'rabu'   => Carbon::WEDNESDAY,
+    'kamis'  => Carbon::THURSDAY,
+    'jumat'  => Carbon::FRIDAY,
+    'sabtu'  => Carbon::SATURDAY,
+    'minggu' => Carbon::SUNDAY,
+];
 
     private const UPDATE_SCOPE_SINGLE = 'single';
 
@@ -417,6 +417,12 @@ class PilatesTimetableController extends Controller
         $startDate = Carbon::parse($validated['start_date'], 'Asia/Jakarta')->startOfDay();
         $endDate = Carbon::parse($validated['end_date'], 'Asia/Jakarta')->startOfDay();
 
+        // Mapping manual untuk mencocokkan hari Carbon ke Key Indonesia kamu
+    $englishToIndo = [
+        'monday' => 'senin', 'tuesday' => 'selasa', 'wednesday' => 'rabu',
+        'thursday' => 'kamis', 'friday' => 'jumat', 'saturday' => 'sabtu', 'sunday' => 'minggu'
+    ];
+
         $schedules = collect($validated['schedules'] ?? [])
             ->mapWithKeys(function (array $schedule, string $day) {
                 $slots = collect(Arr::get($schedule, 'slots', []))
@@ -462,7 +468,7 @@ class PilatesTimetableController extends Controller
         }
 
         if (! $validated['repeat_schedule']) {
-            $weekdayKey = strtolower($startDate->englishDayOfWeek);
+            $weekdayKey = $englishToIndo[strtolower($startDate->englishDayOfWeek)]; // Pakai mapping indo
             $selectedSchedule = $schedules->get($weekdayKey);
 
             if (! $selectedSchedule || ! $selectedSchedule['active']) {
@@ -480,9 +486,9 @@ class PilatesTimetableController extends Controller
         }
 
         return collect(range(0, $startDate->diffInDays($endDate)))
-            ->flatMap(function ($offset) use ($startDate, $schedules, $durationMinutes) {
+            ->flatMap(function ($offset) use ($startDate, $schedules, $durationMinutes, $englishToIndo) {
                 $date = $startDate->copy()->addDays($offset);
-                $weekdayKey = strtolower($date->englishDayOfWeek);
+                $weekdayKey = $englishToIndo[strtolower($date->englishDayOfWeek)]; // Pakai mapping indo
                 $selectedSchedule = $schedules->get($weekdayKey);
 
                 if (! $selectedSchedule || ! $selectedSchedule['active']) {
@@ -528,6 +534,13 @@ class PilatesTimetableController extends Controller
 
     private function buildEditSchedules(Collection $sessions): array
     {
+
+        
+        $englishToIndo = [
+        'monday' => 'senin', 'tuesday' => 'selasa', 'wednesday' => 'rabu',
+        'thursday' => 'kamis', 'friday' => 'jumat', 'saturday' => 'sabtu', 'sunday' => 'minggu'
+    ];
+
         $defaultSchedules = collect(array_keys(self::WEEKDAY_MAP))
             ->mapWithKeys(fn (string $day) => [$day => [
                 'active' => false,
@@ -548,7 +561,7 @@ class PilatesTimetableController extends Controller
                 continue;
             }
 
-            $weekdayKey = strtolower($startAt->englishDayOfWeek);
+            $weekdayKey = $englishToIndo[strtolower($startAt->englishDayOfWeek)];
             $slot = [
                 'start_hour' => $startAt->format('H'),
                 'start_minute' => $startAt->format('i'),
@@ -587,6 +600,18 @@ class PilatesTimetableController extends Controller
 
     private function assertNoConflicts(Collection $occurrences, int $trainerId, array $ignoreTimetableIds = []): void
     {
+
+            if ($occurrences->isEmpty()) {
+            return;
+        }
+
+        $minStart = $occurrences->min(fn ($occurrence) => $occurrence['start_at']);
+        $maxEnd = $occurrences->max(fn ($occurrence) => $occurrence['end_at']);
+
+        if (!$minStart || !$maxEnd) {
+            return;
+        }
+
         $rangeStart = $occurrences->min(fn ($occurrence) => $occurrence['start_at'])->clone()->timezone('Asia/Jakarta');
         $rangeEnd = $occurrences->max(fn ($occurrence) => $occurrence['end_at'])->clone()->timezone('Asia/Jakarta');
 
