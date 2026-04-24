@@ -118,15 +118,24 @@ export default function Create({ classes = [], trainers = [] }) {
 
                         <div className="space-y-2">
                             <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Durasi (Menit)</label>
-                            <input
-                                type="number"
-                                min="1"
-                                value={data.duration_minutes}
-                                onChange={(event) => setData("duration_minutes", event.target.value)}
-                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800"
-                                placeholder="Opsional, contoh: 60"
-                            />
-                            {errors.duration_minutes && <p className="text-xs text-rose-500">{errors.duration_minutes}</p>}
+                            <select
+                                        name="duration_minutes"
+                                        value={data.duration_minutes} // Langsung ikat ke data
+                                        onChange={(event) => setData("duration_minutes", event.target.value)}
+                                        className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm focus:border-primary-500 focus:ring-primary-500"
+                                    >
+                                        {/* Tambahkan opsi placeholder jika perlu, atau langsung mulai dari 30 */}
+                                        <option value="" disabled>Pilih Durasi</option> 
+                                        {[30, 60, 90, 120, 150, 180].map((val) => (
+                                            <option key={val} value={val}>
+                                                {val} Menit
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                        {errors.duration_minutes && (
+                                            <p className="text-xs text-rose-500">{errors.duration_minutes}</p>
+                                        )}
                         </div>
 
                         <div className="space-y-2">
