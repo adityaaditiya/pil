@@ -52,7 +52,7 @@ class PilatesBooking extends Model
         static::retrieved(function (self $booking) {
             if (
                 $booking->payment_type === 'drop_in'
-                && $booking->status === 'pending_payment'
+                && in_array($booking->status, ['pending', 'pending_payment'], true)
                 && $booking->expired_at
                 && now()->greaterThan($booking->expired_at)
             ) {
