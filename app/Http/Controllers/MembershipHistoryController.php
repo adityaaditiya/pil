@@ -40,7 +40,7 @@ class MembershipHistoryController extends Controller
             ->paginate(10)
             ->withQueryString()
             ->through(function (UserMembership $membership) {
-                if (in_array($membership->status, ['pending', 'pending_payment'], true) && $membership->expired_at && $membership->expired_at->isPast()) {
+                if ($membership->status === 'pending_payment' && $membership->expired_at && $membership->expired_at->isPast()) {
                     $membership->forceFill(['status' => 'expired'])->saveQuietly();
                     $membership->status = 'expired';
                 }
