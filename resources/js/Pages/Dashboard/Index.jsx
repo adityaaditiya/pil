@@ -3,18 +3,15 @@ import { Head, Link } from "@inertiajs/react";
 import { useEffect, useMemo, useRef } from "react";
 import Chart from "chart.js/auto";
 import {
-    IconBox,
-    IconCategory,
-    IconMoneybag,
-    IconUsers,
+    IconUserStar,
     IconCoin,
-    IconReceipt,
-    IconTrendingUp,
-    IconArrowUpRight,
-    IconArrowDownRight,
+    IconUsers,
+    IconBuildingCommunity,
     IconShoppingCart,
     IconChartBar,
-    IconClock,
+    IconChartPie3,
+    IconCalendarTime,
+    IconUserCheck,
 } from "@tabler/icons-react";
 
 const formatCurrency = (value = 0) =>
@@ -57,42 +54,9 @@ function StatCard({ title, value, subtitle, icon: Icon, gradient, trend }) {
 
                 {subtitle && (
                     <p className="mt-2 text-sm opacity-80 flex items-center gap-1">
-                        {trend === "up" && <IconArrowUpRight size={14} />}
-                        {trend === "down" && <IconArrowDownRight size={14} />}
                         {subtitle}
                     </p>
                 )}
-            </div>
-        </div>
-    );
-}
-
-// Info Card Component
-function InfoCard({ title, value, subtitle, icon: Icon }) {
-    return (
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 transition-all hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700">
-            <div className="flex items-center justify-between">
-                <div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                        {title}
-                    </p>
-                    <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
-                        {value}
-                    </p>
-                    {subtitle && (
-                        <p className="mt-1 text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
-                            <Icon size={14} />
-                            {subtitle}
-                        </p>
-                    )}
-                </div>
-                <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800">
-                    <Icon
-                        size={24}
-                        className="text-slate-600 dark:text-slate-400"
-                        strokeWidth={1.5}
-                    />
-                </div>
             </div>
         </div>
     );
@@ -134,21 +98,22 @@ function ListCard({ title, subtitle, icon: Icon, children, emptyMessage }) {
 }
 
 export default function Dashboard({
-    totalCategories,
-    totalProducts,
-    totalTransactions,
-    totalUsers,
     revenueTrend,
     totalRevenue,
-    totalProfit,
-    averageOrder,
     todayTransactions,
-    topProducts = [],
-    recentTransactions = [],
-    topCustomers = [],
+    activeMembers,
+    todayClassOccupancyRate,
+    todayAttendanceCount,
+    todayConfirmedBookingCount,
+    membershipDistribution = [],
+    expiringMemberships = [],
+    topTrainers = [],
+    classFillRates = [],
 }) {
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
+    const pieChartRef = useRef(null);
+    const pieChartInstance = useRef(null);
 
     const chartData = useMemo(() => revenueTrend ?? [], [revenueTrend]);
 
@@ -167,9 +132,9 @@ export default function Dashboard({
         const totals = chartData.map((item) => item.total);
 
         const ctx = chartRef.current.getContext("2d");
-        const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-        gradient.addColorStop(0, "rgba(99, 102, 241, 0.3)");
-        gradient.addColorStop(1, "rgba(99, 102, 241, 0.01)");
+        const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+        gradient.addColorStop(0, "rgba(217, 119, 6, 0.35)");
+        gradient.addColorStop(1, "rgba(245, 158, 11, 0.03)");
 
         chartInstance.current = new Chart(chartRef.current, {
             type: "line",
@@ -179,14 +144,14 @@ export default function Dashboard({
                     {
                         label: "Pendapatan",
                         data: totals,
-                        borderColor: "#6366f1",
+                        borderColor: "#b45309",
                         backgroundColor: gradient,
                         borderWidth: 3,
                         fill: true,
                         tension: 0.4,
                         pointRadius: 0,
                         pointHoverRadius: 6,
-                        pointHoverBackgroundColor: "#6366f1",
+                        pointHoverBackgroundColor: "#b45309",
                         pointHoverBorderColor: "#fff",
                         pointHoverBorderWidth: 2,
                     },
@@ -202,9 +167,9 @@ export default function Dashboard({
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: "#1e293b",
-                        titleColor: "#f1f5f9",
-                        bodyColor: "#f1f5f9",
+                        backgroundColor: "#1f2937",
+                        titleColor: "#fef3c7",
+                        bodyColor: "#fef3c7",
                         padding: 12,
                         borderRadius: 8,
                         displayColors: false,
@@ -218,18 +183,18 @@ export default function Dashboard({
                         beginAtZero: true,
                         ticks: {
                             callback: (value) => formatCurrency(value),
-                            color: "#94a3b8",
+                            color: "#64748b",
                             font: { size: 11 },
                         },
                         grid: {
-                            color: "rgba(148, 163, 184, 0.1)",
+                            color: "rgba(100, 116, 139, 0.12)",
                             drawBorder: false,
                         },
                         border: { display: false },
                     },
                     x: {
                         ticks: {
-                            color: "#94a3b8",
+                            color: "#64748b",
                             font: { size: 11 },
                         },
                         grid: { display: false },
@@ -242,6 +207,51 @@ export default function Dashboard({
         return () => chartInstance.current?.destroy();
     }, [chartData]);
 
+    useEffect(() => {
+        if (!pieChartRef.current) return;
+
+        if (pieChartInstance.current) {
+            pieChartInstance.current.destroy();
+            pieChartInstance.current = null;
+        }
+
+        if (!membershipDistribution.length) return;
+
+        pieChartInstance.current = new Chart(pieChartRef.current, {
+            type: "doughnut",
+            data: {
+                labels: membershipDistribution.map((item) => item.name),
+                datasets: [
+                    {
+                        data: membershipDistribution.map((item) => item.total),
+                        backgroundColor: [
+                            "#d97706",
+                            "#ca8a04",
+                            "#92400e",
+                            "#475569",
+                            "#64748b",
+                            "#bfa174",
+                        ],
+                        borderWidth: 0,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "65%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: { usePointStyle: true, boxWidth: 8 },
+                    },
+                },
+            },
+        });
+
+        return () => pieChartInstance.current?.destroy();
+    }, [membershipDistribution]);
+
     return (
         <>
             <Head title="Dashboard" />
@@ -250,16 +260,16 @@ export default function Dashboard({
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                        <h1 className="text-2xl font-bold text-slate-800">
                             Dashboard
                         </h1>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Ringkasan aktivitas bisnis Anda
+                        <p className="text-sm text-slate-500">
+                            Insight strategis studio Anda dengan tampilan premium
                         </p>
                     </div>
                     <Link
                         href={route("transactions.index")}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium transition-colors shadow-lg shadow-primary-500/30"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium transition-colors shadow-lg shadow-amber-700/20"
                     >
                         <IconShoppingCart size={18} />
                         <span>Transaksi Baru</span>
@@ -271,64 +281,39 @@ export default function Dashboard({
                     <StatCard
                         title="Total Pendapatan"
                         value={formatCurrency(totalRevenue)}
-                        subtitle="Berdasarkan transaksi hari ini"
+                        subtitle="Produk + Membership + Appointment + Timetable"
                         icon={IconCoin}
-                        gradient="from-primary-500 to-primary-700"
+                        gradient="from-amber-500 to-amber-700"
                     />
-                    {/* <StatCard
-                        title="Total Profit"
-                        value={formatCurrency(totalProfit)}
-                        subtitle="Profit bersih"
-                        icon={IconTrendingUp}
-                        gradient="from-success-500 to-success-700"
-                        trend="up"
-                    /> */}
                     <StatCard
-                        title="Rata-Rata Order"
-                        value={formatCurrency(averageOrder)}
-                        subtitle="Per transaksi hari ini"
-                        icon={IconReceipt}
-                        gradient="from-accent-500 to-accent-700"
+                        title="Member Aktif"
+                        value={activeMembers}
+                        subtitle="Membership aktif saat ini"
+                        icon={IconUserStar}
+                        gradient="from-slate-600 to-slate-800"
+                    />
+                    <StatCard
+                        title="Okupansi Kelas Hari Ini"
+                        value={`${todayClassOccupancyRate}%`}
+                        subtitle={`${todayAttendanceCount}/${todayConfirmedBookingCount} hadir/tercatat`}
+                        icon={IconBuildingCommunity}
+                        gradient="from-stone-500 to-stone-700"
                     />
                     <StatCard
                         title="Transaksi Hari Ini"
                         value={todayTransactions}
-                        subtitle="Transaksi"
-                        icon={IconClock}
-                        gradient="from-warning-500 to-warning-600"
+                        subtitle="Transaksi produk kasir"
+                        icon={IconShoppingCart}
+                        gradient="from-amber-400 to-amber-600"
                     />
                 </div>
-
-                {/* Secondary Stats */}
-                {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <InfoCard
-                        title="Total Kategori"
-                        value={totalCategories}
-                        icon={IconCategory}
-                    />
-                    <InfoCard
-                        title="Total Produk"
-                        value={totalProducts}
-                        icon={IconBox}
-                    />
-                    <InfoCard
-                        title="Total Transaksi"
-                        value={totalTransactions}
-                        icon={IconMoneybag}
-                    />
-                    <InfoCard
-                        title="Total Pengguna"
-                        value={totalUsers}
-                        icon={IconUsers}
-                    />
-                </div> */}
 
                 {/* Charts and Lists Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Revenue Chart */}
                     <ListCard
                         title="Tren Pendapatan"
-                        subtitle="12 data terakhir"
+                        subtitle="Gabungan produk, membership, appointment, timetable"
                         icon={IconChartBar}
                         emptyMessage="Belum ada data pendapatan"
                     >
@@ -339,108 +324,121 @@ export default function Dashboard({
                         )}
                     </ListCard>
 
-                    {/* Top Products */}
+                    {/* Membership Distribution */}
                     <ListCard
-                        title="Produk Terlaris"
-                        subtitle="Berdasarkan penjualan"
-                        icon={IconBox}
-                        emptyMessage="Belum ada data produk"
+                        title="Distribusi Membership"
+                        subtitle="Jenis membership paling diminati"
+                        icon={IconChartPie3}
+                        emptyMessage="Belum ada data membership"
                     >
-                        {topProducts.length > 0 && (
-                            <ul className="space-y-3">
-                                {topProducts.map((product, index) => (
-                                    <li
-                                        key={index}
-                                        className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <span className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400 text-xs font-bold flex items-center justify-center">
-                                                {index + 1}
-                                            </span>
-                                            <div>
-                                                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                                                    {product.name}
-                                                </p>
-                                                <p className="text-xs text-slate-500">
-                                                    {product.qty} terjual
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                                            {formatCurrency(product.total)}
-                                        </p>
-                                    </li>
-                                ))}
-                            </ul>
+                        {membershipDistribution.length > 0 && (
+                            <div className="h-64">
+                                <canvas ref={pieChartRef} />
+                            </div>
                         )}
                     </ListCard>
                 </div>
 
-                {/* Bottom Row */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Recent Transactions */}
+                {/* Insights Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <ListCard
-                        title="Transaksi Terbaru"
-                        subtitle="5 transaksi terakhir"
-                        icon={IconReceipt}
-                        emptyMessage="Belum ada transaksi"
+                        title="Membership Insight"
+                        subtitle="Member yang segera berakhir"
+                        icon={IconCalendarTime}
+                        emptyMessage="Tidak ada membership yang akan berakhir"
                     >
-                        {recentTransactions.length > 0 && (
+                        {expiringMemberships.length > 0 && (
                             <div className="space-y-3">
-                                {recentTransactions.map((trx, index) => (
+                                {expiringMemberships.map((member, index) => (
                                     <div
                                         key={index}
-                                        className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50"
+                                        className="flex items-center justify-between p-3 rounded-xl bg-amber-50"
                                     >
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                                                {trx.invoice}
+                                            <p className="text-sm font-semibold text-slate-700">
+                                                {member.member}
                                             </p>
                                             <p className="text-xs text-slate-500 mt-0.5">
-                                                {trx.date} • {trx.customer}
+                                                {member.plan}
                                             </p>
                                             <p className="text-xs text-slate-400">
-                                                Kasir: {trx.cashier}
+                                                Berakhir: {member.expires_at}
                                             </p>
                                         </div>
-                                        <p className="text-sm font-bold text-primary-600 dark:text-primary-400">
-                                            {formatCurrency(trx.total)}
+                                        <p className="text-xs font-semibold text-amber-700">
+                                            {member.days_left} hari lagi
                                         </p>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </ListCard>
-
-                    {/* Top Customers */}
                     <ListCard
-                        title="Transaksi Pelanggan"
-                        subtitle="Berdasarkan nilai pembelian"
-                        icon={IconUsers}
-                        emptyMessage="Belum ada data pelanggan"
+                        title="Trainer Insight"
+                        subtitle="Jam mengajar terbanyak"
+                        icon={IconUserCheck}
+                        emptyMessage="Belum ada data performa trainer"
                     >
-                        {topCustomers.length > 0 && (
+                        {topTrainers.length > 0 && (
                             <ul className="space-y-3">
-                                {topCustomers.map((customer, index) => (
+                                {topTrainers.map((trainer, index) => (
                                     <li
                                         key={index}
-                                        className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                                        className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent-400 to-accent-600 flex items-center justify-center text-white text-sm font-bold">
-                                                {customer.name.charAt(0)}
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-500 to-slate-700 flex items-center justify-center text-white text-sm font-bold">
+                                                {trainer.name.charAt(0)}
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                                                    {customer.name}
+                                                <p className="text-sm font-medium text-slate-800">
+                                                    {trainer.name}
                                                 </p>
                                                 <p className="text-xs text-slate-500">
-                                                    {customer.orders} transaksi
+                                                    {trainer.sessions} sesi
                                                 </p>
                                             </div>
                                         </div>
-                                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                                            {formatCurrency(customer.total)}
+                                        <p className="text-sm font-semibold text-slate-900">
+                                            {trainer.hours} jam
+                                        </p>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </ListCard>
+
+                    <ListCard
+                        title="Class Insight"
+                        subtitle="Fill rate tiap jenis kelas"
+                        icon={IconUsers}
+                        emptyMessage="Belum ada data keterisian kelas"
+                    >
+                        {classFillRates.length > 0 && (
+                            <ul className="space-y-3">
+                                {classFillRates.map((item, index) => (
+                                    <li
+                                        key={index}
+                                        className="rounded-lg bg-slate-50 p-3"
+                                    >
+                                        <div className="mb-2 flex items-center justify-between">
+                                            <p className="text-sm font-semibold text-slate-700">
+                                                {item.name}
+                                            </p>
+                                            <p className="text-sm font-bold text-amber-700">
+                                                {item.fill_rate}%
+                                            </p>
+                                        </div>
+                                        <div className="h-2 w-full rounded-full bg-slate-200">
+                                            <div
+                                                className="h-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-700"
+                                                style={{
+                                                    width: `${Math.min(item.fill_rate, 100)}%`,
+                                                }}
+                                            />
+                                        </div>
+                                        <p className="mt-2 text-xs text-slate-500">
+                                            {item.booked_slots}/{item.total_slots} slot terisi
                                         </p>
                                     </li>
                                 ))}
