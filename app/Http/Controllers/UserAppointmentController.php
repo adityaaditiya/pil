@@ -37,7 +37,7 @@ class UserAppointmentController extends Controller
             ->latest('id')
             ->get()
             ->map(function (AppointmentBooking $booking) {
-                if (in_array($booking->status, ['pending', 'pending_payment'], true) && $booking->expired_at && $booking->expired_at->isPast()) {
+                if ($booking->status === 'pending_payment' && $booking->expired_at && $booking->expired_at->isPast()) {
                     $booking->forceFill(['status' => 'expired'])->saveQuietly();
                     $booking->status = 'expired';
                 }

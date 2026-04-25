@@ -459,9 +459,17 @@ class StudioPageController extends Controller
             ->when($bookingId > 0, fn ($query) => $query->where('id', $bookingId))
             ->where(function ($query) {
                 $query
-                    ->where('expired_at', '>', now())
-                    ->orWhere(function ($fallback) {
-                        $fallback->whereNull('expired_at')->where('created_at', '>', now()->subMinutes(15));
+                    ->where('status', 'pending')
+                    ->orWhere(function ($pendingPaymentQuery) {
+                        $pendingPaymentQuery
+                            ->where('status', 'pending_payment')
+                            ->where(function ($activeWindowQuery) {
+                                $activeWindowQuery
+                                    ->where('expired_at', '>', now())
+                                    ->orWhere(function ($fallback) {
+                                        $fallback->whereNull('expired_at')->where('created_at', '>', now()->subMinutes(15));
+                                    });
+                            });
                     });
             })
             ->latest('id')
@@ -533,6 +541,7 @@ class StudioPageController extends Controller
         $booking->update([
             'payment_proof_image' => $storedPath,
             'status' => 'pending',
+            'expired_at' => null,
         ]);
 
         return back()->with('success', 'Foto bukti pembayaran berhasil diupload. Menunggu konfirmasi admin.');
@@ -724,7 +733,7 @@ class StudioPageController extends Controller
         $membership = UserMembership::query()
             ->where('user_id', $request->user()->id)
             ->where('membership_plan_id', $membershipPlan->id)
-            ->whereIn('status', ['pending', 'pending_payment'])
+            ->where('status', 'pending_payment')
             ->where(function ($query) {
                 $query->whereNull('expired_at')->orWhere('expired_at', '>', now());
             })
@@ -748,6 +757,7 @@ class StudioPageController extends Controller
         } else {
             $membership->update([
                 'payment_method' => $data['payment_method'],
+                'payment_proof_image' => null,
                 'expired_at' => Carbon::now()->addMinutes(15),
                 'status' => 'pending_payment',
             ]);
@@ -782,6 +792,7 @@ class StudioPageController extends Controller
         $userMembership->update([
             'payment_proof_image' => $storedPath,
             'status' => 'pending',
+            'expired_at' => null,
         ]);
 
         return back()->with('success', 'Foto bukti pembayaran membership berhasil diupload. Menunggu konfirmasi admin.');
@@ -976,7 +987,7 @@ class StudioPageController extends Controller
                     'participants' => $participants,
                     'user_membership_id' => $selectedMembership?->id,
                     'membership_plan_id' => $selectedMembership?->membership_plan_id,
-                    'status' => $paymentType === 'drop_in' ? 'pending' : 'confirmed',
+                    'status' => $paymentType === 'drop_in' ? 'pending_payment' : 'confirmed',
                     'booked_at' => now(),
                     'payment_type' => $paymentType,
                     'payment_method' => $paymentMethod,
@@ -1027,6 +1038,8 @@ class StudioPageController extends Controller
 
         $booking->update([
             'payment_proof_image' => $storedPath,
+            'status' => 'pending',
+            'expired_at' => null,
         ]);
 
         return back()->with('success', 'Foto bukti pembayaran berhasil diupload. Menunggu konfirmasi admin.');
@@ -1054,7 +1067,7 @@ class StudioPageController extends Controller
     private function expirePendingBookings(?int $timetableId = null): void
     {
         $query = PilatesBooking::query()
-            ->whereIn('status', ['pending', 'pending_payment'])
+            ->where('status', 'pending_payment')
             ->where('payment_type', 'drop_in')
             ->where(function ($builder) {
                 $builder
@@ -1078,13 +1091,20 @@ class StudioPageController extends Controller
         $query->where('status', 'confirmed')
             ->orWhere(function ($pendingQuery) {
                 $pendingQuery
-                    ->whereIn('status', ['pending', 'pending_payment'])
                     ->where('payment_type', 'drop_in')
-                    ->where(function ($activePending) {
-                        $activePending
-                            ->where('expired_at', '>', now())
-                            ->orWhere(function ($fallbackPending) {
-                                $fallbackPending->whereNull('expired_at')->where('created_at', '>', now()->subMinutes(15));
+                    ->where(function ($dropInStatusQuery) {
+                        $dropInStatusQuery
+                            ->where('status', 'pending')
+                            ->orWhere(function ($pendingPaymentQuery) {
+                                $pendingPaymentQuery
+                                    ->where('status', 'pending_payment')
+                                    ->where(function ($activePending) {
+                                        $activePending
+                                            ->where('expired_at', '>', now())
+                                            ->orWhere(function ($fallbackPending) {
+                                                $fallbackPending->whereNull('expired_at')->where('created_at', '>', now()->subMinutes(15));
+                                            });
+                                    });
                             });
                     });
             });
@@ -1093,7 +1113,7 @@ class StudioPageController extends Controller
     private function expirePendingAppointmentBookings(?int $appointmentId = null): void
     {
         $query = AppointmentBooking::query()
-            ->whereIn('status', ['pending', 'pending_payment'])
+            ->where('status', 'pending_payment')
             ->where('payment_type', 'drop_in')
             ->where(function ($builder) {
                 $builder
@@ -1115,7 +1135,7 @@ class StudioPageController extends Controller
     private function expirePendingMemberships(?int $userId = null): void
     {
         $query = UserMembership::query()
-            ->whereIn('status', ['pending', 'pending_payment'])
+            ->where('status', 'pending_payment')
             ->where(function ($builder) {
                 $builder
                     ->where('expired_at', '<=', now())

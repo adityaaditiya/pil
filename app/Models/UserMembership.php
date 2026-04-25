@@ -40,14 +40,14 @@ class UserMembership extends Model
                 $membership->invoice = self::generateInvoice();
             }
 
-            if (in_array($membership->status, ['pending', 'pending_payment'], true) && ! $membership->expired_at) {
+            if ($membership->status === 'pending_payment' && ! $membership->expired_at) {
                 $membership->expired_at = Carbon::now()->addMinutes(15);
             }
         });
 
         static::saving(function (self $membership) {
             if (
-                in_array($membership->status, ['pending', 'pending_payment'], true)
+                $membership->status === 'pending_payment'
                 && $membership->expired_at
                 && now()->greaterThan($membership->expired_at)
             ) {
