@@ -953,7 +953,7 @@ useEffect(() => {
                                 {classItem.image && (
                                     <img src={imageUrl("classes", classItem.image)} alt={classItem.name} className="h-52 w-full object-cover" />
                                 )}
-                                <div className="flex h-full flex-col p-6">
+                                <div className="flex flex-col h-full p-6">
                                     <div className="space-y-3">
                                         <h3 className="text-xl font-semibold">{classItem.name}</h3>
 
