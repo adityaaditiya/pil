@@ -140,12 +140,19 @@ export default function Dashboard({
     totalUsers,
     revenueTrend,
     totalRevenue,
+    posRevenue = 0,
+    membershipRevenue = 0,
+    appointmentDropInRevenue = 0,
+    timetableDropInRevenue = 0,
     totalProfit,
     averageOrder,
     todayTransactions,
     topProducts = [],
     recentTransactions = [],
     topCustomers = [],
+    membershipHighlights = [],
+    appointmentHighlights = [],
+    timetableHighlights = [],
 }) {
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
@@ -271,7 +278,7 @@ export default function Dashboard({
                     <StatCard
                         title="Total Pendapatan"
                         value={formatCurrency(totalRevenue)}
-                        subtitle="Berdasarkan transaksi hari ini"
+                        subtitle={`POS ${formatCurrency(posRevenue)} • Membership ${formatCurrency(membershipRevenue)} • Appointment drop-in ${formatCurrency(appointmentDropInRevenue)} • Timetable drop-in ${formatCurrency(timetableDropInRevenue)}`}
                         icon={IconCoin}
                         gradient="from-primary-500 to-primary-700"
                     />
@@ -445,6 +452,96 @@ export default function Dashboard({
                                     </li>
                                 ))}
                             </ul>
+                        )}
+                    </ListCard>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <ListCard
+                        title="Insight Membership"
+                        subtitle="Pelanggan & pemakaian credit (tanpa cancel)"
+                        icon={IconUsers}
+                        emptyMessage="Belum ada data membership"
+                    >
+                        {membershipHighlights.length > 0 && (
+                            <div className="space-y-3">
+                                {membershipHighlights.map((item, index) => (
+                                    <div
+                                        key={index}
+                                        className="rounded-xl border border-slate-100 dark:border-slate-800 p-3"
+                                    >
+                                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                            {item.customer_name}
+                                        </p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                            {item.plan_name} • status {item.status}
+                                        </p>
+                                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                                            Credit terpakai {item.credits_used} dari {item.credits_total} (sisa {item.credits_remaining})
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </ListCard>
+
+                    <ListCard
+                        title="Insight Appointment"
+                        subtitle="Pelanggan, metode bayar & credit terpakai"
+                        icon={IconReceipt}
+                        emptyMessage="Belum ada data appointment"
+                    >
+                        {appointmentHighlights.length > 0 && (
+                            <div className="space-y-3">
+                                {appointmentHighlights.map((item, index) => (
+                                    <div
+                                        key={index}
+                                        className="rounded-xl border border-slate-100 dark:border-slate-800 p-3"
+                                    >
+                                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                            {item.customer_name}
+                                        </p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                            {item.class_name} • {item.session_name}
+                                        </p>
+                                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                                            {item.payment_type === "drop_in"
+                                                ? `Drop-in ${formatCurrency(item.price_amount)}`
+                                                : `Credit dipakai ${item.credit_used}`}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </ListCard>
+
+                    <ListCard
+                        title="Insight Timetable"
+                        subtitle="Pelanggan, peserta, nominal & credit"
+                        icon={IconClock}
+                        emptyMessage="Belum ada data timetable"
+                    >
+                        {timetableHighlights.length > 0 && (
+                            <div className="space-y-3">
+                                {timetableHighlights.map((item, index) => (
+                                    <div
+                                        key={index}
+                                        className="rounded-xl border border-slate-100 dark:border-slate-800 p-3"
+                                    >
+                                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                            {item.customer_name}
+                                        </p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                            {item.class_name} • {item.participants} peserta
+                                        </p>
+                                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                                            {item.payment_type === "drop_in"
+                                                ? `Drop-in ${formatCurrency(item.price_amount)}`
+                                                : `Credit dipakai ${item.credit_used}`}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </ListCard>
                 </div>
