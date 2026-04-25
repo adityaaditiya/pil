@@ -22,9 +22,18 @@ export default function Edit({ category }) {
         _method: "PUT",
     });
 
-    const [imagePreview, setImagePreview] = useState(
-        category.image ? `/storage/categories/${category.image}` : null
-    );
+        const [imagePreview, setImagePreview] = useState(() => {
+        if (!category.image) return null;
+        
+        // Jika dari database sudah ada 'http', pakai langsung apa adanya
+        if (category.image.startsWith('http')) {
+            return category.image;
+        }
+        
+        // Jika hanya nama file mentah, baru tambahkan path storage
+        // Pastikan folder-nya benar (category atau categories)
+        return `/storage/category/${category.image}`;
+    });
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -58,7 +67,7 @@ export default function Edit({ category }) {
                     <IconCategory size={28} className="text-primary-500" />
                     Edit Kategori
                 </h1>
-                <p className="text-sm text-slate-500 mt-1">{category.name}</p>
+                {/* <p className="text-sm text-slate-500 mt-1">{category.name}</p> */}
             </div>
 
             <form onSubmit={submit}>

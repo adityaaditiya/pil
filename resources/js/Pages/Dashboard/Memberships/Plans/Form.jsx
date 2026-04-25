@@ -71,7 +71,7 @@ export default function Form({ data, setData, errors, classes = [] }) {
             {/* Credits / Harga / Masa aktif */}
             <div className="grid gap-4 md:grid-cols-3">
                 <div>
-                    <FieldLabel required>Credits</FieldLabel>
+                    <FieldLabel required>Jumlah Credits didapat</FieldLabel>
                     <input
                         type="number"
                         min={1}

@@ -107,7 +107,7 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                     <div className="mb-8">
                         <h1 className="text-3xl font-bold md:text-4xl">My Flow</h1>
                         <p className="mt-2 text-sm text-wellness-muted">
-                            Jadwal personal trainer untuk hari ini. Anda hanya bisa melihat jadwal milik Anda sendiri.
+                            Jadwal Personal Trainer beserta Absensi Peserta
                         </p>
                     </div>
 

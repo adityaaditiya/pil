@@ -12,6 +12,7 @@ import {
     IconSparkles,
     IconStretching,
     IconYoga,
+    IconBrandTiktok,
 } from "@tabler/icons-react";
 import Button from "@/Components/Landing/Button";
 import Card from "@/Components/Landing/Card";
@@ -93,16 +94,28 @@ export default function Welcome() {
         { day: "Sabtu", morning: "09:00 Signature Class", evening: "16:30 Recovery" },
     ];
     const testimonials = [
+        // {
+        //     quote: "Studio-nya tenang dan instruktur sangat detail. Postur saya jauh membaik dalam 6 minggu.",
+        //     name: "Cecilia, 32",
+        // },
+        // {
+        //     quote: "Saya pemula total, tapi kelasnya ramah dan progresnya terasa konsisten setiap minggu.",
+        //     name: "Vina, 28",
+        // },
+        // {
+        //     quote: "Program private session membantu recovery punggung saya lebih cepat dan aman.",
+        //     name: "Monica, 37",
+        // },
         {
-            quote: "Studio-nya tenang dan instruktur sangat detail. Postur saya jauh membaik dalam 6 minggu.",
-            name: "Cecilia, 32",
+            quote: "Suasana studionya begitu tenang dan estetik. Arahan instruktur yang sangat personal membuat sesi pertama saya terasa begitu berkesan.",
+            name: "Denia, 32",
         },
         {
-            quote: "Saya pemula total, tapi kelasnya ramah dan progresnya terasa konsisten setiap minggu.",
+            quote: "Sebagai pemula, aku merasa disambut banget di kelas pertama tadi. Suasananya nyaman, tempatnya bersih dan bikin betah! bikin percaya diri buat mulai hidup sehat.",
             name: "Vina, 28",
         },
         {
-            quote: "Program private session membantu recovery punggung saya lebih cepat dan aman.",
+            quote: "Pengalaman pertama yang luar biasa bagi seorang pemula. Tim dan atmosfer studio yang hangat memberikan rasa nyaman untuk memulai perjalanan baru saya di sini.",
             name: "Monica, 37",
         },
         
@@ -153,39 +166,44 @@ export default function Welcome() {
                 <Navbar navItems={navItems} currentKey="home" />
 
                 <section className="bg-gradient-to-br from-wellness-beige via-wellness-soft to-wellness-greige px-4 pb-20 pt-16 md:px-6 md:pt-20">
-                    <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
-                        <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">Pilates Studio Premium</p>
-                            <h1 className="mt-5 text-4xl font-semibold leading-tight md:text-6xl">Move Better. Feel Stronger.</h1>
-                            <p className="mt-6 max-w-xl text-base leading-relaxed text-wellness-muted md:text-lg">
-                                Tingkatkan postur, kekuatan core, dan mobilitas melalui kelas pilates yang personal, elegan, dan menenangkan.
-                            </p>
+    {/* Menggunakan 'flex flex-col-reverse' agar pada mobile kolom kedua (gambar) naik ke atas, 
+        lalu 'lg:grid' untuk mengembalikan tampilan kolom di layar besar */}
+    <div className="mx-auto flex flex-col-reverse lg:grid max-w-7xl items-center gap-12 lg:grid-cols-2">
+        
+        {/* KOLOM TEKS */}
+        <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">Premium Pilates Studio</p>
+            <h1 className="mt-5 text-4xl font-semibold leading-tight md:text-6xl">Move Better. Feel Stronger.</h1>
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-wellness-muted md:text-lg">
+                Tingkatkan postur, kekuatan core, dan mobilitas melalui kelas pilates yang personal, elegan, dan menenangkan.
+            </p>
 
-                            <div className="mt-10 flex flex-wrap gap-4">
-                                <Button as={Link} href={route("welcome.page", "classes")}>Book A Class</Button>
-                                <Button as={Link} href={route("welcome.page", "pricing")} variant="secondary">Lihat Penawaran!</Button>
-                            </div>
+            <div className="mt-10 flex flex-wrap gap-4">
+                <Button as={Link} href={route("welcome.page", "classes")}>Book A Class</Button>
+                <Button as={Link} href={route("welcome.page", "pricing")} variant="secondary">Lihat Penawaran!</Button>
+            </div>
 
-                            <div className="mt-10 flex flex-wrap gap-3">
-                                {trustBadges.map((badge) => (
-                                    <span key={badge} className="inline-flex items-center gap-2 rounded-full border border-primary-200 bg-white/80 px-4 py-2 text-sm text-wellness-muted">
-                                        <IconCheck size={14} className="text-primary-600" />
-                                        {badge}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
+            <div className="mt-10 flex flex-wrap gap-3">
+                {trustBadges.map((badge) => (
+                    <span key={badge} className="inline-flex items-center gap-2 rounded-full border border-primary-200 bg-white/80 px-4 py-2 text-sm text-wellness-muted">
+                        <IconCheck size={14} className="text-primary-600" />
+                        {badge}
+                    </span>
+                ))}
+            </div>
+        </div>
 
-                        <div className="overflow-hidden p-0">
-                            <img
-                                src={heroBackgroundImage}
-                                alt="Pilates class"
-                                className="h-auto w-full md:w-full object-contain mx-auto"
-                                style={{ maxWidth: "100%", height: "auto" }}
-                            />
-                        </div>
-                    </div>
-                </section>
+        {/* KOLOM GAMBAR (Sekarang muncul di atas pada Mobile) */}
+        <div className="overflow-hidden p-0">
+            <img
+                src={heroBackgroundImage}
+                alt="Pilates class"
+                className="h-auto w-full md:w-full object-contain mx-auto"
+                style={{ maxWidth: "100%", height: "auto" }}
+            />
+        </div>
+    </div>
+</section>
 
                 <section className="px-4 py-20 md:px-6">
                     <div className="mx-auto max-w-7xl">
@@ -416,7 +434,7 @@ export default function Welcome() {
                             title="Dipandu instruktur berpengalaman"
                             description="Tim kami menghadirkan pendekatan personal agar setiap gerakan terasa aman, efektif, dan menyenangkan."
                         />
-                        <div className="mt-12 grid gap-6 md:grid-cols-3">
+                        <div className="mt-12 grid gap-6 md:grid-cols-4">
                             {trainers.map((trainer) => (
                                 <Card key={trainer.name} className="text-center">
                                     <img
@@ -443,13 +461,23 @@ export default function Welcome() {
                         <SectionTitle
                             eyebrow="Testimonials"
                             title="Apa kata member kami"
-                            description="Cerita pengalaman nyata dari member yang merasakan perubahan tubuh dan kualitas hidup."
+                            description="Cerita pengalaman dari member yang merasakan perubahan tubuh dan kualitas hidup."
                         />
                         <div className="mt-12 grid gap-6 md:grid-cols-3">
                             {testimonials.map((item) => (
-                                <Card key={item.name}>
-                                    <p className="text-sm leading-relaxed text-wellness-muted">“{item.quote}”</p>
-                                    <p className="mt-6 font-semibold">{item.name}</p>
+                                <Card key={item.name} className="flex flex-col h-full p-8 transition-all duration-300 hover:shadow-lg">
+                                    {/* Bagian Quote */}
+                                    <div className="flex-grow">
+                                        <p className="italic text-base leading-relaxed text-wellness-muted">
+                                            “{item.quote}”
+                                        </p>
+                                    </div>
+
+                                    {/* Bagian Nama - mt-auto akan memaksa elemen ini ke paling bawah */}
+                                    <div className="mt-8">
+                                        <p className="font-bold text-gray-900">{item.name}</p>
+                                        {/* <p className="text-xs text-wellness-primary/60 uppercase tracking-wider">Member</p> */}
+                                    </div>
                                 </Card>
                             ))}
                         </div>
@@ -504,15 +532,18 @@ export default function Welcome() {
                         <div>
                             <p className="font-semibold text-white">Follow Us</p>
                             <div className="mt-4 flex items-center gap-3">
-                                <a href="#" className="rounded-xl border border-primary-400 p-2 hover:bg-primary-500">
+                                <a href="https://www.instagram.com/orostudio.tegal/" className="rounded-xl border border-primary-400 p-2 hover:bg-primary-500">
                                     <IconBrandInstagram size={18} />
                                 </a>
                                 <a href="#" className="rounded-xl border border-primary-400 p-2 hover:bg-primary-500">
+                                    <IconBrandTiktok size={18} />
+                                </a>
+                                {/* <a href="#" className="rounded-xl border border-primary-400 p-2 hover:bg-primary-500">
                                     <IconAward size={18} />
                                 </a>
                                 <a href="#" className="rounded-xl border border-primary-400 p-2 hover:bg-primary-500">
                                     <IconHeartHandshake size={18} />
-                                </a>
+                                </a> */}
                             </div>
                             <Button as={Link} href={route("welcome.page", "classes")} className="mt-6 w-full bg-primary-500 text-white hover:bg-primary-700">
                                 Book A Class

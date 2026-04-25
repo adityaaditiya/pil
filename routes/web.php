@@ -51,10 +51,20 @@ Route::get('/', function () {
         'canRegister'    => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion'     => PHP_VERSION,
-        'trainers'       => Trainer::query()
-            ->forTrainerRole()
-            ->latest()
-            ->get(['id', 'name', 'photo', 'expertise']),
+        'trainers' => Trainer::query()
+        ->forTrainerRole()
+        ->with(['user.customer']) // Ambil relasi pelanggan
+        ->latest()
+        ->get()
+        ->map(function ($trainer) {
+            return [
+                'id'        => $trainer->id,
+                'expertise' => $trainer->expertise,
+                // Ambil Nama dan Foto dari tabel Customer melalui User
+                'name'      => $trainer->user?->customer?->name ?? 'No Name',
+                'photo'     => $trainer->user?->customer?->photo,
+            ];
+        }),
         'membershipPlans' => MembershipPlan::query()
             ->where('is_active', true)
             ->orderBy('order_position')

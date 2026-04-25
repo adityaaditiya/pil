@@ -57,7 +57,7 @@ export default function Edit({ customer }) {
                     <IconUsers size={28} className="text-primary-500" />
                     Edit Pelanggan
                 </h1>
-                <p className="text-sm text-slate-500 mt-1">{customer.name}</p>
+                {/* <p className="text-sm text-slate-500 mt-1">{customer.name}</p> */}
             </div>
 
             <form onSubmit={submit} encType="multipart/form-data">
@@ -140,6 +140,9 @@ export default function Edit({ customer }) {
                                     value={cleanDate}
                                 />
                             </div>
+                            {customer?.photo && (
+                                <img src={`/storage/customers/${customer.photo}`} alt="Foto Profil" className="mt-2 h-20 w-20 rounded-lg object-cover" />
+                            )}
                             <Input
                                 type="file"
                                 label="Foto (Opsional)"
