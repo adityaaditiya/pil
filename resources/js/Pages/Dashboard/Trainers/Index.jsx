@@ -53,14 +53,21 @@ export default function Index({ trainers }) {
                                     )}
                                 </Table.Td> */}
                                 <Table.Td>
-                                    {item.photo ? (
+                                   {item.photo ? (
                                         <img 
-                                            src={`/storage/customers/${item.photo}`} 
+                                            src={`/storage/customers/${item.photo}?v=${new Date().getTime()}`}
                                             alt={item.name} 
                                             className="h-12 w-12 rounded-lg object-cover" 
+                                            // Tambahkan ini: Jika path salah/file hilang, tampilkan kotak abu-abu atau gambar default
+                                            onError={(e) => {
+                                                e.target.onerror = null; 
+                                                e.target.src = "https://ui-avatars.com/api/?name=" + item.name + "&background=f1f5f9&color=64748b";
+                                            }}
                                         />
                                     ) : (
-                                        <div className="h-12 w-12 rounded-lg bg-slate-100" />
+                                        <div className="h-12 w-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 text-[10px]">
+                                            No Photo
+                                        </div>
                                     )}
                                 </Table.Td>
                                 <Table.Td>{item.name}</Table.Td>

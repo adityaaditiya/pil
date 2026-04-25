@@ -423,6 +423,12 @@ export default function Welcome() {
                                         src={trainer.photo ? `/storage/customers/${trainer.photo}` : "https://images.unsplash.com/photo-1595079835353-fb3cf0f83f20?auto=format&fit=crop&w=500&q=80"}
                                         alt={trainer.name}
                                         className="mx-auto h-64 w-full rounded-2xl object-cover"
+                                        onError={(e) => {
+                                        // Mencegah looping tak terbatas jika gambar placeholder juga rusak
+                                        e.target.onerror = null; 
+                                        // Ganti dengan URL gambar cadanganmu
+                                        e.target.src = "https://ui-avatars.com/api/?name=" + trainer.name;
+                                    }}
                                     />
                                     <h3 className="mt-5 text-xl font-semibold">{trainer.name}</h3>
                                     <p className="mt-2 text-sm text-wellness-muted">{trainer.expertise || "Spesialisasi trainer belum diisi."}</p>

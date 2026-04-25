@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
@@ -20,6 +21,17 @@ class CustomerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    private function clearTrainerCache($user)
+    {
+        if ($user && $user->trainer) {
+            // Sesuaikan key cache dengan yang digunakan di aplikasi Anda
+            // Contoh umum: trainer_profile_{id} atau trainer_data_{id}
+            Cache::forget('trainer_profile_' . $user->trainer->id);
+            Cache::forget('trainer_data_' . $user->trainer->id);
+        }
+    }
+
     public function index()
     {
         //get customers
@@ -79,7 +91,7 @@ class CustomerController extends Controller
             $user = User::create([
                 'name'     => $request->name,
                 'email'    => $request->email,
-                'password' => $request->password,
+                'password' => Hash::make($request->password),
             ]);
 
             if (Role::where('name', 'customer')->exists()) {
@@ -137,7 +149,7 @@ class CustomerController extends Controller
                 $user = User::create([
                     'name'     => $validated['name'],
                     'email'    => $validated['email'],
-                    'password' => $validated['password'],
+                    'password' => Hash::make($validated['password']),
                 ]);
 
                 if (Role::where('name', 'customer')->exists()) {
@@ -236,7 +248,7 @@ class CustomerController extends Controller
                 $user = User::create([
                     'name'     => $request->name,
                     'email'    => $request->email,
-                    'password' => $request->filled('password') ? $request->password : Str::random(16),
+                    'password' => $request->filled('password') ? Hash::make($request->password) : Hash::make(Str::random(16)),
                 ]);
                 if (Role::where('name', 'customer')->exists()) {
                     $user->assignRole('customer');
@@ -257,8 +269,13 @@ class CustomerController extends Controller
             $photoPath = $customer->photo;
 
             if ($request->file('photo')) {
+                
+                // if ($photoPath) {
+                //     Storage::disk('local')->delete('public/customers/' . basename($photoPath));
+                // }
+
                 if ($photoPath) {
-                    Storage::disk('local')->delete('public/customers/' . basename($photoPath));
+                    Storage::disk('public')->delete('customers/' . basename($photoPath));
                 }
 
                 $photo = $request->file('photo');
@@ -276,10 +293,16 @@ class CustomerController extends Controller
                 'photo' => $photoPath,
                 'credit'   => $request->credit,
             ]);
+
+            // 4. Sinkronisasi data model (PENTING!)
+            $customer->refresh();
+
+            // PENTING: Hapus cache trainer agar foto langsung terupdate di menu trainer
+            $this->clearTrainerCache($user);
         });
 
         //redirect
-        return to_route('customers.index');
+        return redirect()->route('customers.index')->with('success', 'Data berhasil diperbarui');
     }
 
     /**
@@ -293,15 +316,26 @@ class CustomerController extends Controller
         //find customer by ID
         $customer = Customer::with('user')->findOrFail($id);
 
+        // if ($customer->photo) {
+        //     Storage::disk('local')->delete('public/customers/' . basename($customer->photo));
+        // }
+
         if ($customer->photo) {
-            Storage::disk('local')->delete('public/customers/' . basename($customer->photo));
+            Storage::disk('public')->delete('customers/' . basename($customer->photo));
         }
 
+        $user = $customer->user;
         //delete customer
         $customer->delete();
 
-        if ($customer->user) {
-            $customer->user->delete();
+        // if ($customer->user) {
+        //     $customer->user->delete();
+        // }
+
+
+        if ($user) {
+            $this->clearTrainerCache($user); // Bersihkan cache sebelum user dihapus
+            $user->delete();
         }
 
         //redirect
