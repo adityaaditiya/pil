@@ -42,7 +42,7 @@ class PilatesTimetableController extends Controller
                 ->select('id', 'name', 'credit', 'price', 'default_payment_method')
                 ->orderBy('name')
                 ->get(),
-            'trainers' => Trainer::query()->forTrainerRole()->select('id', 'name')->orderBy('name')->get(),
+            'trainers' => Trainer::query()->forTrainerRole()->with('user.customer')->select('id', 'user_id')->get()->sortBy('name')->values(),
             'weekdayOptions' => collect(self::WEEKDAY_MAP)->keys()->map(fn ($day) => [
                 'value' => $day,
                 'label' => ucfirst(__($day)),
@@ -74,7 +74,7 @@ class PilatesTimetableController extends Controller
                 ->addSelect('credit', 'price', 'default_payment_method')
                 ->orderBy('name')
                 ->get(),
-            'trainers' => Trainer::query()->forTrainerRole()->select('id', 'name')->orderBy('name')->get(),
+            'trainers' => Trainer::query()->forTrainerRole()->with('user.customer')->select('id', 'user_id')->get()->sortBy('name')->values(),
             'weekdayOptions' => collect(self::WEEKDAY_MAP)->keys()->map(fn ($day) => [
                 'value' => $day,
                 'label' => ucfirst(__($day)),
@@ -133,7 +133,7 @@ class PilatesTimetableController extends Controller
         $sessions = PilatesTimetable::query()
             ->with([
                 'pilatesClass:id,name,difficulty_level,duration,about,equipment',
-                'trainer:id,name',
+                'trainer:id,user_id',
             ])
             ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
             ->whereBetween('start_at', [$startDate->clone()->timezone('Asia/Jakarta'), $endDate->clone()->timezone('Asia/Jakarta')])

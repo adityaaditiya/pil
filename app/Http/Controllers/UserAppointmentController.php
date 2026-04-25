@@ -25,7 +25,7 @@ class UserAppointmentController extends Controller
             ->with([
                 'appointment:id,pilates_class_id,start_at,end_at,duration_minutes',
                 'appointment.pilatesClass:id,name,image',
-                'trainer:id,name',
+                'trainer:id,user_id',
             ])
             ->when($customerId, fn ($query) => $query->where('customer_id', $customerId))
             ->when(! $customerId, fn ($query) => $query->whereRaw('1 = 0'))

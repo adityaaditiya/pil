@@ -24,7 +24,7 @@ class PilatesBookingHistoryController extends Controller
                 'user:id,name',
                 'timetable:id,pilates_class_id,trainer_id,start_at',
                 'timetable.pilatesClass:id,name',
-                'timetable.trainer:id,name',
+                'timetable.trainer:id,user_id',
             ])
             ->latest('booked_at');
 
@@ -80,7 +80,7 @@ class PilatesBookingHistoryController extends Controller
                 // 'user:id,name,email,phone,address',
                 'timetable:id,pilates_class_id,trainer_id,start_at,duration_minutes',
                 'timetable.pilatesClass:id,name,duration',
-                'timetable.trainer:id,name',
+                'timetable.trainer:id,user_id',
             ])
             ->where('invoice', $invoice)
             ->firstOrFail();

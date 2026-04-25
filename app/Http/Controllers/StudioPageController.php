@@ -117,13 +117,13 @@ class StudioPageController extends Controller
                 'classCategory' => request()->string('class_category')->toString(),
             ],
             'classes' => $normalizedKey === 'classes'
-                ? PilatesClass::with(['trainers:id,name', 'classCategory:id,name'])->latest()->get(['id', 'class_category_id', 'image', 'name', 'duration', 'difficulty_level', 'about', 'equipment', 'price'])
+                ? PilatesClass::with(['trainers:id,user_id', 'classCategory:id,name'])->latest()->get(['id', 'class_category_id', 'image', 'name', 'duration', 'difficulty_level', 'about', 'equipment', 'price'])
                 : [],
             'schedules' => in_array($normalizedKey, ['schedule', 'appointment'], true)
                 ? PilatesTimetable::with([
                     'pilatesClass:id,class_category_id,name,image,difficulty_level,about,available_for_appointment',
                     'pilatesClass.classCategory:id,name',
-                    'trainer:id,name',
+                    'trainer:id,user_id',
                 ])
                     ->withSum(['bookings as booked_slots' => fn ($query) => $this->bookingSlotsQuery($query)], 'participants')
                     ->where('status', 'scheduled')
@@ -145,7 +145,7 @@ class StudioPageController extends Controller
                     ->get(['id', 'name', 'credits', 'price', 'valid_days', 'description'])
                 : [],
             'trainers' => in_array($normalizedKey, ['trainers', 'appointment'], true)
-                ? Trainer::query()->forTrainerRole()->latest()->get(['id', 'name', 'photo', 'gender', 'date_of_birth', 'expertise', 'address', 'biodata'])
+                ? Trainer::query()->forTrainerRole()->with('user.customer')->latest()->get(['id', 'user_id', 'expertise', 'biodata'])
                 : [],
             'paymentGateways' => $normalizedKey === 'appointment' ? $paymentGateways : [],
             'appointmentClasses' => $normalizedKey === 'appointment'
@@ -204,7 +204,7 @@ class StudioPageController extends Controller
         $appointments = PilatesAppointment::query()
             ->with([
                 'pilatesClass:id,name',
-                'trainers:id,name',
+                'trainers:id,user_id',
             ])
             ->withCount([
                 'bookings as active_bookings_count' => fn ($query) => $query->whereIn('status', ['pending', 'pending_payment', 'confirmed']),
@@ -566,7 +566,7 @@ class StudioPageController extends Controller
 
         return Inertia::render('WelcomeClassDetail', [
             'menuItems' => $menuItems,
-            'classItem' => $pilatesClass->load(['classCategory:id,name', 'trainers:id,name,photo,gender,date_of_birth,expertise,address,biodata']),
+            'classItem' => $pilatesClass->load(['classCategory:id,name', 'trainers:id,user_id,expertise,biodata']),
         ]);
     }
 
@@ -576,7 +576,7 @@ class StudioPageController extends Controller
         $schedule = $pilatesTimetable->load([
             'pilatesClass:id,class_category_id,image,name,duration,difficulty_level,about,equipment,price',
             'pilatesClass.classCategory:id,name',
-            'trainer:id,name,photo,gender,date_of_birth,expertise,address,biodata',
+            'trainer:id,user_id,expertise,biodata',
         ]);
 
         return Inertia::render('WelcomeScheduleDetail', [
@@ -589,7 +589,7 @@ class StudioPageController extends Controller
     {
         $this->expirePendingBookings($pilatesTimetable->id);
         $schedule = $pilatesTimetable
-            ->load(['pilatesClass:id,name,image', 'trainer:id,name'])
+            ->load(['pilatesClass:id,name,image', 'trainer:id,user_id'])
             ->loadSum(['bookings as booked_slots' => fn ($query) => $this->bookingSlotsQuery($query)], 'participants');
         $bookedSlots = (int) ($schedule->booked_slots ?? 0);
         $remainingSlots = max(0, ((int) $schedule->capacity) - $bookedSlots);
@@ -812,7 +812,7 @@ class StudioPageController extends Controller
     {
         $this->expirePendingBookings($pilatesTimetable->id);
         $schedule = $pilatesTimetable
-            ->load(['pilatesClass:id,name,image', 'trainer:id,name'])
+            ->load(['pilatesClass:id,name,image', 'trainer:id,user_id'])
             ->loadSum(['bookings as booked_slots' => fn ($query) => $this->bookingSlotsQuery($query)], 'participants');
         $bookedSlots = (int) ($schedule->booked_slots ?? 0);
         $remainingSlots = max(0, ((int) $schedule->capacity) - $bookedSlots);

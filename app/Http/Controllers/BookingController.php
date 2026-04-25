@@ -21,7 +21,7 @@ class BookingController extends Controller
     public function create(Request $request): Response
     {
         $timetable = PilatesTimetable::query()
-            ->with(['pilatesClass:id,name,duration,difficulty_level', 'trainer:id,name'])
+            ->with(['pilatesClass:id,name,duration,difficulty_level', 'trainer:id,user_id'])
             ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
             ->findOrFail($request->integer('timetable_id'));
 

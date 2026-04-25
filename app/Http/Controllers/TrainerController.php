@@ -17,14 +17,17 @@ class TrainerController extends Controller
         return Inertia::render('Dashboard/Trainers/Index', [
             'trainers' => Trainer::query()
                 ->forTrainerRole()
-                ->with('user:id,name')
+                ->with('user.customer')
                 ->when(request('search'), function ($query, $search) {
                     $query->where(function ($subQuery) use ($search) {
-                        $subQuery->where('name', 'like', "%{$search}%")
-                            ->orWhere('gender', 'like', "%{$search}%")
-                            ->orWhere('address', 'like', "%{$search}%")
-                            ->orWhere('biodata', 'like', "%{$search}%")
-                            ->orWhereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', "%{$search}%"));
+                        $subQuery->where('biodata', 'like', "%{$search}%")
+                            ->orWhere('expertise', 'like', "%{$search}%")
+                            ->orWhereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', "%{$search}%"))
+                            ->orWhereHas('user.customer', function ($customerQuery) use ($search) {
+                                $customerQuery->where('name', 'like', "%{$search}%")
+                                    ->orWhere('gender', 'like', "%{$search}%")
+                                    ->orWhere('address', 'like', "%{$search}%");
+                            });
                     });
                 })
                 ->latest()
@@ -57,20 +60,9 @@ class TrainerController extends Controller
             'biodata' => 'required|string',
         ]);
 
-        $user = User::query()
-            ->role('trainer')
-            ->with('customer')
-            ->whereKey($data['user_id'])
-            ->first();
-
+        $user = User::query()->role('trainer')->with('customer')->whereKey($data['user_id'])->first();
         abort_if(! $user, 422, 'User trainer tidak valid.');
         abort_if(! $user->customer, 422, 'Data pelanggan trainer tidak ditemukan.');
-
-        $data['name'] = $user->name;
-        $data['photo'] = $user->customer->photo;
-        $data['date_of_birth'] = $user->customer->date_of_birth;
-        $data['gender'] = $user->customer->gender;
-        $data['address'] = $user->customer->address;
 
         Trainer::create($data);
 
@@ -92,17 +84,8 @@ class TrainerController extends Controller
         ]);
 
         $trainer->load('user.customer');
-        $trainerName = $trainer->user?->name;
-        $customer = $trainer->user?->customer;
-
-        abort_if(! $trainerName, 422, 'User trainer tidak valid.');
-        abort_if(! $customer, 422, 'Data pelanggan trainer tidak ditemukan.');
-
-        $data['name'] = $trainerName;
-        $data['photo'] = $customer->photo;
-        $data['date_of_birth'] = $customer->date_of_birth;
-        $data['gender'] = $customer->gender;
-        $data['address'] = $customer->address;
+        abort_if(! $trainer->user, 422, 'User trainer tidak valid.');
+        abort_if(! $trainer->user?->customer, 422, 'Data pelanggan trainer tidak ditemukan.');
 
         $trainer->update($data);
 

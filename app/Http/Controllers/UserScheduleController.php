@@ -22,7 +22,7 @@ class UserScheduleController extends Controller
         $bookings = PilatesBooking::query()
             ->with([
                 'timetable.pilatesClass:id,name,image,difficulty_level,duration,equipment',
-                'timetable.trainer:id,name',
+                'timetable.trainer:id,user_id',
             ])
             ->where('user_id', $request->user()->id)
             ->when($startDate !== '', fn ($query) => $query->whereHas('timetable', fn ($timetableQuery) => $timetableQuery->where('start_at', '>=', Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay()->timezone('UTC'))))
