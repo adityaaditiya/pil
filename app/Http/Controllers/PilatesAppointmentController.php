@@ -51,7 +51,7 @@ class PilatesAppointmentController extends Controller
         }
 
         $appointments = PilatesAppointment::query()
-            ->with(['pilatesClass:id,name', 'trainers:id,name'])
+            ->with(['pilatesClass:id,name', 'trainers:id,user_id'])
             ->where('start_at', '>=', $start->clone()->timezone('Asia/Jakarta'))
             ->where('start_at', '<=', $end->clone()->timezone('Asia/Jakarta'))
             ->orderBy('start_at')
@@ -92,7 +92,7 @@ class PilatesAppointmentController extends Controller
                 ->select('id', 'name')
                 ->orderBy('name')
                 ->get(),
-            'trainers' => Trainer::query()->forTrainerRole()->select('id', 'name')->orderBy('name')->get(),
+            'trainers' => Trainer::query()->forTrainerRole()->with('user.customer')->select('id', 'user_id')->get()->sortBy('name')->values(),
             'appointmentSessions' => AppointmentSession::query()
                 ->select('id', 'session_name', 'default_price_drop_in', 'default_price_credit', 'default_payment_method')
                 ->orderBy('id', 'asc')
@@ -122,7 +122,7 @@ class PilatesAppointmentController extends Controller
                 ->select('id', 'name')
                 ->orderBy('name')
                 ->get(),
-            'trainers' => Trainer::query()->forTrainerRole()->select('id', 'name')->orderBy('name')->get(),
+            'trainers' => Trainer::query()->forTrainerRole()->with('user.customer')->select('id', 'user_id')->get()->sortBy('name')->values(),
             'appointmentSessions' => AppointmentSession::query()
                 ->select('id', 'session_name', 'default_price_drop_in', 'default_price_credit', 'default_payment_method')
                 ->orderBy('id', 'asc')
@@ -440,7 +440,7 @@ class PilatesAppointmentController extends Controller
                 'start_at_label' => $appointment->start_at?->timezone('Asia/Jakarta')->format('H:i'),
                 'end_at_label' => $appointment->end_at?->timezone('Asia/Jakarta')->format('H:i'),
                 'duration_minutes' => $appointment->duration_minutes,
-                'trainers' => $appointment->trainers()->select('trainers.id', 'trainers.name')->get(),
+                'trainers' => $appointment->trainers()->select('trainers.id', 'trainers.user_id')->get(),
             ],
             'customers' => $customers,
             'paymentMethods' => $paymentSetting?->enabledGateways() ?? [],

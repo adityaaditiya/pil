@@ -24,7 +24,8 @@ class PilatesClassController extends Controller
                         $subQuery->where('name', 'like', "%{$search}%")
                             ->orWhere('difficulty_level', 'like', "%{$search}%")
                             ->orWhereHas('classCategory', fn ($categoryQuery) => $categoryQuery->where('name', 'like', "%{$search}%"))
-                            ->orWhereHas('trainers', fn ($trainerQuery) => $trainerQuery->where('name', 'like', "%{$search}%"));
+                            ->orWhereHas('trainers.user', fn ($trainerQuery) => $trainerQuery->where('name', 'like', "%{$search}%"))
+                            ->orWhereHas('trainers.user.customer', fn ($customerQuery) => $customerQuery->where('name', 'like', "%{$search}%"));
                     });
                 })
                 ->latest()
@@ -35,7 +36,13 @@ class PilatesClassController extends Controller
     public function create(): Response
     {
         return Inertia::render('Dashboard/Classes/Create', [
-            'trainers' => Trainer::query()->forTrainerRole()->orderBy('name')->get(['id', 'name']),
+            'trainers' => Trainer::query()
+                ->forTrainerRole()
+                ->with('user.customer')
+                ->select('id', 'user_id')
+                ->get()
+                ->sortBy('name')
+                ->values(),
             'classCategories' => ClassCategory::orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -73,8 +80,14 @@ class PilatesClassController extends Controller
     public function edit(PilatesClass $class): Response
     {
         return Inertia::render('Dashboard/Classes/Edit', [
-            'classItem' => $class->load('trainers:id,name'),
-            'trainers' => Trainer::query()->forTrainerRole()->orderBy('name')->get(['id', 'name']),
+            'classItem' => $class->load('trainers:id,user_id'),
+            'trainers' => Trainer::query()
+                ->forTrainerRole()
+                ->with('user.customer')
+                ->select('id', 'user_id')
+                ->get()
+                ->sortBy('name')
+                ->values(),
             'classCategories' => ClassCategory::orderBy('name')->get(['id', 'name']),
         ]);
     }
