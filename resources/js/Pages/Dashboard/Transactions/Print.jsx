@@ -170,14 +170,14 @@ export default function Print({ transaction }) {
                                 {printMode === "thermal80" ? (
                                     <ThermalReceipt
                                         transaction={transaction}
-                                        storeName="ORO PADEL"
+                                        storeName="ORO Wellness & Movement"
                                         storeAddress="Jl. Layur no. 08, Kota Tegal"
                                         storePhone="08123456789"
                                     />
                                 ) : (
                                     <ThermalReceipt58mm
                                         transaction={transaction}
-                                        storeName="ORO PADEL"
+                                        storeName="ORO Wellness & Movement"
                                         storePhone="08123456789"
                                     />
                                 )}
@@ -195,7 +195,7 @@ export default function Print({ transaction }) {
                                         <div className="flex items-center gap-2 mb-2">
                                             <IconReceipt size={24} />
                                             <span className="text-sm font-medium opacity-90 print:opacity-100">
-                                                INVOICE
+                                                INVOICE ORO Wellness & Movement
                                             </span>
                                         </div>
                                         <p className="text-2xl font-bold">

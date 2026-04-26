@@ -112,7 +112,7 @@ export default function Print({ booking }) {
                             }
                         >
                             <div className="mb-4 border-b border-dashed border-slate-300 pb-3 text-center">
-                                <p className="text-sm font-semibold">Pilates Studio</p>
+                                <p className="text-sm font-semibold">ORO Wellness & Movement</p>
                                 <p className="text-xs text-slate-500">Booking {printMode === "invoice" ? "Invoice" : "Receipt"}</p>
                             </div>
 
@@ -132,14 +132,20 @@ export default function Print({ booking }) {
                                 <p>
                                     <span className="text-slate-500">Trainer:</span> {booking.timetable?.trainer?.name || "-"}
                                 </p>
-                                <p>
+                                {/* <p>
                                     <span className="text-slate-500">Jadwal:</span> {formatDateTime(booking.timetable?.start_at)} - {formatDateTime(endSchedule)}
+                                </p> */}
+                                <p>
+                                    <span className="text-slate-500">Jadwal:</span> {formatDateTime(booking.timetable?.start_at)}
                                 </p>
                                 <p>
                                     <span className="text-slate-500">Peserta:</span> {booking.participants || 0}
                                 </p>
-                                <p>
+                                {/* <p>
                                     <span className="text-slate-500">Pembayaran:</span> {booking.payment_type || "-"} / {booking.payment_method || "-"}
+                                </p> */}
+                                <p>
+                                    <span className="text-slate-500">Pembayaran:</span> {booking.payment_method || "-"}
                                 </p>
                                 <p>
                                     <span className="text-slate-500">Status:</span> {booking.status || "-"}

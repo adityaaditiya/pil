@@ -28,7 +28,7 @@ export default function Print({ membership }) {
                     </div>
                     <div className="rounded-2xl border border-slate-200 bg-white shadow dark:border-slate-800 dark:bg-slate-900">
                         <div className={printMode === "thermal58" ? "mx-auto w-[58mm] p-2" : printMode === "thermal80" ? "mx-auto w-[80mm] p-3" : "p-6"}>
-                            <div className="mb-4 border-b border-dashed border-slate-300 pb-3 text-center"><p className="text-sm font-semibold">Pilates Studio</p><p className="text-xs text-slate-500">Membership {printMode === "invoice" ? "Invoice" : "Receipt"}</p></div>
+                            <div className="mb-4 border-b border-dashed border-slate-300 pb-3 text-center"><p className="text-sm font-semibold">ORO Wellness & Movement</p><p className="text-xs text-slate-500">Membership {printMode === "invoice" ? "Invoice" : "Receipt"}</p></div>
                             <div className="space-y-1 text-sm">
                                 <p><span className="text-slate-500">Invoice:</span> {membership.invoice}</p>
                                 <p><span className="text-slate-500">Tanggal:</span> {formatDateTime(membership.created_at)}</p>

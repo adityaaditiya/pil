@@ -268,6 +268,32 @@ function Menu() {
             ],
         },
         {
+            title: "Membership",
+            details: [
+                {
+                    title: "Membership",
+                    href: route("memberships.plans"),
+                    active: url === "/dashboard/memberships/plans",
+                    icon: <IconBadge size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["memberships-access"]),
+                },
+                {
+                    title: "Riwayat Membership",
+                    href: route("memberships.history"),
+                    active: url === "/dashboard/memberships/history",
+                    icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["memberships-history-access"]),
+                },
+                {
+                    title: "My Memberships",
+                    href: route("memberships.my"),
+                    active: url === "/dashboard/memberships/my",
+                    icon: <IconFileDescription size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["memberships-access"]),
+                },
+            ],
+        },
+        {
             title: "Laporan",
             details: [
                 {
@@ -381,33 +407,6 @@ function Menu() {
                             permissions: hasAnyPermission(["users-create"]),
                         },
                     ],
-                },
-            ],
-        },
-
-        {
-            title: "Membership",
-            details: [
-                {
-                    title: "Membership",
-                    href: route("memberships.plans"),
-                    active: url === "/dashboard/memberships/plans",
-                    icon: <IconBadge size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["memberships-access"]),
-                },
-                {
-                    title: "Riwayat Membership",
-                    href: route("memberships.history"),
-                    active: url === "/dashboard/memberships/history",
-                    icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["memberships-history-access"]),
-                },
-                {
-                    title: "My Memberships",
-                    href: route("memberships.my"),
-                    active: url === "/dashboard/memberships/my",
-                    icon: <IconFileDescription size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["memberships-access"]),
                 },
             ],
         },

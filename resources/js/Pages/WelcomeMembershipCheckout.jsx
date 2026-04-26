@@ -112,8 +112,14 @@ export default function WelcomeMembershipCheckout({
                                     <td className="px-4 py-3 text-slate-700">{plan?.valid_days ? `${plan.valid_days} hari` : "Tanpa batas waktu"}</td>
                                 </tr>
                                 <tr>
-                                    <td className="bg-slate-50 px-4 py-3 font-medium text-slate-700">Rule Class yang Diizinkan</td>
-                                    <td className="px-4 py-3 text-slate-700">{plan?.classes?.map((item) => item.name).join(", ") || "-"}</td>
+                                    <td className="bg-slate-50 px-4 py-3 font-medium text-slate-700">Kelas yang bisa dipesan</td>
+                                    {/* <td className="px-4 py-3 text-slate-700 ">{plan?.classes?.map((item) => item.name).join(", ") || "-"}</td> */}
+                                    
+                                    
+                                    {/* Tambahkan class 'whitespace-pre-line' */}
+                                    <td className="px-4 py-3 text-slate-700 whitespace-pre-line">
+                                    {plan?.classes?.map((item) => item.name).join("\n") || "-"}
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>

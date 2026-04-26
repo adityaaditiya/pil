@@ -45,18 +45,19 @@ export default function Print({ booking }) {
                     </div>
                     <div className="rounded-2xl border border-slate-200 bg-white shadow dark:border-slate-800 dark:bg-slate-900">
                         <div className={printMode === "thermal58" ? "mx-auto w-[58mm] p-2" : printMode === "thermal80" ? "mx-auto w-[80mm] p-3" : "p-6"}>
-                            <div className="mb-4 border-b border-dashed border-slate-300 pb-3 text-center"><p className="text-sm font-semibold">Pilates Studio</p><p className="text-xs text-slate-500">Appointment {printMode === "invoice" ? "Invoice" : "Receipt"}</p></div>
+                            <div className="mb-4 border-b border-dashed border-slate-300 pb-3 text-center"><p className="text-sm font-semibold">ORO Wellness & Movement</p><p className="text-xs text-slate-500">Appointment {printMode === "invoice" ? "Invoice" : "Receipt"}</p></div>
                             <div className="space-y-1 text-sm">
                                 <p><span className="text-slate-500">Invoice:</span> {booking.invoice}</p>
                                 <p><span className="text-slate-500">Tanggal Booking:</span> {formatDateTime(booking.booked_at || booking.created_at)}</p>
                                 <p><span className="text-slate-500">Pelanggan:</span> {booking.customer?.name || "-"}</p>
-                                <p><span className="text-slate-500">No. Telp:</span> {booking.customer?.no_telp || "-"}</p>
+                                {/* <p><span className="text-slate-500">No. Telp:</span> {booking.customer?.no_telp || "-"}</p> */}
                                 <p><span className="text-slate-500">Kelas:</span> {booking.appointment?.pilates_class?.name || "-"}</p>
                                 <p><span className="text-slate-500">Sesi:</span> {booking.session_name || "-"}</p>
                                 <p><span className="text-slate-500">Trainer:</span> {booking.trainer?.name || "-"}</p>
                                 <p><span className="text-slate-500">Jadwal:</span> {formatDateTime(booking.appointment?.start_at)}</p>
                                 <p><span className="text-slate-500">Durasi:</span> {booking.appointment?.duration_minutes || 0} menit</p>
-                                <p><span className="text-slate-500">Pembayaran:</span> {booking.payment_type || "-"} ({booking.payment_method || "-"})</p>
+                                {/* <p><span className="text-slate-500">Pembayaran:</span> {booking.payment_type || "-"} ({booking.payment_method || "-"})</p> */}
+                                <p><span className="text-slate-500">Pembayaran:</span> {booking.payment_method || "-"}</p>
                                 <p><span className="text-slate-500">Status:</span> {booking.status || "-"}</p>
                             </div>
                             <div className="mt-4 border-t border-dashed border-slate-300 pt-3 text-sm font-semibold">Total: {formatCurrency(booking.price_amount || 0)}</div>
