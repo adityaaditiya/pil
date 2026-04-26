@@ -183,10 +183,27 @@ export default function WelcomeSchedulePayment({
             <Head title="Pembayaran Schedule" />
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white px-4 py-10 text-wellness-text">
                 {showMessage && (
-                <div className="fixed px-4 py-3 text-sm text-green-700 transition-opacity duration-500 bg-green-100 border border-green-400 rounded-lg shadow-md top-5 right-5">
-                    {flash.success}
-                </div>
-            )}
+                    <div className="fixed z-50 flex items-center w-full max-w-sm p-4 space-x-4 transition-all duration-500 ease-in-out transform bg-white border border-gray-100 shadow-2xl top-6 right-6 rounded-2xl shadow-emerald-500/10 ring-1 ring-black/5">
+                        {/* Ikon Sukses */}
+                        <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full bg-emerald-50">
+                            <svg 
+                                className="w-5 h-5 text-emerald-500" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24" 
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        
+                        {/* Teks Pesan */}
+                        <div className="flex-1">
+                            {/* <p className="text-sm font-semibold text-gray-900">Berhasil!</p> */}
+                            <p className="mt-0.5 text-sm font-medium text-gray-500">{flash.success}</p>
+                        </div>
+                    </div>
+                )}
                 <div className="mx-auto max-w-4xl">
                     <Link
                         href={route("welcome.schedule-detail", schedule.id)}
