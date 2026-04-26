@@ -29,6 +29,7 @@ use App\Http\Controllers\Reports\SalesReportController;
 use App\Http\Controllers\Reports\SoldItemsReportController;
 use App\Http\Controllers\Reports\StockMutationReportController;
 use App\Http\Controllers\Reports\StudioTransactionReportController;
+use App\Http\Controllers\Reports\TrainerReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StudioPageController;
 use App\Http\Controllers\TrainerController;
@@ -335,6 +336,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/reports/cash/export-pdf', [CashReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.cash.export-pdf');
     Route::get('/reports/authorizations', [AuthorizationReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.authorizations.index');
     Route::get('/reports/stock-mutations', [StockMutationReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.stock-mutations.index');
+    Route::get('/reports/trainers', [TrainerReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.trainers.index');
+    Route::get('/reports/trainers/export', [TrainerReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.trainers.export');
+    Route::get('/reports/trainers/export-pdf', [TrainerReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.trainers.export-pdf');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
