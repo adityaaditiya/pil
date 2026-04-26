@@ -159,6 +159,10 @@ class StudioPageController extends Controller
             'appointmentSlots' => $appointmentData['appointmentSlots'],
             'appointmentSessionOptions' => $appointmentData['appointmentSessionOptions'],
             'appointmentAvailableMemberships' => $normalizedKey === 'appointment' ? $this->getAvailableAppointmentMembershipsForAuthUser() : [],
+            'requiredQuestionnaire' => $normalizedKey === 'appointment' ? $this->buildRequiredQuestionnaireForAuthenticatedUser() : [
+                'should_show' => false,
+                'questions' => [],
+            ],
         ]);
     }
 
@@ -600,69 +604,16 @@ class StudioPageController extends Controller
 
     public function submitScheduleQuestionnaire(Request $request, PilatesTimetable $pilatesTimetable): RedirectResponse
     {
-        $customer = Customer::query()
-            ->where('user_id', Auth::id())
-            ->first();
-
-        if (! $customer) {
-            throw ValidationException::withMessages([
-                'questionnaire' => 'Akun Anda belum terhubung dengan data customer.',
-            ]);
-        }
-
-        $requiredQuestions = Question::query()
-            ->where('is_required', true)
-            ->oldest('id')
-            ->get();
-
-        $rules = [];
-        $submittedAnswers = $request->input('answers', []);
-
-        foreach ($submittedAnswers as $questionId => $value) {
-            $question = $requiredQuestions->firstWhere('id', $questionId);
-
-            if (!$question) continue;
-
-            $field = 'answers.' . $questionId;
-
-            if ($question->input_type === 'text') {
-                $rules[$field] = 'required|string';
-            }
-
-            if ($question->input_type === 'multiple_choice') {
-                $rules[$field] = 'required|string';
-            }
-
-            if ($question->input_type === 'checkbox') {
-                $rules[$field] = 'required|array|min:1';
-            }
-        }
-
-        $validated = $request->validate($rules);
-        $answers = $validated['answers'] ?? [];
-
-        foreach ($submittedAnswers as $questionId => $value) {
-        $question = $requiredQuestions->firstWhere('id', $questionId);
-        if (!$question) continue;
-
-        if ($question->input_type === 'checkbox') {
-            $value = json_encode(array_values($value));
-        }
-
-        CustomerAnswer::updateOrCreate(
-            [
-                'customer_id' => $customer->id,
-                'question_id' => $questionId,
-            ],
-            [
-                'answer_value' => is_string($value) || $value === null
-                    ? $value
-                    : (string) $value,
-            ]
-        );
-    }
+        $this->saveRequiredQuestionnaireAnswers($request);
 
         return to_route('welcome.schedule-payment', $pilatesTimetable->id)->with('success', 'Kuesioner berhasil disimpan.');
+    }
+
+    public function submitAppointmentQuestionnaire(Request $request): RedirectResponse
+    {
+        $this->saveRequiredQuestionnaireAnswers($request);
+
+        return back()->with('success', 'Kuesioner berhasil disimpan.');
     }
 
     public function showSchedulePayment(PilatesTimetable $pilatesTimetable): Response
@@ -1292,6 +1243,74 @@ class StudioPageController extends Controller
             'should_show' => count($missingQuestions) > 0,
             'questions' => $missingQuestions,
         ];
+    }
+
+    private function saveRequiredQuestionnaireAnswers(Request $request): void
+    {
+        $customer = Customer::query()
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (! $customer) {
+            throw ValidationException::withMessages([
+                'questionnaire' => 'Akun Anda belum terhubung dengan data customer.',
+            ]);
+        }
+
+        $requiredQuestions = Question::query()
+            ->where('is_required', true)
+            ->oldest('id')
+            ->get();
+
+        $rules = [];
+        $submittedAnswers = $request->input('answers', []);
+
+        foreach ($submittedAnswers as $questionId => $value) {
+            $question = $requiredQuestions->firstWhere('id', $questionId);
+
+            if (! $question) {
+                continue;
+            }
+
+            $field = 'answers.'.$questionId;
+
+            if ($question->input_type === 'text') {
+                $rules[$field] = 'required|string';
+            }
+
+            if ($question->input_type === 'multiple_choice') {
+                $rules[$field] = 'required|string';
+            }
+
+            if ($question->input_type === 'checkbox') {
+                $rules[$field] = 'required|array|min:1';
+            }
+        }
+
+        $request->validate($rules);
+
+        foreach ($submittedAnswers as $questionId => $value) {
+            $question = $requiredQuestions->firstWhere('id', $questionId);
+            if (! $question) {
+                continue;
+            }
+
+            if ($question->input_type === 'checkbox') {
+                $value = json_encode(array_values($value));
+            }
+
+            CustomerAnswer::updateOrCreate(
+                [
+                    'customer_id' => $customer->id,
+                    'question_id' => $questionId,
+                ],
+                [
+                    'answer_value' => is_string($value) || $value === null
+                        ? $value
+                        : (string) $value,
+                ]
+            );
+        }
     }
 
 }
