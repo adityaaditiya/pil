@@ -13,6 +13,7 @@ import {
     IconPhone,
     IconMapPin,
     IconMail,
+    IconClipboardText,
 } from "@tabler/icons-react";
 import Search from "@/Components/Dashboard/Search";
 import Table from "@/Components/Dashboard/Table";
@@ -69,6 +70,13 @@ function CustomerCard({ customer }) {
                 >
                     <IconPencilCog size={16} />
                     <span>Edit</span>
+                </Link>
+                <Link
+                    href={route("customers.questionnaire.edit", customer.id)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary-100 text-primary-600 hover:bg-primary-200 dark:bg-primary-900/50 dark:text-primary-400 text-sm font-medium transition-colors"
+                >
+                    <IconClipboardText size={16} />
+                    <span>Kuesioner</span>
                 </Link>
                 <Button
                     type={"delete"}
@@ -235,6 +243,22 @@ export default function Index({ customers }) {
                                                     }
                                                     href={route(
                                                         "customers.edit",
+                                                        customer.id
+                                                    )}
+                                                />
+                                                <Button
+                                                    type={"edit"}
+                                                    icon={
+                                                        <IconClipboardText
+                                                            size={16}
+                                                            strokeWidth={1.5}
+                                                        />
+                                                    }
+                                                    className={
+                                                        "border bg-primary-100 border-primary-200 text-primary-600 hover:bg-primary-200 dark:bg-primary-900/50 dark:border-primary-800 dark:text-primary-400"
+                                                    }
+                                                    href={route(
+                                                        "customers.questionnaire.edit",
                                                         customer.id
                                                     )}
                                                 />

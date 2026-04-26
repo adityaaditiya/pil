@@ -11,6 +11,7 @@ import {
     IconCirclePlus,
     IconClockHour6,
     IconCreditCard,
+    IconClipboardText,
     IconPhoto,
     IconFileCertificate,
     IconFileDescription,
@@ -90,6 +91,13 @@ function Menu() {
                     href: route("customers.index"),
                     active: url === "/dashboard/customers" ? true : false, // Update comparison here
                     icon: <IconUsersPlus size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["customers-access"]),
+                },
+                {
+                    title: "Kelola Kuesioner",
+                    href: route("questions.index"),
+                    active: url.startsWith("/dashboard/questions"),
+                    icon: <IconClipboardText size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["customers-access"]),
                 },
                 {

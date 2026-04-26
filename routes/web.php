@@ -10,6 +10,8 @@ use App\Http\Controllers\Apps\CustomerController;
 use App\Http\Controllers\Apps\LandingPageSettingController;
 use App\Http\Controllers\Apps\PaymentSettingController;
 use App\Http\Controllers\Apps\ProductController;
+use App\Http\Controllers\Apps\QuestionController;
+use App\Http\Controllers\Apps\CustomerQuestionnaireController;
 use App\Http\Controllers\Apps\TransactionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MembershipHistoryController;
@@ -137,6 +139,18 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         ->middlewareFor(['create', 'store'], 'permission:customers-create')
         ->middlewareFor(['edit', 'update'], 'permission:customers-edit')
         ->middlewareFor('destroy', 'permission:customers-delete');
+
+    Route::resource('questions', QuestionController::class)
+        ->except(['show'])
+        ->middleware('permission:customers-access');
+
+    Route::get('customers/{customer}/questionnaire', [CustomerQuestionnaireController::class, 'edit'])
+        ->middleware('permission:customers-edit')
+        ->name('customers.questionnaire.edit');
+    Route::put('customers/{customer}/questionnaire', [CustomerQuestionnaireController::class, 'update'])
+        ->middleware('permission:customers-edit')
+        ->name('customers.questionnaire.update');
+
     Route::resource('class-categories', ClassCategoryController::class)
         ->middlewareFor(['index', 'show'], 'permission:class-categories-access')
         ->middlewareFor(['create', 'store'], 'permission:class-categories-create')
