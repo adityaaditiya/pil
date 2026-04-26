@@ -357,6 +357,13 @@ function Menu() {
                     permissions: hasAnyPermission(["reports-access"]),
                 },
                 {
+                    title: "Laporan Trainer",
+                    href: route("reports.trainers.index"),
+                    active: url.startsWith("/dashboard/reports/trainers"),
+                    icon: <IconUsers size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["reports-access"]),
+                },
+                {
                     title: "Laporan Keuangan Cash",
                     href: route("reports.cash.index"),
                     active: url.startsWith("/dashboard/reports/cash"),
