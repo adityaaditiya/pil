@@ -44,6 +44,10 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('welcome', absolute: false));
         }
 
+        if ($request->user()->hasRole('trainer')) {
+            return redirect()->intended(route('user.my-flow', absolute: false));
+        }
+
         if ($request->user()->can('dashboard-access')) {
             return redirect()->intended(route('dashboard', absolute: false));
         }
