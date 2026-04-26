@@ -10,10 +10,10 @@ import {
 } from "@tabler/icons-react";
 
 const defaultCategories = [
+    "BON TRANSFER BANK",
     "BAYAR BUNGA BANK",
     "BON OPERASIONAL",
     "BON PRIBADI OWNER",
-    "BON TRANSFER BANK",
     "DEBIT CREDIT CARD",
     "KURANG MODAL",
     "TAMBAH MODAL",

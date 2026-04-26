@@ -295,23 +295,23 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
                                         No
                                     </th>
                                     <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        Tanggal
+                                    </th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                         Invoice
                                     </th>
                                     <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                        Tanggal
+                                        Pelanggan
                                     </th>
                                     <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                         Kasir
                                     </th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                            Pelanggan
-                                        </th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                            Metode Pembayaran
-                                        </th>
-                                        <th className="px-4 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                            Item
-                                        </th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        Metode Pembayaran
+                                    </th>
+                                    <th className="px-4 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        Item
+                                    </th>
                                     <th className="px-4 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                         Total
                                     </th>
@@ -342,23 +342,25 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
                                                     1 +
                                                     (currentPage - 1) * perPage}
                                             </td>
+                                            
+                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
+                                                {transaction.created_at}
+                                            </td>
                                             <td className="px-4 py-4">
                                                 <span className="text-sm font-semibold text-slate-900 dark:text-white">
                                                     {transaction.invoice}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                                {transaction.created_at}
-                                            </td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                                {transaction.cashier?.name ??
-                                                    "-"}
-                                            </td>
+                                            
                                             <td className="px-4 py-4">
                                                 <span className="px-2 py-1 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-md">
                                                     {transaction.customer
                                                         ?.name ?? "Umum"}
                                                 </span>
+                                            </td>
+                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
+                                                {transaction.cashier?.name ??
+                                                    "-"}
                                             </td>
                                             <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
                                                 {formatPaymentMethod(

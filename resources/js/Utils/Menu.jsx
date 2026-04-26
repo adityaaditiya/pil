@@ -94,6 +94,13 @@ function Menu() {
                     permissions: hasAnyPermission(["customers-access"]),
                 },
                 {
+                    title: "Trainer",
+                    href: route("trainers.index"),
+                    active: url.startsWith("/dashboard/trainers"),
+                    icon: <IconUserSquare size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["trainers-access"]),
+                },
+                {
                     title: "Kelola Kuesioner",
                     href: route("questions.index"),
                     active: url.startsWith("/dashboard/questions"),
@@ -156,13 +163,7 @@ function Menu() {
                         },
                     ],
                 },
-                {
-                    title: "Trainer",
-                    href: route("trainers.index"),
-                    active: url.startsWith("/dashboard/trainers"),
-                    icon: <IconUserSquare size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["trainers-access"]),
-                },
+                
                 {
                     title: "Sesi Appointment",
                     href: route("appointment-sessions.index"),
@@ -321,6 +322,20 @@ function Menu() {
                     permissions: hasAnyPermission(["reports-access"]),
                 },
                 {
+                    title: "Laporan Kelola Stok",
+                    href: route("reports.stock-mutations.index"),
+                    active: url.startsWith("/dashboard/reports/stock-mutations"),
+                    icon: <IconTable size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["reports-access"]),
+                },
+                {
+                    title: "Laporan Profit Produk",
+                    href: route("reports.profits.index"),
+                    active: url.startsWith("/dashboard/reports/profits"),
+                    icon: <IconChartBarPopular size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["profits-access"]),
+                },
+                {
                     title: "Laporan Booking",
                     href: route("reports.booking.index"),
                     active: url.startsWith("/dashboard/reports/booking"),
@@ -342,26 +357,12 @@ function Menu() {
                     permissions: hasAnyPermission(["reports-access"]),
                 },
                 {
-                    title: "Laporan Keuntungan",
-                    href: route("reports.profits.index"),
-                    active: url.startsWith("/dashboard/reports/profits"),
-                    icon: <IconChartBarPopular size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["profits-access"]),
-                },
-                {
                     title: "Laporan Keuangan Cash",
                     href: route("reports.cash.index"),
                     active: url.startsWith("/dashboard/reports/cash"),
                     icon: (
                         <IconChartInfographic size={20} strokeWidth={1.5} />
                     ),
-                    permissions: hasAnyPermission(["reports-access"]),
-                },
-                {
-                    title: "Laporan Kelola Stok",
-                    href: route("reports.stock-mutations.index"),
-                    active: url.startsWith("/dashboard/reports/stock-mutations"),
-                    icon: <IconTable size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["reports-access"]),
                 },
                 {

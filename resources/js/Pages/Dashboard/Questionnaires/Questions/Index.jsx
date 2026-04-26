@@ -17,7 +17,7 @@ export default function Index({ questions }) {
                     Kelola Kuesioner
                 </h2>
                 <p className="mt-2 text-sm text-gray-500">
-                    Manajemen Template Kuesioner
+                    Manajemen Template Kuesioner Pelanggan
                 </p>
             </div>
 
