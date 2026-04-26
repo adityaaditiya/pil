@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import Navbar from "@/Components/Landing/Navbar";
 import { useEffect, useMemo, useRef, useState } from "react";
 // import { Toaster } from "react-hot-toast";
@@ -184,6 +184,7 @@ export default function WelcomeSection({
     appointmentSlots = [],
     appointmentSessionOptions = [],
     appointmentAvailableMemberships = [],
+    requiredQuestionnaire = { should_show: false, questions: [] },
     initialFilters = {},
 }) {
     const [showFilters, setShowFilters] = useState(false);
@@ -194,7 +195,7 @@ export default function WelcomeSection({
     const [activeDateKey, setActiveDateKey] = useState("");
     const [selectedMonthAnchor, setSelectedMonthAnchor] = useState(null);
     const dateStripRef = useRef(null);
-    const { auth, flash } = usePage().props;
+    const { auth, flash, errors } = usePage().props;
     // Di dekat useRef lainnya
     const dateInputRef = useRef(null); // Tambahkan ini
     const [selectedServiceId, setSelectedServiceId] = useState(appointmentSessionOptions[0]?.id || "");
@@ -208,6 +209,7 @@ export default function WelcomeSection({
     const [selectedAppointmentPaymentGateway, setSelectedAppointmentPaymentGateway] = useState(paymentGateways[0]?.value || "");
     const [selectedAppointmentMembershipId, setSelectedAppointmentMembershipId] = useState("");
     const [showAppointmentConfirmModal, setShowAppointmentConfirmModal] = useState(false);
+    const [isAppointmentQuestionnaireOpen, setIsAppointmentQuestionnaireOpen] = useState(false);
 
     const calendarDays = useMemo(() => {
         return getDaysInMonth(currentYear, currentMonth);
@@ -231,6 +233,17 @@ export default function WelcomeSection({
         }
     };
     const [selectedAppointmentTime, setSelectedAppointmentTime] = useState("");
+    const appointmentQuestionnaireQuestions = requiredQuestionnaire?.questions ?? [];
+    const shouldShowAppointmentQuestionnaire = Boolean(requiredQuestionnaire?.should_show) && appointmentQuestionnaireQuestions.length > 0;
+    const initialAppointmentQuestionnaireAnswers = useMemo(() =>
+        appointmentQuestionnaireQuestions.reduce((acc, question) => {
+            acc[question.id] = question.input_type === "checkbox" ? [] : "";
+            return acc;
+        }, {}),
+    [appointmentQuestionnaireQuestions]);
+    const { data: appointmentQuestionnaireData, setData: setAppointmentQuestionnaireData, post: postAppointmentQuestionnaire, processing: processingAppointmentQuestionnaire } = useForm({
+        answers: initialAppointmentQuestionnaireAnswers,
+    });
 
     useEffect(() => {
         if (pageKey === "appointment" && selectedAppointmentDate) {
@@ -424,6 +437,22 @@ useEffect(() => {
         }
     }
 }, [activeDateKey]);
+
+    useEffect(() => {
+        const updatedAnswers = { ...appointmentQuestionnaireData.answers };
+        let hasChanges = false;
+
+        appointmentQuestionnaireQuestions.forEach((question) => {
+            if (!(question.id in updatedAnswers)) {
+                updatedAnswers[question.id] = question.input_type === "checkbox" ? [] : "";
+                hasChanges = true;
+            }
+        });
+
+        if (hasChanges) {
+            setAppointmentQuestionnaireData("answers", updatedAnswers);
+        }
+    }, [appointmentQuestionnaireQuestions]);
 
     useEffect(() => {
         if (pageKey !== "schedule" || schedulesByDate.length === 0) {
@@ -811,7 +840,30 @@ useEffect(() => {
             return;
         }
 
+        if (shouldShowAppointmentQuestionnaire) {
+            setIsAppointmentQuestionnaireOpen(true);
+            return;
+        }
+
         setShowAppointmentConfirmModal(true);
+    };
+
+    const onAppointmentQuestionnaireCheckboxChange = (questionId, option, checked) => {
+        const current = appointmentQuestionnaireData.answers[questionId] || [];
+        const next = checked ? [...current, option] : current.filter((item) => item !== option);
+        setAppointmentQuestionnaireData("answers", { ...appointmentQuestionnaireData.answers, [questionId]: next });
+    };
+
+    const submitAppointmentQuestionnaire = (event) => {
+        event.preventDefault();
+
+        postAppointmentQuestionnaire(route("welcome.appointment-questionnaire.submit"), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsAppointmentQuestionnaireOpen(false);
+                setShowAppointmentConfirmModal(true);
+            },
+        });
     };
 
 
@@ -1691,6 +1743,86 @@ useEffect(() => {
                                     Konfirmasi Pembayaran
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {pageKey === "appointment" && isAppointmentQuestionnaireOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
+                        <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+                            <div className="p-8 pb-4">
+                                <h2 className="text-2xl font-bold">Lengkapi Profil Latihan</h2>
+                                <p className="mt-2 text-sm text-slate-500">Informasi ini membantu kami menyesuaikan sesi dengan kondisi Anda.</p>
+                            </div>
+
+                            <form onSubmit={submitAppointmentQuestionnaire} className="flex flex-1 flex-col overflow-hidden">
+                                <div className="custom-scrollbar flex-1 space-y-5 overflow-y-auto px-8 py-2">
+                                    {appointmentQuestionnaireQuestions.map((question, index) => (
+                                        <div key={question.id} className="space-y-2">
+                                            <label className="text-sm font-semibold text-slate-700">
+                                                {index + 1}. {question.question_text} {question.is_required && <span className="text-red-500">*</span>}
+                                            </label>
+
+                                            {question.input_type === "text" && (
+                                                <textarea
+                                                    required={question.is_required}
+                                                    className="w-full rounded-xl border-slate-200 bg-slate-50 p-3 text-sm focus:ring-primary-500"
+                                                    value={appointmentQuestionnaireData.answers[question.id] || ""}
+                                                    onChange={(e) => setAppointmentQuestionnaireData("answers", { ...appointmentQuestionnaireData.answers, [question.id]: e.target.value })}
+                                                />
+                                            )}
+
+                                            {question.input_type === "multiple_choice" && (
+                                                <select
+                                                    required={question.is_required}
+                                                    className="w-full rounded-xl border-slate-200 bg-slate-50 p-3 text-sm"
+                                                    value={appointmentQuestionnaireData.answers[question.id] || ""}
+                                                    onChange={(e) => setAppointmentQuestionnaireData("answers", { ...appointmentQuestionnaireData.answers, [question.id]: e.target.value })}
+                                                >
+                                                    <option value="">Pilih jawaban...</option>
+                                                    {question.options?.map((opt, i) => (
+                                                        <option key={`${question.id}-opt-${i}`} value={opt}>{opt}</option>
+                                                    ))}
+                                                </select>
+                                            )}
+
+                                            {question.input_type === "checkbox" && (
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {question.options?.map((opt, i) => (
+                                                        <label key={`${question.id}-chk-${i}`} className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-100 p-3 text-sm hover:bg-slate-50">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={(appointmentQuestionnaireData.answers[question.id] || []).includes(opt)}
+                                                                onChange={(e) => onAppointmentQuestionnaireCheckboxChange(question.id, opt, e.target.checked)}
+                                                                className="rounded text-primary-600"
+                                                            />
+                                                            {opt}
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {errors[`answers.${question.id}`] && <p className="text-xs text-red-500">{errors[`answers.${question.id}`]}</p>}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex gap-3 border-t border-slate-100 p-8 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsAppointmentQuestionnaireOpen(false)}
+                                        className="flex-1 rounded-full py-3 font-semibold text-slate-500 transition hover:bg-slate-50"
+                                    >
+                                        Nanti saja
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={processingAppointmentQuestionnaire}
+                                        className="flex-[2] rounded-full bg-primary-600 py-3 font-bold text-white shadow-lg shadow-primary-100 transition hover:bg-primary-700 disabled:opacity-50"
+                                    >
+                                        {processingAppointmentQuestionnaire ? "Memproses..." : "Simpan data"}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 )}
