@@ -27,7 +27,7 @@ export default function Questionnaire({ customer, questions }) {
         <>
             <Head title={`Kuesioner ${customer.name}`} />
             <form onSubmit={submit} className="max-w-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-6">
-                <h1 className="text-xl font-semibold">Kuesioner Profil - {customer.name}</h1>
+                <h1 className="text-xl font-semibold">Kuesioner - {customer.name}</h1>
                 {questions.length === 0 && <p>Belum ada pertanyaan. Silakan tambah di menu Kelola Kuesioner.</p>}
                 {questions.map((question, index) => (
                     <div key={question.id}>

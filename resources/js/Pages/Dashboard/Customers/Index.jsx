@@ -65,19 +65,20 @@ function CustomerCard({ customer }) {
             {/* Actions */}
             <div className="flex gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <Link
-                    href={route("customers.edit", customer.id)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-warning-100 text-warning-600 hover:bg-warning-200 dark:bg-warning-900/50 dark:text-warning-400 text-sm font-medium transition-colors"
-                >
-                    <IconPencilCog size={16} />
-                    <span>Edit</span>
-                </Link>
-                <Link
                     href={route("customers.questionnaire.edit", customer.id)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary-100 text-primary-600 hover:bg-primary-200 dark:bg-primary-900/50 dark:text-primary-400 text-sm font-medium transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-primary-100 text-primary-600 hover:bg-primary-200 dark:bg-primary-900/50 dark:text-primary-400 text-sm font-medium transition-colors"
                 >
                     <IconClipboardText size={16} />
                     <span>Kuesioner</span>
                 </Link>
+                <Link
+                    href={route("customers.edit", customer.id)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-warning-100 text-warning-600 hover:bg-warning-200 dark:bg-warning-900/50 dark:text-warning-400 text-sm font-medium transition-colors"
+                >
+                    <IconPencilCog size={17} />
+                    {/* <span>Edit</span> */}
+                </Link>
+                
                 <Button
                     type={"delete"}
                     icon={<IconTrash size={16} />}
@@ -85,7 +86,7 @@ function CustomerCard({ customer }) {
                         "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-danger-100 text-danger-600 hover:bg-danger-200 dark:bg-danger-900/50 dark:text-danger-400 text-sm font-medium"
                     }
                     url={route("customers.destroy", customer.id)}
-                    label="Hapus"
+                    label=""
                 />
             </div>
         </div>
