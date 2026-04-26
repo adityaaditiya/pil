@@ -44,7 +44,7 @@ class PilatesBooking extends Model
                 $booking->invoice = self::generateInvoice();
             }
 
-            if ($booking->payment_type === 'drop_in' && ! $booking->expired_at) {
+            if ($booking->payment_type === 'drop_in' && ! $booking->payment_proof_image && ! $booking->expired_at) {
                 $booking->expired_at = Carbon::now()->addMinutes(15);
             }
         });
@@ -53,6 +53,7 @@ class PilatesBooking extends Model
             if (
                 $booking->payment_type === 'drop_in'
                 && in_array($booking->status, ['pending', 'pending_payment'], true)
+                && ! $booking->payment_proof_image
                 && $booking->expired_at
                 && now()->greaterThan($booking->expired_at)
             ) {

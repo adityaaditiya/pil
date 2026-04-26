@@ -40,7 +40,7 @@ class UserMembership extends Model
                 $membership->invoice = self::generateInvoice();
             }
 
-            if (in_array($membership->status, ['pending', 'pending_payment'], true) && ! $membership->expired_at) {
+            if (in_array($membership->status, ['pending', 'pending_payment'], true) && ! $membership->payment_proof_image && ! $membership->expired_at) {
                 $membership->expired_at = Carbon::now()->addMinutes(15);
             }
         });
@@ -48,6 +48,7 @@ class UserMembership extends Model
         static::saving(function (self $membership) {
             if (
                 in_array($membership->status, ['pending', 'pending_payment'], true)
+                && ! $membership->payment_proof_image
                 && $membership->expired_at
                 && now()->greaterThan($membership->expired_at)
             ) {
