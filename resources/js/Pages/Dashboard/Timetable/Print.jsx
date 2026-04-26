@@ -1,9 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import { IconArrowLeft, IconFileInvoice, IconPrinter, IconReceipt } from "@tabler/icons-react";
+import { getImageUrl } from "@/Utils/imageUrl";
 
 export default function Print({ booking }) {
+    const { landingPageSetting = {} } = usePage().props;
     const [printMode, setPrintMode] = useState("invoice");
+    const studioLogoImage = getImageUrl(landingPageSetting?.studio_logo_image, "landing-page");
+    const studioAddress = landingPageSetting?.studio_address || "Jl. Layur No. 08, Tegalsari, Kec. Tegal Barat, Kota Tegal";
+    const studioPhone = landingPageSetting?.studio_phone || "08123456789";
 
     const formatDateTime = (value) =>
         value
@@ -112,7 +117,14 @@ export default function Print({ booking }) {
                             }
                         >
                             <div className="mb-4 border-b border-dashed border-slate-300 pb-3 text-center">
+                                {studioLogoImage && (
+                                    <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center">
+                                        <img src={studioLogoImage} alt="Logo Studio" className="max-h-14 max-w-14 object-contain" />
+                                    </div>
+                                )}
                                 <p className="text-sm font-semibold">ORO Wellness & Movement</p>
+                                <p className="text-xs text-slate-500">{studioAddress}</p>
+                                <p className="text-xs text-slate-500">Telp: {studioPhone}</p>
                                 <p className="text-xs text-slate-500">Booking {printMode === "invoice" ? "Invoice" : "Receipt"}</p>
                             </div>
 
