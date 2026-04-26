@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\MembershipPlan;
+use App\Models\Question;
+use App\Models\CustomerAnswer;
 use App\Models\Customer;
 use App\Models\AppointmentSession;
 use App\Models\AppointmentBooking;
@@ -587,11 +589,75 @@ class StudioPageController extends Controller
             'pilatesClass.classCategory:id,name',
             'trainer:id,user_id,expertise,biodata',
         ]);
+        $requiredQuestionnaire = $this->buildRequiredQuestionnaireForAuthenticatedUser();
 
         return Inertia::render('WelcomeScheduleDetail', [
             'menuItems' => $menuItems,
             'schedule' => $schedule,
+            'requiredQuestionnaire' => $requiredQuestionnaire,
         ]);
+    }
+
+    public function submitScheduleQuestionnaire(Request $request, PilatesTimetable $pilatesTimetable): RedirectResponse
+    {
+        $customer = Customer::query()
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (! $customer) {
+            throw ValidationException::withMessages([
+                'questionnaire' => 'Akun Anda belum terhubung dengan data customer.',
+            ]);
+        }
+
+        $requiredQuestions = Question::query()
+            ->where('is_required', true)
+            ->oldest('id')
+            ->get();
+
+        $rules = [];
+        foreach ($requiredQuestions as $question) {
+            $field = 'answers.' . $question->id;
+
+            if ($question->input_type === 'text') {
+                $rules[$field] = 'required|string';
+                continue;
+            }
+
+            if ($question->input_type === 'multiple_choice') {
+                $allowed = implode(',', $question->options ?? []);
+                $rules[$field] = 'required|string|in:' . $allowed;
+                continue;
+            }
+
+            if ($question->input_type === 'checkbox') {
+                $rules[$field] = 'required|array|min:1';
+                $rules[$field . '.*'] = 'in:' . implode(',', $question->options ?? []);
+            }
+        }
+
+        $validated = $request->validate($rules);
+        $answers = $validated['answers'] ?? [];
+
+        foreach ($requiredQuestions as $question) {
+            $value = $answers[$question->id] ?? null;
+
+            if ($question->input_type === 'checkbox') {
+                $value = json_encode(array_values($value));
+            }
+
+            CustomerAnswer::updateOrCreate(
+                [
+                    'customer_id' => $customer->id,
+                    'question_id' => $question->id,
+                ],
+                [
+                    'answer_value' => is_string($value) || $value === null ? $value : (string) $value,
+                ]
+            );
+        }
+
+        return to_route('welcome.schedule-payment', $pilatesTimetable->id)->with('success', 'Kuesioner berhasil disimpan.');
     }
 
     public function showSchedulePayment(PilatesTimetable $pilatesTimetable): Response
@@ -1154,6 +1220,73 @@ class StudioPageController extends Controller
         $query->update([
             'status' => 'expired',
         ]);
+    }
+
+    private function buildRequiredQuestionnaireForAuthenticatedUser(): array
+    {
+        if (! Auth::check()) {
+            return [
+                'should_show' => false,
+                'questions' => [],
+            ];
+        }
+
+        $customer = Customer::query()
+            ->where('user_id', Auth::id())
+            ->first(['id']);
+
+        if (! $customer) {
+            return [
+                'should_show' => false,
+                'questions' => [],
+            ];
+        }
+
+        $requiredQuestions = Question::query()
+            ->where('is_required', true)
+            ->oldest('id')
+            ->get();
+
+        if ($requiredQuestions->isEmpty()) {
+            return [
+                'should_show' => false,
+                'questions' => [],
+            ];
+        }
+
+        $existingAnswers = CustomerAnswer::query()
+            ->where('customer_id', $customer->id)
+            ->whereIn('question_id', $requiredQuestions->pluck('id'))
+            ->pluck('answer_value', 'question_id');
+
+        $missingQuestions = $requiredQuestions
+            ->filter(function (Question $question) use ($existingAnswers) {
+                $answer = $existingAnswers->get($question->id);
+
+                if ($question->input_type === 'checkbox') {
+                    $decoded = json_decode((string) $answer, true);
+
+                    return ! is_array($decoded) || count(array_filter($decoded, fn ($value) => filled($value))) === 0;
+                }
+
+                return ! filled($answer);
+            })
+            ->map(function (Question $question) {
+                return [
+                    'id' => $question->id,
+                    'question_text' => $question->question_text,
+                    'input_type' => $question->input_type,
+                    'is_required' => (bool) $question->is_required,
+                    'options' => $question->options ?? [],
+                ];
+            })
+            ->values()
+            ->all();
+
+        return [
+            'should_show' => count($missingQuestions) > 0,
+            'questions' => $missingQuestions,
+        ];
     }
 
 }

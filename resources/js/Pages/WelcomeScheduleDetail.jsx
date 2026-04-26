@@ -1,4 +1,5 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
+import { useMemo, useState } from "react";
 import Navbar from "@/Components/Landing/Navbar";
 import {
     IconArrowLeft,
@@ -28,7 +29,46 @@ const formatTime = (date) =>
           }).format(new Date(date))
         : "-";
 
-export default function WelcomeScheduleDetail({ schedule }) {
+export default function WelcomeScheduleDetail({ schedule, requiredQuestionnaire }) {
+    const { auth, errors } = usePage().props;
+    const [isQuestionnaireOpen, setIsQuestionnaireOpen] = useState(false);
+    const questionnaireQuestions = requiredQuestionnaire?.questions ?? [];
+    const shouldShowQuestionnaire = Boolean(requiredQuestionnaire?.should_show) && questionnaireQuestions.length > 0;
+    const initialAnswers = useMemo(
+        () =>
+            questionnaireQuestions.reduce((acc, question) => {
+                acc[question.id] = question.input_type === "checkbox" ? [] : "";
+                return acc;
+            }, {}),
+        [questionnaireQuestions]
+    );
+    const { data, setData, post, processing } = useForm({ answers: initialAnswers });
+
+    const onCheckboxChange = (questionId, option, checked) => {
+        const current = data.answers[questionId] || [];
+        const next = checked ? [...current, option] : current.filter((item) => item !== option);
+        setData("answers", { ...data.answers, [questionId]: next });
+    };
+
+    const onConfirmBookingClick = () => {
+        if (!auth?.user) {
+            window.location.href = route("welcome.schedule-payment", schedule.id);
+            return;
+        }
+
+        if (!shouldShowQuestionnaire) {
+            window.location.href = route("welcome.schedule-payment", schedule.id);
+            return;
+        }
+
+        setIsQuestionnaireOpen(true);
+    };
+
+    const submitQuestionnaire = (event) => {
+        event.preventDefault();
+        post(route("welcome.schedule-questionnaire.submit", schedule.id));
+    };
+
     const scheduleRows = [
         // { label: "ID Schedule", value: schedule.id },
         { label: "Class Name", value: schedule.pilates_class?.name || "-" },
@@ -196,17 +236,100 @@ export default function WelcomeScheduleDetail({ schedule }) {
                                     Getting there:  
                                     Jl. Layur No.8, Tegalsari, Kec. Tegal Bar., Kota Tegal, Jawa Tengah 52111
                                 </p>
-                                <Link
-                                    href={route("welcome.schedule-payment", schedule.id)}
+                                <button
+                                    type="button"
+                                    onClick={onConfirmBookingClick}
                                     className="inline-flex rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
                                 >
                                     Confirm Booking
-                                </Link>
+                                </button>
                             </div>
                         </article>
                     </div>
                 </section>
             </div>
+
+            {isQuestionnaireOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+                    <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
+                        <h2 className="text-xl font-semibold">Lengkapi Kuesioner Wajib</h2>
+                        <p className="mt-1 text-sm text-wellness-muted">
+                            Sebelum melanjutkan booking, isi pertanyaan wajib berikut.
+                        </p>
+
+                        <form onSubmit={submitQuestionnaire} className="mt-5 space-y-4">
+                            {questionnaireQuestions.map((question, index) => (
+                                <div key={question.id}>
+                                    <label className="mb-2 block text-sm font-medium text-slate-800">
+                                        {index + 1}. {question.question_text} <span className="text-danger-500">*</span>
+                                    </label>
+
+                                    {question.input_type === "text" && (
+                                        <textarea
+                                            className="w-full rounded-xl border border-slate-300 p-3 text-sm"
+                                            value={data.answers[question.id] || ""}
+                                            onChange={(e) => setData("answers", { ...data.answers, [question.id]: e.target.value })}
+                                        />
+                                    )}
+
+                                    {question.input_type === "multiple_choice" && (
+                                        <select
+                                            className="w-full rounded-xl border border-slate-300 p-3 text-sm"
+                                            value={data.answers[question.id] || ""}
+                                            onChange={(e) => setData("answers", { ...data.answers, [question.id]: e.target.value })}
+                                        >
+                                            <option value="">Pilih jawaban</option>
+                                            {question.options.map((option) => (
+                                                <option key={option} value={option}>
+                                                    {option}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )}
+
+                                    {question.input_type === "checkbox" && (
+                                        <div className="space-y-2 rounded-xl border border-slate-300 p-3">
+                                            {question.options.map((option) => (
+                                                <label key={option} className="flex items-center gap-2 text-sm">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={(data.answers[question.id] || []).includes(option)}
+                                                        onChange={(e) => onCheckboxChange(question.id, option, e.target.checked)}
+                                                    />
+                                                    {option}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {(errors[`answers.${question.id}`] || errors[`answers.${question.id}.*`]) && (
+                                        <small className="text-danger-500">
+                                            {errors[`answers.${question.id}`] || errors[`answers.${question.id}.*`]}
+                                        </small>
+                                    )}
+                                </div>
+                            ))}
+
+                            <div className="flex justify-end gap-2 pt-2">
+                                <button
+                                    type="button"
+                                    className="rounded-full border border-slate-300 px-4 py-2 text-sm"
+                                    onClick={() => setIsQuestionnaireOpen(false)}
+                                >
+                                    Nanti saja
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={processing}
+                                    className="rounded-full bg-primary-600 px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                                >
+                                    Simpan & Lanjut Bayar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
