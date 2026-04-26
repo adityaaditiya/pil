@@ -316,7 +316,7 @@ export default function Welcome() {
                     <div className="container mx-auto px-4 md:px-6">
                         <div className="max-w-xl text-left">
                         <h1 className="text-white text-xl md:text-2xl ">
-                            Jadwal mingguan yang fleksibel untuk pagi dan malam
+                            Jadwal mingguan yang fleksibel Selaras dengan Agenda Personal Anda.
                         </h1>
                         
                         <div className="mt-6 flex flex-col md:flex-row gap-3">

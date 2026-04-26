@@ -616,46 +616,51 @@ class StudioPageController extends Controller
             ->get();
 
         $rules = [];
-        foreach ($requiredQuestions as $question) {
-            $field = 'answers.' . $question->id;
+        $submittedAnswers = $request->input('answers', []);
+
+        foreach ($submittedAnswers as $questionId => $value) {
+            $question = $requiredQuestions->firstWhere('id', $questionId);
+
+            if (!$question) continue;
+
+            $field = 'answers.' . $questionId;
 
             if ($question->input_type === 'text') {
                 $rules[$field] = 'required|string';
-                continue;
             }
 
             if ($question->input_type === 'multiple_choice') {
-                $allowed = implode(',', $question->options ?? []);
-                $rules[$field] = 'required|string|in:' . $allowed;
-                continue;
+                $rules[$field] = 'required|string';
             }
 
             if ($question->input_type === 'checkbox') {
                 $rules[$field] = 'required|array|min:1';
-                $rules[$field . '.*'] = 'in:' . implode(',', $question->options ?? []);
             }
         }
 
         $validated = $request->validate($rules);
         $answers = $validated['answers'] ?? [];
 
-        foreach ($requiredQuestions as $question) {
-            $value = $answers[$question->id] ?? null;
+        foreach ($submittedAnswers as $questionId => $value) {
+        $question = $requiredQuestions->firstWhere('id', $questionId);
+        if (!$question) continue;
 
-            if ($question->input_type === 'checkbox') {
-                $value = json_encode(array_values($value));
-            }
-
-            CustomerAnswer::updateOrCreate(
-                [
-                    'customer_id' => $customer->id,
-                    'question_id' => $question->id,
-                ],
-                [
-                    'answer_value' => is_string($value) || $value === null ? $value : (string) $value,
-                ]
-            );
+        if ($question->input_type === 'checkbox') {
+            $value = json_encode(array_values($value));
         }
+
+        CustomerAnswer::updateOrCreate(
+            [
+                'customer_id' => $customer->id,
+                'question_id' => $questionId,
+            ],
+            [
+                'answer_value' => is_string($value) || $value === null
+                    ? $value
+                    : (string) $value,
+            ]
+        );
+    }
 
         return to_route('welcome.schedule-payment', $pilatesTimetable->id)->with('success', 'Kuesioner berhasil disimpan.');
     }

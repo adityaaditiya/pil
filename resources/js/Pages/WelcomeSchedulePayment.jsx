@@ -159,11 +159,34 @@ export default function WelcomeSchedulePayment({
             onSuccess: () => setShowConfirmModal(false),
         });
     };
+    
+    // 2. Buat state untuk mengontrol apakah pesan harus ditampilkan atau disembunyikan
+    const [showMessage, setShowMessage] = useState(false);
+
+    // 3. Gunakan useEffect untuk membuat timer saat ada pesan baru
+    useEffect(() => {
+        if (flash.success) {
+            setShowMessage(true); // Tampilkan pesan
+
+            // Atur timer agar pesan hilang setelah 3 detik (3000 ms)
+            const timer = setTimeout(() => {
+                setShowMessage(false);
+            }, 3000);
+
+            // Bersihkan timer jika komponen dilepas agar tidak bocor memorinya
+            return () => clearTimeout(timer);
+        }
+    }, [flash.success]);
 
     return (
         <>
             <Head title="Pembayaran Schedule" />
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white px-4 py-10 text-wellness-text">
+                {showMessage && (
+                <div className="fixed px-4 py-3 text-sm text-green-700 transition-opacity duration-500 bg-green-100 border border-green-400 rounded-lg shadow-md top-5 right-5">
+                    {flash.success}
+                </div>
+            )}
                 <div className="mx-auto max-w-4xl">
                     <Link
                         href={route("welcome.schedule-detail", schedule.id)}
@@ -193,11 +216,11 @@ export default function WelcomeSchedulePayment({
                                 <h1 className="text-3xl font-bold">
                                     Pembayaran Booking
                                 </h1>
-                                {flash?.success && (
+                                {/* {flash?.success && (
                                     <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
                                         {flash.success}
                                     </div>
-                                )}
+                                )} */}
                                 {/* <p className="mt-2 text-wellness-muted">{schedule.pilates_class?.name} bersama {schedule.trainer?.name || "trainer"}.</p> */}
                                 <p className="mt-2 text-wellness-muted">
                                     {schedule.pilates_class?.name}
@@ -457,7 +480,7 @@ export default function WelcomeSchedulePayment({
                 </div>
             </div>
 
-            {showSuccessModal && (
+            {/* {showSuccessModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
                     <div className="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-xl">
                         <h2 className="text-2xl font-bold text-primary-700">
@@ -470,11 +493,11 @@ export default function WelcomeSchedulePayment({
                             href={route("welcome.page", "schedule")}
                             className="mt-6 inline-flex rounded-full bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white"
                         >
-                            Kembali ke Jadwal
+                            OK
                         </Link>
                     </div>
                 </div>
-            )}
+            )} */}
 
             {showConfirmModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
