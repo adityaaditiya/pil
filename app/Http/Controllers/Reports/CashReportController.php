@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
+use App\Models\AppointmentBooking;
 use App\Models\CashEntry;
 use App\Models\Customer;
+use App\Models\PilatesBooking;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\UserMembership;
 use App\Support\SimplePdfExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,6 +19,11 @@ use Inertia\Inertia;
 
 class CashReportController extends Controller
 {
+    private const CATEGORY_SALES = 'transaksi_penjualan';
+    private const CATEGORY_MEMBERSHIP = 'transaksi_membership';
+    private const CATEGORY_APPOINTMENT_DROP_IN = 'transaksi_appointment_drop_in';
+    private const CATEGORY_TIMETABLE_DROP_IN = 'transaksi_timetable_drop_in';
+
     private const CASH_ENTRY_CATEGORIES = [
         'BAYAR BUNGA BANK',
         'BON OPERASIONAL',
@@ -45,7 +53,10 @@ class CashReportController extends Controller
             'transaction_category' => $request->input('transaction_category'),
         ];
 
-        $includeTransactions = empty($filters['transaction_category']) || $filters['transaction_category'] === 'transaksi_penjualan';
+        $includeTransactions = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_SALES;
+        $includeMemberships = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_MEMBERSHIP;
+        $includeAppointmentDropIns = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_APPOINTMENT_DROP_IN;
+        $includeTimetableDropIns = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_TIMETABLE_DROP_IN;
         $includeCashEntries = empty($filters['transaction_category']) || in_array($filters['transaction_category'], self::CASH_ENTRY_CATEGORIES, true);
 
         $transactionQuery = $this->applyFilters(
@@ -58,6 +69,24 @@ class CashReportController extends Controller
             CashEntry::query()->with(['cashier:id,name']),
             $filters
         )->orderByDesc('created_at');
+        $membershipQuery = $this->applyMembershipFilters(
+            UserMembership::query()
+                ->whereNotIn('status', ['pending', 'pending_payment', 'cancelled', 'expired'])
+                ->with(['plan:id,price']),
+            $filters
+        )->orderByDesc('created_at');
+        $appointmentDropInQuery = $this->applyAppointmentDropInFilters(
+            AppointmentBooking::query()
+                ->where('status', 'confirmed')
+                ->where('payment_type', 'drop_in'),
+            $filters
+        )->orderByDesc('booked_at');
+        $timetableDropInQuery = $this->applyTimetableDropInFilters(
+            PilatesBooking::query()
+                ->where('status', 'confirmed')
+                ->where('payment_type', 'drop_in'),
+            $filters
+        )->orderByDesc('booked_at');
 
         $transactionsList = $includeTransactions
             ? (clone $transactionQuery)->get()->map(fn ($trx) => [
@@ -80,9 +109,42 @@ class CashReportController extends Controller
                 'created_at' => $entry->created_at,
             ])
             : collect();
+        $membershipList = $includeMemberships
+            ? (clone $membershipQuery)->get()->map(fn ($membership) => [
+                'id' => 'membership-' . $membership->id,
+                'category' => 'Transaksi Membership',
+                'description' => $membership->invoice,
+                'cash_in' => (int) ($membership->plan?->price ?? 0),
+                'cash_out' => 0,
+                'created_at' => $membership->created_at,
+            ])
+            : collect();
+        $appointmentDropInList = $includeAppointmentDropIns
+            ? (clone $appointmentDropInQuery)->get()->map(fn ($booking) => [
+                'id' => 'appointment-drop-in-' . $booking->id,
+                'category' => 'Transaksi Appointment Drop-in',
+                'description' => $booking->invoice,
+                'cash_in' => (int) $booking->price_amount,
+                'cash_out' => 0,
+                'created_at' => $booking->booked_at ?? $booking->created_at,
+            ])
+            : collect();
+        $timetableDropInList = $includeTimetableDropIns
+            ? (clone $timetableDropInQuery)->get()->map(fn ($booking) => [
+                'id' => 'timetable-drop-in-' . $booking->id,
+                'category' => 'Transaksi Timetable Drop-in',
+                'description' => $booking->invoice,
+                'cash_in' => (int) $booking->price_amount,
+                'cash_out' => 0,
+                'created_at' => $booking->booked_at ?? $booking->created_at,
+            ])
+            : collect();
 
         $mergedRows = $transactionsList
             ->concat($cashEntryList)
+            ->concat($membershipList)
+            ->concat($appointmentDropInList)
+            ->concat($timetableDropInList)
             ->sortByDesc('created_at')
             ->values();
 
@@ -102,8 +164,20 @@ class CashReportController extends Controller
                 ")
                 ->first()
             : (object) ['cash_in_total' => 0, 'cash_out_total' => 0];
+        $membershipTotals = $includeMemberships
+            ? (clone $membershipQuery)->get()->sum(fn ($membership) => (float) ($membership->plan?->price ?? 0))
+            : 0;
+        $appointmentDropInTotals = $includeAppointmentDropIns
+            ? (float) ((clone $appointmentDropInQuery)->sum('price_amount') ?? 0)
+            : 0;
+        $timetableDropInTotals = $includeTimetableDropIns
+            ? (float) ((clone $timetableDropInQuery)->sum('price_amount') ?? 0)
+            : 0;
 
         $cashInTotal = (int) ($transactionTotals->cash_in_total ?? 0)
+            + (int) $membershipTotals
+            + (int) $appointmentDropInTotals
+            + (int) $timetableDropInTotals
             + (int) ($cashEntryTotals->cash_in_total ?? 0);
         $cashOutTotal = (int) ($cashEntryTotals->cash_out_total ?? 0);
 
@@ -138,7 +212,10 @@ class CashReportController extends Controller
             'transaction_category' => $request->input('transaction_category'),
         ];
 
-        $includeTransactions = empty($filters['transaction_category']) || $filters['transaction_category'] === 'transaksi_penjualan';
+        $includeTransactions = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_SALES;
+        $includeMemberships = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_MEMBERSHIP;
+        $includeAppointmentDropIns = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_APPOINTMENT_DROP_IN;
+        $includeTimetableDropIns = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_TIMETABLE_DROP_IN;
         $includeCashEntries = empty($filters['transaction_category']) || in_array($filters['transaction_category'], self::CASH_ENTRY_CATEGORIES, true);
 
         $transactionQuery = $this->applyFilters(
@@ -151,6 +228,24 @@ class CashReportController extends Controller
             CashEntry::query()->with(['cashier:id,name']),
             $filters
         )->orderByDesc('created_at');
+        $membershipQuery = $this->applyMembershipFilters(
+            UserMembership::query()
+                ->whereNotIn('status', ['pending', 'pending_payment', 'cancelled', 'expired'])
+                ->with(['plan:id,price']),
+            $filters
+        )->orderByDesc('created_at');
+        $appointmentDropInQuery = $this->applyAppointmentDropInFilters(
+            AppointmentBooking::query()
+                ->where('status', 'confirmed')
+                ->where('payment_type', 'drop_in'),
+            $filters
+        )->orderByDesc('booked_at');
+        $timetableDropInQuery = $this->applyTimetableDropInFilters(
+            PilatesBooking::query()
+                ->where('status', 'confirmed')
+                ->where('payment_type', 'drop_in'),
+            $filters
+        )->orderByDesc('booked_at');
 
         $transactionsList = $includeTransactions
             ? (clone $transactionQuery)->get()->map(fn ($trx) => [
@@ -171,9 +266,39 @@ class CashReportController extends Controller
                 'created_at' => $entry->created_at,
             ])
             : collect();
+        $membershipList = $includeMemberships
+            ? (clone $membershipQuery)->get()->map(fn ($membership) => [
+                'category' => 'Transaksi Membership',
+                'description' => $membership->invoice,
+                'cash_in' => (int) ($membership->plan?->price ?? 0),
+                'cash_out' => 0,
+                'created_at' => $membership->created_at,
+            ])
+            : collect();
+        $appointmentDropInList = $includeAppointmentDropIns
+            ? (clone $appointmentDropInQuery)->get()->map(fn ($booking) => [
+                'category' => 'Transaksi Appointment Drop-in',
+                'description' => $booking->invoice,
+                'cash_in' => (int) $booking->price_amount,
+                'cash_out' => 0,
+                'created_at' => $booking->booked_at ?? $booking->created_at,
+            ])
+            : collect();
+        $timetableDropInList = $includeTimetableDropIns
+            ? (clone $timetableDropInQuery)->get()->map(fn ($booking) => [
+                'category' => 'Transaksi Timetable Drop-in',
+                'description' => $booking->invoice,
+                'cash_in' => (int) $booking->price_amount,
+                'cash_out' => 0,
+                'created_at' => $booking->booked_at ?? $booking->created_at,
+            ])
+            : collect();
 
         $mergedRows = $transactionsList
             ->concat($cashEntryList)
+            ->concat($membershipList)
+            ->concat($appointmentDropInList)
+            ->concat($timetableDropInList)
             ->sortByDesc('created_at')
             ->values();
 
@@ -206,7 +331,10 @@ class CashReportController extends Controller
             'transaction_category' => $request->input('transaction_category'),
         ];
 
-        $includeTransactions = empty($filters['transaction_category']) || $filters['transaction_category'] === 'transaksi_penjualan';
+        $includeTransactions = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_SALES;
+        $includeMemberships = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_MEMBERSHIP;
+        $includeAppointmentDropIns = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_APPOINTMENT_DROP_IN;
+        $includeTimetableDropIns = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_TIMETABLE_DROP_IN;
         $includeCashEntries = empty($filters['transaction_category']) || in_array($filters['transaction_category'], self::CASH_ENTRY_CATEGORIES, true);
 
         $transactionQuery = $this->applyFilters(
@@ -219,6 +347,24 @@ class CashReportController extends Controller
             CashEntry::query()->with(['cashier:id,name']),
             $filters
         )->orderByDesc('created_at');
+        $membershipQuery = $this->applyMembershipFilters(
+            UserMembership::query()
+                ->whereNotIn('status', ['pending', 'pending_payment', 'cancelled', 'expired'])
+                ->with(['plan:id,price']),
+            $filters
+        )->orderByDesc('created_at');
+        $appointmentDropInQuery = $this->applyAppointmentDropInFilters(
+            AppointmentBooking::query()
+                ->where('status', 'confirmed')
+                ->where('payment_type', 'drop_in'),
+            $filters
+        )->orderByDesc('booked_at');
+        $timetableDropInQuery = $this->applyTimetableDropInFilters(
+            PilatesBooking::query()
+                ->where('status', 'confirmed')
+                ->where('payment_type', 'drop_in'),
+            $filters
+        )->orderByDesc('booked_at');
 
         $transactionsList = $includeTransactions
             ? (clone $transactionQuery)->get()->map(fn ($trx) => [
@@ -237,9 +383,36 @@ class CashReportController extends Controller
                 'cash_out' => $entry->category === 'out' ? (int) $entry->amount : 0,
             ])
             : collect();
+        $membershipList = $includeMemberships
+            ? (clone $membershipQuery)->get()->map(fn ($membership) => [
+                'category' => 'Transaksi Membership',
+                'description' => $membership->invoice,
+                'cash_in' => (int) ($membership->plan?->price ?? 0),
+                'cash_out' => 0,
+            ])
+            : collect();
+        $appointmentDropInList = $includeAppointmentDropIns
+            ? (clone $appointmentDropInQuery)->get()->map(fn ($booking) => [
+                'category' => 'Transaksi Appointment Drop-in',
+                'description' => $booking->invoice,
+                'cash_in' => (int) $booking->price_amount,
+                'cash_out' => 0,
+            ])
+            : collect();
+        $timetableDropInList = $includeTimetableDropIns
+            ? (clone $timetableDropInQuery)->get()->map(fn ($booking) => [
+                'category' => 'Transaksi Timetable Drop-in',
+                'description' => $booking->invoice,
+                'cash_in' => (int) $booking->price_amount,
+                'cash_out' => 0,
+            ])
+            : collect();
 
         $mergedRows = $transactionsList
             ->concat($cashEntryList)
+            ->concat($membershipList)
+            ->concat($appointmentDropInList)
+            ->concat($timetableDropInList)
             ->values();
 
         $headers = ['Kategori', 'Deskripsi', 'Uang Masuk', 'Uang Keluar'];
@@ -310,6 +483,36 @@ class CashReportController extends Controller
         }
 
         return $query;
+    }
+
+    protected function applyMembershipFilters($query, array $filters)
+    {
+        return $query
+            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
+            ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('created_at', '>=', $start))
+            ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('created_at', '<=', $end))
+            ->when(($filters['shift'] ?? null) === 'pagi', fn ($q) => $q->whereTime('created_at', '>=', '06:00:00')->whereTime('created_at', '<', '15:00:00'))
+            ->when(($filters['shift'] ?? null) === 'malam', fn ($q) => $q->whereTime('created_at', '>=', '15:00:00')->whereTime('created_at', '<=', '23:59:59'));
+    }
+
+    protected function applyAppointmentDropInFilters($query, array $filters)
+    {
+        return $query
+            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
+            ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('booked_at', '>=', $start))
+            ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('booked_at', '<=', $end))
+            ->when(($filters['shift'] ?? null) === 'pagi', fn ($q) => $q->whereTime('booked_at', '>=', '06:00:00')->whereTime('booked_at', '<', '15:00:00'))
+            ->when(($filters['shift'] ?? null) === 'malam', fn ($q) => $q->whereTime('booked_at', '>=', '15:00:00')->whereTime('booked_at', '<=', '23:59:59'));
+    }
+
+    protected function applyTimetableDropInFilters($query, array $filters)
+    {
+        return $query
+            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
+            ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('booked_at', '>=', $start))
+            ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('booked_at', '<=', $end))
+            ->when(($filters['shift'] ?? null) === 'pagi', fn ($q) => $q->whereTime('booked_at', '>=', '06:00:00')->whereTime('booked_at', '<', '15:00:00'))
+            ->when(($filters['shift'] ?? null) === 'malam', fn ($q) => $q->whereTime('booked_at', '>=', '15:00:00')->whereTime('booked_at', '<=', '23:59:59'));
     }
 
     /**

@@ -343,6 +343,15 @@ const Cash = ({ transactions, summary, filters, cashiers, customers }) => {
                                         <option value="transaksi_penjualan">
                                             Transaksi Penjualan
                                         </option>
+                                        <option value="transaksi_membership">
+                                            Transaksi Membership
+                                        </option>
+                                        <option value="transaksi_appointment_drop_in">
+                                            Transaksi Appointment Drop-in
+                                        </option>
+                                        <option value="transaksi_timetable_drop_in">
+                                            Transaksi Timetable Drop-in
+                                        </option>
                                         {cashEntryCategories.map((category) => (
                                             <option key={category} value={category}>
                                                 {category}
