@@ -28,7 +28,7 @@ class UserMembershipHistoryController extends Controller
             ->latest('id')
             ->get()
             ->map(function (UserMembership $membership) {
-                if (in_array($membership->status, ['pending', 'pending_payment'], true) && $membership->expired_at && $membership->expired_at->isPast()) {
+                if (in_array($membership->status, ['pending', 'pending_payment'], true) && ! $membership->payment_proof_image && $membership->expired_at && $membership->expired_at->isPast()) {
                     $membership->status = 'expired';
                     $membership->save();
                 }

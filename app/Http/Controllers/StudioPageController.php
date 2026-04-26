@@ -459,9 +459,17 @@ class StudioPageController extends Controller
             ->when($bookingId > 0, fn ($query) => $query->where('id', $bookingId))
             ->where(function ($query) {
                 $query
-                    ->where('expired_at', '>', now())
-                    ->orWhere(function ($fallback) {
-                        $fallback->whereNull('expired_at')->where('created_at', '>', now()->subMinutes(15));
+                    ->whereNotNull('payment_proof_image')
+                    ->orWhere(function ($timedPending) {
+                        $timedPending
+                            ->whereNull('payment_proof_image')
+                            ->where(function ($validTime) {
+                                $validTime
+                                    ->where('expired_at', '>', now())
+                                    ->orWhere(function ($fallback) {
+                                        $fallback->whereNull('expired_at')->where('created_at', '>', now()->subMinutes(15));
+                                    });
+                            });
                     });
             })
             ->latest('id')
@@ -533,6 +541,7 @@ class StudioPageController extends Controller
         $booking->update([
             'payment_proof_image' => $storedPath,
             'status' => 'pending',
+            'expired_at' => null,
         ]);
 
         return back()->with('success', 'Foto bukti pembayaran berhasil diupload. Menunggu konfirmasi admin.');
@@ -782,6 +791,7 @@ class StudioPageController extends Controller
         $userMembership->update([
             'payment_proof_image' => $storedPath,
             'status' => 'pending',
+            'expired_at' => null,
         ]);
 
         return back()->with('success', 'Foto bukti pembayaran membership berhasil diupload. Menunggu konfirmasi admin.');
@@ -1027,6 +1037,8 @@ class StudioPageController extends Controller
 
         $booking->update([
             'payment_proof_image' => $storedPath,
+            'expired_at' => null,
+            'status' => 'pending',
         ]);
 
         return back()->with('success', 'Foto bukti pembayaran berhasil diupload. Menunggu konfirmasi admin.');
@@ -1056,6 +1068,7 @@ class StudioPageController extends Controller
         $query = PilatesBooking::query()
             ->whereIn('status', ['pending', 'pending_payment'])
             ->where('payment_type', 'drop_in')
+            ->whereNull('payment_proof_image')
             ->where(function ($builder) {
                 $builder
                     ->where('expired_at', '<=', now())
@@ -1082,9 +1095,17 @@ class StudioPageController extends Controller
                     ->where('payment_type', 'drop_in')
                     ->where(function ($activePending) {
                         $activePending
-                            ->where('expired_at', '>', now())
-                            ->orWhere(function ($fallbackPending) {
-                                $fallbackPending->whereNull('expired_at')->where('created_at', '>', now()->subMinutes(15));
+                            ->whereNotNull('payment_proof_image')
+                            ->orWhere(function ($timedPending) {
+                                $timedPending
+                                    ->whereNull('payment_proof_image')
+                                    ->where(function ($stillValid) {
+                                        $stillValid
+                                            ->where('expired_at', '>', now())
+                                            ->orWhere(function ($fallbackPending) {
+                                                $fallbackPending->whereNull('expired_at')->where('created_at', '>', now()->subMinutes(15));
+                                            });
+                                    });
                             });
                     });
             });
@@ -1095,6 +1116,7 @@ class StudioPageController extends Controller
         $query = AppointmentBooking::query()
             ->whereIn('status', ['pending', 'pending_payment'])
             ->where('payment_type', 'drop_in')
+            ->whereNull('payment_proof_image')
             ->where(function ($builder) {
                 $builder
                     ->where('expired_at', '<=', now())
@@ -1116,6 +1138,7 @@ class StudioPageController extends Controller
     {
         $query = UserMembership::query()
             ->whereIn('status', ['pending', 'pending_payment'])
+            ->whereNull('payment_proof_image')
             ->where(function ($builder) {
                 $builder
                     ->where('expired_at', '<=', now())

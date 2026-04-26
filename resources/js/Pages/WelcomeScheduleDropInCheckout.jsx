@@ -174,7 +174,7 @@ export default function WelcomeScheduleDropInCheckout({
                         </div>
                     )} */}
 
-                    {secondsLeft === 0 && (
+                    {secondsLeft === 0 && !booking?.payment_proof_image && (
                         <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                             Waktu pembayaran habis. Silakan ulangi proses
                             pembayaran.
