@@ -31,6 +31,11 @@ class TrainerFlowController extends Controller
             $classType = '';
         }
 
+        $upcomingOnly = $request->boolean('upcoming_only');
+        if ($upcomingOnly) {
+            $classType = '';
+        }
+
         $todayJakarta = Carbon::now('Asia/Jakarta');
         $filterStartUtc = $startDate !== ''
             ? Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay()
@@ -56,6 +61,7 @@ class TrainerFlowController extends Controller
             ->whereHas('bookings', fn ($query) => $query->where('status', 'confirmed'))
             ->when($classType === 'timetable', fn ($query) => $query->whereHas('pilatesClass', fn ($classQuery) => $classQuery->where('available_for_timetable', true)))
             ->when($classType === 'appointment', fn ($query) => $query->whereRaw('1 = 0'))
+            ->when($upcomingOnly, fn ($query) => $query->where('start_at', '>', now()))
             ->orderBy('start_at')
             ->get()
             ->map(fn (PilatesTimetable $session) => $this->mapTimetableSession($session));
@@ -73,6 +79,7 @@ class TrainerFlowController extends Controller
             ->whereHas('bookings', fn ($query) => $query->where('status', 'confirmed'))
             ->when($classType === 'appointment', fn ($query) => $query->whereHas('pilatesClass', fn ($classQuery) => $classQuery->where('available_for_appointment', true)))
             ->when($classType === 'timetable', fn ($query) => $query->whereRaw('1 = 0'))
+            ->when($upcomingOnly, fn ($query) => $query->where('start_at', '>', now()))
             ->orderBy('start_at')
             ->get()
             ->map(fn (PilatesAppointment $session) => $this->mapAppointmentSession($session));
@@ -122,6 +129,7 @@ class TrainerFlowController extends Controller
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'class_type' => $classType,
+                'upcoming_only' => $upcomingOnly,
             ],
             'classTypeOptions' => [
                 'timetable' => (bool) ($classTypeOptions?->has_timetable ?? false),
