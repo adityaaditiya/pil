@@ -198,6 +198,20 @@ function Menu() {
                 //     permissions: hasAnyPermission(["dashboard-access"]),
                 // },
                 {
+                    title: "Timetable",
+                    href: route("timetable.index"),
+                    active: url.startsWith("/dashboard/timetable"),
+                    icon: <IconCalendarEvent size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["timetable-access"]),
+                },
+                {
+                    title: "Riwayat Booking Schedule",
+                    href: route("bookings.history"),
+                    active: url === "/dashboard/bookings/history",
+                    icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["bookings-history-access"]),
+                },
+                {
                     title: "Appointment",
                     href: route("appointments.index"),
                     active: url.startsWith("/dashboard/appointments"),
@@ -211,21 +225,6 @@ function Menu() {
                     icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["appointments-history-access"]),
                 },
-                {
-                    title: "Timetable",
-                    href: route("timetable.index"),
-                    active: url.startsWith("/dashboard/timetable"),
-                    icon: <IconCalendarEvent size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["timetable-access"]),
-                },
-                {
-                    title: "Riwayat Booking",
-                    href: route("bookings.history"),
-                    active: url === "/dashboard/bookings/history",
-                    icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["bookings-history-access"]),
-                },
-                
             
             ],
         },
