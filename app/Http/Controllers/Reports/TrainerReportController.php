@@ -28,7 +28,7 @@ class TrainerReportController extends Controller
             'classTypeOptions' => [
                 ['value' => '', 'label' => 'Semua Jenis Kelas'],
                 ['value' => 'appointment', 'label' => 'Appointment'],
-                ['value' => 'booking_schedule', 'label' => 'Booking Schedule (Fixed Timetable)'],
+                ['value' => 'booking_schedule', 'label' => 'Booking Schedule'],
             ],
         ]);
     }
@@ -113,7 +113,7 @@ class TrainerReportController extends Controller
                     'sort_date' => $booking->booked_at?->toDateTimeString(),
                     'date' => $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
                     'class_type' => 'booking_schedule',
-                    'class_type_label' => 'Booking Schedule (Fixed Timetable)',
+                    'class_type_label' => 'Booking Schedule',
                     'class_name' => $booking->timetable?->pilatesClass?->name ?? '-',
                     'trainer_name' => $booking->timetable?->trainer?->name ?? '-',
                     'customer_name' => $booking->user?->name ?? '-',
