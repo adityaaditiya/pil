@@ -7,6 +7,7 @@ use App\Models\PilatesBooking;
 use App\Models\PilatesAppointment;
 use App\Models\PilatesClass;
 use App\Models\PilatesTimetable;
+use App\Models\CustomerAnswer;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -59,6 +60,11 @@ class TrainerFlowController extends Controller
                     ->select('id', 'timetable_id', 'user_id', 'status', 'attendance_status')
                     ->where('status', 'confirmed'),
                 'bookings.user:id,name',
+                'bookings.user.customer:id,user_id',
+                'bookings.user.customer.questionnaireAnswers' => fn ($query) => $query
+                    ->select('id', 'customer_id', 'question_id', 'answer_value')
+                    ->with('question:id,question_text')
+                    ->orderBy('question_id'),
             ])
             ->where('trainer_id', $trainerId)
             ->whereBetween('start_at', [$filterStartUtc, $filterEndUtc])
@@ -76,6 +82,10 @@ class TrainerFlowController extends Controller
                     ->select('id', 'appointment_id', 'customer_id', 'session_name', 'status', 'attendance_status')
                     ->where('status', 'confirmed'),
                 'bookings.customer:id,name',
+                'bookings.customer.questionnaireAnswers' => fn ($query) => $query
+                    ->select('id', 'customer_id', 'question_id', 'answer_value')
+                    ->with('question:id,question_text')
+                    ->orderBy('question_id'),
             ])
             ->where('trainer_id', $trainerId)
             ->whereBetween('start_at', [$filterStartUtc, $filterEndUtc])
@@ -184,6 +194,8 @@ class TrainerFlowController extends Controller
             'clients' => $session->bookings->map(fn (PilatesBooking $booking) => [
                 'id' => $booking->id,
                 'name' => $booking->user?->name ?? '-',
+                'customer_id' => $booking->user?->customer?->id,
+                'questionnaire_answers' => $this->mapQuestionnaireAnswers($booking->user?->customer?->questionnaireAnswers),
                 'booking_status' => $booking->status,
                 'attendance_status' => $booking->attendance_status ?? 'pending',
             ])->values(),
@@ -210,10 +222,44 @@ class TrainerFlowController extends Controller
             'clients' => $session->bookings->map(fn (AppointmentBooking $booking) => [
                 'id' => $booking->id,
                 'name' => $booking->customer?->name ?? '-',
+                'customer_id' => $booking->customer?->id,
+                'questionnaire_answers' => $this->mapQuestionnaireAnswers($booking->customer?->questionnaireAnswers),
                 'booking_status' => $booking->status,
                 'attendance_status' => $booking->attendance_status ?? 'pending',
             ])->values(),
         ];
+    }
+
+    private function mapQuestionnaireAnswers($answers): array
+    {
+        if (! $answers) {
+            return [];
+        }
+
+        return $answers->map(function (CustomerAnswer $answer) {
+            return [
+                'question' => $answer->question?->question_text ?? '-',
+                'answer' => $this->normalizeAnswerValue($answer->answer_value),
+            ];
+        })->values()->all();
+    }
+
+    private function normalizeAnswerValue(mixed $answerValue): string
+    {
+        if (is_array($answerValue)) {
+            return implode(', ', array_filter($answerValue, fn ($value) => is_scalar($value)));
+        }
+
+        if (! is_string($answerValue)) {
+            return (string) $answerValue;
+        }
+
+        $decoded = json_decode($answerValue, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return implode(', ', array_filter($decoded, fn ($value) => is_scalar($value)));
+        }
+
+        return $answerValue;
     }
 
     private function resolveSessionStatus(?Carbon $startAt, ?int $durationMinutes, ?Carbon $explicitEndAt = null): string
