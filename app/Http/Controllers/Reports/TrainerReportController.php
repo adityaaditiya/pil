@@ -38,17 +38,16 @@ class TrainerReportController extends Controller
         $filters = $this->buildFilters($request);
         $rows = $this->buildRows($filters);
 
-        $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Kehadiran', 'Durasi (Jam)', 'Okupansi'];
+        $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Status Kehadiran', 'Durasi (Menit)'];
         $excelRows = $rows->values()->map(fn ($row, $index) => [
             $index + 1,
             $row['date'] ?? '-',
             $row['class_type_label'] ?? '-',
             $row['class_name'] ?? '-',
             $row['trainer_name'] ?? '-',
-            (int) ($row['participants'] ?? 0),
-            (int) ($row['attendance_count'] ?? 0),
-            number_format((float) ($row['duration_hours'] ?? 0), 2),
-            number_format((float) ($row['occupancy_rate'] ?? 0), 1) . '%',
+            $row['participant_name'] ?? '-',
+            $row['attendance_status_label'] ?? '-',
+            (int) ($row['duration_minutes'] ?? 0),
         ])->all();
 
         return $this->downloadExcel('laporan-trainer.xls', $headers, $excelRows);
@@ -59,17 +58,16 @@ class TrainerReportController extends Controller
         $filters = $this->buildFilters($request);
         $rows = $this->buildRows($filters);
 
-        $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Kehadiran', 'Durasi (Jam)', 'Okupansi'];
+        $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Status Kehadiran', 'Durasi (Menit)'];
         $pdfRows = $rows->values()->map(fn ($row, $index) => [
             $index + 1,
             $row['date'] ?? '-',
             $row['class_type_label'] ?? '-',
             $row['class_name'] ?? '-',
             $row['trainer_name'] ?? '-',
-            (int) ($row['participants'] ?? 0),
-            (int) ($row['attendance_count'] ?? 0),
-            number_format((float) ($row['duration_hours'] ?? 0), 2),
-            number_format((float) ($row['occupancy_rate'] ?? 0), 1) . '%',
+            $row['participant_name'] ?? '-',
+            $row['attendance_status_label'] ?? '-',
+            (int) ($row['duration_minutes'] ?? 0),
         ])->all();
 
         return $this->downloadPdf(
@@ -96,6 +94,12 @@ class TrainerReportController extends Controller
 
     private function buildRows(array $filters): Collection
     {
+        $attendanceLabels = [
+            'pending' => 'Belum Ditandai',
+            'present' => 'Hadir',
+            'absent' => 'Tidak Hadir',
+        ];
+
         $scheduleRows = PilatesBooking::query()
             ->where('status', 'confirmed')
             ->with(['user:id,name', 'timetable:id,pilates_class_id,trainer_id,start_at,duration_minutes,capacity', 'timetable.pilatesClass:id,name', 'timetable.trainer'])
@@ -103,10 +107,11 @@ class TrainerReportController extends Controller
             ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('booked_at', '<=', $end))
             ->get()
             ->toBase()
-            ->map(function ($booking) {
+            ->map(function ($booking) use ($attendanceLabels) {
                 $participants = (int) ($booking->participants ?? 0);
                 $attendanceCount = $booking->attendance_status === 'present' ? $participants : 0;
                 $capacity = (int) ($booking->timetable?->capacity ?? 0);
+                $attendanceStatus = $booking->attendance_status ?? 'pending';
 
                 return [
                     'id' => 'booking-' . $booking->id,
@@ -116,10 +121,12 @@ class TrainerReportController extends Controller
                     'class_type_label' => 'Booking Schedule',
                     'class_name' => $booking->timetable?->pilatesClass?->name ?? '-',
                     'trainer_name' => $booking->timetable?->trainer?->name ?? '-',
-                    'customer_name' => $booking->user?->name ?? '-',
+                    'participant_name' => $booking->user?->name ?? '-',
                     'invoice' => $booking->invoice ?? '-',
                     'participants' => $participants,
                     'attendance_count' => $attendanceCount,
+                    'attendance_status' => $attendanceStatus,
+                    'attendance_status_label' => $attendanceLabels[$attendanceStatus] ?? $attendanceLabels['pending'],
                     'capacity' => $capacity,
                     'duration_minutes' => (int) ($booking->timetable?->duration_minutes ?? 0),
                     'duration_hours' => round(((int) ($booking->timetable?->duration_minutes ?? 0)) / 60, 2),
@@ -134,8 +141,9 @@ class TrainerReportController extends Controller
             ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('booked_at', '<=', $end))
             ->get()
             ->toBase()
-            ->map(function ($booking) {
+            ->map(function ($booking) use ($attendanceLabels) {
                 $trainer = $booking->trainer ?? $booking->appointment?->trainer;
+                $attendanceStatus = $booking->attendance_status ?? 'pending';
 
                 return [
                     'id' => 'appointment-' . $booking->id,
@@ -145,10 +153,12 @@ class TrainerReportController extends Controller
                     'class_type_label' => 'Appointment',
                     'class_name' => $booking->appointment?->pilatesClass?->name ?? ($booking->session_name ?: ($booking->appointment?->session_name ?? '-')),
                     'trainer_name' => $trainer?->name ?? '-',
-                    'customer_name' => $booking->customer?->name ?? '-',
+                    'participant_name' => $booking->customer?->name ?? '-',
                     'invoice' => $booking->invoice ?? '-',
                     'participants' => 1,
                     'attendance_count' => $booking->attendance_status === 'present' ? 1 : 0,
+                    'attendance_status' => $attendanceStatus,
+                    'attendance_status_label' => $attendanceLabels[$attendanceStatus] ?? $attendanceLabels['pending'],
                     'capacity' => 1,
                     'duration_minutes' => (int) ($booking->appointment?->duration_minutes ?? 0),
                     'duration_hours' => round(((int) ($booking->appointment?->duration_minutes ?? 0)) / 60, 2),
@@ -175,7 +185,7 @@ class TrainerReportController extends Controller
                 return $rows->filter(function ($row) use ($term) {
                     $haystacks = [
                         $row['invoice'] ?? '',
-                        $row['customer_name'] ?? '',
+                        $row['participant_name'] ?? '',
                         $row['trainer_name'] ?? '',
                         $row['class_name'] ?? '',
                         $row['class_type_label'] ?? '',
