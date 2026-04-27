@@ -42,11 +42,11 @@ class SampleDataSeeder extends Seeder
         $this->command->info('Seeding customers...');
         $customers = $this->seedCustomers();
 
-        // $this->command->info('Seeding categories with images...');
-        // $categories = $this->seedCategories();
+        $this->command->info('Seeding categories with images...');
+        $categories = $this->seedCategories();
 
-        // $this->command->info('Seeding products with images...');
-        // $products = $this->seedProducts($categories);
+        $this->command->info('Seeding products with images...');
+        $products = $this->seedProducts($categories);
 
         // $this->command->info('Seeding transactions...');
         // $this->seedTransactions($customers, $products);
@@ -57,30 +57,30 @@ class SampleDataSeeder extends Seeder
     /**
      * Download image from URL and save to storage
      */
-    // private function downloadImage(string $url, string $folder, string $filename): ?string
-    // {
-    //     try {
-    //         $this->command->info("  Downloading: {$filename}...");
+    private function downloadImage(string $url, string $folder, string $filename): ?string
+    {
+        try {
+            $this->command->info("  Downloading: {$filename}...");
 
-    //         $response = Http::timeout(30)->get($url);
+            $response = Http::timeout(30)->get($url);
 
-    //         if ($response->successful()) {
-    //             $extension    = 'jpg';
-    //             $fullFilename = $filename . '.' . $extension;
+            if ($response->successful()) {
+                $extension    = 'jpg';
+                $fullFilename = $filename . '.' . $extension;
 
-    //             Storage::disk('public')->put(
-    //                 $folder . '/' . $fullFilename,
-    //                 $response->body()
-    //             );
+                Storage::disk('public')->put(
+                    $folder . '/' . $fullFilename,
+                    $response->body()
+                );
 
-    //             return $fullFilename;
-    //         }
-    //     } catch (\Exception $e) {
-    //         $this->command->warn("  Failed to download {$filename}: " . $e->getMessage());
-    //     }
+                return $fullFilename;
+            }
+        } catch (\Exception $e) {
+            $this->command->warn("  Failed to download {$filename}: " . $e->getMessage());
+        }
 
-    //     return null;
-    // }
+        return null;
+    }
 
     /**
      * Seed master customers.
@@ -89,10 +89,10 @@ class SampleDataSeeder extends Seeder
     {
         $customers = collect([
             ['name' => 'Non Member', 'no_telp' => '6281111111111', 'address' => '-'],
-            ['name' => 'Bunga Maharani', 'no_telp' => '6281312345678', 'address' => 'Jl. Mawar No. 5, Kota Tegal'],
-            ['name' => 'Cici Amelia', 'no_telp' => '6281512340000', 'address' => 'Jl. Anggrek No. 17, Kota Tegal'],
-            ['name' => 'Davin Pradipta', 'no_telp' => '6285612349911', 'address' => 'Jl. Kenanga No. 2, Kota Tegal'],
-            ['name' => 'Eko Saputra', 'no_telp' => '6287712348822', 'address' => 'Jl. Cemara No. 45, Kota Tegal'],
+            ['name' => 'Dina', 'no_telp' => '6281312345678', 'address' => 'Jl. Mawar No. 5, Kota Tegal'],
+            ['name' => 'Mey', 'no_telp' => '6281512340000', 'address' => 'Jl. Anggrek No. 17, Kota Tegal'],
+            ['name' => 'Putri', 'no_telp' => '6285612349911', 'address' => 'Jl. Kenanga No. 2, Kota Tegal'],
+            ['name' => 'Indria', 'no_telp' => '6287712348822', 'address' => 'Jl. Cemara No. 45, Kota Tegal'],
             ['name' => 'Fitri Lestari', 'no_telp' => '6282213345566', 'address' => 'Jl. Sakura No. 7, Kota Tegal'],
             ['name' => 'Gina Putri', 'no_telp' => '6281399887766', 'address' => 'Jl. Dahlia No. 12, Kota Tegal'],
             ['name' => 'Hendra Wijaya', 'no_telp' => '6285544332211', 'address' => 'Jl. Flamboyan No. 8, Kota Tegal'],
@@ -176,8 +176,8 @@ class SampleDataSeeder extends Seeder
         // Products with Unsplash image URLs
         $products = collect([
             // Minuman
-            ['category' => 'Minuman', 'barcode' => 'MNM-0001', 'title' => 'Prima 600ml', 'description' => 'Air mineral murni dalam kemasan botol praktis', 'buy_price' => 3000, 'sell_price' => 5000, 'stock' => 200, 'image_url' => 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&h=300&fit=crop'],
-            ['category' => 'Minuman', 'barcode' => 'MNM-0002', 'title' => 'Teh Botol Sosro Tawar 350ml', 'description' => 'Teh manis segar dalam kemasan botol', 'buy_price' => 4000, 'sell_price' => 6000, 'stock' => 150, 'image_url' => 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&h=300&fit=crop'],
+            ['category' => 'Minuman', 'barcode' => 'MNM-0001', 'title' => 'Prima 600ml', 'description' => 'Air mineral murni dalam kemasan botol praktis', 'buy_price' => 3000, 'sell_price' => 5000, 'stock' => 0, 'image_url' => 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&h=300&fit=crop'],
+            ['category' => 'Minuman', 'barcode' => 'MNM-0002', 'title' => 'Teh Botol Sosro Tawar 350ml', 'description' => 'Teh manis segar dalam kemasan botol', 'buy_price' => 4000, 'sell_price' => 6000, 'stock' => 0, 'image_url' => 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&h=300&fit=crop'],
     //         ['category' => 'Minuman', 'barcode' => 'MNM-0003', 'title' => 'Kopi Susu Gula Aren', 'description' => 'Kopi susu dengan gula aren asli', 'buy_price' => 12000, 'sell_price' => 18000, 'stock' => 80, 'image_url' => 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=300&h=300&fit=crop'],
     //         ['category' => 'Minuman', 'barcode' => 'MNM-0004', 'title' => 'Jus Jeruk Segar 500ml', 'description' => 'Jus jeruk murni tanpa pengawet', 'buy_price' => 8000, 'sell_price' => 12000, 'stock' => 60, 'image_url' => 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=300&h=300&fit=crop'],
 

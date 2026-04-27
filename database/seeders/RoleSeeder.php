@@ -54,6 +54,11 @@ class RoleSeeder extends Seeder
         'my-transactions-access',
     ]);
 
+    $trainer = Role::firstOrCreate(['name' => 'trainer']);
+    $trainer->givePermissionTo([
+        'my-transactions-access',
+    ]);
+
     // trainer
     // $trainer = Role::firstOrCreate(['name' => 'trainer']);
     // $trainer->givePermissionTo([
