@@ -38,6 +38,8 @@ export default function Edit({ classItem, trainers, classCategories }) {
         post(route("classes.update", classItem.id));
     };
 
+    const getImageUrl = (path) => path ? `/storage/classes/${path}` : null;
+
     return (
         <>
             <Head title="Edit Classes" />
@@ -53,7 +55,34 @@ export default function Edit({ classItem, trainers, classCategories }) {
 
             <form onSubmit={submit}>
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-w-4xl">
-                    <Input type="file" label="Gambar" errors={errors.image} onChange={(e) => setData("image", e.target.files[0])} />
+                    {/* <Input type="file" label="Gambar" errors={errors.image} onChange={(e) => setData("image", e.target.files[0])} /> */}
+
+                    {/* Bagian Label & Input Gambar */}
+<div className="flex flex-col gap-2">
+    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Gambar Kelas</label>
+    
+    {/* Tampilkan Preview Gambar Lama jika ada */}
+    {classItem.image && !data.image && (
+        <div className="mb-2 relative w-40 h-24 rounded-lg overflow-hidden border border-slate-200">
+            <img 
+                src={`/storage/classes/${classItem.image}`} 
+                alt="Current" 
+                className="w-full h-full object-cover"
+            />
+            {/* <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <span className="text-[10px] text-white font-medium uppercase">Gambar Saat Ini</span>
+            </div> */}
+        </div>
+    )}
+
+    {/* Input File */}
+    <Input 
+        type="file" 
+        errors={errors.image} 
+        onChange={(e) => setData("image", e.target.files[0])} 
+    />
+    {/* <p className="text-xs text-slate-500 italic">*Biarkan kosong jika tidak ingin mengubah gambar.</p> */}
+</div>
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Kategori Kelas</label>
                         <select value={data.class_category_id} onChange={(e) => setData("class_category_id", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">

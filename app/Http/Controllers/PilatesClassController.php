@@ -93,38 +93,44 @@ class PilatesClassController extends Controller
     }
 
     public function update(Request $request, PilatesClass $class): RedirectResponse
-    {
-        $data = $request->validate([
-            'image' => 'nullable|image|max:2048',
-            'class_category_id' => 'required|exists:class_categories,id',
-            'name' => 'required|string|max:255',
-            'duration' => 'required|integer|min:1',
-            'difficulty_level' => 'required|in:Beginner,Intermediate,Advanced,Open to all',
-            'about' => 'required|string',
-            'equipment' => 'required|string',
-            'available_for_timetable' => 'required|boolean',
-            'available_for_appointment' => 'required|boolean',
-            'default_payment_method' => 'required|in:drop_in,credit',
-            'trainer_ids' => 'required|array|min:1',
-            'trainer_ids.*' => 'required|exists:trainers,id',
-        ]);
+{
+    $data = $request->validate([
+        'image' => 'nullable|image|max:2048',
+        'class_category_id' => 'required|exists:class_categories,id',
+        'name' => 'required|string|max:255',
+        'duration' => 'required|integer|min:1',
+        'difficulty_level' => 'required|in:Beginner,Intermediate,Advanced,Open to all',
+        'about' => 'required|string',
+        'equipment' => 'required|string',
+        'available_for_timetable' => 'required|boolean',
+        'available_for_appointment' => 'required|boolean',
+        'default_payment_method' => 'required|in:drop_in,credit',
+        'trainer_ids' => 'required|array|min:1',
+        'trainer_ids.*' => 'required|exists:trainers,id',
+    ]);
 
-        if ($request->file('image')) {
-            Storage::disk('local')->delete('public/classes/' . basename($class->image));
-
-            $image = $request->file('image');
-            $image->storeAs('public/classes', $image->hashName());
-            $data['image'] = $image->hashName();
+    if ($request->hasFile('image')) {
+        // Hapus gambar lama jika ada
+        if ($class->image) {
+            Storage::disk('public')->delete('classes/' . $class->image);
         }
 
-        $trainerIds = $data['trainer_ids'];
-        unset($data['trainer_ids']);
-
-        $class->update($data);
-        $class->trainers()->sync($trainerIds);
-
-        return to_route('classes.index');
+        $image = $request->file('image');
+        $image->storeAs('classes', $image->hashName(), 'public'); // Simpan ke disk public
+        $data['image'] = $image->hashName();
+    } else {
+        // Hapus field 'image' dari array data agar tidak menimpa NULL jika user tidak upload
+        unset($data['image']);
     }
+
+    $trainerIds = $data['trainer_ids'];
+    unset($data['trainer_ids']);
+
+    $class->update($data);
+    $class->trainers()->sync($trainerIds);
+
+    return to_route('classes.index')->with('success', 'Kelas berhasil diperbarui');
+}
 
     public function destroy(PilatesClass $class): RedirectResponse
     {
