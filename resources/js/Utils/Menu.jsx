@@ -230,6 +230,32 @@ function Menu() {
             ],
         },
         {
+            title: "Membership",
+            details: [
+                {
+                    title: "Membership",
+                    href: route("memberships.plans"),
+                    active: url === "/dashboard/memberships/plans",
+                    icon: <IconBadge size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["memberships-access"]),
+                },
+                {
+                    title: "Riwayat Membership",
+                    href: route("memberships.history"),
+                    active: url === "/dashboard/memberships/history",
+                    icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["memberships-history-access"]),
+                },
+                {
+                    title: "My Memberships",
+                    href: route("memberships.my"),
+                    active: url === "/dashboard/memberships/my",
+                    icon: <IconFileDescription size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["memberships-access"]),
+                },
+            ],
+        },
+        {
             title: "Transaksi",
             details: [
                 {
@@ -273,32 +299,6 @@ function Menu() {
                     active: url === "/dashboard/transactions/my" ? true : false,
                     icon: <IconReceipt size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["my-transactions-access"]),
-                },
-            ],
-        },
-        {
-            title: "Membership",
-            details: [
-                {
-                    title: "Membership",
-                    href: route("memberships.plans"),
-                    active: url === "/dashboard/memberships/plans",
-                    icon: <IconBadge size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["memberships-access"]),
-                },
-                {
-                    title: "Riwayat Membership",
-                    href: route("memberships.history"),
-                    active: url === "/dashboard/memberships/history",
-                    icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["memberships-history-access"]),
-                },
-                {
-                    title: "My Memberships",
-                    href: route("memberships.my"),
-                    active: url === "/dashboard/memberships/my",
-                    icon: <IconFileDescription size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["memberships-access"]),
                 },
             ],
         },

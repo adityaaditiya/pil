@@ -88,14 +88,14 @@ class SampleDataSeeder extends Seeder
     private function seedCustomers(): Collection
     {
         $customers = collect([
-            ['name' => 'Andi Nugraha', 'no_telp' => '6281211111111', 'address' => 'Jl. Melati No. 21, Bandung'],
-            ['name' => 'Bunga Maharani', 'no_telp' => '6281312345678', 'address' => 'Jl. Mawar No. 5, Jakarta'],
-            ['name' => 'Cici Amelia', 'no_telp' => '6281512340000', 'address' => 'Jl. Anggrek No. 17, Surabaya'],
-            ['name' => 'Davin Pradipta', 'no_telp' => '6285612349911', 'address' => 'Jl. Kenanga No. 2, Yogyakarta'],
-            ['name' => 'Eko Saputra', 'no_telp' => '6287712348822', 'address' => 'Jl. Cemara No. 45, Semarang'],
-            ['name' => 'Fitri Lestari', 'no_telp' => '6282213345566', 'address' => 'Jl. Sakura No. 7, Medan'],
-            ['name' => 'Gina Putri', 'no_telp' => '6281399887766', 'address' => 'Jl. Dahlia No. 12, Malang'],
-            ['name' => 'Hendra Wijaya', 'no_telp' => '6285544332211', 'address' => 'Jl. Flamboyan No. 8, Denpasar'],
+            ['name' => 'Non Member', 'no_telp' => '6281111111111', 'address' => '-'],
+            ['name' => 'Bunga Maharani', 'no_telp' => '6281312345678', 'address' => 'Jl. Mawar No. 5, Kota Tegal'],
+            ['name' => 'Cici Amelia', 'no_telp' => '6281512340000', 'address' => 'Jl. Anggrek No. 17, Kota Tegal'],
+            ['name' => 'Davin Pradipta', 'no_telp' => '6285612349911', 'address' => 'Jl. Kenanga No. 2, Kota Tegal'],
+            ['name' => 'Eko Saputra', 'no_telp' => '6287712348822', 'address' => 'Jl. Cemara No. 45, Kota Tegal'],
+            ['name' => 'Fitri Lestari', 'no_telp' => '6282213345566', 'address' => 'Jl. Sakura No. 7, Kota Tegal'],
+            ['name' => 'Gina Putri', 'no_telp' => '6281399887766', 'address' => 'Jl. Dahlia No. 12, Kota Tegal'],
+            ['name' => 'Hendra Wijaya', 'no_telp' => '6285544332211', 'address' => 'Jl. Flamboyan No. 8, Kota Tegal'],
         ]);
 
         return $customers
@@ -106,15 +106,15 @@ class SampleDataSeeder extends Seeder
     /**
      * Seed master categories with downloaded images.
      */
-    // private function seedCategories(): Collection
-    // {
-    //     // Categories with Unsplash image URLs (direct download links)
-    //     $categories = collect([
-    //         [
-    //             'name'        => 'Minuman',
-    //             'description' => 'Aneka minuman segar dan kemasan',
-    //             'image_url'   => 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=400&fit=crop',
-    //         ],
+    private function seedCategories(): Collection
+    {
+        // Categories with Unsplash image URLs (direct download links)
+        $categories = collect([
+            [
+                'name'        => 'Minuman',
+                'description' => 'Aneka minuman segar dan kemasan',
+                'image_url'   => 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=400&fit=crop',
+            ],
     //         [
     //             'name'        => 'Makanan Ringan',
     //             'description' => 'Camilan dan snack kemasan',
@@ -150,34 +150,34 @@ class SampleDataSeeder extends Seeder
     //             'description' => 'Perlengkapan rumah tangga',
     //             'image_url'   => 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=400&h=400&fit=crop',
     //         ],
-    //     ]);
+        ]);
 
-    //     return $categories->map(function ($category) {
-    //         $slug  = Str::slug($category['name']);
-    //         $image = $this->downloadImage(
-    //             $category['image_url'],
-    //             'category',
-    //             'cat-' . $slug
-    //         );
+        return $categories->map(function ($category) {
+            $slug  = Str::slug($category['name']);
+            $image = $this->downloadImage(
+                $category['image_url'],
+                'category',
+                'cat-' . $slug
+            );
 
-    //         return Category::create([
-    //             'name'        => $category['name'],
-    //             'description' => $category['description'],
-    //             'image'       => $image ?? 'default.jpg',
-    //         ]);
-    //     })->keyBy('name');
-    // }
+            return Category::create([
+                'name'        => $category['name'],
+                'description' => $category['description'],
+                'image'       => $image ?? 'default.jpg',
+            ]);
+        })->keyBy('name');
+    }
 
     /**
      * Seed products mapped to categories with downloaded images.
      */
-    // private function seedProducts(Collection $categories): Collection
-    // {
-    //     // Products with Unsplash image URLs
-    //     $products = collect([
-    //         // Minuman
-    //         ['category' => 'Minuman', 'barcode' => 'MNM-0001', 'title' => 'Aqua Botol 600ml', 'description' => 'Air mineral murni dalam kemasan botol praktis', 'buy_price' => 3000, 'sell_price' => 5000, 'stock' => 200, 'image_url' => 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&h=300&fit=crop'],
-    //         ['category' => 'Minuman', 'barcode' => 'MNM-0002', 'title' => 'Teh Botol Sosro 450ml', 'description' => 'Teh manis segar dalam kemasan botol', 'buy_price' => 4000, 'sell_price' => 6000, 'stock' => 150, 'image_url' => 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&h=300&fit=crop'],
+    private function seedProducts(Collection $categories): Collection
+    {
+        // Products with Unsplash image URLs
+        $products = collect([
+            // Minuman
+            ['category' => 'Minuman', 'barcode' => 'MNM-0001', 'title' => 'Prima 600ml', 'description' => 'Air mineral murni dalam kemasan botol praktis', 'buy_price' => 3000, 'sell_price' => 5000, 'stock' => 200, 'image_url' => 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&h=300&fit=crop'],
+            ['category' => 'Minuman', 'barcode' => 'MNM-0002', 'title' => 'Teh Botol Sosro Tawar 350ml', 'description' => 'Teh manis segar dalam kemasan botol', 'buy_price' => 4000, 'sell_price' => 6000, 'stock' => 150, 'image_url' => 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&h=300&fit=crop'],
     //         ['category' => 'Minuman', 'barcode' => 'MNM-0003', 'title' => 'Kopi Susu Gula Aren', 'description' => 'Kopi susu dengan gula aren asli', 'buy_price' => 12000, 'sell_price' => 18000, 'stock' => 80, 'image_url' => 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=300&h=300&fit=crop'],
     //         ['category' => 'Minuman', 'barcode' => 'MNM-0004', 'title' => 'Jus Jeruk Segar 500ml', 'description' => 'Jus jeruk murni tanpa pengawet', 'buy_price' => 8000, 'sell_price' => 12000, 'stock' => 60, 'image_url' => 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=300&h=300&fit=crop'],
 
@@ -216,31 +216,31 @@ class SampleDataSeeder extends Seeder
     //         ['category' => 'Kebutuhan Rumah', 'barcode' => 'RMH-0001', 'title' => 'Tisu Paseo 250 Sheet', 'description' => 'Tisu wajah lembut dan kuat', 'buy_price' => 15000, 'sell_price' => 22000, 'stock' => 80, 'image_url' => 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?w=300&h=300&fit=crop'],
     //         ['category' => 'Kebutuhan Rumah', 'barcode' => 'RMH-0002', 'title' => 'Sabun Cuci Piring 800ml', 'description' => 'Sabun cuci piring anti lemak', 'buy_price' => 12000, 'sell_price' => 18000, 'stock' => 90, 'image_url' => 'https://images.unsplash.com/photo-1585441695325-21557ab93f7e?w=300&h=300&fit=crop'],
     //         ['category' => 'Kebutuhan Rumah', 'barcode' => 'RMH-0003', 'title' => 'Pewangi Pakaian 900ml', 'description' => 'Pelembut dan pewangi pakaian', 'buy_price' => 18000, 'sell_price' => 26000, 'stock' => 70, 'image_url' => 'https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?w=300&h=300&fit=crop'],
-    //     ]);
+        ]);
 
-    //     return $products->map(function ($product) use ($categories) {
-    //         $category = $categories->get($product['category']);
+        return $products->map(function ($product) use ($categories) {
+            $category = $categories->get($product['category']);
 
-    //         // Download product image
-    //         $slug  = Str::slug($product['title']);
-    //         $image = $this->downloadImage(
-    //             $product['image_url'],
-    //             'products',
-    //             'prod-' . $slug
-    //         );
+            // Download product image
+            $slug  = Str::slug($product['title']);
+            $image = $this->downloadImage(
+                $product['image_url'],
+                'products',
+                'prod-' . $slug
+            );
 
-    //         return Product::create([
-    //             'category_id' => $category?->id,
-    //             'image'       => $image ?? 'default.jpg',
-    //             'barcode'     => $product['barcode'],
-    //             'title'       => $product['title'],
-    //             'description' => $product['description'],
-    //             'buy_price'   => $product['buy_price'],
-    //             'sell_price'  => $product['sell_price'],
-    //             'stock'       => $product['stock'],
-    //         ]);
-    //     })->keyBy('barcode');
-    // }
+            return Product::create([
+                'category_id' => $category?->id,
+                'image'       => $image ?? 'default.jpg',
+                'barcode'     => $product['barcode'],
+                'title'       => $product['title'],
+                'description' => $product['description'],
+                'buy_price'   => $product['buy_price'],
+                'sell_price'  => $product['sell_price'],
+                'stock'       => $product['stock'],
+            ]);
+        })->keyBy('barcode');
+    }
 
     /**
      * Seed historical transactions, transaction details, and profits.

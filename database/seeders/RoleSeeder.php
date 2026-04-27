@@ -19,12 +19,34 @@ class RoleSeeder extends Seeder
 
     // cashier
     $cashier = Role::firstOrCreate(['name' => 'cashier']);
+    // $cashier->givePermissionTo([
+    //     'dashboard-access',
+    //     'transactions-access',
+    //     'customers-access',
+    //     'customers-create',
+    // ]);
     $cashier->givePermissionTo([
         'dashboard-access',
         'transactions-access',
         'customers-access',
         'customers-create',
+        'customers-access', 'customers-create', 'customers-edit',
+        'categories-access', 'categories-create', 'categories-edit',
+        'products-access', 'products-create', 'products-edit',
+        'class-categories-access', 'class-categories-create', 'class-categories-edit',
+        'classes-access',
+        'trainers-access',
+        'appointment-sessions-access',
+        'appointments-access',
+        'appointments-history-access',
+        'timetable-access',
+        'bookings-history-access',
+        'membership-plans-access',
+        'memberships-access',
+        'memberships-history-access',
+        'reports-access',
     ]);
+
 
     // customer
     $customer = Role::firstOrCreate(['name' => 'customer']);
