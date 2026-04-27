@@ -234,9 +234,6 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::delete('appointments/{booking}/cancel', [AppointmentBookingHistoryController::class, 'cancel'])
         ->middleware('permission:appointments-history-access')
         ->name('appointments.cancel');
-    Route::post('appointments/{booking}/reschedule', [AppointmentBookingHistoryController::class, 'reschedule'])
-        ->middleware('permission:appointments-history-access')
-        ->name('appointments.reschedule');
     Route::post('appointments/{booking}/confirm-payment', [AppointmentBookingHistoryController::class, 'confirmPayment'])
         ->middleware('permission:appointments-history-access')
         ->name('appointments.confirm-payment');
@@ -249,9 +246,6 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::delete('bookings/{booking}/cancel', [PilatesBookingHistoryController::class, 'cancel'])
         ->middleware('permission:bookings-history-access')
         ->name('bookings.cancel');
-    Route::post('bookings/{booking}/reschedule', [PilatesBookingHistoryController::class, 'reschedule'])
-        ->middleware('permission:bookings-history-access')
-        ->name('bookings.reschedule');
     Route::post('bookings/{booking}/confirm-payment', [PilatesBookingHistoryController::class, 'confirmPayment'])
         ->middleware('permission:bookings-history-access')
         ->name('bookings.confirm-payment');

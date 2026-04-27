@@ -94,9 +94,4 @@ class PilatesBooking extends Model
     {
         return $this->belongsTo(MembershipPlan::class);
     }
-
-    public function rescheduleLogs()
-    {
-        return $this->morphMany(RescheduleLog::class, 'reschedulable')->latest('rescheduled_at');
-    }
 }
