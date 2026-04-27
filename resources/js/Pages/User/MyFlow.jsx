@@ -1,11 +1,14 @@
 import { Head, router } from "@inertiajs/react";
+import { useState } from "react";
 import Navbar from "@/Components/Landing/Navbar";
 import {
     IconCalendarEvent,
     IconChecklist,
     IconClock,
+    IconNotes,
     IconPlayerPlay,
     IconUser,
+    IconX,
 } from "@tabler/icons-react";
 
 const applyFilters = (filters) => {
@@ -81,6 +84,8 @@ const updateAttendance = (bookingType, bookingId, attendanceStatus) => {
 };
 
 export default function MyFlow({ sessions = [], stats = {}, filters = {}, classTypeOptions = {} }) {
+    const [selectedQuestionnaire, setSelectedQuestionnaire] = useState(null);
+
     const handleFilterChange = (key, value) => {
         applyFilters({
             ...filters,
@@ -94,6 +99,13 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
             end_date: "",
             class_type: "",
             upcoming_only: false,
+        });
+    };
+
+    const openQuestionnaire = (client) => {
+        setSelectedQuestionnaire({
+            clientName: client.name || "-",
+            answers: client.questionnaire_answers || [],
         });
     };
 
@@ -273,6 +285,16 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                                                             </span> */}
                                                             <button
                                                                 type="button"
+                                                                onClick={() => openQuestionnaire(client)}
+                                                                className="rounded-full border border-sky-200 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-50"
+                                                            >
+                                                                <span className="inline-flex items-center gap-1">
+                                                                    <IconNotes size={14} />
+                                                                    Kuesioner
+                                                                </span>
+                                                            </button>
+                                                            <button
+                                                                type="button"
                                                                 onClick={() => updateAttendance(session.session_type, client.id, "present")}
                                                                 className="rounded-full border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
                                                             >
@@ -299,6 +321,46 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                     )}
                 </section>
             </div>
+            {selectedQuestionnaire && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
+                    <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+                        <div className="mb-4 flex items-center justify-between gap-3">
+                            <h3 className="text-lg font-semibold text-slate-800">
+                                Kuesioner Peserta - {selectedQuestionnaire.clientName}
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedQuestionnaire(null)}
+                                className="rounded-full p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                            >
+                                <IconX size={18} />
+                            </button>
+                        </div>
+
+                        {selectedQuestionnaire.answers.length ? (
+                            <div className="space-y-3">
+                                {selectedQuestionnaire.answers.map((item, index) => (
+                                    <div
+                                        key={`${item.question}-${index}`}
+                                        className="rounded-xl border border-slate-200 p-4"
+                                    >
+                                        <p className="text-sm font-semibold text-slate-700">
+                                            {index + 1}. {item.question}
+                                        </p>
+                                        <p className="mt-2 text-sm text-slate-600">
+                                            {item.answer || "-"}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-slate-500">
+                                Peserta ini belum mengisi data kuesioner.
+                            </p>
+                        )}
+                    </div>
+                </div>
+            )}
         </>
     );
 }
