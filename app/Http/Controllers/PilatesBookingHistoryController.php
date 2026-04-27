@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\PilatesBooking;
+use App\Models\PilatesTimetable;
+use App\Models\RescheduleLog;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -42,25 +44,80 @@ class PilatesBookingHistoryController extends Controller
 
         $bookings = $query
             ->paginate(10)
-            ->withQueryString()
-            ->through(function (PilatesBooking $booking) {
-                return [
-                    'id' => $booking->id,
-                    'invoice' => $booking->invoice,
-                    'booked_at' => $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
-                    'status' => $booking->status,
-                    'participants' => $booking->participants,
-                    'payment_type' => $booking->payment_type,
-                    'payment_method' => $booking->payment_method,
-                    'price_amount' => $booking->price_amount,
-                    'credit_used' => $booking->credit_used,
-                    'payment_proof_image' => $booking->payment_proof_image,
-                    'customer' => $booking->user?->name,
-                    'class_name' => $booking->timetable?->pilatesClass?->name,
-                    'trainer_name' => $booking->timetable?->trainer?->name,
-                    'schedule_at' => $booking->timetable?->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
-                ];
+            ->withQueryString();
+
+        $bookingCollection = $bookings->getCollection();
+        $bookingIds = $bookingCollection->pluck('id')->all();
+        $classIds = $bookingCollection
+            ->pluck('timetable.pilates_class_id')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $todayStartUtc = now('Asia/Jakarta')->startOfDay()->timezone('UTC');
+
+        $targetMap = PilatesTimetable::query()
+            ->whereIn('pilates_class_id', $classIds)
+            ->where('status', 'scheduled')
+            ->where('start_at', '>=', $todayStartUtc)
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
+            ->get(['id', 'pilates_class_id', 'start_at', 'capacity'])
+            ->groupBy('pilates_class_id')
+            ->map(function ($sessions) {
+                return $sessions->map(function (PilatesTimetable $session) {
+                    $remainingSlots = max(0, (int) $session->capacity - (int) ($session->booked_slots ?? 0));
+
+                    return [
+                        'id' => $session->id,
+                        'schedule_at' => $session->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
+                        'remaining_slots' => $remainingSlots,
+                    ];
+                })->values();
             });
+
+        $logs = RescheduleLog::query()
+            ->with('movedBy:id,name')
+            ->where('booking_type', 'timetable')
+            ->whereIn('booking_id', $bookingIds)
+            ->latest('created_at')
+            ->get()
+            ->groupBy('booking_id');
+
+        $bookings->setCollection($bookingCollection->map(function (PilatesBooking $booking) use ($targetMap, $logs) {
+            $sessionTargets = collect($targetMap->get($booking->timetable?->pilates_class_id, []))
+                ->filter(fn (array $target) => (int) $target['id'] !== (int) $booking->timetable_id)
+                ->values();
+
+            return [
+                'id' => $booking->id,
+                'invoice' => $booking->invoice,
+                'booked_at' => $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
+                'status' => $booking->status,
+                'participants' => $booking->participants,
+                'payment_type' => $booking->payment_type,
+                'payment_method' => $booking->payment_method,
+                'price_amount' => $booking->price_amount,
+                'credit_used' => $booking->credit_used,
+                'payment_proof_image' => $booking->payment_proof_image,
+                'customer' => $booking->user?->name,
+                'class_name' => $booking->timetable?->pilatesClass?->name,
+                'class_id' => $booking->timetable?->pilates_class_id,
+                'timetable_id' => $booking->timetable_id,
+                'trainer_name' => $booking->timetable?->trainer?->name,
+                'schedule_at' => $booking->timetable?->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
+                'reschedule_targets' => $sessionTargets,
+                'reschedule_logs' => collect($logs->get($booking->id, []))->map(function (RescheduleLog $log) {
+                    return [
+                        'id' => $log->id,
+                        'from_session_id' => $log->from_session_id,
+                        'to_session_id' => $log->to_session_id,
+                        'moved_by' => $log->movedBy?->name,
+                        'moved_at' => $log->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
+                    ];
+                })->values(),
+            ];
+        }));
 
         return Inertia::render('Dashboard/Timetable/BookingHistory', [
             'bookings' => $bookings,
@@ -77,7 +134,6 @@ class PilatesBookingHistoryController extends Controller
         $booking = PilatesBooking::query()
             ->with([
                 'user:id,name,email',
-                // 'user:id,name,email,phone,address',
                 'timetable:id,pilates_class_id,trainer_id,start_at,duration_minutes',
                 'timetable.pilatesClass:id,name,duration',
                 'timetable.trainer:id,user_id',
@@ -157,5 +213,70 @@ class PilatesBookingHistoryController extends Controller
         ]);
 
         return back()->with('success', 'Pembayaran booking berhasil ditolak.');
+    }
+
+    public function reschedule(Request $request, PilatesBooking $booking)
+    {
+        $validated = $request->validate([
+            'target_session_id' => ['required', 'integer', 'exists:pilates_timetables,id'],
+        ]);
+
+        if ($booking->status !== 'confirmed') {
+            return back()->withErrors([
+                'message' => 'Reschedule hanya bisa dilakukan untuk booking berstatus confirmed.',
+            ]);
+        }
+
+        $booking->loadMissing('timetable:id,pilates_class_id,start_at');
+
+        if (! $booking->timetable || $booking->timetable->start_at?->timezone('Asia/Jakarta')->lt(now('Asia/Jakarta')->startOfDay())) {
+            return back()->withErrors([
+                'message' => 'Reschedule tidak dapat dilakukan untuk jadwal yang sudah lewat hari.',
+            ]);
+        }
+
+        $targetSession = PilatesTimetable::query()
+            ->with('pilatesClass:id,name')
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
+            ->findOrFail($validated['target_session_id']);
+
+        if ((int) $targetSession->pilates_class_id !== (int) $booking->timetable->pilates_class_id) {
+            return back()->withErrors([
+                'message' => 'Reschedule hanya boleh ke jadwal dengan kelas yang sama.',
+            ]);
+        }
+
+        if ($targetSession->start_at?->timezone('Asia/Jakarta')->lt(now('Asia/Jakarta')->startOfDay())) {
+            return back()->withErrors([
+                'message' => 'Jadwal tujuan reschedule sudah lewat hari.',
+            ]);
+        }
+
+        $remainingSlots = max(0, (int) $targetSession->capacity - (int) ($targetSession->booked_slots ?? 0));
+
+        if ($remainingSlots < (int) $booking->participants) {
+            return back()->withErrors([
+                'message' => 'Slot pada jadwal tujuan tidak mencukupi.',
+            ]);
+        }
+
+        $oldSessionId = (int) $booking->timetable_id;
+        $newSessionId = (int) $targetSession->id;
+
+        DB::transaction(function () use ($booking, $newSessionId, $oldSessionId) {
+            $booking->update([
+                'timetable_id' => $newSessionId,
+            ]);
+
+            RescheduleLog::query()->create([
+                'booking_type' => 'timetable',
+                'booking_id' => $booking->id,
+                'from_session_id' => $oldSessionId,
+                'to_session_id' => $newSessionId,
+                'moved_by' => auth()->id(),
+            ]);
+        });
+
+        return back()->with('success', 'Reschedule booking berhasil dilakukan.');
     }
 }

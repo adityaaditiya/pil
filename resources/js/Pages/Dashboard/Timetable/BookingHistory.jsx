@@ -4,10 +4,12 @@ import DashboardLayout from "@/Layouts/DashboardLayout";
 import Pagination from "@/Components/Dashboard/Pagination";
 import Swal from "sweetalert2";
 import {
+    IconArrowsShuffle,
     IconBan,
     IconEye,
     IconFilter,
     IconHistory,
+    IconListDetails,
     IconPrinter,
     IconSearch,
     IconUsers,
@@ -168,6 +170,97 @@ export default function BookingHistory({ bookings, filters = {} }) {
             },
         });
     };
+
+
+
+    const handleReschedule = (booking) => {
+        const targets = booking.reschedule_targets || [];
+
+        if (targets.length === 0) {
+            Swal.fire({
+                title: "Jadwal tujuan tidak tersedia",
+                text: "Tidak ada jadwal kelas yang sama yang bisa dipilih untuk reschedule.",
+                icon: "info",
+            });
+
+            return;
+        }
+
+        const options = targets
+            .map((target) => `<option value="${target.id}">${target.schedule_at} (sisa ${target.remaining_slots} slot)</option>`)
+            .join("");
+
+        Swal.fire({
+            title: "Reschedule Booking",
+            html: `<select id="reschedule-target" class="swal2-input"><option value="">Pilih jadwal tujuan</option>${options}</select>`,
+            showCancelButton: true,
+            confirmButtonText: "Reschedule",
+            cancelButtonText: "Batal",
+            preConfirm: () => {
+                const value = document.getElementById("reschedule-target")?.value;
+
+                if (!value) {
+                    Swal.showValidationMessage("Pilih jadwal tujuan terlebih dahulu.");
+                    return null;
+                }
+
+                return Number(value);
+            },
+        }).then((result) => {
+            if (!result.isConfirmed || !result.value) return;
+
+            router.post(
+                route("bookings.reschedule", booking.id),
+                { target_session_id: result.value },
+                {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: "Berhasil!",
+                            text: "Booking berhasil dipindahkan ke jadwal baru.",
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false,
+                        });
+                    },
+                    onError: (errors) => {
+                        Swal.fire({
+                            title: "Gagal!",
+                            text: errors?.message || "Reschedule booking gagal diproses.",
+                            icon: "error",
+                        });
+                    },
+                },
+            );
+        });
+    };
+
+    const showRescheduleLogs = (booking) => {
+        const logs = booking.reschedule_logs || [];
+
+        if (logs.length === 0) {
+            Swal.fire({
+                title: "Belum ada log",
+                text: "Belum ada data riwayat reschedule untuk booking ini.",
+                icon: "info",
+            });
+
+            return;
+        }
+
+        const rows = logs
+            .map((log) => `<tr><td class="px-2 py-1 border">${log.moved_at || "-"}</td><td class="px-2 py-1 border">${log.from_session_id}</td><td class="px-2 py-1 border">${log.to_session_id}</td><td class="px-2 py-1 border">${log.moved_by || "-"}</td></tr>`)
+            .join("");
+
+        Swal.fire({
+            title: "Reschedule Logs",
+            html: `<div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead><tr><th class="px-2 py-1 border">Waktu</th><th class="px-2 py-1 border">Dari Jadwal</th><th class="px-2 py-1 border">Ke Jadwal</th><th class="px-2 py-1 border">Dipindahkan Oleh</th></tr></thead><tbody>${rows}</tbody></table></div>`,
+            width: 760,
+            confirmButtonText: "Tutup",
+        });
+    };
+
+    const canReschedule = (booking) => booking.status === "confirmed";
 
     const handleCancel = (booking) => {
         Swal.fire({
@@ -484,6 +577,32 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                                             size={18}
                                                         />
                                                     </Link>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            showRescheduleLogs(
+                                                                booking,
+                                                            )
+                                                        }
+                                                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800"
+                                                        title="Reschedule Logs"
+                                                    >
+                                                        <IconListDetails size={18} />
+                                                    </button>
+                                                    {canReschedule(booking) && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleReschedule(
+                                                                    booking,
+                                                                )
+                                                            }
+                                                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-950/50"
+                                                            title="Reschedule"
+                                                        >
+                                                            <IconArrowsShuffle size={18} />
+                                                        </button>
+                                                    )}
                                                     {booking.status ===
                                                     "cancelled" ? (
                                                         <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">

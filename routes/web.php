@@ -240,6 +240,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::post('appointments/{booking}/reject-payment', [AppointmentBookingHistoryController::class, 'rejectPayment'])
         ->middleware('permission:appointments-history-access')
         ->name('appointments.reject-payment');
+    Route::post('appointments/{booking}/reschedule', [AppointmentBookingHistoryController::class, 'reschedule'])
+        ->middleware('permission:appointments-history-access')
+        ->name('appointments.reschedule');
     Route::get('bookings/{invoice}/print', [PilatesBookingHistoryController::class, 'print'])
         ->middleware('permission:bookings-history-access')
         ->name('bookings.print');
@@ -252,6 +255,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::post('bookings/{booking}/reject-payment', [PilatesBookingHistoryController::class, 'rejectPayment'])
         ->middleware('permission:bookings-history-access')
         ->name('bookings.reject-payment');
+    Route::post('bookings/{booking}/reschedule', [PilatesBookingHistoryController::class, 'reschedule'])
+        ->middleware('permission:bookings-history-access')
+        ->name('bookings.reschedule');
     Route::get('bookings/create', [BookingController::class, 'create'])->name('bookings.create');
 
     Route::resource('membership-plans', MembershipPlanController::class)
