@@ -127,61 +127,87 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                         </article>
                     </div>
 
-                    <div className="mb-6 rounded-3xl border border-primary-100 bg-white p-4 shadow-sm">
-                        <div className="grid gap-4 md:grid-cols-4">
-                            <label className="text-sm text-slate-600">
-                                <span className="mb-1 block font-medium text-slate-700">Tanggal Mulai</span>
-                                <input
-                                    type="date"
-                                    value={filters.start_date || ""}
-                                    onChange={(event) => handleFilterChange("start_date", event.target.value)}
-                                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                                />
+                                    <div className="p-6 mb-6 bg-white border shadow-sm border-slate-200/60 rounded-2xl ring-1 ring-slate-900/5">
+                    {/* Bagian Atas: Form Input */}
+                    <div className="grid grid-cols-1 gap-5 md:grid-cols-3 mb-7">
+                        
+                        {/* Input Tanggal Mulai */}
+                        <div>
+                            <label className="block mb-2 text-xs font-semibold tracking-wider uppercase text-slate-500">
+                                Tanggal Mulai
                             </label>
-                            <label className="text-sm text-slate-600">
-                                <span className="mb-1 block font-medium text-slate-700">Tanggal Akhir</span>
-                                <input
-                                    type="date"
-                                    value={filters.end_date || ""}
-                                    onChange={(event) => handleFilterChange("end_date", event.target.value)}
-                                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                                />
-                            </label>
-                            <div className="grid gap-2">
-                                <label className="text-sm text-slate-600">
-                                    <span className="mb-1 block font-medium text-slate-700">Jenis Kelas</span>
-                                    <select
-                                        value={filters.class_type || ""}
-                                        onChange={(event) => handleFilterChange("class_type", event.target.value)}
-                                        disabled={Boolean(filters.upcoming_only)}
-                                        className="w-full rounded-xl border border-slate-300 px-3 py-2 disabled:cursor-not-allowed disabled:bg-slate-100"
-                                    >
-                                        <option value="">Semua Jenis</option>
-                                        {classTypeOptions.appointment && <option value="appointment">Appointment</option>}
-                                        {classTypeOptions.timetable && <option value="timetable">Fixed Timetable</option>}
-                                    </select>
-                                </label>
-                                <label className="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
-                                    <input
-                                        type="checkbox"
-                                        checked={Boolean(filters.upcoming_only)}
-                                        onChange={(event) => handleFilterChange("upcoming_only", event.target.checked)}
-                                        className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
-                                    />
-                                    Sesi Akan Datang
-                                </label>
-                            </div>
-                            <div className="flex items-end">
-                                <button
-                                    type="button"
-                                    onClick={resetFilters}
-                                    className="w-full rounded-xl border border-slate-300 px-4 py-2 font-semibold text-slate-700 transition hover:bg-slate-50"
-                                >
-                                    Reset Filter
-                                </button>
-                            </div>
+                            <input
+                                type="date"
+                                value={filters.start_date || ""}
+                                onChange={(event) => handleFilterChange("start_date", event.target.value)}
+                                className="w-full px-4 py-2.5 text-sm transition-all duration-200 border outline-none text-slate-700 bg-slate-50/50 border-slate-200 rounded-xl focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 hover:border-slate-300"
+                            />
                         </div>
+
+                        {/* Input Tanggal Akhir */}
+                        <div>
+                            <label className="block mb-2 text-xs font-semibold tracking-wider uppercase text-slate-500">
+                                Tanggal Akhir
+                            </label>
+                            <input
+                                type="date"
+                                value={filters.end_date || ""}
+                                onChange={(event) => handleFilterChange("end_date", event.target.value)}
+                                className="w-full px-4 py-2.5 text-sm transition-all duration-200 border outline-none text-slate-700 bg-slate-50/50 border-slate-200 rounded-xl focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 hover:border-slate-300"
+                            />
+                        </div>
+
+                        {/* Pilihan Jenis Kelas */}
+                        <div>
+                            <label className="block mb-2 text-xs font-semibold tracking-wider uppercase text-slate-500">
+                                Jenis Kelas
+                            </label>
+                            <select
+                                value={filters.class_type || ""}
+                                onChange={(event) => handleFilterChange("class_type", event.target.value)}
+                                disabled={Boolean(filters.upcoming_only)}
+                                className="w-full px-4 py-2.5 text-sm transition-all duration-200 border outline-none text-slate-700 bg-slate-50/50 border-slate-200 rounded-xl focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 hover:border-slate-300 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                            >
+                                <option value="">Semua Jenis</option>
+                                {classTypeOptions.appointment && <option value="appointment">Appointment</option>}
+                                {classTypeOptions.timetable && <option value="timetable">Fixed Timetable</option>}
+                            </select>
+                        </div>
+                        
                     </div>
+
+                    {/* Bagian Bawah: Aksi & Toggle (Garis Pembatas) */}
+                    <div className="flex flex-col items-center justify-between pt-5 border-t sm:flex-row border-slate-100 gap-4">
+                        
+                        {/* Checkbox Sesi Akan Datang */}
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                            <div className="relative flex items-center justify-center">
+                                <input
+                                    type="checkbox"
+                                    checked={Boolean(filters.upcoming_only)}
+                                    onChange={(event) => handleFilterChange("upcoming_only", event.target.checked)}
+                                    className="w-5 h-5 transition-all bg-white rounded cursor-pointer border-slate-300 text-primary-600 focus:ring-primary-500 focus:ring-offset-0"
+                                />
+                            </div>
+                            <span className="text-sm font-medium transition-colors text-slate-600 group-hover:text-slate-900">
+                                Tampilkan hanya Sesi Akan Datang
+                            </span>
+                        </label>
+
+                        {/* Tombol Reset */}
+                        <button
+                            type="button"
+                            onClick={resetFilters}
+                            className="flex items-center justify-center w-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 bg-white border shadow-sm sm:w-auto text-slate-600 border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                        >
+                            <svg className="w-4 h-4 mr-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Reset Filter
+                        </button>
+                        
+                    </div>
+                </div>
 
                     {sessions.length === 0 ? (
                         <div className="rounded-3xl border border-primary-100 bg-white p-8 text-center shadow-sm">
