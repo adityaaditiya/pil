@@ -122,7 +122,7 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                             <p className="mt-2 text-2xl font-bold text-slate-800">{stats.month_hours || 0} jam</p>
                         </article>
                         <article className="rounded-3xl border border-primary-100 bg-white p-5 shadow-sm">
-                            <p className="text-sm text-slate-500">Sisa Sesi Hari Ini</p>
+                            <p className="text-sm text-slate-500">Sisa Sesi Trainer</p>
                             <p className="mt-2 text-2xl font-bold text-slate-800">{stats.remaining_today_sessions || 0} sesi</p>
                         </article>
                     </div>

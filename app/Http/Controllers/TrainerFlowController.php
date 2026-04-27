@@ -32,17 +32,21 @@ class TrainerFlowController extends Controller
         }
 
         $upcomingOnly = $request->boolean('upcoming_only');
-        if ($upcomingOnly) {
-            $classType = '';
-        }
-
+        
         $todayJakarta = Carbon::now('Asia/Jakarta');
-        $filterStartUtc = $startDate !== ''
-            ? Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay()
-            : $todayJakarta->copy()->startOfDay();
-        $filterEndUtc = $endDate !== ''
-            ? Carbon::parse($endDate, 'Asia/Jakarta')->endOfDay()
-            : $todayJakarta->copy()->endOfDay();
+
+        // LOGIKA BARU: Jika Upcoming Only dicentang, abaikan filter tanggal
+        if ($upcomingOnly) {
+            $filterStartUtc = Carbon::now('Asia/Jakarta'); 
+            $filterEndUtc = Carbon::now('Asia/Jakarta')->addYear(); // Ambil data hingga 1 tahun ke depan
+        } else {
+            $filterStartUtc = $startDate !== ''
+                ? Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay()
+                : $todayJakarta->copy()->startOfDay();
+            $filterEndUtc = $endDate !== ''
+                ? Carbon::parse($endDate, 'Asia/Jakarta')->endOfDay()
+                : $todayJakarta->copy()->endOfDay();
+        }
 
         if ($filterEndUtc->lt($filterStartUtc)) {
             [$filterStartUtc, $filterEndUtc] = [$filterEndUtc->copy()->startOfDay(), $filterStartUtc->copy()->endOfDay()];
@@ -61,7 +65,6 @@ class TrainerFlowController extends Controller
             ->whereHas('bookings', fn ($query) => $query->where('status', 'confirmed'))
             ->when($classType === 'timetable', fn ($query) => $query->whereHas('pilatesClass', fn ($classQuery) => $classQuery->where('available_for_timetable', true)))
             ->when($classType === 'appointment', fn ($query) => $query->whereRaw('1 = 0'))
-            ->when($upcomingOnly, fn ($query) => $query->where('start_at', '>', now()))
             ->orderBy('start_at')
             ->get()
             ->map(fn (PilatesTimetable $session) => $this->mapTimetableSession($session));
@@ -79,7 +82,6 @@ class TrainerFlowController extends Controller
             ->whereHas('bookings', fn ($query) => $query->where('status', 'confirmed'))
             ->when($classType === 'appointment', fn ($query) => $query->whereHas('pilatesClass', fn ($classQuery) => $classQuery->where('available_for_appointment', true)))
             ->when($classType === 'timetable', fn ($query) => $query->whereRaw('1 = 0'))
-            ->when($upcomingOnly, fn ($query) => $query->where('start_at', '>', now()))
             ->orderBy('start_at')
             ->get()
             ->map(fn (PilatesAppointment $session) => $this->mapAppointmentSession($session));
