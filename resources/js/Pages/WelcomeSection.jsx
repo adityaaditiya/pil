@@ -323,22 +323,35 @@ export default function WelcomeSection({
 
     const hasActiveFilters = Boolean(classNameFilter || difficultyFilter || trainerFilter || classCategoryFilter);
     const navItems = useMemo(() => {
-        const mappedItems = menuItems
+    // 1. Definisikan menu yang WAJIB ada
+        const requiredItems = [
+            { name: "Classes", key: "classes" },
+            { name: "Schedule", key: "schedule" },
+            { name: "Pricing", key: "pricing" },
+            { name: "Trainers", key: "trainers" }, // Menggunakan 'trainers' secara konsisten
+            { name: "Appointment", key: "appointment" },
+            { name: "Contact", key: "contact" }
+        ];
+
+        // 2. Filter & Transformasi menuItems yang datang dari props/API
+        const filteredItems = menuItems
             .filter((item) => !["home", "about", "testimonials"].includes(item.key))
             .map((item) => (item.key === "trainer" ? { ...item, key: "trainers" } : item));
 
-        if (!mappedItems.some((item) => item.key === "appointment")) {
-            const trainerIndex = mappedItems.findIndex((item) => item.key === "trainers");
-            const appointmentItem = { name: "Appointment", key: "appointment" };
+        // 3. Gabungkan menuItems yang ada dengan requiredItems
+        // Kita gunakan Map untuk memastikan tidak ada key yang duplikat
+        const mergedMap = new Map();
+        
+        // Masukkan item wajib dulu
+        requiredItems.forEach(item => mergedMap.set(item.key, item));
+        
+        // Masukkan item dari props (jika ada data tambahan atau ingin menimpa)
+        filteredItems.forEach(item => mergedMap.set(item.key, item));
 
-            if (trainerIndex >= 0) {
-                mappedItems.splice(trainerIndex + 1, 0, appointmentItem);
-            } else {
-                mappedItems.push(appointmentItem);
-            }
-        }
+        const finalItems = Array.from(mergedMap.values());
 
-        return [{ name: "Home", key: "home" }, ...mappedItems];
+        // 4. Pastikan urutan spesifik (opsional): Home selalu di depan
+        return [{ name: "Home", key: "home" }, ...finalItems];
     }, [menuItems]);
 
     const filteredClasses = useMemo(() => {
