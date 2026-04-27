@@ -103,8 +103,12 @@ class TrainerReportController extends Controller
         $scheduleRows = PilatesBooking::query()
             ->where('status', 'confirmed')
             ->with(['user:id,name', 'timetable:id,pilates_class_id,trainer_id,start_at,duration_minutes,capacity', 'timetable.pilatesClass:id,name', 'timetable.trainer'])
-            ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('booked_at', '>=', $start))
-            ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('booked_at', '<=', $end))
+            ->when($filters['start_date'] ?? null, function ($q, $start) {
+                $q->whereHas('timetable', fn ($timetable) => $timetable->whereDate('start_at', '>=', $start));
+            })
+            ->when($filters['end_date'] ?? null, function ($q, $end) {
+                $q->whereHas('timetable', fn ($timetable) => $timetable->whereDate('start_at', '<=', $end));
+            })
             ->get()
             ->toBase()
             ->map(function ($booking) use ($attendanceLabels) {
@@ -112,11 +116,12 @@ class TrainerReportController extends Controller
                 $attendanceCount = $booking->attendance_status === 'present' ? $participants : 0;
                 $capacity = (int) ($booking->timetable?->capacity ?? 0);
                 $attendanceStatus = $booking->attendance_status ?? 'pending';
+                $sessionDate = $booking->timetable?->start_at;
 
                 return [
                     'id' => 'booking-' . $booking->id,
-                    'sort_date' => $booking->booked_at?->toDateTimeString(),
-                    'date' => $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                    'sort_date' => $sessionDate?->toDateTimeString(),
+                    'date' => $sessionDate?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
                     'class_type' => 'booking_schedule',
                     'class_type_label' => 'Booking Schedule',
                     'class_name' => $booking->timetable?->pilatesClass?->name ?? '-',
@@ -137,18 +142,23 @@ class TrainerReportController extends Controller
         $appointmentRows = AppointmentBooking::query()
             ->where('status', 'confirmed')
             ->with(['customer:id,name', 'appointment:id,pilates_class_id,trainer_id,session_name,duration_minutes,start_at', 'appointment.pilatesClass:id,name', 'trainer', 'appointment.trainer'])
-            ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('booked_at', '>=', $start))
-            ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('booked_at', '<=', $end))
+            ->when($filters['start_date'] ?? null, function ($q, $start) {
+                $q->whereHas('appointment', fn ($appointment) => $appointment->whereDate('start_at', '>=', $start));
+            })
+            ->when($filters['end_date'] ?? null, function ($q, $end) {
+                $q->whereHas('appointment', fn ($appointment) => $appointment->whereDate('start_at', '<=', $end));
+            })
             ->get()
             ->toBase()
             ->map(function ($booking) use ($attendanceLabels) {
                 $trainer = $booking->trainer ?? $booking->appointment?->trainer;
                 $attendanceStatus = $booking->attendance_status ?? 'pending';
+                $sessionDate = $booking->appointment?->start_at;
 
                 return [
                     'id' => 'appointment-' . $booking->id,
-                    'sort_date' => $booking->booked_at?->toDateTimeString(),
-                    'date' => $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                    'sort_date' => $sessionDate?->toDateTimeString(),
+                    'date' => $sessionDate?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
                     'class_type' => 'appointment',
                     'class_type_label' => 'Appointment',
                     'class_name' => $booking->appointment?->pilatesClass?->name ?? ($booking->session_name ?: ($booking->appointment?->session_name ?? '-')),
