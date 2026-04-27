@@ -229,7 +229,7 @@ const TrainerReport = ({ filters, rows, summary, trainerOptions, classTypeOption
                                             <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Nama Kelas</th>
                                             <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Trainer</th>
                                             <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Peserta</th>
-                                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Hadir</th>
+                                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Status Kehadiran</th>
                                             <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Durasi</th>
                                             {/* <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Okupansi</th> */}
                                         </tr>
@@ -242,9 +242,9 @@ const TrainerReport = ({ filters, rows, summary, trainerOptions, classTypeOption
                                                 <td className="px-4 py-4 text-sm">{item.class_type_label}</td>
                                                 <td className="px-4 py-4 text-sm">{item.class_name}</td>
                                                 <td className="px-4 py-4 text-sm">{item.trainer_name}</td>
-                                                <td className="px-4 py-4 text-sm">{item.participants}</td>
-                                                <td className="px-4 py-4 text-sm">{item.attendance_count}</td>
-                                                <td className="px-4 py-4 text-sm">{item.duration_hours} Jam</td>
+                                                <td className="px-4 py-4 text-sm">{item.participant_name ?? "-"}</td>
+                                                <td className="px-4 py-4 text-sm">{item.attendance_status_label ?? "Belum Ditandai"}</td>
+                                                <td className="px-4 py-4 text-sm">{item.duration_minutes} Menit</td>
                                                 {/* <td className="px-4 py-4 text-sm">{item.occupancy_rate}%</td> */}
                                             </tr>
                                         ))}
