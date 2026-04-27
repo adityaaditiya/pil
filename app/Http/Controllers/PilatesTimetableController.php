@@ -135,7 +135,7 @@ class PilatesTimetableController extends Controller
                 'pilatesClass:id,name,difficulty_level,duration,about,equipment',
                 'trainer:id,user_id',
             ])
-            ->withSum(['bookings as booked_slots' => fn ($query) => $query->whereIn('status', ['pending', 'pending_payment', 'confirmed'])], 'participants')
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
             ->whereBetween('start_at', [$startDate->clone()->timezone('Asia/Jakarta'), $endDate->clone()->timezone('Asia/Jakarta')])
             ->orderBy('start_at')
             ->get()

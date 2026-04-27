@@ -23,7 +23,6 @@ export default function Booking({ session, customers = [], paymentGateways = [],
         payment_type: allowDropIn ? "drop_in" : "credit",
         payment_method: allowDropIn ? "cash" : "credits",
         user_membership_id: "",
-        is_hold: false,
     });
 
     const pricePerClass = Number(session?.price || 0);
@@ -53,13 +52,6 @@ export default function Booking({ session, customers = [], paymentGateways = [],
     const handleSubmit = (e) => {
         e.preventDefault();
         post(route("bookings.store"));
-    };
-
-    const handleHoldSubmit = () => {
-        setData("is_hold", true);
-        post(route("bookings.store"), {
-            onFinish: () => setData("is_hold", false),
-        });
     };
 
     return (
@@ -229,14 +221,9 @@ export default function Booking({ session, customers = [], paymentGateways = [],
                             <p className="text-sm">Credit Dipakai: <span className="font-semibold text-primary-600">{neededCredits}</span></p>
                         )}
 
-                        <div className="mt-4 grid grid-cols-1 gap-2">
-                            <button type="submit" disabled={processing} className="w-full rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white">
-                                {processing && data.is_hold === false ? "Menyimpan..." : "Simpan Booking"}
-                            </button>
-                            <button type="button" onClick={handleHoldSubmit} disabled={processing} className="w-full rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-700">
-                                {processing && data.is_hold ? "Menahan..." : "Tahan Transaksi"}
-                            </button>
-                        </div>
+                        <button type="submit" disabled={processing} className="mt-4 w-full rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white">
+                            {processing ? "Menyimpan..." : "Simpan Booking"}
+                        </button>
                     </div>
                 </form>
             </div>

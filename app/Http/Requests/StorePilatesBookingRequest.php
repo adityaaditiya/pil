@@ -20,7 +20,6 @@ class StorePilatesBookingRequest extends FormRequest
             'payment_type' => ['required', 'in:drop_in,credit'],
             'payment_method' => ['nullable', 'string', 'max:50'],
             'user_membership_id' => ['nullable', 'integer', 'required_if:payment_type,credit', 'exists:user_memberships,id'],
-            'is_hold' => ['nullable', 'boolean'],
         ];
     }
 }
