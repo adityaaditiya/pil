@@ -61,7 +61,7 @@ class PilatesBookingHistoryController extends Controller
             ->whereIn('pilates_class_id', $classIds)
             ->where('status', 'scheduled')
             ->where('start_at', '>=', $todayStartUtc)
-            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->whereIn('status', ['pending', 'pending_payment', 'confirmed'])], 'participants')
             ->get(['id', 'pilates_class_id', 'start_at', 'capacity'])
             ->groupBy('pilates_class_id')
             ->map(function ($sessions) {
@@ -237,7 +237,7 @@ class PilatesBookingHistoryController extends Controller
 
         $targetSession = PilatesTimetable::query()
             ->with('pilatesClass:id,name')
-            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->whereIn('status', ['pending', 'pending_payment', 'confirmed'])], 'participants')
             ->findOrFail($validated['target_session_id']);
 
         if ((int) $targetSession->pilates_class_id !== (int) $booking->timetable->pilates_class_id) {

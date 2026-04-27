@@ -18,11 +18,13 @@ use Inertia\Response;
 
 class BookingController extends Controller
 {
+    private const RESERVED_BOOKING_STATUSES = ['pending', 'pending_payment', 'confirmed'];
+
     public function create(Request $request): Response
     {
         $timetable = PilatesTimetable::query()
             ->with(['pilatesClass:id,name,duration,difficulty_level', 'trainer:id,user_id'])
-            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->whereIn('status', self::RESERVED_BOOKING_STATUSES)], 'participants')
             ->findOrFail($request->integer('timetable_id'));
 
         $bookedSlots = (int) ($timetable->booked_slots ?? 0);
@@ -86,7 +88,7 @@ class BookingController extends Controller
     {
         $timetable = PilatesTimetable::query()
             ->with(['pilatesClass:id,name'])
-            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->whereIn('status', self::RESERVED_BOOKING_STATUSES)], 'participants')
             ->findOrFail($request->integer('timetable_id'));
 
         if ($timetable->status !== 'scheduled') {
@@ -126,6 +128,7 @@ class BookingController extends Controller
         }
 
         $paymentType = $request->string('payment_type')->toString();
+        $isHold = $request->boolean('is_hold');
 
         if (! $timetable->allow_drop_in && $paymentType === 'drop_in') {
             throw ValidationException::withMessages([
@@ -176,7 +179,7 @@ class BookingController extends Controller
                     'participants' => $participants,
                     'user_membership_id' => $selectedMembership?->id,
                     'membership_plan_id' => $selectedMembership?->membership_plan_id,
-                    'status' => 'confirmed',
+                    'status' => $isHold ? 'pending' : 'confirmed',
                     'booked_at' => now(),
                     'payment_type' => $paymentType,
                     'payment_method' => $paymentMethod,
@@ -196,6 +199,6 @@ class BookingController extends Controller
 
         return redirect()
             ->route('timetable.index', ['date' => $timetable->start_at?->timezone('Asia/Jakarta')->toDateString()])
-            ->with('success', 'Booking berhasil disimpan.');
+            ->with('success', $isHold ? 'Transaksi booking berhasil ditahan.' : 'Booking berhasil disimpan.');
     }
 }

@@ -61,7 +61,7 @@ class AppointmentBookingHistoryController extends Controller
         $targetMap = PilatesAppointment::query()
             ->whereIn('pilates_class_id', $classIds)
             ->where('start_at', '>=', $todayStartUtc)
-            ->withCount(['bookings as active_bookings_count' => fn ($query) => $query->where('status', 'confirmed')])
+            ->withCount(['bookings as active_bookings_count' => fn ($query) => $query->whereIn('status', ['pending', 'pending_payment', 'confirmed'])])
             ->get(['id', 'pilates_class_id', 'start_at', 'end_at', 'session_name'])
             ->groupBy('pilates_class_id')
             ->map(function ($appointments) {
@@ -245,7 +245,7 @@ class AppointmentBookingHistoryController extends Controller
         }
 
         $targetAppointment = PilatesAppointment::query()
-            ->withCount(['bookings as active_bookings_count' => fn ($query) => $query->where('status', 'confirmed')])
+            ->withCount(['bookings as active_bookings_count' => fn ($query) => $query->whereIn('status', ['pending', 'pending_payment', 'confirmed'])])
             ->findOrFail($validated['target_session_id']);
 
         if ((int) $targetAppointment->pilates_class_id !== (int) $booking->appointment->pilates_class_id) {
