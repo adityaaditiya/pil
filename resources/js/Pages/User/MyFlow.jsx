@@ -93,6 +93,7 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
             start_date: "",
             end_date: "",
             class_type: "",
+            upcoming_only: false,
         });
     };
 
@@ -146,18 +147,30 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                                     className="w-full rounded-xl border border-slate-300 px-3 py-2"
                                 />
                             </label>
-                            <label className="text-sm text-slate-600">
-                                <span className="mb-1 block font-medium text-slate-700">Jenis Kelas</span>
-                                <select
-                                    value={filters.class_type || ""}
-                                    onChange={(event) => handleFilterChange("class_type", event.target.value)}
-                                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                                >
-                                    <option value="">Semua Jenis</option>
-                                    {classTypeOptions.appointment && <option value="appointment">Appointment</option>}
-                                    {classTypeOptions.timetable && <option value="timetable">Fixed Timetable</option>}
-                                </select>
-                            </label>
+                            <div className="grid gap-2">
+                                <label className="text-sm text-slate-600">
+                                    <span className="mb-1 block font-medium text-slate-700">Jenis Kelas</span>
+                                    <select
+                                        value={filters.class_type || ""}
+                                        onChange={(event) => handleFilterChange("class_type", event.target.value)}
+                                        disabled={Boolean(filters.upcoming_only)}
+                                        className="w-full rounded-xl border border-slate-300 px-3 py-2 disabled:cursor-not-allowed disabled:bg-slate-100"
+                                    >
+                                        <option value="">Semua Jenis</option>
+                                        {classTypeOptions.appointment && <option value="appointment">Appointment</option>}
+                                        {classTypeOptions.timetable && <option value="timetable">Fixed Timetable</option>}
+                                    </select>
+                                </label>
+                                <label className="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
+                                    <input
+                                        type="checkbox"
+                                        checked={Boolean(filters.upcoming_only)}
+                                        onChange={(event) => handleFilterChange("upcoming_only", event.target.checked)}
+                                        className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                                    />
+                                    Sesi Akan Datang
+                                </label>
+                            </div>
                             <div className="flex items-end">
                                 <button
                                     type="button"
