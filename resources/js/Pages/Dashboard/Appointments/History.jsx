@@ -31,7 +31,7 @@ const formatCurrency = (value = 0) =>
         minimumFractionDigits: 0,
     }).format(value);
 
-export default function History({ bookings, filters = {} }) {
+export default function History({ bookings, filters = {}, rescheduleTargets = [] }) {
     const [showFilters, setShowFilters] = useState(false);
     const [filterData, setFilterData] = useState({
         ...defaultFilters,
@@ -115,6 +115,115 @@ export default function History({ bookings, filters = {} }) {
                 },
             },
         );
+    };
+
+
+    const buildRescheduleOptions = () =>
+        (rescheduleTargets || [])
+            .map((item) => `<option value="${item.id}">#${item.id} - ${item.label || "-"}</option>`)
+            .join("");
+
+    const handleReschedule = (booking) => {
+        Swal.fire({
+            title: `Reschedule ${booking.invoice}`,
+            html: `
+                <select id="target-session-id" class="swal2-input">
+                    <option value="">Pilih appointment tujuan</option>
+                    ${buildRescheduleOptions()}
+                </select>
+            `,
+            showCancelButton: true,
+            confirmButtonText: "Reschedule",
+            cancelButtonText: "Batal",
+            preConfirm: () => {
+                const value = document
+                    .getElementById("target-session-id")
+                    ?.value?.trim();
+
+                if (!value) {
+                    Swal.showValidationMessage("Target session wajib dipilih.");
+                    return null;
+                }
+
+                return value;
+            },
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            router.post(
+                route("appointments.reschedule", booking.id),
+                {
+                    target_session_id: Number(result.value),
+                },
+                {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: "Berhasil!",
+                            text: "Appointment berhasil di-reschedule.",
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false,
+                        });
+                    },
+                    onError: (errors) => {
+                        Swal.fire({
+                            title: "Gagal!",
+                            text: errors?.message || "Reschedule appointment gagal diproses.",
+                            icon: "error",
+                        });
+                    },
+                },
+            );
+        });
+    };
+
+    const handleRescheduleLogs = (booking) => {
+        const logs = booking?.reschedule_logs || [];
+
+        if (logs.length === 0) {
+            Swal.fire({
+                title: "Belum ada log",
+                text: "Data reschedule belum tersedia untuk appointment ini.",
+                icon: "info",
+            });
+            return;
+        }
+
+        const rowsHtml = logs
+            .map(
+                (log, index) => `
+                    <tr>
+                        <td style="padding:6px;border:1px solid #e2e8f0;">${index + 1}</td>
+                        <td style="padding:6px;border:1px solid #e2e8f0;">${log.rescheduled_at || "-"}</td>
+                        <td style="padding:6px;border:1px solid #e2e8f0;">${log.user_name || "-"}</td>
+                        <td style="padding:6px;border:1px solid #e2e8f0;">${log.from_session_id || "-"}</td>
+                        <td style="padding:6px;border:1px solid #e2e8f0;">${log.to_session_id || "-"}</td>
+                    </tr>
+                `,
+            )
+            .join("");
+
+        Swal.fire({
+            title: `Reschedule Logs - ${booking.invoice}`,
+            width: 900,
+            html: `
+                <div style="max-height:60vh;overflow:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                        <thead>
+                            <tr>
+                                <th style="padding:6px;border:1px solid #e2e8f0;">No</th>
+                                <th style="padding:6px;border:1px solid #e2e8f0;">Waktu</th>
+                                <th style="padding:6px;border:1px solid #e2e8f0;">User</th>
+                                <th style="padding:6px;border:1px solid #e2e8f0;">Dari Session</th>
+                                <th style="padding:6px;border:1px solid #e2e8f0;">Ke Session</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                </div>
+            `,
+        });
     };
 
     const handleViewPaymentProof = (booking) => {
@@ -413,6 +522,22 @@ export default function History({ bookings, filters = {} }) {
                                                     >
                                                         <IconPrinter size={18} />
                                                     </Link>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleReschedule(booking)}
+                                                        className="rounded-md border border-primary-200 px-2 py-1 text-xs font-medium text-primary-600 hover:bg-primary-50"
+                                                        title="Reschedule"
+                                                    >
+                                                        Reschedule
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRescheduleLogs(booking)}
+                                                        className="rounded-md border border-slate-200 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                                                        title="Reschedule Logs"
+                                                    >
+                                                        Logs
+                                                    </button>
                                                     {booking.status === "cancelled" ? (
                                                         <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                                                             Dibatalkan

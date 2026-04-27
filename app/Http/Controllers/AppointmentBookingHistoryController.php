@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\AppointmentBooking;
+use App\Models\PilatesAppointment;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
+use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 
 class AppointmentBookingHistoryController extends Controller
@@ -26,6 +29,8 @@ class AppointmentBookingHistoryController extends Controller
                 'appointment:id,pilates_class_id,start_at,end_at',
                 'appointment.pilatesClass:id,name',
                 'trainer:id,user_id',
+                'rescheduleLogs:id,reschedulable_type,reschedulable_id,user_id,from_session_id,to_session_id,rescheduled_at',
+                'rescheduleLogs.user:id,name',
             ])
             ->latest('booked_at');
 
@@ -47,6 +52,7 @@ class AppointmentBookingHistoryController extends Controller
             ->through(function (AppointmentBooking $booking) {
                 return [
                     'id' => $booking->id,
+                    'appointment_id' => $booking->appointment_id,
                     'invoice' => $booking->invoice,
                     'booked_at' => $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
                     'status' => $booking->status,
@@ -63,6 +69,13 @@ class AppointmentBookingHistoryController extends Controller
                     ? $booking->appointment->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') . ' - ' . $booking->appointment->end_at?->timezone('Asia/Jakarta')->format('H:i')
                     : '-',
                     'credit_used' => $booking->credit_used,
+                    'reschedule_logs' => $booking->rescheduleLogs->map(fn ($log) => [
+                        'id' => $log->id,
+                        'user_name' => $log->user?->name ?? '-',
+                        'from_session_id' => $log->from_session_id,
+                        'to_session_id' => $log->to_session_id,
+                        'rescheduled_at' => $log->rescheduled_at?->timezone('Asia/Jakarta')->format('d M Y, H:i:s'),
+                    ])->values(),
                 ];
             });
 
@@ -73,6 +86,14 @@ class AppointmentBookingHistoryController extends Controller
                 'start_date' => $startDate,
                 'end_date' => $endDate,
             ],
+            'rescheduleTargets' => PilatesAppointment::query()
+                ->orderBy('start_at')
+                ->limit(200)
+                ->get(['id', 'start_at', 'end_at'])
+                ->map(fn ($item) => [
+                    'id' => $item->id,
+                    'label' => ($item->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-') . ' - ' . ($item->end_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-'),
+                ]),
         ]);
     }
 
@@ -84,6 +105,8 @@ class AppointmentBookingHistoryController extends Controller
                 'appointment:id,pilates_class_id,start_at,end_at,duration_minutes',
                 'appointment.pilatesClass:id,name',
                 'trainer:id,user_id',
+                'rescheduleLogs:id,reschedulable_type,reschedulable_id,user_id,from_session_id,to_session_id,rescheduled_at',
+                'rescheduleLogs.user:id,name',
             ])
             ->where('invoice', $invoice)
             ->firstOrFail();
@@ -130,6 +153,57 @@ class AppointmentBookingHistoryController extends Controller
         });
 
         return back()->with('success', 'Transaksi appointment berhasil dibatalkan. Credit customer dan slot appointment telah dikembalikan.');
+    }
+
+
+    public function reschedule(Request $request, AppointmentBooking $booking): RedirectResponse
+    {
+        $validated = $request->validate([
+            'target_session_id' => ['required', 'integer', 'exists:pilates_appointments,id'],
+        ]);
+
+        if (in_array($booking->status, ['cancelled', 'expired'], true)) {
+            return back()->withErrors([
+                'message' => 'Transaksi appointment dengan status ini tidak bisa di-reschedule.',
+            ]);
+        }
+
+        $targetId = (int) $validated['target_session_id'];
+        $currentAppointmentId = (int) $booking->appointment_id;
+
+        if ($targetId === $currentAppointmentId) {
+            return back()->withErrors([
+                'message' => 'Appointment tujuan harus berbeda dengan appointment saat ini.',
+            ]);
+        }
+
+        DB::transaction(function () use ($booking, $targetId, $currentAppointmentId) {
+            $targetAppointment = PilatesAppointment::query()
+                ->lockForUpdate()
+                ->findOrFail($targetId);
+
+            $hasActiveBooking = AppointmentBooking::query()
+                ->where('appointment_id', $targetAppointment->id)
+                ->whereNotIn('status', ['cancelled', 'expired'])
+                ->exists();
+
+            if ($hasActiveBooking) {
+                throw ValidationException::withMessages(['message' => 'Appointment tujuan tidak tersedia.']);
+            }
+
+            $booking->update([
+                'appointment_id' => $targetAppointment->id,
+            ]);
+
+            $booking->rescheduleLogs()->create([
+                'user_id' => (int) Auth::id(),
+                'from_session_id' => $currentAppointmentId,
+                'to_session_id' => $targetAppointment->id,
+                'rescheduled_at' => now(),
+            ]);
+        });
+
+        return back()->with('success', 'Transaksi appointment berhasil di-reschedule.');
     }
 
     public function confirmPayment(AppointmentBooking $booking): RedirectResponse

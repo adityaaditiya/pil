@@ -73,4 +73,9 @@ class AppointmentBooking extends Model
     {
         return $this->belongsTo(UserMembership::class);
     }
+
+    public function rescheduleLogs()
+    {
+        return $this->morphMany(RescheduleLog::class, 'reschedulable')->latest('rescheduled_at');
+    }
 }
