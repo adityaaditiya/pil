@@ -113,19 +113,19 @@ class DashboardController extends Controller
             ->count();
 
         $todayAttendanceCount = PilatesBooking::query()
-            ->whereDate('created_at', $today)
+            ->whereHas('timetable', fn ($query) => $query->whereDate('start_at', $today))
             ->whereIn('attendance_status', ['present', 'absent'])
             ->count()
             + AppointmentBooking::query()
-                ->whereDate('created_at', $today)
+                ->whereHas('appointment', fn ($query) => $query->whereDate('start_at', $today))
                 ->whereIn('attendance_status', ['present', 'absent'])
                 ->count();
         $todayConfirmedBookingCount = PilatesBooking::query()
-            ->whereDate('created_at', $today)
+            ->whereHas('timetable', fn ($query) => $query->whereDate('start_at', $today))
             ->where('status', 'confirmed')
             ->count()
             + AppointmentBooking::query()
-                ->whereDate('created_at', $today)
+                ->whereHas('appointment', fn ($query) => $query->whereDate('start_at', $today))
                 ->where('status', 'confirmed')
                 ->count();
         $todayClassOccupancyRate = $todayConfirmedBookingCount > 0
