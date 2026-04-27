@@ -98,11 +98,12 @@ class TrainerReportController extends Controller
     {
         $scheduleRows = PilatesBooking::query()
             ->where('status', 'confirmed')
-            ->with(['user:id,name', 'timetable:id,pilates_class_id,trainer_id,start_at,duration_minutes,capacity', 'timetable.pilatesClass:id,name', 'timetable.trainer:id'])
+            ->with(['user:id,name', 'timetable:id,pilates_class_id,trainer_id,start_at,duration_minutes,capacity', 'timetable.pilatesClass:id,name', 'timetable.trainer'])
             ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('booked_at', '>=', $start))
             ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('booked_at', '<=', $end))
             ->get()
-            ->map(function (PilatesBooking $booking) {
+            ->toBase()
+            ->map(function ($booking) {
                 $participants = (int) ($booking->participants ?? 0);
                 $attendanceCount = $booking->attendance_status === 'present' ? $participants : 0;
                 $capacity = (int) ($booking->timetable?->capacity ?? 0);
@@ -128,11 +129,12 @@ class TrainerReportController extends Controller
 
         $appointmentRows = AppointmentBooking::query()
             ->where('status', 'confirmed')
-            ->with(['customer:id,name', 'appointment:id,pilates_class_id,trainer_id,session_name,duration_minutes,start_at', 'appointment.pilatesClass:id,name', 'trainer:id', 'appointment.trainer:id'])
+            ->with(['customer:id,name', 'appointment:id,pilates_class_id,trainer_id,session_name,duration_minutes,start_at', 'appointment.pilatesClass:id,name', 'trainer', 'appointment.trainer'])
             ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('booked_at', '>=', $start))
             ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('booked_at', '<=', $end))
             ->get()
-            ->map(function (AppointmentBooking $booking) {
+            ->toBase()
+            ->map(function ($booking) {
                 $trainer = $booking->trainer ?? $booking->appointment?->trainer;
 
                 return [
@@ -158,7 +160,8 @@ class TrainerReportController extends Controller
             ->merge($appointmentRows)
             ->when($filters['class_type'] ?? null, fn ($rows, $type) => $rows->where('class_type', $type))
             ->when($filters['trainer_id'] ?? null, function ($rows, $trainerId) {
-                $trainerName = Trainer::query()->find($trainerId)?->name;
+                $trainer = Trainer::query()->find($trainerId);
+                $trainerName = $trainer?->name;
 
                 if (! $trainerName) {
                     return $rows->take(0);
@@ -228,8 +231,9 @@ class TrainerReportController extends Controller
     {
         return Trainer::query()
             ->forTrainerRole()
-            ->get(['id'])
-            ->map(fn (Trainer $trainer) => [
+            ->get() // Ambil semua kolom agar 'name' dari tabel customers terbawa
+            ->toBase()
+            ->map(fn ($trainer) => [
                 'id' => $trainer->id,
                 'name' => $trainer->name ?? '-',
             ])
