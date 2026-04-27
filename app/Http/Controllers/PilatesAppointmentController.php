@@ -24,8 +24,6 @@ use Inertia\Response;
 
 class PilatesAppointmentController extends Controller
 {
-    private const RESERVED_BOOKING_STATUSES = ['pending', 'pending_payment', 'confirmed'];
-
     private const WEEKDAY_MAP = [
         'monday' => Carbon::MONDAY,
         'tuesday' => Carbon::TUESDAY,
@@ -398,11 +396,6 @@ class PilatesAppointmentController extends Controller
 
     public function createBooking(PilatesAppointment $appointment): Response
     {
-        $activeBookingsCount = AppointmentBooking::query()
-            ->where('appointment_id', $appointment->id)
-            ->whereIn('status', self::RESERVED_BOOKING_STATUSES)
-            ->count();
-
         $customers = Customer::query()
             ->select('id', 'user_id', 'name', 'no_telp', 'address', 'credit')
             ->latest()
@@ -448,7 +441,6 @@ class PilatesAppointmentController extends Controller
                 'end_at_label' => $appointment->end_at?->timezone('Asia/Jakarta')->format('H:i'),
                 'duration_minutes' => $appointment->duration_minutes,
                 'trainers' => $appointment->trainers()->select('trainers.id', 'trainers.user_id')->get(),
-                'is_available' => $activeBookingsCount === 0,
             ],
             'customers' => $customers,
             'paymentMethods' => $paymentSetting?->enabledGateways() ?? [],
@@ -465,25 +457,12 @@ class PilatesAppointmentController extends Controller
             'payment_type' => ['required', Rule::in(['drop_in', 'credit'])],
             'appointment_session_id' => ['nullable', 'integer'],
             'user_membership_id' => ['nullable', 'integer'],
-            'is_hold' => ['nullable', 'boolean'],
         ]);
-        $isHold = $request->boolean('is_hold');
 
         $appointmentTrainerIds = $appointment->trainers()->pluck('trainers.id');
         if (! $appointmentTrainerIds->contains((int) $validated['trainer_id'])) {
             throw ValidationException::withMessages([
                 'trainer_id' => 'Trainer yang dipilih tidak tersedia untuk appointment ini.',
-            ]);
-        }
-
-        $activeBookingsCount = AppointmentBooking::query()
-            ->where('appointment_id', $appointment->id)
-            ->whereIn('status', self::RESERVED_BOOKING_STATUSES)
-            ->count();
-
-        if ($activeBookingsCount > 0) {
-            throw ValidationException::withMessages([
-                'customer_id' => 'Appointment sudah tidak tersedia.',
             ]);
         }
 
@@ -575,7 +554,7 @@ class PilatesAppointmentController extends Controller
                 'user_membership_id' => $selectedMembership?->id,
                 'credit_used' => $creditUsed,
                 'booked_at' => now(),
-                'status' => $isHold ? 'pending' : 'confirmed',
+                'status' => 'confirmed',
             ]);
 
             if ($validated['payment_type'] === 'credit' && $selectedMembership) {
@@ -587,7 +566,7 @@ class PilatesAppointmentController extends Controller
 
         return redirect()
             ->route('appointments.index', ['start_date' => $appointmentDate, 'end_date' => $appointmentDate])
-            ->with('success', $isHold ? 'Transaksi appointment berhasil ditahan.' : 'Booking appointment berhasil disimpan.');
+            ->with('success', 'Booking appointment berhasil disimpan.');
     }
 
 

@@ -35,7 +35,6 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
         payment_method: allowDropIn ? (mappedPaymentMethods[0]?.value || "cash") : "credits",
         appointment_session_id: selectedOption?.appointment_session_id || "",
         user_membership_id: "",
-        is_hold: false,
     });
 
     const dropInPrice = Number(selectedOption?.price_drop_in ?? selectedOption?.price ?? appointment?.total_price ?? 0);
@@ -78,13 +77,6 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
     const handleSubmit = (event) => {
         event.preventDefault();
         post(route("appointments.booking.store", appointment.id));
-    };
-
-    const handleHoldSubmit = () => {
-        setData("is_hold", true);
-        post(route("appointments.booking.store", appointment.id), {
-            onFinish: () => setData("is_hold", false),
-        });
     };
 
     return (
@@ -293,17 +285,9 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                             <p className="text-sm">Credit Dipakai: <span className="font-semibold text-primary-600">{creditPerSession}</span></p>
                         )}
 
-                        <div className="mt-4 grid grid-cols-1 gap-2">
-                            <button type="submit" disabled={processing || appointment?.is_available === false} className="w-full rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-300">
-                                {processing && data.is_hold === false ? "Menyimpan..." : "Simpan Booking"}
-                            </button>
-                            <button type="button" onClick={handleHoldSubmit} disabled={processing || appointment?.is_available === false} className="w-full rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-700 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-100 disabled:text-slate-400">
-                                {processing && data.is_hold ? "Menahan..." : "Tahan Transaksi"}
-                            </button>
-                        </div>
-                        {appointment?.is_available === false && (
-                            <p className="text-xs text-danger-600">Appointment ini sudah tidak tersedia karena sedang ditahan atau sudah dibooking.</p>
-                        )}
+                        <button type="submit" disabled={processing} className="mt-4 w-full rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white">
+                            {processing ? "Menyimpan..." : "Simpan Booking"}
+                        </button>
                     </div>
                 </form>
             </div>
