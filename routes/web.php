@@ -203,6 +203,12 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::patch('timetable/bookings/{booking}/attendance', [PilatesTimetableController::class, 'updateAttendanceStatus'])
         ->middleware('permission:timetable-access')
         ->name('timetable.bookings.attendance');
+    Route::post('timetable/{timetable}/manual-participants', [PilatesTimetableController::class, 'storeManualParticipant'])
+        ->middleware('permission:timetable-access')
+        ->name('timetable.manual-participants.store');
+    Route::delete('timetable/manual-participants/{booking}', [PilatesTimetableController::class, 'destroyManualParticipant'])
+        ->middleware('permission:timetable-access')
+        ->name('timetable.manual-participants.destroy');
     Route::get('appointments', [PilatesAppointmentController::class, 'index'])
         ->middleware('permission:appointments-access')
         ->name('appointments.index');
@@ -230,6 +236,12 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::patch('appointments/bookings/{booking}/attendance', [PilatesAppointmentController::class, 'updateAttendanceStatus'])
         ->middleware('permission:appointments-access')
         ->name('appointments.bookings.attendance');
+    Route::post('appointments/{appointment}/manual-participants', [PilatesAppointmentController::class, 'storeManualParticipant'])
+        ->middleware('permission:appointments-access')
+        ->name('appointments.manual-participants.store');
+    Route::delete('appointments/manual-participants/{booking}', [PilatesAppointmentController::class, 'destroyManualParticipant'])
+        ->middleware('permission:appointments-access')
+        ->name('appointments.manual-participants.destroy');
     
     Route::get('bookings/history', [PilatesBookingHistoryController::class, 'index'])
         ->middleware('permission:bookings-history-access')
