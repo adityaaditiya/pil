@@ -16,6 +16,7 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
     const [startDate, setStartDate] = useState(selectedStartDate);
     const [endDate, setEndDate] = useState(selectedEndDate);
     const [selectedSession, setSelectedSession] = useState(null);
+    const [participantSession, setParticipantSession] = useState(null);
 
     const hasSessions = useMemo(() => sessions.length > 0, [sessions]);
 
@@ -43,6 +44,25 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
 
     const closeModal = () => {
         setSelectedSession(null);
+    };
+
+    const openParticipantsModal = (session) => {
+        setParticipantSession(session);
+    };
+
+    const closeParticipantsModal = () => {
+        setParticipantSession(null);
+    };
+
+    const updateAttendanceStatus = (bookingId, attendanceStatus) => {
+        router.patch(
+            route("timetable.bookings.attendance", bookingId),
+            { attendance_status: attendanceStatus },
+            {
+                preserveScroll: true,
+                preserveState: true,
+            },
+        );
     };
 
     const handleDelete = (sessionId) => {
@@ -213,6 +233,15 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
 
                         {canManageTimetable && (
                             <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => openParticipantsModal(session)}
+                                    className="inline-flex h-10 items-center justify-center gap-1 rounded-xl border border-primary-100 px-3 text-primary-600 transition hover:bg-primary-50"
+                                    title="Data Peserta"
+                                >
+                                    <IconUsers size={16} />
+                                    <span className="text-xs font-semibold">Peserta</span>
+                                </button>
                                 <Link
                                     href={route("timetable.edit", session.id)}
                                     className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50 hover:text-primary-600 dark:border-slate-700"
@@ -285,6 +314,76 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                 ? "Login Required"
                                 : "Book Now"}
                         </button>
+                    </div>
+                )}
+            </Modal>
+
+            <Modal title="Data Peserta" show={Boolean(participantSession)} onClose={closeParticipantsModal} maxWidth="3xl">
+                {participantSession && (
+                    <div className="space-y-4 p-1">
+                        <div className="rounded-2xl bg-slate-50 p-4 text-sm dark:bg-slate-800">
+                            <p className="font-semibold text-slate-800 dark:text-slate-100">{participantSession.class?.name}</p>
+                            <p className="text-slate-500">
+                                {participantSession.start_at_label} - {participantSession.end_at_label} WIB
+                            </p>
+                            <p className="mt-1 text-slate-500">
+                                Total booking confirmed: <span className="font-semibold text-slate-800 dark:text-slate-100">{participantSession.participants?.length || 0}</span>
+                            </p>
+                        </div>
+
+                        {(participantSession.participants?.length || 0) > 0 ? (
+                            <div className="space-y-3">
+                                {participantSession.participants.map((participant, index) => (
+                                    <div key={participant.id} className="rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
+                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                            <div>
+                                                <p className="font-semibold text-slate-900 dark:text-white">
+                                                    {index + 1}. {participant.name}
+                                                </p>
+                                                <p className="text-sm text-slate-500">Jumlah peserta: {participant.participants_count}</p>
+                                            </div>
+                                            {participant.customer_id ? (
+                                                <Link
+                                                    href={route("customers.questionnaire.edit", participant.customer_id)}
+                                                    className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-100"
+                                                >
+                                                    Data Kuesioner Peserta
+                                                </Link>
+                                            ) : (
+                                                <span className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-500 dark:bg-slate-700">
+                                                    Data customer tidak tersedia
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            {[
+                                                { label: "Belum Absen", value: "pending" },
+                                                { label: "Hadir", value: "present" },
+                                                { label: "Tidak Hadir", value: "absent" },
+                                            ].map((statusOption) => (
+                                                <button
+                                                    key={statusOption.value}
+                                                    type="button"
+                                                    onClick={() => updateAttendanceStatus(participant.id, statusOption.value)}
+                                                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                                                        participant.attendance_status === statusOption.value
+                                                            ? "bg-primary-600 text-white"
+                                                            : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200"
+                                                    }`}
+                                                >
+                                                    {statusOption.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-slate-700">
+                                Belum ada booking dengan status confirmed pada sesi ini.
+                            </p>
+                        )}
                     </div>
                 )}
             </Modal>
