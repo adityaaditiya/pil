@@ -227,6 +227,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::post('appointments/{appointment}/booking', [PilatesAppointmentController::class, 'storeBooking'])
         ->middleware('permission:appointments-access')
         ->name('appointments.booking.store');
+    Route::patch('appointments/bookings/{booking}/attendance', [PilatesAppointmentController::class, 'updateAttendanceStatus'])
+        ->middleware('permission:appointments-access')
+        ->name('appointments.bookings.attendance');
     
     Route::get('bookings/history', [PilatesBookingHistoryController::class, 'index'])
         ->middleware('permission:bookings-history-access')
