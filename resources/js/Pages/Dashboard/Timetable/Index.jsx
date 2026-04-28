@@ -341,6 +341,7 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                                     {index + 1}. {participant.name}
                                                 </p>
                                                 <p className="text-sm text-slate-500">Jumlah peserta: {participant.participants_count}</p>
+                                                <p className="text-sm text-slate-500">No. Invoice: {participant.invoice || "-"}</p>
                                             </div>
                                             {participant.customer_id ? (
                                                 <Link

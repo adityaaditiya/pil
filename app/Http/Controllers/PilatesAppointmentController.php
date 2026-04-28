@@ -55,7 +55,7 @@ class PilatesAppointmentController extends Controller
                 'pilatesClass:id,name',
                 'trainers:id,user_id',
                 'bookings' => fn ($query) => $query
-                    ->select('id', 'appointment_id', 'customer_id', 'status', 'attendance_status')
+                    ->select('id', 'appointment_id', 'customer_id', 'invoice', 'status', 'attendance_status')
                     ->where('status', 'confirmed')
                     ->with('customer:id,name'),
             ])
@@ -83,6 +83,7 @@ class PilatesAppointmentController extends Controller
                     'participants' => $appointment->bookings->map(fn (AppointmentBooking $booking) => [
                         'id' => $booking->id,
                         'name' => $booking->customer?->name ?? '-',
+                        'invoice' => $booking->invoice,
                         'customer_id' => $booking->customer_id,
                         'attendance_status' => $booking->attendance_status ?? 'pending',
                     ])->values(),
