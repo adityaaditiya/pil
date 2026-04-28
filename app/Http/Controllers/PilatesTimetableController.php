@@ -134,6 +134,11 @@ class PilatesTimetableController extends Controller
             ->with([
                 'pilatesClass:id,name,difficulty_level,duration,about,equipment',
                 'trainer:id,user_id',
+                'bookings' => fn ($query) => $query
+                    ->select('id', 'timetable_id', 'user_id', 'participants', 'status', 'attendance_status')
+                    ->where('status', 'confirmed'),
+                'bookings.user:id,name',
+                'bookings.user.customer:id,user_id',
             ])
             ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
             ->whereBetween('start_at', [$startDate->clone()->timezone('Asia/Jakarta'), $endDate->clone()->timezone('Asia/Jakarta')])
@@ -168,6 +173,13 @@ class PilatesTimetableController extends Controller
                         'equipment' => $session->pilatesClass?->equipment,
                         'duration' => $session->pilatesClass?->duration,
                     ],
+                    'participants' => $session->bookings->map(fn (PilatesBooking $booking) => [
+                        'id' => $booking->id,
+                        'name' => $booking->user?->name ?? '-',
+                        'customer_id' => $booking->user?->customer?->id,
+                        'participants_count' => (int) ($booking->participants ?? 1),
+                        'attendance_status' => $booking->attendance_status ?? 'pending',
+                    ])->values(),
                 ];
             })
             ->values();
@@ -256,6 +268,19 @@ class PilatesTimetableController extends Controller
         return redirect()
             ->route('timetable.index', ['start_date' => $occurrences->first()['start_at']->toDateString(), 'end_date' => $occurrences->last()['start_at']->toDateString()])
             ->with('success', 'Session berhasil ditambahkan.');
+    }
+
+    public function updateAttendanceStatus(Request $request, PilatesBooking $booking): RedirectResponse
+    {
+        $validated = $request->validate([
+            'attendance_status' => ['required', Rule::in(['pending', 'present', 'absent'])],
+        ]);
+
+        $booking->update([
+            'attendance_status' => $validated['attendance_status'],
+        ]);
+
+        return back()->with('success', 'Status kehadiran peserta berhasil diperbarui.');
     }
 
     public function update(Request $request, PilatesTimetable $timetable): RedirectResponse
