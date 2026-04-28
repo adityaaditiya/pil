@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Modal from "@/Components/Dashboard/Modal";
 import { Head, Link, router } from "@inertiajs/react";
+import toast from "react-hot-toast";
 import { IconCalendarEvent, IconClock, IconEdit, IconPlus, IconTrash, IconUser, IconBookmark, IconCalendar, IconUserCheck, IconInfoCircle, IconPencil, IconCalendarOff, IconUsers  } from "@tabler/icons-react";
 
 const formatRupiah = (value) => new Intl.NumberFormat("id-ID", {
@@ -56,6 +57,8 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
             {
                 preserveScroll: true,
                 preserveState: true,
+                onSuccess: () => toast.success("Data kehadiran peserta berhasil di ubah."),
+                onError: () => toast.error("Data kehadiran peserta gagal di ubah."),
             },
         );
     };
