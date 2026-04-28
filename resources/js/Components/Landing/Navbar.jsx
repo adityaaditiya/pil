@@ -30,6 +30,7 @@ export default function Navbar({ navItems = defaultNavItems, currentKey = null }
         ...(isTrainer
             ? [{ name: "My flow", href: route("user.my-flow") }]
             : [
+                { name: "My Form", href: route("user.my-form") },
                 { name: "My schedule", href: route("user.my-schedule") },
                 { name: "My appointment", href: route("user.my-appointment") },
                 { name: "My memberships", href: route("user.my-memberships") },
