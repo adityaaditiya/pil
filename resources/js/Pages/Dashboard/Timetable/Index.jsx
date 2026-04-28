@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Modal from "@/Components/Dashboard/Modal";
 import { Head, Link, router, usePage } from "@inertiajs/react";
+import toast from "react-hot-toast";
 import { IconCalendarEvent, IconClock, IconPencil, IconPlus, IconTrash, IconUser, IconUsers, IconInfoCircle, IconCalendar, IconCalendarOff } from "@tabler/icons-react";
 
 const statusClasses = {
@@ -61,6 +62,11 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
             {
                 preserveScroll: true,
                 preserveState: true,
+                onSuccess: () => {
+                    toast.success("Data kehadiran peserta berhasil di ubah.");
+                    closeParticipantsModal();
+                },
+                onError: () => toast.error("Data kehadiran peserta gagal di ubah."),
             },
         );
     };
