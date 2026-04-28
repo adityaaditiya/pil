@@ -43,6 +43,13 @@ export default function Form({ data, setData, errors, classes = [] }) {
         ]);
     };
 
+    // Tambahkan ini untuk mencegah scroll mengubah nilai pada input number
+document.addEventListener("wheel", function (event) {
+    if (document.activeElement.type === "number") {
+        document.activeElement.blur();
+    }
+});
+
     const updateCost = (classId, value) => {
         setData(
             "class_rules",
@@ -92,6 +99,7 @@ export default function Form({ data, setData, errors, classes = [] }) {
                         placeholder="Mis: 250000"
                         value={data.price ?? ""}
                         onChange={(e) => setData("price", e.target.value)}
+                        onWheel={(e) => e.target.blur()}
                     />
                     <FieldError message={errors?.price} />
                 </div>
