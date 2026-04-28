@@ -106,6 +106,7 @@ class UserMembershipController extends Controller
             'membership_plan_id' => $membershipPlan->id,
             'credits_total' => $membershipPlan->credits,
             'credits_remaining' => $membershipPlan->credits,
+            'payment_method' => $validated['payment_method'] ?? 'cash',
             'starts_at' => $startsAt,
             'activated_at' => null,
             'expires_at' => null,
