@@ -51,7 +51,14 @@ class PilatesAppointmentController extends Controller
         }
 
         $appointments = PilatesAppointment::query()
-            ->with(['pilatesClass:id,name', 'trainers:id,user_id'])
+            ->with([
+                'pilatesClass:id,name',
+                'trainers:id,user_id',
+                'bookings' => fn ($query) => $query
+                    ->select('id', 'appointment_id', 'customer_id', 'status', 'attendance_status')
+                    ->where('status', 'confirmed')
+                    ->with('customer:id,name'),
+            ])
             ->where('start_at', '>=', $start->clone()->timezone('Asia/Jakarta'))
             ->where('start_at', '<=', $end->clone()->timezone('Asia/Jakarta'))
             ->orderBy('start_at')
@@ -73,6 +80,12 @@ class PilatesAppointmentController extends Controller
                     ],
                     'trainers' => $appointment->trainers->pluck('name')->values(),
                     'admin_notes' => $appointment->admin_notes,
+                    'participants' => $appointment->bookings->map(fn (AppointmentBooking $booking) => [
+                        'id' => $booking->id,
+                        'name' => $booking->customer?->name ?? '-',
+                        'customer_id' => $booking->customer_id,
+                        'attendance_status' => $booking->attendance_status ?? 'pending',
+                    ])->values(),
                 ];
             })
             ->values();
@@ -82,6 +95,19 @@ class PilatesAppointmentController extends Controller
             'selectedStartDate' => $start->toDateString(),
             'selectedEndDate' => $end->toDateString(),
         ]);
+    }
+
+    public function updateAttendanceStatus(Request $request, AppointmentBooking $booking): RedirectResponse
+    {
+        $validated = $request->validate([
+            'attendance_status' => ['required', Rule::in(['pending', 'present', 'absent'])],
+        ]);
+
+        $booking->update([
+            'attendance_status' => $validated['attendance_status'],
+        ]);
+
+        return back()->with('success', 'Status kehadiran appointment berhasil diperbarui.');
     }
 
     public function create(): Response
