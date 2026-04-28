@@ -84,7 +84,7 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div>
                             <h1 className="flex items-center gap-2 text-2xl font-semibold text-slate-900 dark:text-white">
-                                <IconCalendarEvent className="text-primary-500" size={28} /> Schedule Booking
+                                <IconCalendarEvent className="text-primary-500" size={28} /> Schedule a Booking
                             </h1>
                             <p className="mt-1 text-sm text-slate-500">Pilih rentang tanggal lalu reservasi sesi pilates.</p>
                         </div>

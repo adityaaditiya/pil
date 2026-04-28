@@ -60,6 +60,7 @@ class PilatesTimetableController extends Controller
 
         $lockedIds = PilatesBooking::query()
             ->whereIn('timetable_id', $seriesSessions->pluck('id'))
+            ->where('status', 'confirmed')
             ->pluck('timetable_id')
             ->map(fn ($id) => (int) $id)
             ->all();
@@ -694,6 +695,7 @@ class PilatesTimetableController extends Controller
     {
         $hasBooking = PilatesBooking::query()
             ->whereIn('timetable_id', $sessionIds)
+            ->where('status', 'confirmed')
             ->exists();
 
         if ($hasBooking) {
