@@ -57,7 +57,10 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
             {
                 preserveScroll: true,
                 preserveState: true,
-                onSuccess: () => toast.success("Data kehadiran peserta berhasil di ubah."),
+                onSuccess: () => {
+                    toast.success("Data kehadiran peserta berhasil di ubah.");
+                    closeParticipantsModal();
+                },
                 onError: () => toast.error("Data kehadiran peserta gagal di ubah."),
             },
         );
