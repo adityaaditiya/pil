@@ -429,6 +429,7 @@ class StudioPageController extends Controller
             ]);
 
             if ($validated['payment_type'] === 'credit' && $selectedMembership) {
+                $selectedMembership->activateIfNeeded();
                 $selectedMembership->decrement('credits_remaining', $creditUsed);
             }
 
@@ -771,7 +772,8 @@ class StudioPageController extends Controller
                 'credits_total' => $membershipPlan->credits,
                 'credits_remaining' => $membershipPlan->credits,
                 'starts_at' => $startsAt,
-                'expires_at' => $membershipPlan->valid_days ? $startsAt->copy()->addDays($membershipPlan->valid_days) : null,
+                'activated_at' => null,
+                'expires_at' => null,
                 'payment_method' => $data['payment_method'],
                 'status' => 'pending_payment',
                 'expired_at' => Carbon::now()->addMinutes(15),
@@ -1018,6 +1020,7 @@ class StudioPageController extends Controller
                 ]);
 
                 if ($paymentType === 'credit' && $selectedMembership) {
+                    $selectedMembership->activateIfNeeded();
                     $selectedMembership->decrement('credits_remaining', (int) $creditUsed);
                 }
 

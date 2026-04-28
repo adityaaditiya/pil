@@ -185,6 +185,7 @@ class BookingController extends Controller
                 ]);
 
                 if ($paymentType === 'credit' && $selectedMembership) {
+                    $selectedMembership->activateIfNeeded();
                     $selectedMembership->decrement('credits_remaining', (int) ($creditUsed * $participants));
                 }
             });

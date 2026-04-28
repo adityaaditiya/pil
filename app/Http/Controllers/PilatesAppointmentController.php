@@ -609,6 +609,7 @@ class PilatesAppointmentController extends Controller
             ]);
 
             if ($validated['payment_type'] === 'credit' && $selectedMembership) {
+                $selectedMembership->activateIfNeeded();
                 $selectedMembership->decrement('credits_remaining', $creditUsed);
             }
         });

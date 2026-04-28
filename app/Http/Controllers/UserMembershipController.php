@@ -107,7 +107,8 @@ class UserMembershipController extends Controller
             'credits_total' => $membershipPlan->credits,
             'credits_remaining' => $membershipPlan->credits,
             'starts_at' => $startsAt,
-            'expires_at' => $membershipPlan->valid_days ? $startsAt->copy()->addDays($membershipPlan->valid_days) : null,
+            'activated_at' => null,
+            'expires_at' => null,
             'status' => 'active',
         ]);
 
