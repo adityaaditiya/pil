@@ -38,6 +38,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserMembershipController;
 use App\Http\Controllers\UserMembershipHistoryController;
 use App\Http\Controllers\UserAppointmentController;
+use App\Http\Controllers\UserFormController;
 use App\Http\Controllers\UserScheduleController;
 use App\Models\LandingPageSetting;
 use App\Models\MembershipPlan;
@@ -100,6 +101,8 @@ Route::middleware('auth')->delete('/welcome/schedule/bookings/{booking}/cancel',
 Route::middleware('auth')->get('/user/my-schedule', [UserScheduleController::class, 'index'])->name('user.my-schedule');
 Route::middleware('auth')->get('/user/my-appointment', [UserAppointmentController::class, 'index'])->name('user.my-appointment');
 Route::middleware('auth')->get('/user/my-memberships', [UserMembershipHistoryController::class, 'index'])->name('user.my-memberships');
+Route::middleware('auth')->get('/user/my-form', [UserFormController::class, 'index'])->name('user.my-form');
+Route::middleware('auth')->put('/user/my-form', [UserFormController::class, 'update'])->name('user.my-form.update');
 Route::middleware('auth')->get('/user/my-flow', [TrainerFlowController::class, 'index'])->name('user.my-flow');
 Route::middleware('auth')->patch('/user/my-flow/attendance', [TrainerFlowController::class, 'updateAttendance'])->name('user.my-flow.attendance');
 
