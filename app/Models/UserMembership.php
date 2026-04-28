@@ -18,6 +18,7 @@ class UserMembership extends Model
         'credits_total',
         'credits_remaining',
         'starts_at',
+        'activated_at',
         'expires_at',
         'payment_method',
         'payment_proof_image',
@@ -29,6 +30,7 @@ class UserMembership extends Model
         'credits_total' => 'integer',
         'credits_remaining' => 'integer',
         'starts_at' => 'datetime',
+        'activated_at' => 'datetime',
         'expires_at' => 'datetime',
         'expired_at' => 'datetime',
     ];
@@ -74,5 +76,20 @@ class UserMembership extends Model
     public function plan()
     {
         return $this->belongsTo(MembershipPlan::class, 'membership_plan_id');
+    }
+
+    public function activateIfNeeded(): void
+    {
+        if ($this->activated_at) {
+            return;
+        }
+
+        $activatedAt = now();
+        $validDays = (int) ($this->plan?->valid_days ?? 0);
+
+        $this->forceFill([
+            'activated_at' => $activatedAt,
+            'expires_at' => $validDays > 0 ? $activatedAt->copy()->addDays($validDays) : null,
+        ])->saveQuietly();
     }
 }

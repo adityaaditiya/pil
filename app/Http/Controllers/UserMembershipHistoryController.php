@@ -45,6 +45,7 @@ class UserMembershipHistoryController extends Controller
                     'credits_total' => $membership->credits_total,
                     'credits_remaining' => $membership->credits_remaining,
                     'starts_at' => optional($membership->starts_at)->toISOString(),
+                    'activated_at' => optional($membership->activated_at)->toISOString(),
                     'expires_at' => optional($membership->expires_at)->toISOString(),
                     'payment_method' => $membership->payment_method,
                     'payment_proof_image' => $membership->payment_proof_image,

@@ -125,13 +125,10 @@ class MembershipHistoryController extends Controller
             return back()->withErrors(['message' => 'Pembayaran membership tidak dapat dikonfirmasi.']);
         }
 
-        $startsAt = $userMembership->starts_at ?? now();
-        $validDays = (int) ($userMembership->plan?->valid_days ?? 0);
-
         $userMembership->update([
             'status' => 'active',
-            'starts_at' => $startsAt,
-            'expires_at' => $validDays > 0 ? $startsAt->copy()->addDays($validDays) : null,
+            'starts_at' => $userMembership->starts_at ?? now(),
+            'expires_at' => $userMembership->activated_at ? $userMembership->expires_at : null,
         ]);
 
         return back()->with('success', 'Pembayaran membership berhasil dikonfirmasi.');

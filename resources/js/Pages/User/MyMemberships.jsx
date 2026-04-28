@@ -166,7 +166,7 @@ export default function MyMemberships({ memberships = [], filters = {} }) {
                                         </p>
                                         <p className="inline-flex items-center gap-2">
                                             <IconClockHour4 size={16} />
-                                            Expire: {item.expires_at ? formatDate(item.expires_at) : "Tidak ada"}
+                                            Membership Aktif Hingga: {item.activated_at && item.expires_at ? formatDate(item.expires_at) : "Belum Teraktivasi"}
                                         </p>
                                     </div>
 
