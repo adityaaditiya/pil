@@ -335,7 +335,7 @@ function Menu() {
                     permissions: hasAnyPermission(["profits-access"]),
                 },
                 {
-                    title: "Laporan Booking",
+                    title: "Laporan Booking Schedule",
                     href: route("reports.booking.index"),
                     active: url.startsWith("/dashboard/reports/booking"),
                     icon: <IconCalendarEvent size={20} strokeWidth={1.5} />,
