@@ -136,10 +136,10 @@ class CustomerController extends Controller
             'name'    => 'required|string|max:255',
             'no_telp' => 'required|string|unique:customers,no_telp',
             'address' => 'required|string',
-            'gender' => 'required|in:Laki-laki,Perempuan',
-            'date_of_birth' => 'required|date|before:today',
+            'gender' => 'nullable|in:Laki-laki,Perempuan',
+            'date_of_birth' => 'nullable|date|before:today',
             'photo' => 'nullable|image|max:2048',
-            'credit'  => 'required|numeric|min:0',
+            'credit'  => 'nullable|numeric|min:0',
             'email'   => 'required|email|unique:users,email',
             'password'=> 'required|string|min:8|confirmed',
         ]);
@@ -171,10 +171,10 @@ class CustomerController extends Controller
                     'name'     => $validated['name'],
                     'no_telp'  => $validated['no_telp'],
                     'address'  => $validated['address'],
-                    'gender' => $validated['gender'],
-                    'date_of_birth' => $validated['date_of_birth'],
+                    'gender' => $validated['gender'] ?? null,
+                    'date_of_birth' => $validated['date_of_birth'] ?? null,
                     'photo' => $photoPath,
-                    'credit'   => $validated['credit'],
+                    'credit'   => $validated['credit'] ?? 0,
                 ]);
             });
 
