@@ -155,10 +155,10 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
 
                     {/* Info Trainer & Catatan */}
                     <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 dark:border-slate-800">
-                        <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                        {/* <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                             <IconUserCheck size={18} className="text-slate-400" />
                             <span>Trainer: <span className="font-bold text-slate-900 dark:text-white">{appointment.trainers?.join(", ") || "TBA"}</span></span>
-                        </div>
+                        </div> */}
 
                         {appointment.admin_notes && (
                             <div className="flex items-start gap-2 rounded-xl bg-amber-50/50 p-3 text-xs italic text-amber-700 dark:bg-amber-900/10 dark:text-amber-400">
@@ -280,9 +280,9 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                             <p className="text-slate-500">
                                 {participantAppointment.start_at_label} - {participantAppointment.end_at_label} WIB
                             </p>
-                            <p className="mt-1 text-slate-500">
+                            {/* <p className="mt-1 text-slate-500">
                                 Total booking confirmed: <span className="font-semibold text-slate-800 dark:text-slate-100">{participantAppointment.participants?.length || 0}</span>
-                            </p>
+                            </p> */}
                         </div>
 
                         {(participantAppointment.participants?.length || 0) > 0 ? (

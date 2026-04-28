@@ -49,8 +49,8 @@ class StudioTransactionReportController extends Controller
 
         return Inertia::render('Dashboard/Reports/StudioTransactionReport', [
             'report' => [
-                'title' => 'Laporan Booking',
-                'description' => 'Laporan transaksi booking',
+                'title' => 'Laporan Booking Schedule',
+                'description' => 'Laporan transaksi booking schedule',
                 'route' => 'reports.booking.index',
             ],
             'filters' => $filters,

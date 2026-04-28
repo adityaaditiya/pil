@@ -326,9 +326,9 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                             <p className="text-slate-500">
                                 {participantSession.start_at_label} - {participantSession.end_at_label} WIB
                             </p>
-                            <p className="mt-1 text-slate-500">
+                            {/* <p className="mt-1 text-slate-500">
                                 Total booking confirmed: <span className="font-semibold text-slate-800 dark:text-slate-100">{participantSession.participants?.length || 0}</span>
-                            </p>
+                            </p> */}
                         </div>
 
                         {(participantSession.participants?.length || 0) > 0 ? (
