@@ -291,9 +291,12 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                 {participantAppointment.participants.map((participant, index) => (
                                     <div key={participant.id} className="rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
                                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                            <p className="font-semibold text-slate-900 dark:text-white">
-                                                {index + 1}. {participant.name}
-                                            </p>
+                                            <div>
+                                                <p className="font-semibold text-slate-900 dark:text-white">
+                                                    {index + 1}. {participant.name}
+                                                </p>
+                                                <p className="text-sm text-slate-500">No. Invoice: {participant.invoice || "-"}</p>
+                                            </div>
                                             {participant.customer_id ? (
                                                 <Link
                                                     href={route("customers.questionnaire.edit", participant.customer_id)}
