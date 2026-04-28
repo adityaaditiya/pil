@@ -262,9 +262,10 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                         <button
                             type="button"
                             onClick={() => router.get(route("appointments.booking.create", selectedAppointment.id))}
-                            className="w-full rounded-2xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
+                            disabled={Boolean(selectedAppointment.has_confirmed_booking)}
+                            className={`w-full rounded-2xl px-4 py-3 text-sm font-semibold text-white transition ${selectedAppointment.has_confirmed_booking ? "cursor-not-allowed bg-slate-400" : "bg-primary-600 hover:bg-primary-700"}`}
                         >
-                            Book Now
+                            {selectedAppointment.has_confirmed_booking ? "Sudah Ada Transaksi Confirmed" : "Book Now"}
                         </button>
                     </div>
                 )}

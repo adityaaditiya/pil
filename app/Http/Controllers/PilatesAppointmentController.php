@@ -86,6 +86,7 @@ class PilatesAppointmentController extends Controller
                         'customer_id' => $booking->customer_id,
                         'attendance_status' => $booking->attendance_status ?? 'pending',
                     ])->values(),
+                    'has_confirmed_booking' => $appointment->bookings->isNotEmpty(),
                 ];
             })
             ->values();
@@ -420,8 +421,21 @@ class PilatesAppointmentController extends Controller
             ->with('success', 'Appointment berhasil dihapus.');
     }
 
-    public function createBooking(PilatesAppointment $appointment): Response
+    public function createBooking(PilatesAppointment $appointment): Response|RedirectResponse
     {
+        $hasConfirmedBooking = AppointmentBooking::query()
+            ->where('appointment_id', $appointment->id)
+            ->where('status', 'confirmed')
+            ->exists();
+
+        if ($hasConfirmedBooking) {
+            $appointmentDate = $appointment->start_at?->timezone('Asia/Jakarta')->toDateString() ?? now('Asia/Jakarta')->toDateString();
+
+            return redirect()
+                ->route('appointments.index', ['start_date' => $appointmentDate, 'end_date' => $appointmentDate])
+                ->with('error', 'Transaksi tidak dapat diinput karena sudah ada booking confirmed pada appointment ini.');
+        }
+
         $customers = Customer::query()
             ->select('id', 'user_id', 'name', 'no_telp', 'address', 'credit')
             ->latest()
@@ -489,6 +503,17 @@ class PilatesAppointmentController extends Controller
         if (! $appointmentTrainerIds->contains((int) $validated['trainer_id'])) {
             throw ValidationException::withMessages([
                 'trainer_id' => 'Trainer yang dipilih tidak tersedia untuk appointment ini.',
+            ]);
+        }
+
+        $hasConfirmedBooking = AppointmentBooking::query()
+            ->where('appointment_id', $appointment->id)
+            ->where('status', 'confirmed')
+            ->exists();
+
+        if ($hasConfirmedBooking) {
+            throw ValidationException::withMessages([
+                'customer_id' => 'Transaksi tidak dapat diinput karena sudah ada booking confirmed pada appointment ini.',
             ]);
         }
 
