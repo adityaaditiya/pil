@@ -71,12 +71,17 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
         );
     };
 
-    const handleDelete = (sessionId) => {
+    const handleDelete = (session) => {
+        if (Number(session.confirmed_bookings_count || 0) > 0) {
+            toast.error("Sesi tidak dapat dihapus karena sudah memiliki booking pelanggan berstatus confirmed.");
+            return;
+        }
+
         if (!window.confirm("Yakin ingin menghapus session ini?")) {
             return;
         }
 
-        router.delete(route("timetable.destroy", sessionId), {
+        router.delete(route("timetable.destroy", session.id), {
             data: { start_date: startDate, end_date: endDate },
             preserveScroll: true,
         });
@@ -131,6 +136,7 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
     <section className="grid gap-6 lg:grid-cols-2">
         {sessions.map((session) => {
             const disabled = session.status !== "scheduled" || session.remaining_slots <= 0;
+            const hasConfirmedBooking = Number(session.confirmed_bookings_count || 0) > 0;
             
             // Asumsi: session.start_at adalah format tanggal yang valid (ISO string atau Date)
             // Jika tidak ada, kamu bisa menyesuaikan pengambilan tanggalnya
@@ -257,9 +263,14 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                 </Link>
                                 <button
                                     type="button"
-                                    onClick={() => handleDelete(session.id)}
-                                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-rose-100 text-rose-500 transition hover:bg-rose-50 dark:border-rose-900/30"
-                                    title="Hapus Sesi"
+                                    onClick={() => handleDelete(session)}
+                                    disabled={hasConfirmedBooking}
+                                    className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border transition dark:border-rose-900/30 ${
+                                        hasConfirmedBooking
+                                            ? "cursor-not-allowed border-slate-200 text-slate-300"
+                                            : "border-rose-100 text-rose-500 hover:bg-rose-50"
+                                    }`}
+                                    title={hasConfirmedBooking ? "Tidak dapat dihapus karena ada booking confirmed" : "Hapus Sesi"}
                                 >
                                     <IconTrash size={18} />
                                 </button>

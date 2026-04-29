@@ -414,7 +414,19 @@ class PilatesAppointmentController extends Controller
 
     public function destroy(PilatesAppointment $appointment): RedirectResponse
     {
+        $hasConfirmedBooking = AppointmentBooking::query()
+            ->where('appointment_id', $appointment->id)
+            ->where('status', 'confirmed')
+            ->exists();
+
         $date = $appointment->start_at?->timezone('Asia/Jakarta')->toDateString();
+
+        if ($hasConfirmedBooking) {
+            return redirect()
+                ->route('appointments.index', ['start_date' => $date, 'end_date' => $date])
+                ->with('error', 'Appointment tidak dapat dihapus karena sudah memiliki booking pelanggan dengan status confirmed.');
+        }
+
         $appointment->delete();
 
         return redirect()
