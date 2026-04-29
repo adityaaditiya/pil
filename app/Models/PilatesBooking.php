@@ -28,6 +28,9 @@ class PilatesBooking extends Model
         'credit_used',
         'expired_at',
         'cashier_id',
+        'canceled_at',
+        'cancellation_note',
+        'canceled_by_email',
     ];
 
     protected $casts = [
@@ -36,6 +39,7 @@ class PilatesBooking extends Model
         'price_amount' => 'decimal:2',
         'credit_used' => 'decimal:2',
         'expired_at' => 'datetime',
+        'canceled_at' => 'datetime',
     ];
 
     protected static function booted(): void
