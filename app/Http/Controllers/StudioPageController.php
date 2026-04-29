@@ -1010,7 +1010,7 @@ class StudioPageController extends Controller
                     'participants' => $participants,
                     'user_membership_id' => $selectedMembership?->id,
                     'membership_plan_id' => $selectedMembership?->membership_plan_id,
-                    'status' => $paymentType === 'drop_in' ? 'pending_payment' : 'confirmed',
+                    'status' => $paymentType === 'drop_in' ? 'pending' : 'confirmed',
                     'booked_at' => now(),
                     'payment_type' => $paymentType,
                     'payment_method' => $paymentMethod,
