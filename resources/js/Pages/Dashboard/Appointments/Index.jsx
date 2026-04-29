@@ -295,22 +295,14 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                         {(participantAppointment.participants?.length || 0) > 0 ? (
                             <div className="space-y-3">
                                 {participantAppointment.participants.map((participant, index) => (
-                                    <div key={participant.id} className={`rounded-2xl border p-4 ${participant.status === "pending" ? "border-amber-300 bg-amber-50" : "border-slate-200 dark:border-slate-700"}`}>
+                                    <div key={participant.id} className="rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
                                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                             <div>
                                                 <p className="font-semibold text-slate-900 dark:text-white">
                                                     {index + 1}. {participant.name}
                                                 </p>
                                                 <p className="text-sm text-slate-500">No. Invoice: {participant.invoice || "-"}</p>
-                                                <p className="text-sm text-slate-500">Status: <span className="font-semibold capitalize">{participant.status || "-"}</span></p>
                                             </div>
-
-                                            {participant.status === "pending" && (
-                                                <div className="mt-3 flex flex-wrap gap-2">
-                                                    <button type="button" onClick={() => router.get(route("appointments.booking.create", participantAppointment.id), { customer_id: participant.customer_id, booking_id: participant.id })} className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white">Konfirmasi Bayar</button>
-                                                    <button type="button" onClick={() => router.delete(route("appointments.cancel", participant.id), { preserveScroll: true })} className="rounded-lg bg-rose-500 px-3 py-1.5 text-xs font-semibold text-white">Batal Transaksi</button>
-                                                </div>
-                                            )}
                                             {participant.customer_id ? (
                                                 <Link
                                                     href={route("customers.questionnaire.edit", participant.customer_id)}
