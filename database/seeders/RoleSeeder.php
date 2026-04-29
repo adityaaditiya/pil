@@ -43,7 +43,6 @@ class RoleSeeder extends Seeder
         'bookings-history-access',
         'membership-plans-access',
         'memberships-access',
-        'my-memberships-access',
         'memberships-history-access',
         'questions-access',
         'reports-access',

@@ -90,7 +90,7 @@ class SampleDataSeeder extends Seeder
         $customers = collect([
             ['name' => 'Non Member', 'no_telp' => '6281111111111', 'address' => '-'],
             ['name' => 'Dina', 'no_telp' => '6281312345678', 'address' => 'Jl. Mawar No. 5, Kota Tegal'],
-            ['name' => 'Mey', 'no_telp' => '6281512340000', 'address' => 'Jl. Anggrek No. 17, Kota Tegal'],
+            ['name' => 'May', 'no_telp' => '6281512340000', 'address' => 'Jl. Anggrek No. 17, Kota Tegal'],
             ['name' => 'Putri', 'no_telp' => '6285612349911', 'address' => 'Jl. Kenanga No. 2, Kota Tegal'],
             ['name' => 'Indria', 'no_telp' => '6287712348822', 'address' => 'Jl. Cemara No. 45, Kota Tegal'],
             ['name' => 'Fitri Lestari', 'no_telp' => '6282213345566', 'address' => 'Jl. Sakura No. 7, Kota Tegal'],
