@@ -85,7 +85,27 @@ class PilatesBookingHistoryController extends Controller
             ->get()
             ->groupBy('booking_id');
 
-        $bookings->setCollection($bookingCollection->map(function (PilatesBooking $booking) use ($targetMap, $logs) {
+        $sessionIds = $logs
+            ->flatten()
+            ->flatMap(fn (RescheduleLog $log) => [(int) $log->from_session_id, (int) $log->to_session_id])
+            ->filter()
+            ->unique()
+            ->values();
+
+        $sessionMap = PilatesTimetable::query()
+            ->with('pilatesClass:id,name')
+            ->whereIn('id', $sessionIds)
+            ->get(['id', 'pilates_class_id', 'start_at'])
+            ->mapWithKeys(function (PilatesTimetable $session) {
+                return [
+                    $session->id => trim(
+                        ($session->pilatesClass?->name ? $session->pilatesClass->name . ' - ' : '') .
+                        ($session->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-')
+                    ),
+                ];
+            });
+
+        $bookings->setCollection($bookingCollection->map(function (PilatesBooking $booking) use ($targetMap, $logs, $sessionMap) {
             $sessionTargets = collect($targetMap->get($booking->timetable?->pilates_class_id, []))
                 ->filter(fn (array $target) => (int) $target['id'] !== (int) $booking->timetable_id)
                 ->values();
@@ -111,9 +131,8 @@ class PilatesBookingHistoryController extends Controller
                 'reschedule_targets' => $sessionTargets,
                 'reschedule_logs' => collect($logs->get($booking->id, []))->map(function (RescheduleLog $log) {
                     return [
-                        'id' => $log->id,
-                        'from_session_id' => $log->from_session_id,
-                        'to_session_id' => $log->to_session_id,
+                        'from_session' => $sessionMap->get((int) $log->from_session_id, '-'),
+                        'to_session' => $sessionMap->get((int) $log->to_session_id, '-'),
                         'moved_by' => $log->movedBy?->name,
                         'moved_at' => $log->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
                     ];

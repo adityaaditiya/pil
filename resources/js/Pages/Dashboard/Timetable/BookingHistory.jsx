@@ -249,7 +249,7 @@ export default function BookingHistory({ bookings, filters = {} }) {
         }
 
         const rows = logs
-            .map((log) => `<tr><td class="px-2 py-1 border">${log.moved_at || "-"}</td><td class="px-2 py-1 border">${log.from_session_id}</td><td class="px-2 py-1 border">${log.to_session_id}</td><td class="px-2 py-1 border">${log.moved_by || "-"}</td></tr>`)
+            .map((log) => `<tr><td class="px-2 py-1 border">${log.moved_at || "-"}</td><td class="px-2 py-1 border">${log.from_session || "-"}</td><td class="px-2 py-1 border">${log.to_session || "-"}</td><td class="px-2 py-1 border">${log.moved_by || "-"}</td></tr>`)
             .join("");
 
         Swal.fire({
