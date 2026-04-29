@@ -147,7 +147,7 @@ class StudioPageController extends Controller
                     ->get(['id', 'name', 'credits', 'price', 'valid_days', 'description'])
                 : [],
             'trainers' => in_array($normalizedKey, ['trainers', 'appointment'], true)
-                ? Trainer::query()->forTrainerRole()->with('user.customer')->latest()->get(['id', 'user_id', 'expertise', 'biodata'])
+                ? Trainer::query()->forTrainerRole()->with('user.customer')->latest()->get(['id', 'user_id', 'expertise', 'workshop', 'courses', 'biodata'])
                 : [],
             'paymentGateways' => $normalizedKey === 'appointment' ? $paymentGateways : [],
             'appointmentClasses' => $normalizedKey === 'appointment'

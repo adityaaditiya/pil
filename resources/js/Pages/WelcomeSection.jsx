@@ -2032,6 +2032,14 @@ useEffect(() => {
                                     <br />
                                     {trainer.biodata || "Biodata trainer belum diisi."}
                                 </p>
+                                <div className="space-y-1 pt-2 text-sm text-wellness-muted">
+                                    <p className="font-semibold text-slate-800">Workshop</p>
+                                    <p className="whitespace-pre-line">{trainer.workshop || "Data workshop trainer belum diisi."}</p>
+                                </div>
+                                <div className="space-y-1 pt-2 text-sm text-wellness-muted">
+                                    <p className="font-semibold text-slate-800">Courses</p>
+                                    <p className="whitespace-pre-line">{trainer.courses || "Data courses trainer belum diisi."}</p>
+                                </div>
                             </div>
                         </article>
                     ))}

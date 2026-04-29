@@ -14,6 +14,8 @@ class Trainer extends Model
     protected $fillable = [
         'user_id',
         'expertise',
+        'workshop',
+        'courses',
         'biodata',
     ];
 
