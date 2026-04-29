@@ -340,7 +340,7 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                         {(participantSession.participants?.length || 0) > 0 ? (
                             <div className="space-y-3">
                                 {participantSession.participants.map((participant, index) => (
-                                    <div key={participant.id} className="rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
+                                    <div key={participant.id} className={`rounded-2xl border p-4 dark:border-slate-700 ${participant.status === "pending" ? "border-amber-300 bg-amber-50" : "border-slate-200"}`}>
                                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                             <div>
                                                 <p className="font-semibold text-slate-900 dark:text-white">
@@ -364,6 +364,14 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                         </div>
 
                                         <div className="mt-3 flex flex-wrap gap-2">
+                                            {participant.status === "pending" && (
+                                                <Link
+                                                    href={route("bookings.create", { timetable_id: participantSession.id })}
+                                                    className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600"
+                                                >
+                                                    Konfirmasi Bayar
+                                                </Link>
+                                            )}
                                             {[
                                                 { label: "Belum Absen", value: "pending" },
                                                 { label: "Hadir", value: "present" },

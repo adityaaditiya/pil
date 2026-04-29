@@ -23,6 +23,7 @@ export default function Booking({ session, customers = [], paymentGateways = [],
         payment_type: allowDropIn ? "drop_in" : "credit",
         payment_method: allowDropIn ? "cash" : "credits",
         user_membership_id: "",
+        mark_as_paid: true,
     });
 
     const pricePerClass = Number(session?.price || 0);
@@ -96,6 +97,17 @@ export default function Booking({ session, customers = [], paymentGateways = [],
                         </div>
 
                         <div>
+                            <label className="mb-2 flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
+                                <span className="text-sm font-medium">Tandai Sudah Bayar</span>
+                                <input
+                                    type="checkbox"
+                                    checked={Boolean(data.mark_as_paid)}
+                                    onChange={(e) => setData("mark_as_paid", e.target.checked)}
+                                />
+                            </label>
+                        </div>
+
+                        <div>
                             <p className="mb-2 text-sm font-medium">Pembayaran</p>
                             <div className="space-y-2">
                                 <label className="flex items-start gap-3 rounded-xl border p-3">
@@ -135,7 +147,7 @@ export default function Booking({ session, customers = [], paymentGateways = [],
                                             />
                                             <p className="text-sm font-semibold">Drop-in</p>
                                         </div>
-                                        {data.payment_type === "drop_in" && (
+                                        {data.payment_type === "drop_in" && Boolean(data.mark_as_paid) && (
                                             <select
                                                 value={data.payment_method}
                                                 onChange={(e) => setData("payment_method", e.target.value)}
@@ -179,7 +191,7 @@ export default function Booking({ session, customers = [], paymentGateways = [],
                                     </div>
                                 </div>
 
-                                {data.payment_method === "cash" && (
+                                {data.payment_method === "cash" && Boolean(data.mark_as_paid) && (
                                     <div>
                                         <label className="mb-2 block text-xs font-medium text-slate-600">Jumlah Bayar (Rp)</label>
                                         <div className="relative">
