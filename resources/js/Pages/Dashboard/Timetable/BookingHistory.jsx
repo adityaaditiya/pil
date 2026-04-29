@@ -479,6 +479,9 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                                         Pembayaran
                                     </th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Kasir
+                                    </th>
                                     <th className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
                                         Nominal
                                     </th>

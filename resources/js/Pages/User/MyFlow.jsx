@@ -223,7 +223,7 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
 
                     {sessions.length === 0 ? (
                         <div className="rounded-3xl border border-primary-100 bg-white p-8 text-center shadow-sm">
-                            <p className="font-semibold text-slate-700">Belum ada jadwal hari ini.</p>
+                            <p className="font-semibold text-slate-700">Belum ada jadwal.</p>
                         </div>
                     ) : (
                         <div className="grid gap-5">

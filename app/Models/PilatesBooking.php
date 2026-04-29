@@ -27,6 +27,7 @@ class PilatesBooking extends Model
         'price_amount',
         'credit_used',
         'expired_at',
+        'cashier_id',
     ];
 
     protected $casts = [
