@@ -10,7 +10,7 @@ const statuses = [
 ];
 
 const hourOptions = Array.from({ length: 17 }, (_, i) => String(i + 6).padStart(2, "0"));
-const minuteOptions = Array.from({ length: 7 }, (_, index) => String(index * 10).padStart(2, "0"));
+const minuteOptions = Array.from({ length: 7 }, (_, index) => String(index * 5).padStart(2, "0"));
 const createEmptySlot = () => ({ start_hour: "06", start_minute: "00", end_hour: "07", end_minute: "00" });
 const buildInitialSchedules = (weekdayOptions, schedules = {}) => weekdayOptions.reduce((carry, day) => {
     const existing = schedules[day.value];
