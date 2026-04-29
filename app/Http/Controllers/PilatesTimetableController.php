@@ -340,21 +340,10 @@ class PilatesTimetableController extends Controller
                 ->get()
                 ->values();
 
-            $sessionsToUpdateIds = $sessionsToUpdate->pluck('id')->all();
-            $hasLockedSession = $this->hasConfirmedBookings($sessionsToUpdateIds);
+            $this->assertSessionsEditable($sessionsToUpdate->pluck('id')->all());
 
-            if ($hasLockedSession) {
-                $this->ensureOnlyTrainerChangedForFollowing($validated, $sessionsToUpdate, $pilatesClass);
-            }
-
-            $occurrences = $hasLockedSession
-                ? $sessionsToUpdate->map(fn (PilatesTimetable $item) => [
-                    'start_at' => $item->start_at?->clone()->timezone('Asia/Jakarta'),
-                    'end_at' => $item->start_at?->clone()->timezone('Asia/Jakarta')->addMinutes((int) $item->duration_minutes),
-                    'duration_minutes' => (int) $item->duration_minutes,
-                ])->values()
-                : $this->buildOccurrences($validated, (int) ($validated['duration_minutes'] ?: $pilatesClass->duration));
-            $this->assertNoConflicts($occurrences, (int) $validated['trainer_id'], $sessionsToUpdateIds);
+            $occurrences = $this->buildOccurrences($validated, (int) ($validated['duration_minutes'] ?: $pilatesClass->duration));
+            $this->assertNoConflicts($occurrences, (int) $validated['trainer_id'], $sessionsToUpdate->pluck('id')->all());
 
             DB::transaction(function () use ($validated, $occurrences, $sessionsToUpdate, $timetable) {
                 $existingSessions = $sessionsToUpdate->values();
@@ -404,12 +393,9 @@ class PilatesTimetableController extends Controller
 
             $date = $occurrences->first()['start_at']->toDateString();
         } else {
-            if ($this->hasConfirmedBookings([$timetable->id])) {
-                $this->ensureOnlyTrainerChangedForSingle($validated, $timetable, $pilatesClass);
-                $startAt = $timetable->start_at?->clone()->timezone('Asia/Jakarta');
-            } else {
-                $startAt = Carbon::parse($validated['start_at'], 'Asia/Jakarta');
-            }
+            $this->assertSessionsEditable([$timetable->id]);
+
+            $startAt = Carbon::parse($validated['start_at'], 'Asia/Jakarta');
             $endAt = $startAt->copy()->addMinutes((int) ($validated['duration_minutes'] ?: $pilatesClass->duration));
 
             $occurrences = collect([[
@@ -443,11 +429,7 @@ class PilatesTimetableController extends Controller
 
     public function destroy(PilatesTimetable $timetable): RedirectResponse
     {
-        if ($this->hasConfirmedBookings([$timetable->id])) {
-            throw ValidationException::withMessages([
-                'delete' => 'Session tidak dapat dihapus karena sudah memiliki data booking pelanggan.',
-            ]);
-        }
+        $this->assertSessionsEditable([$timetable->id]);
 
         $date = $timetable->start_at?->timezone('Asia/Jakarta')->toDateString();
         $timetable->delete();
@@ -710,57 +692,17 @@ class PilatesTimetableController extends Controller
         }
     }
 
-    private function hasConfirmedBookings(array $sessionIds): bool
+    private function assertSessionsEditable(array $sessionIds): void
     {
-        return PilatesBooking::query()
+        $hasBooking = PilatesBooking::query()
             ->whereIn('timetable_id', $sessionIds)
             ->where('status', 'confirmed')
             ->exists();
-    }
 
-    private function ensureOnlyTrainerChangedForSingle(array $validated, PilatesTimetable $timetable, PilatesClass $pilatesClass): void
-    {
-        $expectedDuration = (int) ($validated['duration_minutes'] ?: $pilatesClass->duration);
-
-        $isUnchanged = (int) $validated['pilates_class_id'] === (int) $timetable->pilates_class_id
-            && (int) $validated['capacity'] === (int) $timetable->capacity
-            && $expectedDuration === (int) $timetable->duration_minutes
-            && (float) ($validated['credit_override'] ?? 0) === (float) ($timetable->credit_override ?? 0)
-            && (float) ($validated['price_override'] ?? 0) === (float) ($timetable->price_override ?? 0)
-            && (bool) $validated['allow_drop_in'] === (bool) $timetable->allow_drop_in
-            && (string) $validated['status'] === (string) $timetable->status
-            && (string) ($validated['admin_notes'] ?? '') === (string) ($timetable->admin_notes ?? '')
-            && Carbon::parse($validated['start_at'], 'Asia/Jakarta')->equalTo($timetable->start_at?->clone()->timezone('Asia/Jakarta'));
-
-        if (! $isUnchanged) {
+        if ($hasBooking) {
             throw ValidationException::withMessages([
-                'update_scope' => 'Session dengan booking pelanggan hanya bisa ubah trainer.',
-            ]);
-        }
-    }
-
-    private function ensureOnlyTrainerChangedForFollowing(array $validated, Collection $sessionsToUpdate, PilatesClass $pilatesClass): void
-    {
-        $first = $sessionsToUpdate->first();
-        if (! $first) {
-            return;
-        }
-
-        $expectedDuration = (int) ($validated['duration_minutes'] ?: $pilatesClass->duration);
-        $isUnchanged = (int) $validated['pilates_class_id'] === (int) $first->pilates_class_id
-            && (int) $validated['capacity'] === (int) $first->capacity
-            && $expectedDuration === (int) $first->duration_minutes
-            && (float) ($validated['credit_override'] ?? 0) === (float) ($first->credit_override ?? 0)
-            && (float) ($validated['price_override'] ?? 0) === (float) ($first->price_override ?? 0)
-            && (bool) $validated['allow_drop_in'] === (bool) $first->allow_drop_in
-            && (string) $validated['status'] === (string) $first->status
-            && (string) ($validated['admin_notes'] ?? '') === (string) ($first->admin_notes ?? '');
-
-        if (! $isUnchanged) {
-            throw ValidationException::withMessages([
-                'update_scope' => 'Session dengan booking pelanggan hanya bisa ubah trainer.',
+                'update_scope' => 'Session tidak dapat diubah karena sudah memiliki data booking pelanggan.',
             ]);
         }
     }
 }
-

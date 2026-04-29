@@ -309,20 +309,7 @@ class PilatesAppointmentController extends Controller
                 ->get()
                 ->values();
 
-            $appointmentsToUpdateIds = $appointmentsToUpdate->pluck('id')->all();
-            $hasLockedAppointment = $this->hasActiveBookings($appointmentsToUpdateIds);
-
-            if ($hasLockedAppointment) {
-                $this->ensureOnlyTrainerChangedForFollowing($validated, $appointmentsToUpdate);
-            }
-
-            $occurrences = $hasLockedAppointment
-                ? $appointmentsToUpdate->map(fn (PilatesAppointment $item) => [
-                    'start_at' => $item->start_at?->clone()->timezone('Asia/Jakarta'),
-                    'end_at' => $item->end_at?->clone()->timezone('Asia/Jakarta'),
-                    'duration_minutes' => (int) $item->duration_minutes,
-                ])->values()
-                : $this->buildOccurrences($validated);
+            $occurrences = $this->buildOccurrences($validated);
 
             if ($occurrences->isEmpty()) {
                 throw ValidationException::withMessages([
@@ -330,7 +317,7 @@ class PilatesAppointmentController extends Controller
                 ]);
             }
 
-            $this->assertNoConflicts($occurrences, $validated['trainer_ids'], $appointmentsToUpdateIds);
+            $this->assertNoConflicts($occurrences, $validated['trainer_ids'], $appointmentsToUpdate->pluck('id')->all());
 
             DB::transaction(function () use ($appointment, $appointmentsToUpdate, $occurrences, $validated) {
                 $parentId = $appointment->parent_id ?: $appointment->id;
@@ -394,13 +381,7 @@ class PilatesAppointmentController extends Controller
 
             $date = $occurrences->first()['start_at']->toDateString();
         } else {
-            if ($this->hasActiveBookings([$appointment->id])) {
-                $this->ensureOnlyTrainerChangedForSingle($validated, $appointment);
-                $startAt = $appointment->start_at?->clone()->timezone('Asia/Jakarta');
-                $endAt = $appointment->end_at?->clone()->timezone('Asia/Jakarta');
-            } else {
-                $endAt = $startAt->copy()->addMinutes((int) $validated['duration_minutes']);
-            }
+            $endAt = $startAt->copy()->addMinutes((int) $validated['duration_minutes']);
             $occurrences = collect([[
                 'start_at' => $startAt,
                 'end_at' => $endAt,
@@ -433,12 +414,6 @@ class PilatesAppointmentController extends Controller
 
     public function destroy(PilatesAppointment $appointment): RedirectResponse
     {
-        if ($this->hasActiveBookings([$appointment->id])) {
-            throw ValidationException::withMessages([
-                'delete' => 'Appointment tidak dapat dihapus karena sudah memiliki data booking pelanggan.',
-            ]);
-        }
-
         $date = $appointment->start_at?->timezone('Asia/Jakarta')->toDateString();
         $appointment->delete();
 
@@ -927,48 +902,4 @@ class PilatesAppointmentController extends Controller
             }
         }
     }
-
-    private function hasActiveBookings(array $appointmentIds): bool
-    {
-        return AppointmentBooking::query()
-            ->whereIn('appointment_id', $appointmentIds)
-            ->whereNotIn('status', ['cancelled', 'expired'])
-            ->exists();
-    }
-
-    private function ensureOnlyTrainerChangedForSingle(array $validated, PilatesAppointment $appointment): void
-    {
-        $isUnchanged = (int) $validated['pilates_class_id'] === (int) $appointment->pilates_class_id
-            && $this->buildSessionName($this->normalizeSessionOptions($validated['session_options'])) === (string) ($appointment->session_name ?? '')
-            && (string) ($validated['admin_notes'] ?? '') === (string) ($appointment->admin_notes ?? '')
-            && (int) $validated['duration_minutes'] === (int) $appointment->duration_minutes
-            && Carbon::parse($validated['start_at'], 'Asia/Jakarta')->equalTo($appointment->start_at?->clone()->timezone('Asia/Jakarta'))
-            && $this->normalizeSessionOptions($validated['session_options']) === ($appointment->session_options ?? []);
-
-        if (! $isUnchanged) {
-            throw ValidationException::withMessages([
-                'update_scope' => 'Appointment dengan booking pelanggan hanya bisa ubah trainer.',
-            ]);
-        }
-    }
-
-    private function ensureOnlyTrainerChangedForFollowing(array $validated, Collection $appointments): void
-    {
-        $first = $appointments->first();
-        if (! $first) {
-            return;
-        }
-
-        $isUnchanged = (int) $validated['pilates_class_id'] === (int) $first->pilates_class_id
-            && (string) ($validated['admin_notes'] ?? '') === (string) ($first->admin_notes ?? '')
-            && (int) $validated['duration_minutes'] === (int) $first->duration_minutes
-            && $this->normalizeSessionOptions($validated['session_options']) === ($first->session_options ?? []);
-
-        if (! $isUnchanged) {
-            throw ValidationException::withMessages([
-                'update_scope' => 'Appointment dengan booking pelanggan hanya bisa ubah trainer.',
-            ]);
-        }
-    }
-
 }
