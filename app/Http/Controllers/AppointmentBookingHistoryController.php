@@ -26,7 +26,7 @@ class AppointmentBookingHistoryController extends Controller
             ->with([
                 'customer:id,name',
                 'appointment:id,pilates_class_id,start_at,end_at,session_name',
-                'appointment.pilatesClass:id,name',
+                'appointment.pilatesClass:id,name,class_category_id',
                 'trainer:id,user_id',
                 'cashier:id,name',
             ])
@@ -50,8 +50,8 @@ class AppointmentBookingHistoryController extends Controller
 
         $bookingCollection = $bookings->getCollection();
         $bookingIds = $bookingCollection->pluck('id')->all();
-        $classIds = $bookingCollection
-            ->pluck('appointment.pilates_class_id')
+        $categoryIds = $bookingCollection
+            ->pluck('appointment.pilatesClass.class_category_id')
             ->filter()
             ->unique()
             ->values()
@@ -60,11 +60,12 @@ class AppointmentBookingHistoryController extends Controller
         $todayStartUtc = now('Asia/Jakarta')->startOfDay()->timezone('UTC');
 
         $targetMap = PilatesAppointment::query()
-            ->whereIn('pilates_class_id', $classIds)
+            ->whereHas('pilatesClass', fn ($query) => $query->whereIn('class_category_id', $categoryIds))
             ->where('start_at', '>=', $todayStartUtc)
             ->withCount(['bookings as active_bookings_count' => fn ($query) => $query->where('status', 'confirmed')])
+            ->with('pilatesClass:id,class_category_id')
             ->get(['id', 'pilates_class_id', 'start_at', 'end_at', 'session_name'])
-            ->groupBy('pilates_class_id')
+            ->groupBy(fn (PilatesAppointment $appointment) => (int) ($appointment->pilatesClass?->class_category_id ?? 0))
             ->map(function ($appointments) {
                 return $appointments->map(function (PilatesAppointment $appointment) {
                     return [
@@ -110,7 +111,7 @@ class AppointmentBookingHistoryController extends Controller
             });
 
         $bookings->setCollection($bookingCollection->map(function (AppointmentBooking $booking) use ($targetMap, $logs, $sessionMap) {
-            $sessionTargets = collect($targetMap->get($booking->appointment?->pilates_class_id, []))
+            $sessionTargets = collect($targetMap->get((int) ($booking->appointment?->pilatesClass?->class_category_id ?? 0), []))
                 ->filter(fn (array $target) => (int) $target['id'] !== (int) $booking->appointment_id)
                 ->values();
 
@@ -169,7 +170,7 @@ class AppointmentBookingHistoryController extends Controller
             ->with([
                 'customer:id,name,no_telp,address',
                 'appointment:id,pilates_class_id,start_at,end_at,duration_minutes',
-                'appointment.pilatesClass:id,name',
+                'appointment.pilatesClass:id,name,class_category_id',
                 'trainer:id,user_id',
                 'cashier:id,name',
             ])
@@ -271,7 +272,7 @@ class AppointmentBookingHistoryController extends Controller
             ]);
         }
 
-        $booking->loadMissing('appointment:id,pilates_class_id,start_at');
+        $booking->loadMissing('appointment:id,pilates_class_id,start_at', 'appointment.pilatesClass:id,class_category_id');
 
         if (! $booking->appointment || $booking->appointment->start_at?->timezone('Asia/Jakarta')->lt(now('Asia/Jakarta')->startOfDay())) {
             return back()->withErrors([
@@ -280,12 +281,16 @@ class AppointmentBookingHistoryController extends Controller
         }
 
         $targetAppointment = PilatesAppointment::query()
+            ->with('pilatesClass:id,class_category_id')
             ->withCount(['bookings as active_bookings_count' => fn ($query) => $query->where('status', 'confirmed')])
             ->findOrFail($validated['target_session_id']);
 
-        if ((int) $targetAppointment->pilates_class_id !== (int) $booking->appointment->pilates_class_id) {
+        $currentCategoryId = (int) ($booking->appointment->pilatesClass?->class_category_id ?? 0);
+        $targetCategoryId = (int) ($targetAppointment->pilatesClass?->class_category_id ?? 0);
+
+        if ($currentCategoryId === 0 || $targetCategoryId === 0 || $currentCategoryId !== $targetCategoryId) {
             return back()->withErrors([
-                'message' => 'Reschedule hanya boleh ke jadwal dengan kelas yang sama.',
+                'message' => 'Reschedule hanya boleh ke jadwal dengan kategori kelas yang sama.',
             ]);
         }
 

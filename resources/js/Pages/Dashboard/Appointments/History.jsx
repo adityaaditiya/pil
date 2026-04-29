@@ -169,7 +169,7 @@ export default function History({ bookings, filters = {} }) {
         if (targets.length === 0) {
             Swal.fire({
                 title: "Jadwal tujuan tidak tersedia",
-                text: "Tidak ada jadwal appointment dengan kelas yang sama yang masih tersedia.",
+                text: "Tidak ada jadwal appointment dengan kategori kelas yang sama yang masih tersedia.",
                 icon: "info",
             });
 
@@ -198,7 +198,7 @@ export default function History({ bookings, filters = {} }) {
                 <div class="mt-4 text-left">
                     <label for="reschedule-target" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Pilih Jadwal Baru</label>
                     <select id="reschedule-target" class="swal2-input !mt-0 !h-12 !w-full !rounded-xl !border !border-slate-300 !bg-white !px-3 !text-sm !text-slate-700 !shadow-sm focus:!border-violet-500 focus:!ring-violet-200">
-                        <option value="">Pilih jadwal tujuan dengan kelas yang sama</option>
+                        <option value="">Pilih jadwal tujuan dengan kategori kelas yang sama</option>
                         ${options}
                     </select>
                 </div>
