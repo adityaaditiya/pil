@@ -191,7 +191,7 @@ export default function BookingHistory({ bookings, filters = {} }) {
         const options = targets
             .map(
                 (target) =>
-                    `<option value="${target.id}">${target.schedule_at} • ${target.class_name || currentClassName} • sisa ${target.remaining_slots} slot</option>`,
+                    `<option value="${target.id}">${target.schedule_at} • ${target.class_name || "-"} • sisa ${target.remaining_slots} slot</option>`,
             )
             .join("");
 

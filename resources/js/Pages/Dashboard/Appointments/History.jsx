@@ -182,7 +182,7 @@ export default function History({ bookings, filters = {} }) {
         const options = targets
             .map(
                 (target) =>
-                    `<option value="${target.id}">${target.schedule_at} • ${target.class_name || currentClassName} • ${target.session_name || "Sesi"}</option>`,
+                    `<option value="${target.id}">${target.schedule_at} • ${target.class_name || "-"} • ${target.session_name || "Sesi"}</option>`,
             )
             .join("");
 

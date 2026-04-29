@@ -63,14 +63,14 @@ class AppointmentBookingHistoryController extends Controller
             ->whereHas('pilatesClass', fn ($query) => $query->whereIn('class_category_id', $categoryIds))
             ->where('start_at', '>=', $todayStartUtc)
             ->withCount(['bookings as active_bookings_count' => fn ($query) => $query->where('status', 'confirmed')])
-            ->with('pilatesClass:id,class_category_id')
+            ->with('pilatesClass:id,name,class_category_id')
             ->get(['id', 'pilates_class_id', 'start_at', 'end_at', 'session_name'])
             ->groupBy(fn (PilatesAppointment $appointment) => (int) ($appointment->pilatesClass?->class_category_id ?? 0))
             ->map(function ($appointments) {
                 return $appointments->map(function (PilatesAppointment $appointment) {
                     return [
                         'id' => $appointment->id,
-                        'session_name' => $appointment->session_name,
+                        'class_name' => $appointment->pilatesClass?->name,
                         'schedule_at' => $appointment->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') . ' - ' . $appointment->end_at?->timezone('Asia/Jakarta')->format('H:i'),
                         'is_available' => ((int) $appointment->active_bookings_count) === 0,
                     ];

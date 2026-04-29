@@ -63,7 +63,7 @@ class PilatesBookingHistoryController extends Controller
             ->where('status', 'scheduled')
             ->where('start_at', '>=', $todayStartUtc)
             ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
-            ->with('pilatesClass:id,class_category_id')
+            ->with('pilatesClass:id,name,class_category_id')
             ->get(['id', 'pilates_class_id', 'start_at', 'capacity'])
             ->groupBy(fn (PilatesTimetable $session) => (int) ($session->pilatesClass?->class_category_id ?? 0))
             ->map(function ($sessions) {
@@ -72,6 +72,7 @@ class PilatesBookingHistoryController extends Controller
 
                     return [
                         'id' => $session->id,
+                        'class_name' => $session->pilatesClass?->name,
                         'schedule_at' => $session->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
                         'remaining_slots' => $remainingSlots,
                     ];
