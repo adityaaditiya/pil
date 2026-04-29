@@ -104,14 +104,14 @@ export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
                             </div>
 
                             <div className="rounded-3xl border border-primary-100 bg-white p-6 shadow-sm">
-                                <h2 className="text-xl font-semibold">Instructor</h2>
+                                <h2 className="text-xl font-semibold">Trainer</h2>
                                 <div className="mt-4 space-y-3">
                                     {(classItem.trainers || []).length === 0 && (
                                         <p className="text-sm text-wellness-muted">Belum ada trainer terdaftar untuk kelas ini.</p>
                                     )}
                                     {(classItem.trainers || []).map((trainer) => (
                                         <div key={trainer.id} className="rounded-2xl border border-slate-200 p-4">
-                                            <div className="inline-flex items-center gap-2 font-semibold"><IconUser size={16} /> {trainer.name} |
+                                            <div className="inline-flex items-center gap-2 font-semibold"><IconUser size={16} /> {trainer.name} ●
                                                 <p className="whitespace-pre-line text-sm text-wellness-muted">
                                                 {trainer.expertise || "Spesialisasi trainer belum diisi."}
                                                 </p>
@@ -119,7 +119,7 @@ export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
                                             
                                             {/* <p className="mt-2 text-sm text-wellness-muted">{trainer.gender || "-"}</p>
                                             <p className="mt-1 inline-flex items-start gap-2 text-sm text-wellness-muted"><IconMapPin size={14} className="mt-0.5" /> {trainer.address || "-"}</p> */}
-                                            <p className="mt-2 text-sm text-wellness-muted whitespace-pre-line">{trainer.biodata || "Biodata trainer belum diisi."}</p>
+                                            {/* <p className="mt-2 text-sm text-wellness-muted whitespace-pre-line">{trainer.biodata || "Biodata trainer belum diisi."}</p> */}
                                         </div>
                                     ))}
                                 </div>
