@@ -158,16 +158,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                         <p className="text-sm text-slate-500 dark:text-slate-400">{report.description}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                    {exportBaseRoute && (<>
-                        <a href={route(`${exportBaseRoute}.export-pdf`, filterData)} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
-                            <IconFileTypePdf size={18} />
-                            Export PDF
-                        </a>
-                        <a href={route(`${exportBaseRoute}.export`, filterData)} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white">
-                            <IconFileSpreadsheet size={18} />
-                            Export Excel
-                        </a>
-                    </>)}
+                    
                     <button
                         onClick={() => setShowFilters(!showFilters)}
                         className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
@@ -305,7 +296,18 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                         <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada transaksi sesuai filter.</p>
                     </div>
                 )}
-
+                <div className="flex justify-end gap-2 mt-4 px-4 pb-4">
+                    {exportBaseRoute && (<>
+                        <a href={route(`${exportBaseRoute}.export-pdf`, filterData)} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
+                            <IconFileTypePdf size={18} />
+                            Export PDF
+                        </a>
+                        <a href={route(`${exportBaseRoute}.export`, filterData)} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white">
+                            <IconFileSpreadsheet size={18} />
+                            Export Excel
+                        </a>
+                    </>)}
+                </div>
                 {paginationLinks.length > 3 && <Pagination links={paginationLinks} />}
             </div>
         </>
