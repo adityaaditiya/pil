@@ -341,7 +341,11 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/reports/sold-items/export', [SoldItemsReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.sold-items.export');
     Route::get('/reports/sold-items/export-pdf', [SoldItemsReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.sold-items.export-pdf');
     Route::get('/reports/booking', [StudioTransactionReportController::class, 'booking'])->middleware('permission:reports-access')->name('reports.booking.index');
+    Route::get('/reports/booking/export', [StudioTransactionReportController::class, 'bookingExport'])->middleware('permission:reports-access')->name('reports.booking.export');
+    Route::get('/reports/booking/export-pdf', [StudioTransactionReportController::class, 'bookingExportPdf'])->middleware('permission:reports-access')->name('reports.booking.export-pdf');
     Route::get('/reports/appointment', [StudioTransactionReportController::class, 'appointment'])->middleware('permission:reports-access')->name('reports.appointment.index');
+    Route::get('/reports/appointment/export', [StudioTransactionReportController::class, 'appointmentExport'])->middleware('permission:reports-access')->name('reports.appointment.export');
+    Route::get('/reports/appointment/export-pdf', [StudioTransactionReportController::class, 'appointmentExportPdf'])->middleware('permission:reports-access')->name('reports.appointment.export-pdf');
     Route::get('/reports/membership', [StudioTransactionReportController::class, 'membership'])->middleware('permission:reports-access')->name('reports.membership.index');
     Route::get('/reports/profits', [ProfitReportController::class, 'index'])->middleware('permission:profits-access')->name('reports.profits.index');
     Route::get('/reports/profits/export', [ProfitReportController::class, 'export'])->middleware('permission:profits-access')->name('reports.profits.export');
@@ -351,6 +355,8 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/reports/cash/export-pdf', [CashReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.cash.export-pdf');
     Route::get('/reports/authorizations', [AuthorizationReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.authorizations.index');
     Route::get('/reports/stock-mutations', [StockMutationReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.stock-mutations.index');
+    Route::get('/reports/stock-mutations/export', [StockMutationReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.stock-mutations.export');
+    Route::get('/reports/stock-mutations/export-pdf', [StockMutationReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.stock-mutations.export-pdf');
     Route::get('/reports/trainers', [TrainerReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.trainers.index');
     Route::get('/reports/trainers/export', [TrainerReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.trainers.export');
     Route::get('/reports/trainers/export-pdf', [TrainerReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.trainers.export-pdf');
