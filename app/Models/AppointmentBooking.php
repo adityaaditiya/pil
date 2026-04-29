@@ -28,11 +28,15 @@ class AppointmentBooking extends Model
         'status',
         'attendance_status',
         'cashier_id',
+        'canceled_at',
+        'cancellation_note',
+        'canceled_by_email',
     ];
 
     protected $casts = [
         'booked_at' => 'datetime',
         'expired_at' => 'datetime',
+        'canceled_at' => 'datetime',
         'price_amount' => 'decimal:2',
         'credit_used' => 'integer',
     ];

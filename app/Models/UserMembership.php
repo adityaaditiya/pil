@@ -25,6 +25,9 @@ class UserMembership extends Model
         'expired_at',
         'status',
         'cashier_id',
+        'canceled_at',
+        'cancellation_note',
+        'canceled_by_email',
     ];
 
     protected $casts = [
@@ -34,6 +37,7 @@ class UserMembership extends Model
         'activated_at' => 'datetime',
         'expires_at' => 'datetime',
         'expired_at' => 'datetime',
+        'canceled_at' => 'datetime',
     ];
 
     protected static function booted(): void
