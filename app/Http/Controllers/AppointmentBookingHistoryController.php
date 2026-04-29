@@ -28,6 +28,7 @@ class AppointmentBookingHistoryController extends Controller
                 'appointment:id,pilates_class_id,start_at,end_at,session_name',
                 'appointment.pilatesClass:id,name',
                 'trainer:id,user_id',
+                'cashier:id,name',
             ])
             ->latest('booked_at');
 
@@ -107,6 +108,7 @@ class AppointmentBookingHistoryController extends Controller
                     ? $booking->appointment->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') . ' - ' . $booking->appointment->end_at?->timezone('Asia/Jakarta')->format('H:i')
                     : '-',
                 'credit_used' => $booking->credit_used,
+                'cashier_name' => $booking->cashier?->name,
                 'reschedule_targets' => $sessionTargets,
                 'reschedule_logs' => collect($logs->get($booking->id, []))->map(function (RescheduleLog $log) {
                     return [
@@ -138,6 +140,7 @@ class AppointmentBookingHistoryController extends Controller
                 'appointment:id,pilates_class_id,start_at,end_at,duration_minutes',
                 'appointment.pilatesClass:id,name',
                 'trainer:id,user_id',
+                'cashier:id,name',
             ])
             ->where('invoice', $invoice)
             ->firstOrFail();
@@ -196,6 +199,7 @@ class AppointmentBookingHistoryController extends Controller
 
         $booking->update([
             'status' => 'confirmed',
+            'cashier_id' => auth()->id(),
         ]);
 
         return back()->with('success', 'Pembayaran appointment berhasil dikonfirmasi.');

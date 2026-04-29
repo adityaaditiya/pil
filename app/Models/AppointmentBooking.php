@@ -27,6 +27,7 @@ class AppointmentBooking extends Model
         'booked_at',
         'status',
         'attendance_status',
+        'cashier_id',
     ];
 
     protected $casts = [
@@ -72,5 +73,10 @@ class AppointmentBooking extends Model
     public function userMembership()
     {
         return $this->belongsTo(UserMembership::class);
+    }
+
+    public function cashier()
+    {
+        return $this->belongsTo(User::class, 'cashier_id');
     }
 }

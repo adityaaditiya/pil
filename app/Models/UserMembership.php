@@ -24,6 +24,7 @@ class UserMembership extends Model
         'payment_proof_image',
         'expired_at',
         'status',
+        'cashier_id',
     ];
 
     protected $casts = [
@@ -76,6 +77,11 @@ class UserMembership extends Model
     public function plan()
     {
         return $this->belongsTo(MembershipPlan::class, 'membership_plan_id');
+    }
+
+    public function cashier()
+    {
+        return $this->belongsTo(User::class, 'cashier_id');
     }
 
     public function activateIfNeeded(): void

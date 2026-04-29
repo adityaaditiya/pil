@@ -27,6 +27,7 @@ class PilatesBookingHistoryController extends Controller
                 'timetable:id,pilates_class_id,trainer_id,start_at',
                 'timetable.pilatesClass:id,name',
                 'timetable.trainer:id,user_id',
+                'cashier:id,name',
             ])
             ->latest('booked_at');
 
@@ -106,6 +107,7 @@ class PilatesBookingHistoryController extends Controller
                 'timetable_id' => $booking->timetable_id,
                 'trainer_name' => $booking->timetable?->trainer?->name,
                 'schedule_at' => $booking->timetable?->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
+                'cashier_name' => $booking->cashier?->name,
                 'reschedule_targets' => $sessionTargets,
                 'reschedule_logs' => collect($logs->get($booking->id, []))->map(function (RescheduleLog $log) {
                     return [
@@ -137,6 +139,7 @@ class PilatesBookingHistoryController extends Controller
                 'timetable:id,pilates_class_id,trainer_id,start_at,duration_minutes',
                 'timetable.pilatesClass:id,name,duration',
                 'timetable.trainer:id,user_id',
+                'cashier:id,name',
             ])
             ->where('invoice', $invoice)
             ->firstOrFail();
@@ -195,6 +198,7 @@ class PilatesBookingHistoryController extends Controller
 
         $booking->update([
             'status' => 'confirmed',
+            'cashier_id' => auth()->id(),
         ]);
 
         return back()->with('success', 'Pembayaran booking berhasil dikonfirmasi.');

@@ -111,6 +111,7 @@ class UserMembershipController extends Controller
             'activated_at' => null,
             'expires_at' => null,
             'status' => 'active',
+            'cashier_id' => auth()->id(),
         ]);
 
         return to_route('memberships.plans')->with('success', 'Membership berhasil diaktifkan.');

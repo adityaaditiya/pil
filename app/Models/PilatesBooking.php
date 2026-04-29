@@ -94,4 +94,9 @@ class PilatesBooking extends Model
     {
         return $this->belongsTo(MembershipPlan::class);
     }
+
+    public function cashier()
+    {
+        return $this->belongsTo(User::class, 'cashier_id');
+    }
 }

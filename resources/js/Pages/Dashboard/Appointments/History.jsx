@@ -441,6 +441,7 @@ export default function History({ bookings, filters = {} }) {
                                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Kelas & Trainer</th>
                                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Jadwal</th>
                                     <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Pembayaran</th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Kasir</th>
                                     <th className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Nominal</th>
                                     <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Credit</th>
                                     <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
@@ -472,6 +473,7 @@ export default function History({ bookings, filters = {} }) {
                                                 <p>{paymentTypeLabel[booking.payment_type] || "-"}</p>
                                                 <p className="text-xs text-slate-500">{booking.payment_method || "-"}</p>
                                             </td>
+                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300">{booking.cashier_name || "-"}</td>
                                             <td className="px-4 py-4 text-right text-sm font-semibold text-slate-800 dark:text-slate-200">
                                                 {formatCurrency(booking.price_amount || 0)}
                                             </td>
@@ -542,7 +544,7 @@ export default function History({ bookings, filters = {} }) {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={10} className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
+                                        <td colSpan={11} className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
                                             Belum ada data riwayat appointment.
                                         </td>
                                     </tr>

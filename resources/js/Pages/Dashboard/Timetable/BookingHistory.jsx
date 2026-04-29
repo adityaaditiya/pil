@@ -539,6 +539,7 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                                         "-"}
                                                 </p>
                                             </td>
+                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300">{booking.cashier_name || "-"}</td>
                                             <td className="px-4 py-4 text-right text-sm font-semibold text-slate-800 dark:text-slate-200">
                                                 {formatCurrency(
                                                     booking.price_amount || 0,
@@ -631,7 +632,7 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                 ) : (
                                     <tr>
                                         <td
-                                            colSpan={11}
+                                            colSpan={12}
                                             className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400"
                                         >
                                             Belum ada data riwayat booking schedule.

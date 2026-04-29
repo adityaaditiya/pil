@@ -607,6 +607,7 @@ class PilatesAppointmentController extends Controller
                 'credit_used' => $creditUsed,
                 'booked_at' => now(),
                 'status' => 'confirmed',
+                'cashier_id' => auth()->id(),
             ]);
 
             if ($validated['payment_type'] === 'credit' && $selectedMembership) {

@@ -21,7 +21,7 @@ class MembershipHistoryController extends Controller
         $endDate = trim((string) $request->string('end_date'));
 
         $query = UserMembership::query()
-            ->with(['user:id,name,email', 'plan:id,name,price,valid_days'])
+            ->with(['user:id,name,email', 'plan:id,name,price,valid_days', 'cashier:id,name'])
             ->latest('created_at');
 
         if ($startDate) {
@@ -65,6 +65,7 @@ class MembershipHistoryController extends Controller
                     'payment_proof_image' => $membership->payment_proof_image,
                     'starts_at' => $membership->starts_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
                     'expires_at' => $membership->expires_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
+                    'cashier_name' => $membership->cashier?->name,
                 ];
             });
 
@@ -129,6 +130,7 @@ class MembershipHistoryController extends Controller
             'status' => 'active',
             'starts_at' => $userMembership->starts_at ?? now(),
             'expires_at' => $userMembership->activated_at ? $userMembership->expires_at : null,
+            'cashier_id' => auth()->id(),
         ]);
 
         return back()->with('success', 'Pembayaran membership berhasil dikonfirmasi.');
