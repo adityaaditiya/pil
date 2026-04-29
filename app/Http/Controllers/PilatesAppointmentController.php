@@ -208,9 +208,9 @@ class PilatesAppointmentController extends Controller
                 "schedules.$day.active" => ['required', 'boolean'],
                 "schedules.$day.slots" => ['required', 'array', 'min:1'],
                 "schedules.$day.slots.*.start_hour" => ['required', Rule::in($hourOptions)],
-                "schedules.$day.slots.*.start_minute" => ['required', 'in:00,30'],
+                "schedules.$day.slots.*.start_minute" => ['required', 'in:00,10,20,30,40,50,60'],
                 "schedules.$day.slots.*.end_hour" => ['required', Rule::in($hourOptions)],
-                "schedules.$day.slots.*.end_minute" => ['required', 'in:00,30'],
+                "schedules.$day.slots.*.end_minute" => ['required', 'in:00,10,20,30,40,50,60'],
             ]);
         }
 
@@ -290,9 +290,9 @@ class PilatesAppointmentController extends Controller
                 "schedules.$day.active" => ['required', 'boolean'],
                 "schedules.$day.slots" => ['required', 'array', 'min:1'],
                 "schedules.$day.slots.*.start_hour" => ['required', Rule::in($hourOptions)],
-                "schedules.$day.slots.*.start_minute" => ['required', 'in:00,30'],
+                "schedules.$day.slots.*.start_minute" => ['required', 'in:00,10,20,30,40,50,60'],
                 "schedules.$day.slots.*.end_hour" => ['required', Rule::in($hourOptions)],
-                "schedules.$day.slots.*.end_minute" => ['required', 'in:00,30'],
+                "schedules.$day.slots.*.end_minute" => ['required', 'in:00,10,20,30,40,50,60'],
             ]);
         }
 
