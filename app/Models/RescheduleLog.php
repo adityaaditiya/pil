@@ -31,4 +31,14 @@ class RescheduleLog extends Model
     {
         return $this->belongsTo(PilatesTimetable::class, 'to_session_id');
     }
+
+    public function fromAppointment()
+    {
+        return $this->belongsTo(PilatesAppointment::class, 'from_session_id');
+    }
+
+    public function toAppointment()
+    {
+        return $this->belongsTo(PilatesAppointment::class, 'to_session_id');
+    }
 }
