@@ -9,6 +9,8 @@ export default function Edit({ trainer }) {
     const { errors } = usePage().props;
     const { data, setData, post, processing } = useForm({
         expertise: trainer.expertise || "",
+        workshop: trainer.workshop || "",
+        courses: trainer.courses || "",
         biodata: trainer.biodata || "",
         _method: "PUT",
     });
@@ -43,6 +45,8 @@ export default function Edit({ trainer }) {
                         Ubah data tersebut melalui menu Dashboard Pelanggan.
                     </div>
                     <Input type="text" label="Keahlian" value={data.expertise} errors={errors.expertise} onChange={(e) => setData("expertise", e.target.value)} />
+                    <Textarea label="Workshop" value={data.workshop} errors={errors.workshop} onChange={(e) => setData("workshop", e.target.value)} rows={5} />
+                    <Textarea label="Courses" value={data.courses} errors={errors.courses} onChange={(e) => setData("courses", e.target.value)} rows={5} />
                     <Textarea label="Biodata" value={data.biodata} errors={errors.biodata} onChange={(e) => setData("biodata", e.target.value)} rows={4} />
 
                     <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">

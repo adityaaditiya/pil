@@ -22,6 +22,8 @@ class TrainerController extends Controller
                     $query->where(function ($subQuery) use ($search) {
                         $subQuery->where('biodata', 'like', "%{$search}%")
                             ->orWhere('expertise', 'like', "%{$search}%")
+                            ->orWhere('workshop', 'like', "%{$search}%")
+                            ->orWhere('courses', 'like', "%{$search}%")
                             ->orWhereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', "%{$search}%"))
                             ->orWhereHas('user.customer', function ($customerQuery) use ($search) {
                                 $customerQuery->where('name', 'like', "%{$search}%")
@@ -57,6 +59,8 @@ class TrainerController extends Controller
                 Rule::unique('trainers', 'user_id'),
             ],
             'expertise' => 'required|string|max:255',
+            'workshop' => 'required|string',
+            'courses' => 'required|string',
             'biodata' => 'required|string',
         ]);
 
@@ -80,6 +84,8 @@ class TrainerController extends Controller
     {
         $data = $request->validate([
             'expertise' => 'required|string|max:255',
+            'workshop' => 'required|string',
+            'courses' => 'required|string',
             'biodata' => 'required|string',
         ]);
 

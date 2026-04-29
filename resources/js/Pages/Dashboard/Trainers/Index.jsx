@@ -38,6 +38,8 @@ export default function Index({ trainers }) {
                             <Table.Th>Keahlian</Table.Th>
                             <Table.Th>Gender</Table.Th>
                             <Table.Th>Alamat</Table.Th>
+                            <Table.Th>Workshop</Table.Th>
+                            <Table.Th>Courses</Table.Th>
                             <Table.Th>Biodata</Table.Th>
                             <Table.Th></Table.Th>
                         </tr>
@@ -80,6 +82,12 @@ export default function Index({ trainers }) {
                                 <Table.Td>{item.gender}</Table.Td>
                                 <Table.Td>
                                     <p className="max-w-[260px] line-clamp-2">{item.address}</p>
+                                </Table.Td>
+                                <Table.Td>
+                                    <p className="max-w-[260px] line-clamp-3 whitespace-pre-line">{item.workshop || "-"}</p>
+                                </Table.Td>
+                                <Table.Td>
+                                    <p className="max-w-[260px] line-clamp-3 whitespace-pre-line">{item.courses || "-"}</p>
                                 </Table.Td>
                                 <Table.Td>
                                     <p className="max-w-[260px] line-clamp-2">{item.biodata}</p>
