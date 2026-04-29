@@ -4,6 +4,8 @@ import DashboardLayout from "@/Layouts/DashboardLayout";
 import Pagination from "@/Components/Dashboard/Pagination";
 import {
     IconFileCertificate,
+    IconFileSpreadsheet,
+    IconFileTypePdf,
     IconFilter,
     IconSearch,
     IconX,
@@ -55,6 +57,12 @@ const Authorization = ({ transactions, filters }) => {
     const links = transactions?.links ?? [];
 
     const hasActiveFilters = filterData.start_date || filterData.end_date;
+    const handleExport = () => {
+        window.location.href = route("reports.authorizations.export", filterData);
+    };
+    const handleExportPdf = () => {
+        window.location.href = route("reports.authorizations.export-pdf", filterData);
+    };
 
     return (
         <>
@@ -224,6 +232,22 @@ const Authorization = ({ transactions, filters }) => {
                             </tbody>
                         </table>
                     </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                    <button
+                        onClick={handleExportPdf}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors"
+                    >
+                        <IconFileTypePdf size={18} />
+                        Export PDF
+                    </button>
+                    <button
+                        onClick={handleExport}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors"
+                    >
+                        <IconFileSpreadsheet size={18} />
+                        Export Excel
+                    </button>
                 </div>
 
                 {links.length > 3 && <Pagination links={links} />}

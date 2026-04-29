@@ -216,6 +216,16 @@ class StudioTransactionReportController extends Controller
         return $this->exportStudioReport($request, 'appointment', true);
     }
 
+    public function membershipExport(Request $request)
+    {
+        return $this->exportStudioReport($request, 'membership', false);
+    }
+
+    public function membershipExportPdf(Request $request)
+    {
+        return $this->exportStudioReport($request, 'membership', true);
+    }
+
     private function exportStudioReport(Request $request, string $type, bool $asPdf)
     {
         $filters = $this->buildFilters($request);
@@ -263,6 +273,27 @@ class StudioTransactionReportController extends Controller
             ])->all()];
         }
 
+        if ($type === 'membership') {
+            $excludedStatus = ['pending', 'pending_payment', 'cancelled', 'expired'];
+            $items = $this->applyDateAndInvoiceFilters(
+                UserMembership::query()->whereNotIn('status', $excludedStatus)->with(['user:id,name', 'plan:id,name,price']),
+                $filters,
+                'created_at'
+            )->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+                ->latest('created_at')->get();
+
+            return ['Laporan Membership', $items->values()->map(fn ($membership, $index) => [
+                $index + 1,
+                $membership->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                $membership->invoice ?? '-',
+                $membership->user?->name ?? '-',
+                $membership->plan?->name ?? '-',
+                $membership->payment_method ?? '-',
+                (int) ($membership->credits_total ?? 0),
+                (float) ($membership->plan?->price ?? 0),
+            ])->all()];
+        }
+
         $items = $this->applyDateAndInvoiceFilters(
             AppointmentBooking::query()->where('status', 'confirmed')->with(['customer:id,name', 'appointment:id,pilates_class_id', 'appointment.pilatesClass:id,name']),
             $filters,
@@ -285,6 +316,7 @@ class StudioTransactionReportController extends Controller
     private function downloadExcel(string $filename, array $headers, array $rows)
     {
         return response()->streamDownload(function () use ($headers, $rows) {
+            echo '<html><head><style>@page { size: landscape; } table { width: 100%; border-collapse: collapse; } th, td { padding: 6px; }</style></head><body>';
             echo '<table border="1"><thead><tr>';
             foreach ($headers as $header) {
                 echo '<th>' . e($header) . '</th>';
@@ -297,7 +329,7 @@ class StudioTransactionReportController extends Controller
                 }
                 echo '</tr>';
             }
-            echo '</tbody></table>';
+            echo '</tbody></table></body></html>';
         }, $filename, [
             'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
         ]);

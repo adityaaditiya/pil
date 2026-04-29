@@ -347,6 +347,8 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/reports/appointment/export', [StudioTransactionReportController::class, 'appointmentExport'])->middleware('permission:reports-access')->name('reports.appointment.export');
     Route::get('/reports/appointment/export-pdf', [StudioTransactionReportController::class, 'appointmentExportPdf'])->middleware('permission:reports-access')->name('reports.appointment.export-pdf');
     Route::get('/reports/membership', [StudioTransactionReportController::class, 'membership'])->middleware('permission:reports-access')->name('reports.membership.index');
+    Route::get('/reports/membership/export', [StudioTransactionReportController::class, 'membershipExport'])->middleware('permission:reports-access')->name('reports.membership.export');
+    Route::get('/reports/membership/export-pdf', [StudioTransactionReportController::class, 'membershipExportPdf'])->middleware('permission:reports-access')->name('reports.membership.export-pdf');
     Route::get('/reports/profits', [ProfitReportController::class, 'index'])->middleware('permission:profits-access')->name('reports.profits.index');
     Route::get('/reports/profits/export', [ProfitReportController::class, 'export'])->middleware('permission:profits-access')->name('reports.profits.export');
     Route::get('/reports/profits/export-pdf', [ProfitReportController::class, 'exportPdf'])->middleware('permission:profits-access')->name('reports.profits.export-pdf');
@@ -354,6 +356,8 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/reports/cash/export', [CashReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.cash.export');
     Route::get('/reports/cash/export-pdf', [CashReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.cash.export-pdf');
     Route::get('/reports/authorizations', [AuthorizationReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.authorizations.index');
+    Route::get('/reports/authorizations/export', [AuthorizationReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.authorizations.export');
+    Route::get('/reports/authorizations/export-pdf', [AuthorizationReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.authorizations.export-pdf');
     Route::get('/reports/stock-mutations', [StockMutationReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.stock-mutations.index');
     Route::get('/reports/stock-mutations/export', [StockMutationReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.stock-mutations.export');
     Route::get('/reports/stock-mutations/export-pdf', [StockMutationReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.stock-mutations.export-pdf');
