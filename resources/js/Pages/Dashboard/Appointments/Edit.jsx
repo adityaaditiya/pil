@@ -26,7 +26,7 @@ const weekdayLabels = {
 };
 
 const hourOptions = Array.from({ length: 17 }, (_, index) => String(index + 6).padStart(2, "0"));
-const minuteOptions = ["00", "30"];
+const minuteOptions = Array.from({ length: 7 }, (_, index) => String(index * 10).padStart(2, "0"));
 const defaultSlot = { start_hour: "06", start_minute: "00", end_hour: "07", end_minute: "00" };
 const createEmptySlot = () => ({ ...defaultSlot });
 const paymentMethodOptions = [
@@ -357,7 +357,7 @@ export default function Edit({ classes = [], trainers = [], appointment, appoint
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Durasi</label>
                                 <select value={data.duration_minutes} onChange={(event) => setData("duration_minutes", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800">
-                                    {[30, 60, 90, 120, 150, 180].map((val) => (
+                                    {[30, 60, 75, 90, 120, 150, 180].map((val) => (
                                         <option key={val} value={val}>{val} Menit</option>
                                     ))}
                                 </select>
