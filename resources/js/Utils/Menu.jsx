@@ -105,7 +105,7 @@ function Menu() {
                     href: route("questions.index"),
                     active: url.startsWith("/dashboard/questions"),
                     icon: <IconClipboardText size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["customers-access"]),
+                    permissions: hasAnyPermission(["questions-access"]),
                 },
                 {
                     title: "Data Produk ",
@@ -250,7 +250,7 @@ function Menu() {
                     href: route("memberships.my"),
                     active: url === "/dashboard/memberships/my",
                     icon: <IconFileDescription size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["memberships-access"]),
+                    permissions: hasAnyPermission(["my-memberships-access"]),
                 },
             ],
         },

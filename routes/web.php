@@ -148,7 +148,7 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
 
     Route::resource('questions', QuestionController::class)
         ->except(['show'])
-        ->middleware('permission:customers-access');
+        ->middleware('permission:questions-access');
 
     Route::get('customers/{customer}/questionnaire', [CustomerQuestionnaireController::class, 'edit'])
         ->middleware('permission:customers-edit')
@@ -277,7 +277,7 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('memberships/plans/{membershipPlan}/checkout', [UserMembershipController::class, 'checkout'])->middleware('permission:memberships-access')->name('memberships.checkout');
     Route::get('memberships/customers/search', [UserMembershipController::class, 'searchCustomers'])->middleware('permission:memberships-access')->name('memberships.customers.search');
     Route::post('memberships/plans/{membershipPlan}/activate', [UserMembershipController::class, 'activate'])->middleware('permission:memberships-access')->name('memberships.activate');
-    Route::get('memberships/my', [UserMembershipController::class, 'myMemberships'])->middleware('permission:memberships-access')->name('memberships.my');
+    Route::get('memberships/my', [UserMembershipController::class, 'myMemberships'])->middleware('permission:my-memberships-access')->name('memberships.my');
     Route::get('memberships/history', [MembershipHistoryController::class, 'index'])
         ->middleware('permission:memberships-history-access')
         ->name('memberships.history');
