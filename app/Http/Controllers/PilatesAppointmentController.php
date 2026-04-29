@@ -56,7 +56,7 @@ class PilatesAppointmentController extends Controller
                 'trainers:id,user_id',
                 'bookings' => fn ($query) => $query
                     ->select('id', 'appointment_id', 'customer_id', 'invoice', 'status', 'attendance_status')
-                    ->where('status', 'confirmed')
+                    ->whereIn('status', ['confirmed', 'pending', 'pending_payment'])
                     ->with('customer:id,name'),
             ])
             ->where('start_at', '>=', $start->clone()->timezone('Asia/Jakarta'))
@@ -85,6 +85,7 @@ class PilatesAppointmentController extends Controller
                         'name' => $booking->customer?->name ?? '-',
                         'invoice' => $booking->invoice,
                         'customer_id' => $booking->customer_id,
+                        'status' => $booking->status,
                         'attendance_status' => $booking->attendance_status ?? 'pending',
                     ])->values(),
                     'has_confirmed_booking' => $appointment->bookings->isNotEmpty(),
@@ -426,7 +427,7 @@ class PilatesAppointmentController extends Controller
     {
         $hasConfirmedBooking = AppointmentBooking::query()
             ->where('appointment_id', $appointment->id)
-            ->where('status', 'confirmed')
+            ->whereIn('status', ['confirmed', 'pending', 'pending_payment'])
             ->exists();
 
         if ($hasConfirmedBooking) {
@@ -496,6 +497,7 @@ class PilatesAppointmentController extends Controller
             'trainer_id' => ['required', 'exists:trainers,id'],
             'payment_method' => ['required', 'string', 'max:50'],
             'payment_type' => ['required', Rule::in(['drop_in', 'credit'])],
+            'mark_as_paid' => ['nullable', 'boolean'],
             'appointment_session_id' => ['nullable', 'integer'],
             'user_membership_id' => ['nullable', 'integer'],
         ]);
@@ -553,6 +555,7 @@ class PilatesAppointmentController extends Controller
         }
 
         $selectedMembership = null;
+        $status = $request->boolean('mark_as_paid', true) ? 'confirmed' : 'pending';
         if ($validated['payment_type'] === 'credit') {
             $validated['payment_method'] = 'credits';
             $selectedMembership = UserMembership::query()
@@ -598,15 +601,15 @@ class PilatesAppointmentController extends Controller
                 'trainer_id' => $validated['trainer_id'],
                 'appointment_session_id' => $selectedSession['appointment_session_id'] ?? null,
                 'session_name' => $selectedSession['session_name'] ?? $appointment->session_name,
-                'price_amount' => $validated['payment_type'] === 'drop_in'
+                'price_amount' => $status === 'confirmed' && $validated['payment_type'] === 'drop_in'
                     ? (float) ($selectedSession['price_drop_in'] ?? $selectedSession['price'] ?? $this->calculateTotalPrice($appointment->session_options ?? []))
-                    : 0,
+                    : null,
                 'payment_type' => $validated['payment_type'],
-                'payment_method' => $validated['payment_method'],
+                'payment_method' => $status === 'confirmed' ? $validated['payment_method'] : null,
                 'user_membership_id' => $selectedMembership?->id,
                 'credit_used' => $creditUsed,
                 'booked_at' => now(),
-                'status' => 'confirmed',
+                'status' => $status,
                 'cashier_id' => auth()->id(),
             ]);
 
