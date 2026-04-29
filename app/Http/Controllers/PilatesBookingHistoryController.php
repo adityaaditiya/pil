@@ -205,7 +205,7 @@ class PilatesBookingHistoryController extends Controller
             ]);
         }
 
-        DB::transaction(function () use ($booking) {
+        DB::transaction(function () use ($booking, $validated) {
             $booking->loadMissing('userMembership');
 
             if ($booking->payment_type === 'credit' && $booking->userMembership && (float) $booking->credit_used > 0) {

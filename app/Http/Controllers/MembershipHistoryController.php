@@ -109,7 +109,7 @@ class MembershipHistoryController extends Controller
             return back()->withErrors(['message' => 'Transaksi membership sudah dibatalkan.']);
         }
 
-        DB::transaction(function () use ($userMembership) {
+        DB::transaction(function () use ($userMembership, $validated) {
             $userMembership->update([
                 'status' => 'cancelled',
                 'credits_remaining' => $userMembership->credits_total,
@@ -150,6 +150,8 @@ class MembershipHistoryController extends Controller
             'status' => 'cancelled',
             'credits_remaining' => $userMembership->credits_total,
             'expires_at' => null,
+            'cashier_id' => auth()->id(), // Tambahkan ini
+            'canceled_at' => now(),       // Tambahkan ini jika kolomnya ada
         ]);
 
         return back()->with('success', 'Pembayaran membership berhasil ditolak dan transaksi dibatalkan.');

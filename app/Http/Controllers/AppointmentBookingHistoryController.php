@@ -206,7 +206,7 @@ class AppointmentBookingHistoryController extends Controller
             ]);
         }
 
-        DB::transaction(function () use ($booking) {
+        DB::transaction(function () use ($booking, $validated) {
             $booking->loadMissing('userMembership');
 
             if ($booking->payment_type === 'credit' && $booking->userMembership && (int) $booking->credit_used > 0) {
@@ -241,15 +241,23 @@ class AppointmentBookingHistoryController extends Controller
         return back()->with('success', 'Pembayaran appointment berhasil dikonfirmasi.');
     }
 
-    public function rejectPayment(AppointmentBooking $booking): RedirectResponse
+    public function rejectPayment(Request $request, AppointmentBooking $booking): RedirectResponse
     {
+        // 1. Tambahkan validasi jika Anda ingin mencatat siapa yang menolak 
+        // atau jika Frontend mengirimkan data otorisasi/catatan
+        $validated = $request->validate([
+            'authorization_note' => ['nullable', 'string'],
+            'super_admin_email' => ['nullable', 'email'], // jadikan nullable jika tidak wajib
+        ]);
+
         if (! in_array($booking->status, ['pending', 'pending_payment'], true)) {
             return back()->withErrors([
                 'message' => 'Pembayaran appointment tidak dapat ditolak.',
             ]);
         }
 
-        DB::transaction(function () use ($booking) {
+        // 2. Tambahkan $validated ke dalam 'use'
+        DB::transaction(function () use ($booking, $validated) {
             $booking->loadMissing('userMembership');
 
             if ($booking->payment_type === 'credit' && $booking->userMembership && (int) $booking->credit_used > 0) {
@@ -260,8 +268,8 @@ class AppointmentBookingHistoryController extends Controller
                 'status' => 'cancelled',
                 'cashier_id' => auth()->id(),
                 'canceled_at' => now(),
-                'cancellation_note' => $validated['authorization_note'] ?? null,
-                'canceled_by_email' => $validated['super_admin_email'],
+                'cancellation_note' => $validated['authorization_note'] ?? 'Pembayaran ditolak oleh kasir/admin',
+                'canceled_by_email' => $validated['super_admin_email'] ?? auth()->user()->email,
             ]);
         });
 

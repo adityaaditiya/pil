@@ -74,11 +74,14 @@ class AuthorizationReportController extends Controller
             'id' => $row->id,
             'invoice' => $row->invoice,
             'cashier' => [
-                'name' => $row->cashier?->name,
+                'name' => $row->cashier?->name ?? 'System',
             ],
             'cancellation_note' => $row->cancellation_note,
             'canceled_by_email' => $row->canceled_by_email,
-            'canceled_at' => $row->canceled_at,
+            // PERBAIKAN DI SINI: Format Carbon ke String dengan Timezone Jakarta
+            'canceled_at' => $row->canceled_at 
+                ? Carbon::parse($row->canceled_at)->timezone('Asia/Jakarta')->format('Y-m-d H:i:s') 
+                : null,
         ]);
     }
 }
