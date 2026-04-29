@@ -48,10 +48,14 @@ class PermissionSeeder extends Seeder
             'bookings-history-access',
             'membership-plans-access',
             'memberships-access',
+            'my-memberships-access',
             'memberships-history-access',
 
             // transactions
             'transactions-access', 'my-transactions-access',
+
+            // questionnaires
+            'questions-access',
 
             // reports
             'reports-access', 'profits-access',
