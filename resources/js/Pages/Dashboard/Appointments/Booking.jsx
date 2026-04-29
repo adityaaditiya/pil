@@ -35,6 +35,7 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
         payment_method: allowDropIn ? (mappedPaymentMethods[0]?.value || "cash") : "credits",
         appointment_session_id: selectedOption?.appointment_session_id || "",
         user_membership_id: "",
+        mark_as_paid: true,
     });
 
     const dropInPrice = Number(selectedOption?.price_drop_in ?? selectedOption?.price ?? appointment?.total_price ?? 0);
@@ -145,6 +146,17 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                         </div>
 
                         <div>
+                            <label className="mb-2 flex items-center justify-between rounded-xl border p-3 text-sm font-medium">
+                                <span>Tandai Sudah Bayar</span>
+                                <input
+                                    type="checkbox"
+                                    checked={Boolean(data.mark_as_paid)}
+                                    onChange={(event) => setData("mark_as_paid", event.target.checked)}
+                                />
+                            </label>
+                        </div>
+
+                        <div>
                             <p className="mb-2 text-sm font-medium">Jenis Pembayaran</p>
                             <div className="space-y-2">
                                 <label className="flex items-start gap-3 rounded-xl border p-3">
@@ -177,7 +189,7 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                                     </select>
                                 )}
 
-                                {allowDropIn ? (
+                                {allowDropIn && data.mark_as_paid ? (
                                     <>
                                         <label className="flex items-center gap-3 rounded-xl border p-3">
                                             <input
@@ -208,8 +220,10 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                                             </div>
                                         )}
                                     </>
-                                ) : (
+                                ) : !allowDropIn ? (
                                     <p className="text-xs text-slate-500">Sesi ini hanya menerima pembayaran credit.</p>
+                                ) : (
+                                    <p className="text-xs text-amber-600">Status booking akan pending hingga pembayaran dikonfirmasi.</p>
                                 )}
                             </div>
                             {errors.payment_type && <p className="mt-1 text-xs text-red-500">{errors.payment_type}</p>}

@@ -56,7 +56,7 @@ class PilatesAppointmentController extends Controller
                 'trainers:id,user_id',
                 'bookings' => fn ($query) => $query
                     ->select('id', 'appointment_id', 'customer_id', 'invoice', 'status', 'attendance_status')
-                    ->where('status', 'confirmed')
+                    ->whereIn('status', ['pending', 'confirmed'])
                     ->with('customer:id,name'),
             ])
             ->where('start_at', '>=', $start->clone()->timezone('Asia/Jakarta'))
@@ -85,6 +85,7 @@ class PilatesAppointmentController extends Controller
                         'name' => $booking->customer?->name ?? '-',
                         'invoice' => $booking->invoice,
                         'customer_id' => $booking->customer_id,
+                        'status' => $booking->status,
                         'attendance_status' => $booking->attendance_status ?? 'pending',
                     ])->values(),
                     'has_confirmed_booking' => $appointment->bookings->isNotEmpty(),
@@ -498,7 +499,10 @@ class PilatesAppointmentController extends Controller
             'payment_type' => ['required', Rule::in(['drop_in', 'credit'])],
             'appointment_session_id' => ['nullable', 'integer'],
             'user_membership_id' => ['nullable', 'integer'],
+            'mark_as_paid' => ['nullable', 'boolean'],
         ]);
+        $markAsPaid = (bool) ($validated['mark_as_paid'] ?? true);
+        $bookingStatus = $markAsPaid ? 'confirmed' : 'pending';
 
         $appointmentTrainerIds = $appointment->trainers()->pluck('trainers.id');
         if (! $appointmentTrainerIds->contains((int) $validated['trainer_id'])) {
@@ -602,11 +606,11 @@ class PilatesAppointmentController extends Controller
                     ? (float) ($selectedSession['price_drop_in'] ?? $selectedSession['price'] ?? $this->calculateTotalPrice($appointment->session_options ?? []))
                     : 0,
                 'payment_type' => $validated['payment_type'],
-                'payment_method' => $validated['payment_method'],
+                'payment_method' => $markAsPaid ? $validated['payment_method'] : null,
                 'user_membership_id' => $selectedMembership?->id,
                 'credit_used' => $creditUsed,
                 'booked_at' => now(),
-                'status' => 'confirmed',
+                'status' => $bookingStatus,
                 'cashier_id' => auth()->id(),
             ]);
 

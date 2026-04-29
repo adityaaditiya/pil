@@ -126,6 +126,7 @@ class BookingController extends Controller
         }
 
         $paymentType = $request->string('payment_type')->toString();
+        $markAsPaid = $request->boolean('mark_as_paid', true);
 
         if (! $timetable->allow_drop_in && $paymentType === 'drop_in') {
             throw ValidationException::withMessages([
@@ -134,6 +135,7 @@ class BookingController extends Controller
         }
 
         $paymentMethod = $paymentType === 'credit' ? 'credits' : ($request->string('payment_method')->toString() ?: 'cash');
+        $bookingStatus = $markAsPaid ? 'confirmed' : 'pending';
 
         $priceAmount = (float) ($timetable->price_override ?? 0);
         $creditUsed = (float) ($timetable->credit_override ?? 0);
@@ -169,17 +171,17 @@ class BookingController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($customer, $timetable, $participants, $paymentType, $paymentMethod, $priceAmount, $creditUsed, $selectedMembership) {
+            DB::transaction(function () use ($customer, $timetable, $participants, $paymentType, $paymentMethod, $priceAmount, $creditUsed, $selectedMembership, $bookingStatus, $markAsPaid) {
                 PilatesBooking::create([
                     'user_id' => $customer->user_id,
                     'timetable_id' => $timetable->id,
                     'participants' => $participants,
                     'user_membership_id' => $selectedMembership?->id,
                     'membership_plan_id' => $selectedMembership?->membership_plan_id,
-                    'status' => 'confirmed',
+                    'status' => $bookingStatus,
                     'booked_at' => now(),
                     'payment_type' => $paymentType,
-                    'payment_method' => $paymentMethod,
+                    'payment_method' => $markAsPaid ? $paymentMethod : null,
                     'price_amount' => $paymentType === 'drop_in' ? $priceAmount * $participants : 0,
                     'credit_used' => $paymentType === 'credit' ? $creditUsed * $participants : 0,
                     'cashier_id' => auth()->id(),
