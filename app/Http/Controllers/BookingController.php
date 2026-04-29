@@ -133,11 +133,7 @@ class BookingController extends Controller
             ]);
         }
 
-        $isPaid = $request->boolean('mark_as_paid', true);
-        $bookingStatus = $isPaid ? 'confirmed' : 'pending';
-        $paymentMethod = $isPaid
-            ? ($paymentType === 'credit' ? 'credits' : ($request->string('payment_method')->toString() ?: 'cash'))
-            : null;
+        $paymentMethod = $paymentType === 'credit' ? 'credits' : ($request->string('payment_method')->toString() ?: 'cash');
 
         $priceAmount = (float) ($timetable->price_override ?? 0);
         $creditUsed = (float) ($timetable->credit_override ?? 0);
@@ -173,14 +169,14 @@ class BookingController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($customer, $timetable, $participants, $paymentType, $paymentMethod, $priceAmount, $creditUsed, $selectedMembership, $bookingStatus, $isPaid) {
+            DB::transaction(function () use ($customer, $timetable, $participants, $paymentType, $paymentMethod, $priceAmount, $creditUsed, $selectedMembership) {
                 PilatesBooking::create([
                     'user_id' => $customer->user_id,
                     'timetable_id' => $timetable->id,
                     'participants' => $participants,
                     'user_membership_id' => $selectedMembership?->id,
                     'membership_plan_id' => $selectedMembership?->membership_plan_id,
-                    'status' => $bookingStatus,
+                    'status' => 'confirmed',
                     'booked_at' => now(),
                     'payment_type' => $paymentType,
                     'payment_method' => $paymentMethod,
@@ -189,7 +185,7 @@ class BookingController extends Controller
                     'cashier_id' => auth()->id(),
                 ]);
 
-                if ($isPaid && $paymentType === 'credit' && $selectedMembership) {
+                if ($paymentType === 'credit' && $selectedMembership) {
                     $selectedMembership->activateIfNeeded();
                     $selectedMembership->decrement('credits_remaining', (int) ($creditUsed * $participants));
                 }

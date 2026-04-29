@@ -137,7 +137,7 @@ class PilatesTimetableController extends Controller
                 'trainer:id,user_id',
                 'bookings' => fn ($query) => $query
                     ->select('id', 'timetable_id', 'user_id', 'participants', 'invoice', 'status', 'attendance_status')
-                    ->whereIn('status', ['confirmed', 'pending']),
+                    ->where('status', 'confirmed'),
                 'bookings.user:id,name',
                 'bookings.user.customer:id,user_id',
             ])
@@ -181,7 +181,6 @@ class PilatesTimetableController extends Controller
                         'customer_id' => $booking->user?->customer?->id,
                         'participants_count' => (int) ($booking->participants ?? 1),
                         'attendance_status' => $booking->attendance_status ?? 'pending',
-                        'status' => $booking->status,
                     ])->values(),
                 ];
             })
