@@ -15,8 +15,6 @@ class Trainer extends Model
         'user_id',
         'expertise',
         'biodata',
-        'workshop',
-        'courses',
     ];
 
     protected $appends = [
