@@ -60,7 +60,7 @@ class PilatesTimetableController extends Controller
 
         $lockedIds = PilatesBooking::query()
             ->whereIn('timetable_id', $seriesSessions->pluck('id'))
-            ->where('status', 'confirmed')
+            ->whereIn('status', ['confirmed', 'pending', 'pending_payment'])
             ->pluck('timetable_id')
             ->map(fn ($id) => (int) $id)
             ->all();
@@ -137,7 +137,7 @@ class PilatesTimetableController extends Controller
                 'trainer:id,user_id',
                 'bookings' => fn ($query) => $query
                     ->select('id', 'timetable_id', 'user_id', 'participants', 'invoice', 'status', 'attendance_status')
-                    ->where('status', 'confirmed'),
+                    ->whereIn('status', ['confirmed', 'pending', 'pending_payment']),
                 'bookings.user:id,name',
                 'bookings.user.customer:id,user_id',
             ])
@@ -180,6 +180,7 @@ class PilatesTimetableController extends Controller
                         'invoice' => $booking->invoice,
                         'customer_id' => $booking->user?->customer?->id,
                         'participants_count' => (int) ($booking->participants ?? 1),
+                        'status' => $booking->status,
                         'attendance_status' => $booking->attendance_status ?? 'pending',
                     ])->values(),
                 ];

@@ -22,7 +22,7 @@ class BookingController extends Controller
     {
         $timetable = PilatesTimetable::query()
             ->with(['pilatesClass:id,name,duration,difficulty_level', 'trainer:id,user_id'])
-            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->whereIn('status', ['confirmed', 'pending', 'pending_payment'])], 'participants')
             ->findOrFail($request->integer('timetable_id'));
 
         $bookedSlots = (int) ($timetable->booked_slots ?? 0);
@@ -86,7 +86,7 @@ class BookingController extends Controller
     {
         $timetable = PilatesTimetable::query()
             ->with(['pilatesClass:id,name'])
-            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->whereIn('status', ['confirmed', 'pending', 'pending_payment'])], 'participants')
             ->findOrFail($request->integer('timetable_id'));
 
         if ($timetable->status !== 'scheduled') {
@@ -133,6 +133,8 @@ class BookingController extends Controller
             ]);
         }
 
+        $markAsPaid = $request->boolean('mark_as_paid', true);
+        $status = $markAsPaid ? 'confirmed' : 'pending';
         $paymentMethod = $paymentType === 'credit' ? 'credits' : ($request->string('payment_method')->toString() ?: 'cash');
 
         $priceAmount = (float) ($timetable->price_override ?? 0);
@@ -169,18 +171,18 @@ class BookingController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($customer, $timetable, $participants, $paymentType, $paymentMethod, $priceAmount, $creditUsed, $selectedMembership) {
+            DB::transaction(function () use ($customer, $timetable, $participants, $paymentType, $paymentMethod, $priceAmount, $creditUsed, $selectedMembership, $status) {
                 PilatesBooking::create([
                     'user_id' => $customer->user_id,
                     'timetable_id' => $timetable->id,
                     'participants' => $participants,
                     'user_membership_id' => $selectedMembership?->id,
                     'membership_plan_id' => $selectedMembership?->membership_plan_id,
-                    'status' => 'confirmed',
+                    'status' => $status,
                     'booked_at' => now(),
                     'payment_type' => $paymentType,
-                    'payment_method' => $paymentMethod,
-                    'price_amount' => $paymentType === 'drop_in' ? $priceAmount * $participants : 0,
+                    'payment_method' => $status === 'confirmed' ? $paymentMethod : null,
+                    'price_amount' => $status === 'confirmed' && $paymentType === 'drop_in' ? $priceAmount * $participants : null,
                     'credit_used' => $paymentType === 'credit' ? $creditUsed * $participants : 0,
                     'cashier_id' => auth()->id(),
                 ]);
