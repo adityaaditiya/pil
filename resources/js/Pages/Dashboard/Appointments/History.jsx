@@ -176,16 +176,42 @@ export default function History({ bookings, filters = {} }) {
             return;
         }
 
+        const currentClassName = booking.class_name || "Kelas tidak diketahui";
+        const currentSchedule = booking.schedule_at || "Jadwal tidak tersedia";
+        const currentSessionName = booking.session_name || "Sesi belum ditentukan";
         const options = targets
-            .map((target) => `<option value="${target.id}">${target.schedule_at} (${target.session_name || "Sesi"})</option>`)
+            .map(
+                (target) =>
+                    `<option value="${target.id}">${target.schedule_at} • ${target.class_name || currentClassName} • ${target.session_name || "Sesi"}</option>`,
+            )
             .join("");
 
         Swal.fire({
             title: "Reschedule Appointment",
-            html: `<select id="reschedule-target" class="swal2-input"><option value="">Pilih jadwal tujuan</option>${options}</select>`,
+            html: `
+                <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 text-left shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Jadwal Saat Ini</p>
+                    <p class="mt-2 text-base font-semibold text-slate-900">${currentClassName}</p>
+                    <p class="mt-1 text-sm text-slate-600">${currentSessionName}</p>
+                    <p class="mt-1 text-sm text-slate-600">${currentSchedule}</p>
+                </div>
+                <div class="mt-4 text-left">
+                    <label for="reschedule-target" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Pilih Jadwal Baru</label>
+                    <select id="reschedule-target" class="swal2-input !mt-0 !h-12 !w-full !rounded-xl !border !border-slate-300 !bg-white !px-3 !text-sm !text-slate-700 !shadow-sm focus:!border-violet-500 focus:!ring-violet-200">
+                        <option value="">Pilih jadwal tujuan dengan kelas yang sama</option>
+                        ${options}
+                    </select>
+                </div>
+            `,
+            width: 640,
             showCancelButton: true,
             confirmButtonText: "Reschedule",
             cancelButtonText: "Batal",
+            customClass: {
+                popup: "!rounded-3xl !p-6",
+                confirmButton: "!rounded-xl !bg-violet-600 !px-5 !py-2.5 !font-semibold",
+                cancelButton: "!rounded-xl !bg-slate-200 !px-5 !py-2.5 !font-semibold !text-slate-700",
+            },
             preConfirm: () => {
                 const value = document.getElementById("reschedule-target")?.value;
 
