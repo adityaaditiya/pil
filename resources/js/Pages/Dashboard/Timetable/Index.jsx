@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Modal from "@/Components/Dashboard/Modal";
-import InputSelect from "@/Components/Dashboard/InputSelect";
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import toast from "react-hot-toast";
 import { IconCalendarEvent, IconClock, IconPencil, IconPlus, IconTrash, IconUser, IconUsers, IconInfoCircle, IconCalendar, IconCalendarOff } from "@tabler/icons-react";
@@ -12,14 +11,13 @@ const statusClasses = {
     closed: "bg-slate-100 text-slate-700 border-slate-200",
 };
 
-export default function Index({ sessions = [], selectedStartDate, selectedEndDate, canBook, customers = [] }) {
+export default function Index({ sessions = [], selectedStartDate, selectedEndDate, canBook }) {
     const { auth } = usePage().props;
     const canManageTimetable = Boolean(auth?.super || auth?.permissions?.["dashboard-access"]);
     const [startDate, setStartDate] = useState(selectedStartDate);
     const [endDate, setEndDate] = useState(selectedEndDate);
     const [selectedSession, setSelectedSession] = useState(null);
     const [participantSession, setParticipantSession] = useState(null);
-    const [manualCustomer, setManualCustomer] = useState(null);
 
     const hasSessions = useMemo(() => sessions.length > 0, [sessions]);
 
@@ -51,14 +49,6 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
 
     const openParticipantsModal = (session) => {
         setParticipantSession(session);
-        setManualCustomer(null);
-    };
-    const addManualParticipant = () => {
-        if (!participantSession || !manualCustomer?.id) return;
-        router.post(route("timetable.manual-participants.store", participantSession.id), { customer_id: manualCustomer.id }, { preserveScroll: true, onSuccess: () => toast.success("Peserta manual ditambahkan.") });
-    };
-    const removeManualParticipant = (bookingId) => {
-        router.delete(route("timetable.manual-participants.destroy", bookingId), { preserveScroll: true, onSuccess: () => toast.success("Peserta manual dihapus.") });
     };
 
     const closeParticipantsModal = () => {
@@ -346,22 +336,6 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                 Total booking confirmed: <span className="font-semibold text-slate-800 dark:text-slate-100">{participantSession.participants?.length || 0}</span>
                             </p> */}
                         </div>
-                        <div className="rounded-2xl border border-dashed border-slate-300 p-3">
-                            <div className="flex items-end gap-2">
-                                <div className="flex-1">
-                                    <InputSelect
-                                        label="Tambah Peserta Manual"
-                                        selected={manualCustomer}
-                                        setSelected={setManualCustomer}
-                                        data={customers}
-                                        displayKey="name"
-                                        searchable
-                                        placeholder="Pilih customer"
-                                    />
-                                </div>
-                                <button type="button" onClick={addManualParticipant} disabled={participantSession.remaining_slots <= 0 || !manualCustomer?.id} className="rounded-xl bg-primary-600 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400">Tambah</button>
-                            </div>
-                        </div>
 
                         {(participantSession.participants?.length || 0) > 0 ? (
                             <div className="space-y-3">
@@ -374,7 +348,6 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                                 </p>
                                                 <p className="text-sm text-slate-500">Jumlah peserta: {participant.participants_count}</p>
                                                 <p className="text-sm text-slate-500">No. Invoice: {participant.invoice || "-"}</p>
-                                                {participant.is_manual && <span className="mt-1 inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">Manual</span>}
                                             </div>
                                             {participant.customer_id ? (
                                                 <Link
@@ -387,11 +360,6 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                                 <span className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-500 dark:bg-slate-700">
                                                     Data customer tidak tersedia
                                                 </span>
-                                            )}
-                                            {participant.is_manual && (
-                                                <button type="button" onClick={() => removeManualParticipant(participant.id)} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-rose-100 text-rose-500">
-                                                    <IconTrash size={16} />
-                                                </button>
                                             )}
                                         </div>
 

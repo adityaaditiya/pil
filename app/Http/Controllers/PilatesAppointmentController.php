@@ -56,7 +56,7 @@ class PilatesAppointmentController extends Controller
                 'trainers:id,user_id',
                 'bookings' => fn ($query) => $query
                     ->select('id', 'appointment_id', 'customer_id', 'invoice', 'status', 'attendance_status')
-                    ->whereIn('status', ['confirmed', 'manual'])
+                    ->where('status', 'confirmed')
                     ->with('customer:id,name'),
             ])
             ->where('start_at', '>=', $start->clone()->timezone('Asia/Jakarta'))
@@ -86,7 +86,6 @@ class PilatesAppointmentController extends Controller
                         'invoice' => $booking->invoice,
                         'customer_id' => $booking->customer_id,
                         'attendance_status' => $booking->attendance_status ?? 'pending',
-                        'is_manual' => $booking->status === 'manual',
                     ])->values(),
                     'has_confirmed_booking' => $appointment->bookings->isNotEmpty(),
                 ];
@@ -97,48 +96,7 @@ class PilatesAppointmentController extends Controller
             'appointments' => $appointments,
             'selectedStartDate' => $start->toDateString(),
             'selectedEndDate' => $end->toDateString(),
-            'customers' => Customer::query()->select('id', 'name')->orderBy('name')->get(),
         ]);
-    }
-
-    public function storeManualParticipant(Request $request, PilatesAppointment $appointment): RedirectResponse
-    {
-        $validated = $request->validate(['customer_id' => ['required', 'exists:customers,id']]);
-        $alreadyBooked = AppointmentBooking::query()
-            ->where('appointment_id', $appointment->id)
-            ->where('customer_id', $validated['customer_id'])
-            ->whereIn('status', ['confirmed', 'manual'])
-            ->exists();
-        if ($alreadyBooked) {
-            throw ValidationException::withMessages(['customer_id' => 'Customer sudah terdaftar di appointment ini.']);
-        }
-        $activeCount = (int) AppointmentBooking::query()->where('appointment_id', $appointment->id)->whereIn('status', ['confirmed', 'manual'])->count();
-        if ($activeCount >= 1) {
-            throw ValidationException::withMessages(['customer_id' => 'Slot appointment sudah penuh.']);
-        }
-        AppointmentBooking::query()->create([
-            'appointment_id' => $appointment->id,
-            'customer_id' => $validated['customer_id'],
-            'trainer_id' => $appointment->trainer_id,
-            'session_name' => $appointment->session_name,
-            'price_amount' => 0,
-            'payment_type' => 'manual',
-            'payment_method' => 'manual',
-            'credit_used' => 0,
-            'booked_at' => now(),
-            'status' => 'manual',
-            'attendance_status' => 'pending',
-        ]);
-        return back()->with('success', 'Peserta manual appointment berhasil ditambahkan.');
-    }
-
-    public function destroyManualParticipant(AppointmentBooking $booking): RedirectResponse
-    {
-        if ($booking->status !== 'manual') {
-            throw ValidationException::withMessages(['booking' => 'Hanya peserta manual yang bisa dihapus.']);
-        }
-        $booking->delete();
-        return back()->with('success', 'Peserta manual appointment berhasil dihapus.');
     }
 
     public function updateAttendanceStatus(Request $request, AppointmentBooking $booking): RedirectResponse
