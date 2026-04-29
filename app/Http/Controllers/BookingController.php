@@ -182,6 +182,7 @@ class BookingController extends Controller
                     'payment_method' => $paymentMethod,
                     'price_amount' => $paymentType === 'drop_in' ? $priceAmount * $participants : 0,
                     'credit_used' => $paymentType === 'credit' ? $creditUsed * $participants : 0,
+                    'cashier_id' => auth()->id(),
                 ]);
 
                 if ($paymentType === 'credit' && $selectedMembership) {
