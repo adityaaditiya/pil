@@ -35,7 +35,6 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
         payment_method: allowDropIn ? (mappedPaymentMethods[0]?.value || "cash") : "credits",
         appointment_session_id: selectedOption?.appointment_session_id || "",
         user_membership_id: "",
-        mark_as_paid: true,
     });
 
     const dropInPrice = Number(selectedOption?.price_drop_in ?? selectedOption?.price ?? appointment?.total_price ?? 0);
@@ -146,10 +145,6 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                         </div>
 
                         <div>
-                            <label className="mb-2 flex items-center justify-between text-sm font-medium">
-                                <span>Tandai Sudah Bayar</span>
-                                <input type="checkbox" checked={Boolean(data.mark_as_paid)} onChange={(event) => setData("mark_as_paid", event.target.checked)} />
-                            </label>
                             <p className="mb-2 text-sm font-medium">Jenis Pembayaran</p>
                             <div className="space-y-2">
                                 <label className="flex items-start gap-3 rounded-xl border p-3">
@@ -198,7 +193,7 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
                                             />
                                             <span className="text-sm font-semibold">Drop-in</span>
                                         </label>
-                                        {data.payment_type === "drop_in" && Boolean(data.mark_as_paid) && (
+                                        {data.payment_type === "drop_in" && (
                                             <div>
                                                 <label className="mb-2 block text-sm font-medium">Metode Pembayaran</label>
                                                 <select
