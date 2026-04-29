@@ -78,7 +78,11 @@ class PilatesBookingHistoryController extends Controller
             });
 
         $logs = RescheduleLog::query()
-            ->with('movedBy:id,name')
+            ->with([
+                'movedBy:id,name',
+                'fromSession.pilatesClass:id,name',
+                'toSession.pilatesClass:id,name',
+            ])
             ->where('booking_type', 'timetable')
             ->whereIn('booking_id', $bookingIds)
             ->latest('created_at')
@@ -131,8 +135,15 @@ class PilatesBookingHistoryController extends Controller
                 'reschedule_targets' => $sessionTargets,
                 'reschedule_logs' => collect($logs->get($booking->id, []))->map(function (RescheduleLog $log) {
                     return [
-                        'from_session' => $sessionMap->get((int) $log->from_session_id, '-'),
-                        'to_session' => $sessionMap->get((int) $log->to_session_id, '-'),
+                        'from_session' => $log->fromSession
+                            ? $log->fromSession->pilatesClass?->name . ' - ' .
+                            $log->fromSession->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i')
+                            : '-',
+
+                        'to_session' => $log->toSession
+                            ? $log->toSession->pilatesClass?->name . ' - ' .
+                            $log->toSession->start_at?->timezone('Asia/Jakarta')->format('d M Y, H:i')
+                            : '-',
                         'moved_by' => $log->movedBy?->name,
                         'moved_at' => $log->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i'),
                     ];

@@ -21,4 +21,14 @@ class RescheduleLog extends Model
     {
         return $this->belongsTo(User::class, 'moved_by');
     }
+
+    public function fromSession()
+    {
+        return $this->belongsTo(PilatesTimetable::class, 'from_session_id');
+    }
+
+    public function toSession()
+    {
+        return $this->belongsTo(PilatesTimetable::class, 'to_session_id');
+    }
 }
