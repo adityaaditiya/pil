@@ -188,20 +188,46 @@ export default function History({ bookings, filters = {} }) {
         Swal.fire({
             title: "Reschedule Appointment",
             html: `
-                <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 text-left shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Jadwal Saat Ini</p>
-                    <p class="mt-2 text-base font-semibold text-slate-900">${currentClassName}</p>
-                    <p class="mt-1 text-sm text-slate-600">${currentSessionName}</p>
-                    <p class="mt-1 text-sm text-slate-600">${currentSchedule}</p>
-                </div>
-                <div class="mt-4 text-left">
-                    <label for="reschedule-search" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Pilih Jadwal Baru</label>
-                    <input id="reschedule-search" type="text" placeholder="Ketik tanggal / nama kelas..." class="swal2-input !mt-0 !h-12 !w-full !rounded-xl !border !border-slate-300 !bg-white !px-3 !text-sm !text-slate-700 !shadow-sm focus:!border-violet-500 focus:!ring-violet-200" />
-                    <input id="reschedule-target" type="hidden" />
-                    <div id="reschedule-dropdown" class="mt-2 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1"></div>
-                    <p id="reschedule-selected-label" class="mt-2 text-xs text-slate-500">Belum ada jadwal terpilih.</p>
-                </div>
-            `,
+    <div class="space-y-5 px-1">
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-left shadow-sm">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Jadwal Saat Ini</p>
+            <p class="mt-1.5 text-base font-bold text-slate-900">${currentClassName}</p>
+            
+            <div class="mt-1 flex flex-col space-y-0.5">
+                <p class="text-sm font-medium text-slate-700">${currentSessionName}</p>
+                <p class="text-sm text-slate-500">${currentSchedule}</p>
+            </div>
+        </div>
+
+        <div class="text-left">
+            <label for="reschedule-search" class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                Pilih Jadwal Baru
+            </label>
+            <div class="relative">
+                <svg class="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                
+                <input 
+                    id="reschedule-search" 
+                    type="text" 
+                    placeholder="Ketik tanggal / nama kelas..." 
+                    class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 placeholder-slate-400 shadow-sm transition-all focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20" 
+                />
+            </div>
+        </div>
+
+        <div class="text-left">
+            <input id="reschedule-target" type="hidden" />
+            
+            <div id="reschedule-dropdown" class="mt-1 max-h-[200px] w-full overflow-y-auto overflow-x-hidden rounded-xl border border-slate-200 bg-white shadow-lg scrollbar-hide empty:hidden"></div>
+            
+            <p id="reschedule-selected-label" class="mt-5 text-xs font-medium text-slate-500">
+                Belum ada jadwal terpilih.
+            </p>
+        </div>
+    </div>
+`,
             width: 640,
             showCancelButton: true,
             confirmButtonText: "Reschedule",
