@@ -23,7 +23,6 @@ export default function Booking({ session, customers = [], paymentGateways = [],
         payment_type: allowDropIn ? "drop_in" : "credit",
         payment_method: allowDropIn ? "cash" : "credits",
         user_membership_id: "",
-        mark_as_paid: true,
     });
 
     const pricePerClass = Number(session?.price || 0);
@@ -97,17 +96,6 @@ export default function Booking({ session, customers = [], paymentGateways = [],
                         </div>
 
                         <div>
-                            <label className="mb-2 flex items-center justify-between rounded-xl border p-3 text-sm font-medium">
-                                <span>Tandai Sudah Bayar</span>
-                                <input
-                                    type="checkbox"
-                                    checked={Boolean(data.mark_as_paid)}
-                                    onChange={(e) => setData("mark_as_paid", e.target.checked)}
-                                />
-                            </label>
-                        </div>
-
-                        <div>
                             <p className="mb-2 text-sm font-medium">Pembayaran</p>
                             <div className="space-y-2">
                                 <label className="flex items-start gap-3 rounded-xl border p-3">
@@ -137,7 +125,7 @@ export default function Booking({ session, customers = [], paymentGateways = [],
                                     </select>
                                 )}
 
-                                {allowDropIn && data.mark_as_paid ? (
+                                {allowDropIn ? (
                                     <>
                                         <div className="flex items-center gap-3">
                                             <input
@@ -159,10 +147,8 @@ export default function Booking({ session, customers = [], paymentGateways = [],
                                             </select>
                                         )}
                                     </>
-                                ) : !allowDropIn ? (
-                                    <p className="text-xs text-slate-500">Sesi ini hanya menerima pembayaran credit membership.</p>
                                 ) : (
-                                    <p className="text-xs text-amber-600">Status akan disimpan sebagai pending. Metode pembayaran disembunyikan sampai pembayaran dikonfirmasi.</p>
+                                    <p className="text-xs text-slate-500">Sesi ini hanya menerima pembayaran credit membership.</p>
                                 )}
                                 
                             </div>
