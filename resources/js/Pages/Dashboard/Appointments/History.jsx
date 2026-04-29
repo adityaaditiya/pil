@@ -179,12 +179,11 @@ export default function History({ bookings, filters = {} }) {
         const currentClassName = booking.class_name || "Kelas tidak diketahui";
         const currentSchedule = booking.schedule_at || "Jadwal tidak tersedia";
         const currentSessionName = booking.session_name || "Sesi belum ditentukan";
-        const options = targets
-            .map(
-                (target) =>
-                    `<option value="${target.id}">${target.schedule_at} • ${target.class_name || "-"} • ${target.session_name || "Sesi"}</option>`,
-            )
-            .join("");
+        const comboboxItems = targets.map((target) => ({
+            id: target.id,
+            label: `${target.schedule_at} • ${target.class_name || "-"} • ${target.session_name || "Sesi"}`,
+            searchKey: `${target.schedule_at} ${target.class_name || ""} ${target.session_name || ""}`.toLowerCase(),
+        }));
 
         Swal.fire({
             title: "Reschedule Appointment",
@@ -196,11 +195,11 @@ export default function History({ bookings, filters = {} }) {
                     <p class="mt-1 text-sm text-slate-600">${currentSchedule}</p>
                 </div>
                 <div class="mt-4 text-left">
-                    <label for="reschedule-target" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Pilih Jadwal Baru</label>
-                    <select id="reschedule-target" class="swal2-input !mt-0 !h-12 !w-full !rounded-xl !border !border-slate-300 !bg-white !px-3 !text-sm !text-slate-700 !shadow-sm focus:!border-violet-500 focus:!ring-violet-200">
-                        <option value="">Pilih jadwal tujuan dengan kategori kelas yang sama</option>
-                        ${options}
-                    </select>
+                    <label for="reschedule-search" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Pilih Jadwal Baru</label>
+                    <input id="reschedule-search" type="text" placeholder="Ketik tanggal / nama kelas..." class="swal2-input !mt-0 !h-12 !w-full !rounded-xl !border !border-slate-300 !bg-white !px-3 !text-sm !text-slate-700 !shadow-sm focus:!border-violet-500 focus:!ring-violet-200" />
+                    <input id="reschedule-target" type="hidden" />
+                    <div id="reschedule-dropdown" class="mt-2 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1"></div>
+                    <p id="reschedule-selected-label" class="mt-2 text-xs text-slate-500">Belum ada jadwal terpilih.</p>
                 </div>
             `,
             width: 640,
@@ -211,6 +210,44 @@ export default function History({ bookings, filters = {} }) {
                 popup: "!rounded-3xl !p-6",
                 confirmButton: "!rounded-xl !bg-violet-600 !px-5 !py-2.5 !font-semibold",
                 cancelButton: "!rounded-xl !bg-slate-200 !px-5 !py-2.5 !font-semibold !text-slate-700",
+            },
+            didOpen: () => {
+                const searchInput = document.getElementById("reschedule-search");
+                const hiddenInput = document.getElementById("reschedule-target");
+                const dropdown = document.getElementById("reschedule-dropdown");
+                const selectedLabel = document.getElementById("reschedule-selected-label");
+                const maxVisibleItems = 14;
+
+                const renderItems = (query = "") => {
+                    if (!dropdown) return;
+                    const normalizedQuery = query.trim().toLowerCase();
+                    const filtered = comboboxItems
+                        .filter((item) => item.searchKey.includes(normalizedQuery))
+                        .slice(0, maxVisibleItems);
+
+                    if (filtered.length === 0) {
+                        dropdown.innerHTML = `<p class="px-3 py-2 text-sm text-slate-500">Jadwal tidak ditemukan.</p>`;
+                        return;
+                    }
+
+                    dropdown.innerHTML = filtered
+                        .map(
+                            (item) => `<button type="button" data-id="${item.id}" data-label="${item.label}" class="reschedule-option block w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-violet-50 hover:text-violet-700">${item.label}</button>`,
+                        )
+                        .join("");
+
+                    dropdown.querySelectorAll(".reschedule-option").forEach((button) => {
+                        button.addEventListener("click", () => {
+                            const value = button.getAttribute("data-id");
+                            const label = button.getAttribute("data-label");
+                            if (hiddenInput) hiddenInput.value = value || "";
+                            if (selectedLabel) selectedLabel.textContent = `Terpilih: ${label || "-"}`;
+                        });
+                    });
+                };
+
+                renderItems();
+                searchInput?.addEventListener("input", (event) => renderItems(event.target.value));
             },
             preConfirm: () => {
                 const value = document.getElementById("reschedule-target")?.value;
