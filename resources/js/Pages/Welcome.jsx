@@ -450,8 +450,6 @@ export default function Welcome() {
                                     />
                                     <h3 className="mt-5 text-xl font-semibold">{trainer.name}</h3>
                                     <p className="mt-2 text-sm text-wellness-muted">{trainer.expertise || "Spesialisasi trainer belum diisi."}</p>
-                                    <p className="mt-1 text-sm text-wellness-muted">Workshop: {trainer.workshop || "-"}</p>
-                                    <p className="mt-1 text-sm text-wellness-muted">Courses: {trainer.courses || "-"}</p>
                                 </Card>
                             ))}
                         </div>

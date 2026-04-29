@@ -67,8 +67,6 @@ Route::get('/', function () {
                 // Ambil Nama dan Foto dari tabel Customer melalui User
                 'name'      => $trainer->user?->customer?->name ?? 'No Name',
                 'photo'     => $trainer->user?->customer?->photo,
-                'workshop'  => $trainer->workshop,
-                'courses'   => $trainer->courses,
             ];
         }),
         'membershipPlans' => MembershipPlan::query()
