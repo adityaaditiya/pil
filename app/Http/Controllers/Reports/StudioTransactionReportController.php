@@ -18,7 +18,7 @@ class StudioTransactionReportController extends Controller
 
         $baseQuery = $this->applyDateAndInvoiceFilters(
             PilatesBooking::query()
-                ->where('status', 'confirmed')->where('status', '!=', 'manual')
+                ->where('status', 'confirmed')
                 ->with(['user:id,name', 'timetable:id,pilates_class_id', 'timetable.pilatesClass:id,name']),
             $filters,
             'booked_at'
@@ -57,7 +57,7 @@ class StudioTransactionReportController extends Controller
             'rows' => $bookings,
             'summary' => $summary,
             'paymentMethods' => $this->extractPaymentMethods(
-                PilatesBooking::query()->where('status', 'confirmed')->where('status', '!=', 'manual')
+                PilatesBooking::query()->where('status', 'confirmed')
             ),
         ]);
     }
@@ -68,7 +68,7 @@ class StudioTransactionReportController extends Controller
 
         $baseQuery = $this->applyDateAndInvoiceFilters(
             AppointmentBooking::query()
-                ->where('status', 'confirmed')->where('status', '!=', 'manual')
+                ->where('status', 'confirmed')
                 ->with(['customer:id,name', 'appointment:id,pilates_class_id', 'appointment.pilatesClass:id,name']),
             $filters,
             'booked_at'
@@ -107,7 +107,7 @@ class StudioTransactionReportController extends Controller
             'rows' => $appointments,
             'summary' => $summary,
             'paymentMethods' => $this->extractPaymentMethods(
-                AppointmentBooking::query()->where('status', 'confirmed')->where('status', '!=', 'manual')
+                AppointmentBooking::query()->where('status', 'confirmed')
             ),
         ]);
     }

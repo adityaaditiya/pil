@@ -6,7 +6,6 @@ use App\Models\PilatesAppointment;
 use App\Models\PilatesBooking;
 use App\Models\PilatesClass;
 use App\Models\PilatesTimetable;
-use App\Models\Customer;
 use App\Models\Trainer;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -138,11 +137,11 @@ class PilatesTimetableController extends Controller
                 'trainer:id,user_id',
                 'bookings' => fn ($query) => $query
                     ->select('id', 'timetable_id', 'user_id', 'participants', 'invoice', 'status', 'attendance_status')
-                    ->whereIn('status', ['confirmed', 'manual']),
+                    ->where('status', 'confirmed'),
                 'bookings.user:id,name',
                 'bookings.user.customer:id,user_id',
             ])
-            ->withSum(['bookings as booked_slots' => fn ($query) => $query->whereIn('status', ['confirmed', 'manual'])], 'participants')
+            ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
             ->whereBetween('start_at', [$startDate->clone()->timezone('Asia/Jakarta'), $endDate->clone()->timezone('Asia/Jakarta')])
             ->orderBy('start_at')
             ->get()
@@ -182,7 +181,6 @@ class PilatesTimetableController extends Controller
                         'customer_id' => $booking->user?->customer?->id,
                         'participants_count' => (int) ($booking->participants ?? 1),
                         'attendance_status' => $booking->attendance_status ?? 'pending',
-                        'is_manual' => $booking->status === 'manual',
                     ])->values(),
                 ];
             })
@@ -193,54 +191,7 @@ class PilatesTimetableController extends Controller
             'selectedEndDate' => $endDate->toDateString(),
             'sessions' => $sessions,
             'canBook' => $request->user() !== null,
-            'customers' => Customer::query()->select('id', 'user_id', 'name')->orderBy('name')->get(),
         ]);
-    }
-
-    public function storeManualParticipant(Request $request, PilatesTimetable $timetable): RedirectResponse
-    {
-        $validated = $request->validate([
-            'customer_id' => ['required', 'exists:customers,id'],
-        ]);
-        $customer = Customer::query()->findOrFail($validated['customer_id']);
-        if (! $customer->user_id) {
-            throw ValidationException::withMessages(['customer_id' => 'Customer belum terhubung ke akun user.']);
-        }
-        $alreadyBooked = PilatesBooking::query()
-            ->where('timetable_id', $timetable->id)
-            ->where('user_id', $customer->user_id)
-            ->whereIn('status', ['confirmed', 'manual'])
-            ->exists();
-        if ($alreadyBooked) {
-            throw ValidationException::withMessages(['customer_id' => 'Customer sudah terdaftar di sesi ini.']);
-        }
-        $bookedSlots = (int) PilatesBooking::query()->where('timetable_id', $timetable->id)->whereIn('status', ['confirmed', 'manual'])->sum('participants');
-        if ($bookedSlots >= (int) $timetable->capacity) {
-            throw ValidationException::withMessages(['customer_id' => 'Slot sesi sudah penuh.']);
-        }
-        PilatesBooking::query()->create([
-            'user_id' => $customer->user_id,
-            'timetable_id' => $timetable->id,
-            'participants' => 1,
-            'status' => 'manual',
-            'attendance_status' => 'pending',
-            'payment_type' => 'manual',
-            'payment_method' => 'manual',
-            'price_amount' => 0,
-            'credit_used' => 0,
-            'booked_at' => now(),
-        ]);
-
-        return back()->with('success', 'Peserta manual berhasil ditambahkan.');
-    }
-
-    public function destroyManualParticipant(PilatesBooking $booking): RedirectResponse
-    {
-        if ($booking->status !== 'manual') {
-            throw ValidationException::withMessages(['booking' => 'Hanya peserta manual yang bisa dihapus.']);
-        }
-        $booking->delete();
-        return back()->with('success', 'Peserta manual berhasil dihapus.');
     }
 
     public function store(Request $request): RedirectResponse

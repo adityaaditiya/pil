@@ -77,13 +77,13 @@ class CashReportController extends Controller
         )->orderByDesc('created_at');
         $appointmentDropInQuery = $this->applyAppointmentDropInFilters(
             AppointmentBooking::query()
-                ->where('status', 'confirmed')->where('status', '!=', 'manual')
+                ->where('status', 'confirmed')
                 ->where('payment_type', 'drop_in'),
             $filters
         )->orderByDesc('booked_at');
         $timetableDropInQuery = $this->applyTimetableDropInFilters(
             PilatesBooking::query()
-                ->where('status', 'confirmed')->where('status', '!=', 'manual')
+                ->where('status', 'confirmed')
                 ->where('payment_type', 'drop_in'),
             $filters
         )->orderByDesc('booked_at');
@@ -236,13 +236,13 @@ class CashReportController extends Controller
         )->orderByDesc('created_at');
         $appointmentDropInQuery = $this->applyAppointmentDropInFilters(
             AppointmentBooking::query()
-                ->where('status', 'confirmed')->where('status', '!=', 'manual')
+                ->where('status', 'confirmed')
                 ->where('payment_type', 'drop_in'),
             $filters
         )->orderByDesc('booked_at');
         $timetableDropInQuery = $this->applyTimetableDropInFilters(
             PilatesBooking::query()
-                ->where('status', 'confirmed')->where('status', '!=', 'manual')
+                ->where('status', 'confirmed')
                 ->where('payment_type', 'drop_in'),
             $filters
         )->orderByDesc('booked_at');
@@ -355,13 +355,13 @@ class CashReportController extends Controller
         )->orderByDesc('created_at');
         $appointmentDropInQuery = $this->applyAppointmentDropInFilters(
             AppointmentBooking::query()
-                ->where('status', 'confirmed')->where('status', '!=', 'manual')
+                ->where('status', 'confirmed')
                 ->where('payment_type', 'drop_in'),
             $filters
         )->orderByDesc('booked_at');
         $timetableDropInQuery = $this->applyTimetableDropInFilters(
             PilatesBooking::query()
-                ->where('status', 'confirmed')->where('status', '!=', 'manual')
+                ->where('status', 'confirmed')
                 ->where('payment_type', 'drop_in'),
             $filters
         )->orderByDesc('booked_at');
