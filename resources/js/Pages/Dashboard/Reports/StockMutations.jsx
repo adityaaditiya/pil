@@ -11,6 +11,8 @@ import {
     IconReceipt,
     IconReceipt2,
     IconShoppingBag,
+    IconFileTypePdf,
+    IconFileSpreadsheet,
 } from "@tabler/icons-react";
 
 const StockMutations = ({ mutations, filters, summary }) => {
@@ -89,6 +91,21 @@ const StockMutations = ({ mutations, filters, summary }) => {
                             Mutasi stok dari tambah stok dan kurang stok produk
                         </p>
                     </div>
+                    <div className="flex items-center gap-2">
+                    <a
+                        href={route("reports.stock-mutations.export-pdf", filterData)}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200"
+                    >
+                        <IconFileTypePdf size={18} />
+                        Export PDF
+                    </a>
+                    <a
+                        href={route("reports.stock-mutations.export", filterData)}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-500 hover:bg-primary-600 text-white"
+                    >
+                        <IconFileSpreadsheet size={18} />
+                        Export Excel
+                    </a>
                     <button
                         onClick={() => setShowFilters((v) => !v)}
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border bg-primary-50 border-slate-200 text-primary-700 hover:bg-slate-50 dark:bg-primary-950/50 dark:border-primary-800 dark:text-primary-400"
@@ -96,6 +113,7 @@ const StockMutations = ({ mutations, filters, summary }) => {
                         <IconFilter size={18} />
                         Filter
                     </button>
+                    </div>
                 </div>
 
                 {/* <div className="grid gap-4 md:grid-cols-2">

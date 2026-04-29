@@ -11,6 +11,8 @@ import {
     IconX,
     IconSearch,
     IconCalendar,
+    IconFileSpreadsheet,
+    IconFileTypePdf,
 } from "@tabler/icons-react";
 
 const SummaryCard = ({ icon, title, value, description, gradient }) => (
@@ -100,6 +102,13 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
 
     const hasActiveFilters = filterData.invoice || filterData.start_date || filterData.end_date || filterData.payment_method;
 
+    const exportBaseRoute = report.route === "reports.booking.index"
+        ? "reports.booking"
+        : report.route === "reports.appointment.index"
+            ? "reports.appointment"
+            : null;
+
+
     const safeSummary = {
         transactions_count: summary?.transactions_count ?? 0,
         total_amount: summary?.total_amount ?? 0,
@@ -148,6 +157,17 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400">{report.description}</p>
                     </div>
+                    <div className="flex items-center gap-2">
+                    {exportBaseRoute && (<>
+                        <a href={route(`${exportBaseRoute}.export-pdf`, filterData)} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
+                            <IconFileTypePdf size={18} />
+                            Export PDF
+                        </a>
+                        <a href={route(`${exportBaseRoute}.export`, filterData)} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white">
+                            <IconFileSpreadsheet size={18} />
+                            Export Excel
+                        </a>
+                    </>)}
                     <button
                         onClick={() => setShowFilters(!showFilters)}
                         className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
@@ -160,6 +180,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                         <span>Filter</span>
                         {hasActiveFilters && <span className="w-2 h-2 rounded-full bg-primary-500"></span>}
                     </button>
+                    </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

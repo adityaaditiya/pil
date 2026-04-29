@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AppointmentBooking;
 use App\Models\PilatesBooking;
 use App\Models\UserMembership;
+use App\Support\SimplePdfExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -194,4 +195,112 @@ class StudioTransactionReportController extends Controller
             ->orderBy('payment_method')
             ->pluck('payment_method');
     }
+
+    public function bookingExport(Request $request)
+    {
+        return $this->exportStudioReport($request, 'booking', false);
+    }
+
+    public function bookingExportPdf(Request $request)
+    {
+        return $this->exportStudioReport($request, 'booking', true);
+    }
+
+    public function appointmentExport(Request $request)
+    {
+        return $this->exportStudioReport($request, 'appointment', false);
+    }
+
+    public function appointmentExportPdf(Request $request)
+    {
+        return $this->exportStudioReport($request, 'appointment', true);
+    }
+
+    private function exportStudioReport(Request $request, string $type, bool $asPdf)
+    {
+        $filters = $this->buildFilters($request);
+        [$title, $rows] = $this->buildExportRows($type, $filters);
+        $headers = ['No', 'Tanggal', 'Invoice', 'Pelanggan', 'Item', 'Metode Pembayaran', 'Qty', 'Total'];
+
+        if (! $asPdf) {
+            return $this->downloadExcel('laporan-' . $type . '.xls', $headers, $rows);
+        }
+
+        $pdfBinary = SimplePdfExport::make(
+            $title,
+            'PERIODE : ' . ($filters['start_date'] ?? '-') . ' s/d ' . ($filters['end_date'] ?? '-'),
+            $headers,
+            $rows,
+            [],
+            'landscape'
+        );
+
+        return response($pdfBinary, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="laporan-' . $type . '.pdf"',
+        ]);
+    }
+
+    private function buildExportRows(string $type, array $filters): array
+    {
+        if ($type === 'booking') {
+            $items = $this->applyDateAndInvoiceFilters(
+                PilatesBooking::query()->where('status', 'confirmed')->with(['user:id,name', 'timetable:id,pilates_class_id', 'timetable.pilatesClass:id,name']),
+                $filters,
+                'booked_at'
+            )->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+                ->latest('booked_at')->get();
+
+            return ['Laporan Booking Schedule', $items->values()->map(fn ($booking, $index) => [
+                $index + 1,
+                $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                $booking->invoice ?? '-',
+                $booking->user?->name ?? '-',
+                $booking->timetable?->pilatesClass?->name ?? '-',
+                $booking->payment_method ?? '-',
+                (int) ($booking->participants ?? 0),
+                (float) ($booking->price_amount ?? 0),
+            ])->all()];
+        }
+
+        $items = $this->applyDateAndInvoiceFilters(
+            AppointmentBooking::query()->where('status', 'confirmed')->with(['customer:id,name', 'appointment:id,pilates_class_id', 'appointment.pilatesClass:id,name']),
+            $filters,
+            'booked_at'
+        )->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+            ->latest('booked_at')->get();
+
+        return ['Laporan Appointment', $items->values()->map(fn ($booking, $index) => [
+            $index + 1,
+            $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+            $booking->invoice ?? '-',
+            $booking->customer?->name ?? '-',
+            $booking->appointment?->pilatesClass?->name ?? ($booking->session_name ?? '-'),
+            $booking->payment_method ?? '-',
+            1,
+            (float) ($booking->price_amount ?? 0),
+        ])->all()];
+    }
+
+    private function downloadExcel(string $filename, array $headers, array $rows)
+    {
+        return response()->streamDownload(function () use ($headers, $rows) {
+            echo '<table border="1"><thead><tr>';
+            foreach ($headers as $header) {
+                echo '<th>' . e($header) . '</th>';
+            }
+            echo '</tr></thead><tbody>';
+            foreach ($rows as $row) {
+                echo '<tr>';
+                foreach ($row as $cell) {
+                    echo '<td>' . e((string) $cell) . '</td>';
+                }
+                echo '</tr>';
+            }
+            echo '</tbody></table>';
+        }, $filename, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
+        ]);
+    }
+
 }
