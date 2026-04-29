@@ -295,11 +295,14 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                         {(participantAppointment.participants?.length || 0) > 0 ? (
                             <div className="space-y-3">
                                 {participantAppointment.participants.map((participant, index) => (
-                                    <div key={participant.id} className="rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
+                                    <div key={participant.id} className={`rounded-2xl border p-4 ${participant.status === "pending" ? "border-amber-300 bg-amber-50/60 dark:border-amber-500/50" : "border-slate-200 dark:border-slate-700"}`}>
                                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                             <div>
                                                 <p className="font-semibold text-slate-900 dark:text-white">
                                                     {index + 1}. {participant.name}
+                                                </p>
+                                                <p className={`text-xs font-semibold ${participant.status === "pending" ? "text-amber-700" : "text-emerald-700"}`}>
+                                                    Status: {participant.status || "-"}
                                                 </p>
                                                 <p className="text-sm text-slate-500">No. Invoice: {participant.invoice || "-"}</p>
                                             </div>
@@ -316,6 +319,15 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                                 </span>
                                             )}
                                         </div>
+                                        {participant.status === "pending" && (
+                                            <button
+                                                type="button"
+                                                onClick={() => router.post(route("appointments.confirm-payment", participant.id))}
+                                                className="mt-3 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600"
+                                            >
+                                                Konfirmasi Bayar
+                                            </button>
+                                        )}
 
                                         <div className="mt-3 flex flex-wrap gap-2">
                                             {[
