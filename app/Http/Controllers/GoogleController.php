@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Laravel\Socialite\Facades\Socialite;
+use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 class GoogleController extends Controller
@@ -17,26 +19,38 @@ class GoogleController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            $user = Socialite::driver('google')->user();
-            
-            // Cari user di database berdasarkan google_id
-            $finduser = User::where('google_id', $user->id)->first();
+            $googleUser = Socialite::driver('google')->user();
 
-            if($finduser){
-                // Jika user sudah ada, langsung loginkan
-                Auth::login($finduser);
-                return redirect()->intended('dashboard');
-            }else{
-                // Jika user belum ada, buat user baru
-                $newUser = User::updateOrCreate(['email' => $user->email],[
-                    'name' => $user->name,
-                    'google_id'=> $user->id,
-                    'password' => encrypt('123456dummy') // password dummy
-                ]);
+            $user = DB::transaction(function () use ($googleUser) {
+                $appUser = User::where('google_id', $googleUser->id)->first();
 
-                Auth::login($newUser);
-                return redirect()->intended('dashboard');
-            }
+                if (! $appUser) {
+                    $appUser = User::updateOrCreate(
+                        ['email' => $googleUser->email],
+                        [
+                            'name' => $googleUser->name,
+                            'google_id' => $googleUser->id,
+                            'password' => encrypt('123456dummy'),
+                        ]
+                    );
+                }
+
+                Customer::firstOrCreate(
+                    ['user_id' => $appUser->id],
+                    [
+                        'name' => $googleUser->name ?? $appUser->name,
+                        'no_telp' => null,
+                        'address' => null,
+                        'date_of_birth' => null,
+                        'credit' => 0.00,
+                    ]
+                );
+
+                return $appUser;
+            });
+
+            Auth::login($user);
+            return redirect()->intended('dashboard');
         } catch (Exception $e) {
             return redirect('login')->with('error', 'Gagal login dengan Google');
         }
