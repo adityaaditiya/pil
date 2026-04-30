@@ -371,6 +371,10 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+    Route::any('/register', function () {
+        abort(404);
+    });
+
     Route::get('auth/google', [GoogleController::class, 'redirectToGoogle']);
     Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 

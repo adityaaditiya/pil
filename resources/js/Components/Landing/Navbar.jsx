@@ -98,7 +98,7 @@ export default function Navbar({ navItems = defaultNavItems, currentKey = null }
                         </div>
                     ) : (
                         <Button as={Link} href={route("login")} className="hidden md:inline-flex">
-                            Login / Register
+                            Login
                         </Button>
                     )}
 
@@ -145,7 +145,7 @@ export default function Navbar({ navItems = defaultNavItems, currentKey = null }
                             </div>
                         ) : (
                             <Button as={Link} href={route("login")} className="w-full justify-center">
-                                Login / Register
+                                Login
                             </Button>
                         )}
 

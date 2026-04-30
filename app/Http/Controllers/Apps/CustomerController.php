@@ -92,6 +92,7 @@ class CustomerController extends Controller
                 'name'     => $request->name,
                 'email'    => $request->email,
                 'password' => Hash::make($request->password),
+                'provider' => null, // ✅ tambahkan ini
             ]);
 
             if (Role::where('name', 'customer')->exists()) {

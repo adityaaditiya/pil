@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\User;
+
 
 class AuthenticatedSessionController extends Controller
 {
@@ -36,10 +38,29 @@ class AuthenticatedSessionController extends Controller
             $request->session()->put('url.intended', $redirect);
         }
 
+        // 🔥 1. ambil user
+        $user = User::where('email', $request->email)->first();
+
+        // 🔥 2. kalau user tidak ada
+        if (! $user) {
+            return back()->withErrors([
+                'email' => 'Akun tidak ditemukan.',
+            ]);
+        }
+
+        // 🔥 3. kalau user Google
+        if ($user->provider === 'google') {
+            return back()->withErrors([
+                'email' => 'Akun ini dibuat dengan Google. Klik tombol "Login dengan Google".',
+            ]);
+        }
+
+        // 🔥 4. lanjut login normal
         $request->authenticate();
 
         $request->session()->regenerate();
 
+        // 🔽 redirect kamu (biarkan)
         if ($request->user()->hasRole('customer')) {
             return redirect()->intended(route('welcome', absolute: false));
         }

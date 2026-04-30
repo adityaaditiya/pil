@@ -7,7 +7,7 @@ use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Exception;
+use Illuminate\Support\Facades\Hash;
 
 class GoogleController extends Controller
 {
@@ -19,9 +19,11 @@ class GoogleController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            // 🔥 wajib untuk local biar stabil
+            $googleUser = Socialite::driver('google')->stateless()->user();
 
             $user = DB::transaction(function () use ($googleUser) {
+
                 $appUser = User::where('google_id', $googleUser->id)->first();
 
                 if (! $appUser) {
@@ -30,7 +32,8 @@ class GoogleController extends Controller
                         [
                             'name' => $googleUser->name,
                             'google_id' => $googleUser->id,
-                            'password' => encrypt('123456dummy'),
+                            'provider' => 'google', // ✅ penting
+                            'password' => Hash::make('dummy123'),
                         ]
                     );
                 }
@@ -42,17 +45,20 @@ class GoogleController extends Controller
                         'no_telp' => null,
                         'address' => null,
                         'date_of_birth' => null,
-                        'credit' => 0.00,
+                        'credit' => 0,
                     ]
                 );
 
                 return $appUser;
             });
 
-            Auth::login($user);
-            return redirect()->intended('dashboard');
-        } catch (Exception $e) {
-            return redirect('login')->with('error', 'Gagal login dengan Google');
+            Auth::login($user, true);
+            request()->session()->regenerate();
+
+            return redirect('/dashboard');
+
+        } catch (\Exception $e) {
+            return redirect('/login')->with('error', $e->getMessage());
         }
     }
 }
