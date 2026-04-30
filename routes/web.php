@@ -40,6 +40,7 @@ use App\Http\Controllers\UserMembershipHistoryController;
 use App\Http\Controllers\UserAppointmentController;
 use App\Http\Controllers\UserFormController;
 use App\Http\Controllers\UserScheduleController;
+use App\Http\Controllers\GoogleController;
 use App\Models\LandingPageSetting;
 use App\Models\MembershipPlan;
 use App\Models\Trainer;
@@ -369,5 +370,8 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+    Route::get('auth/google', [GoogleController::class, 'redirectToGoogle']);
+    Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 require __DIR__ . '/auth.php';
