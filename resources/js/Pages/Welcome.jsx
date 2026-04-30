@@ -160,7 +160,7 @@ export default function Welcome() {
 
             <div className="min-h-screen bg-wellness-beige text-wellness-text">
                 <div className="bg-primary-600 px-4 py-2 text-center text-xs font-medium text-white md:text-sm">
-                    30% Off Class this week — Slot terbatas, reservasi sekarang.
+                    Get discount 20% Off Private Class — Reservasi sekarang.
                 </div>
 
                 <Navbar navItems={navItems} currentKey="home" />

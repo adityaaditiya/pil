@@ -222,7 +222,7 @@ export default function Login({ status, canResetPassword, redirect = "" }) {
                         </div>
 
                         <a
-                            href="http://127.0.0.1:8000/auth/google"
+                            href="https://oropilatesstudio.com/auth/google"
                             className="w-full h-12 flex items-center justify-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm text-slate-700 dark:text-slate-200 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all focus:outline-none focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800"
                         >
                             {/* Logo SVG Google Asli */}

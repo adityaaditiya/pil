@@ -55,7 +55,7 @@ class GoogleController extends Controller
             Auth::login($user, true);
             request()->session()->regenerate();
 
-            return redirect('/dashboard');
+            return redirect('/');
 
         } catch (\Exception $e) {
             return redirect('/login')->with('error', $e->getMessage());

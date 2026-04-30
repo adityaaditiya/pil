@@ -10,7 +10,7 @@ const statuses = [
 ];
 
 const hourOptions = Array.from({ length: 17 }, (_, i) => String(i + 6).padStart(2, "0"));
-const minuteOptions = Array.from({ length: 7 }, (_, index) => String(index * 5).padStart(2, "0"));
+const minuteOptions = Array.from({ length: 13 }, (_, index) => String(index * 5).padStart(2, "0"));
 const createEmptySlot = () => ({ start_hour: "06", start_minute: "00", end_hour: "07", end_minute: "00" });
 
 const buildInitialSchedules = (weekdayOptions) => weekdayOptions.reduce((carry, day) => {
@@ -127,7 +127,65 @@ export default function Create({ classes = [], trainers = [], weekdayOptions = [
                                 <h3 className="text-sm font-semibold">Pilih Hari & Slot Jam</h3>
                                 {weekdayOptions.map((day) => {
                                     const daySchedule = data.schedules?.[day.value] || { active: false, slots: [createEmptySlot()] };
-                                    return <div key={day.value} className="rounded-2xl border border-slate-200 p-4 space-y-3"><label className="inline-flex items-center gap-3 text-sm font-semibold"><input type="checkbox" checked={Boolean(daySchedule.active)} onChange={() => toggleDayActive(day.value)} />{day.label}</label>{daySchedule.active && <div className="space-y-3">{daySchedule.slots.map((slot, idx) => <div key={`${day.value}-${idx}`} className="rounded-xl border border-slate-200 p-3"><div className="grid gap-3 md:grid-cols-2"><TimeSelect label="Mulai" hour={slot.start_hour} minute={slot.start_minute} onHourChange={(v) => updateSlot(day.value, idx, "start_hour", v)} onMinuteChange={(v) => updateSlot(day.value, idx, "start_minute", v)} /><TimeSelect label="Selesai" hour={slot.end_hour} minute={slot.end_minute} onHourChange={(v) => updateSlot(day.value, idx, "end_hour", v)} onMinuteChange={(v) => updateSlot(day.value, idx, "end_minute", v)} /></div><div className="mt-2 text-right"><button type="button" onClick={() => removeSlot(day.value, idx)} className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-3 py-1 text-xs text-rose-500"><IconTrash size={14} />Hapus</button></div></div>)}<button type="button" onClick={() => addSlot(day.value)} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm"><IconPlus size={16} />Tambah Slot</button></div>}</div>;
+                                    
+                                    return (
+                                        <div key={day.value} className="rounded-xl border border-slate-200 p-4 space-y-3 bg-white">
+                                            <label className="inline-flex items-center gap-3 text-sm font-bold text-slate-800 cursor-pointer">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={Boolean(daySchedule.active)} 
+                                                    onChange={() => toggleDayActive(day.value)} 
+                                                    className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                                                />
+                                                {day.label}
+                                            </label>
+                                            
+                                            {daySchedule.active && (
+                                                <div className="space-y-3 mt-3">
+                                                    {daySchedule.slots.map((slot, idx) => (
+                                                        <div key={`${day.value}-${idx}`} className="flex items-end gap-3 w-full">
+                                                            {/* Grid untuk waktu Mulai dan Selesai */}
+                                                            <div className="flex-1 grid grid-cols-2 gap-4">
+                                                                <TimeSelect 
+                                                                    label="Mulai" 
+                                                                    hour={slot.start_hour} 
+                                                                    minute={slot.start_minute} 
+                                                                    onHourChange={(v) => updateSlot(day.value, idx, "start_hour", v)} 
+                                                                    onMinuteChange={(v) => updateSlot(day.value, idx, "start_minute", v)} 
+                                                                />
+                                                                <TimeSelect 
+                                                                    label="Selesai" 
+                                                                    hour={slot.end_hour} 
+                                                                    minute={slot.end_minute} 
+                                                                    onHourChange={(v) => updateSlot(day.value, idx, "end_hour", v)} 
+                                                                    onMinuteChange={(v) => updateSlot(day.value, idx, "end_minute", v)} 
+                                                                />
+                                                            </div>
+                                                            
+                                                            {/* Tombol Hapus disamping */}
+                                                            <button 
+                                                                type="button" 
+                                                                onClick={() => removeSlot(day.value, idx)} 
+                                                                className="h-11 px-3 flex items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-500 hover:bg-rose-50 hover:border-rose-300 transition-colors"
+                                                                title="Hapus slot waktu"
+                                                            >
+                                                                <IconTrash size={18} />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                    
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => addSlot(day.value)} 
+                                                        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:border-slate-300"
+                                                    >
+                                                        <IconPlus size={16} />
+                                                        Tambah Slot
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
                                 })}
                             </div>
                             {errors.schedules && <p className="text-xs text-rose-500">{errors.schedules}</p>}

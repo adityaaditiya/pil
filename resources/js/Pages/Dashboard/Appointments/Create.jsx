@@ -26,7 +26,7 @@ const weekdayLabels = {
 };
 
 const hourOptions = Array.from({ length: 17 }, (_, index) => String(index + 6).padStart(2, "0"));
-const minuteOptions = Array.from({ length: 7 }, (_, index) => String(index * 5).padStart(2, "0"));
+const minuteOptions = Array.from({ length: 13 }, (_, index) => String(index * 5).padStart(2, "0"));
 const createEmptySlot = () => ({ start_hour: "06", start_minute: "00", end_hour: "07", end_minute: "00" });
 const paymentMethodOptions = [
     { value: "credit_only", label: "Hanya bisa pakai credits" },
