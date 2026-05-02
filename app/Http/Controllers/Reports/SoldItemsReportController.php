@@ -100,7 +100,7 @@ class SoldItemsReportController extends Controller
         );
 
         $soldItems = (clone $baseQuery)
-            ->orderBy('products.title')
+            ->orderByRaw('LOWER(products.title)')
             ->orderBy('transaction_details.id')
             ->get();
 
@@ -149,7 +149,7 @@ class SoldItemsReportController extends Controller
                 ->whereHas('transaction', fn ($query) => $query->notCanceled()),
             $filters
         )
-            ->orderBy('products.title')
+            ->orderByRaw('LOWER(products.title)')
             ->orderBy('transaction_details.id')
             ->get();
 
