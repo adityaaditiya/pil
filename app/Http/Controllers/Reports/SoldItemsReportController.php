@@ -166,21 +166,31 @@ class SoldItemsReportController extends Controller
         })->all();
 
         $totalItems = (int) $soldItems->sum(fn ($item) => (int) ($item->qty ?? 0));
-        $totalPrice = (int) $soldItems->sum(fn ($item) => (int) ($item->price ?? 0));
+        $totalPrice = (int) $soldItems->sum(fn ($item) => ((int) ($item->qty ?? 0)) * ((int) ($item->price ?? 0)));
 
-        $recapItems = $soldItems
-            ->groupBy(fn ($item) => mb_strtolower(trim((string) ($item->product?->title ?? '-'))))
-            ->map(function ($items) {
-                $firstItem = $items->first();
-                $title = trim((string) ($firstItem?->product?->title ?? '-'));
 
+        $recapItems = $this->applyFilters(
+            TransactionDetail::query()
+                ->leftJoin('products', 'products.id', '=', 'transaction_details.product_id')
+                ->whereHas('transaction', fn ($query) => $query->notCanceled()),
+            $filters
+        )
+            ->selectRaw('
+                transaction_details.product_id,
+                COALESCE(products.title, '-') as product_title,
+                COALESCE(SUM(transaction_details.qty), 0) as total_qty,
+                COALESCE(SUM(transaction_details.qty * transaction_details.price), 0) as total_price
+            ')
+            ->groupBy('transaction_details.product_id', 'products.title')
+            ->orderByRaw("LOWER(COALESCE(products.title, '-'))")
+            ->get()
+            ->map(function ($item) {
                 return [
-                    'title' => $title !== '' ? $title : '-',
-                    'total_qty' => (int) $items->sum(fn ($item) => (int) ($item->qty ?? 0)),
-                    'total_price' => (int) $items->sum(fn ($item) => ((int) ($item->qty ?? 0)) * ((int) ($item->price ?? 0))),
+                    'title' => trim((string) ($item->product_title ?? '-')) !== '' ? trim((string) $item->product_title) : '-',
+                    'total_qty' => (int) ($item->total_qty ?? 0),
+                    'total_price' => (int) ($item->total_price ?? 0),
                 ];
             })
-            ->sortBy(fn ($item) => mb_strtolower($item['title']))
             ->values();
 
         $recapRows = $recapItems->values()->map(function ($item, $index) {
