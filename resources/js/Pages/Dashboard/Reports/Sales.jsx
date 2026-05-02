@@ -238,7 +238,7 @@ const Sales = ({
 
     return (
         <>
-            <Head title="Laporan Penjualan" />
+            <Head title="Laporan Penjualan Produk" />
 
             <div className="space-y-6">
                 {/* Header */}
@@ -252,7 +252,7 @@ const Sales = ({
                             Laporan Penjualan
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Analisis dan ringkasan penjualan
+                            Analisis dan ringkasan penjualan produk
                         </p>
                     </div>
                     <button
