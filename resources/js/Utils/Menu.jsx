@@ -314,7 +314,7 @@ function Menu() {
                     permissions: hasAnyPermission(["reports-access"]),
                 },
                 {
-                    title: "Laporan Barang Terjual",
+                    title: "Laporan Produk Terjual",
                     href: route("reports.sold-items.index"),
                     active: url.startsWith("/dashboard/reports/sold-items"),
                     icon: <IconBooks size={20} strokeWidth={1.5} />,
