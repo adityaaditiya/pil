@@ -168,18 +168,59 @@ class SoldItemsReportController extends Controller
         $totalItems = (int) $soldItems->sum(fn ($item) => (int) ($item->qty ?? 0));
         $totalPrice = (int) $soldItems->sum(fn ($item) => (int) ($item->price ?? 0));
 
+        $recapItems = $soldItems
+            ->groupBy(fn ($item) => mb_strtolower(trim((string) ($item->product?->title ?? '-'))))
+            ->map(function ($items) {
+                $firstItem = $items->first();
+                $title = trim((string) ($firstItem?->product?->title ?? '-'));
+
+                return [
+                    'title' => $title !== '' ? $title : '-',
+                    'total_qty' => (int) $items->sum(fn ($item) => (int) ($item->qty ?? 0)),
+                    'total_price' => (int) $items->sum(fn ($item) => ((int) ($item->qty ?? 0)) * ((int) ($item->price ?? 0))),
+                ];
+            })
+            ->sortBy(fn ($item) => mb_strtolower($item['title']))
+            ->values();
+
+        $recapRows = $recapItems->values()->map(function ($item, $index) {
+            return [
+                $index + 1,
+                $item['title'],
+                $item['total_qty'],
+                $this->formatCurrency($item['total_price']),
+            ];
+        })->all();
+
+        $sections = [
+            [
+                'title' => 'Detail Penjualan Produk',
+                'headers' => $headers,
+                'rows' => $rows,
+                'footer_lines' => [
+                    'Total Barang Terjual: ' . $totalItems,
+                    'Total Harga: ' . $this->formatCurrency($totalPrice),
+                ],
+                'column_widths' => [0.55, 1.35, 3.25, 0.85, 1.5, 2.0],
+            ],
+            [
+                'title' => 'Rekap Penjualan per Produk',
+                'headers' => ['No', 'Title Produk', 'Total Terjual', 'Total Penjualan'],
+                'rows' => $recapRows,
+                'column_widths' => [0.6, 3.5, 1.2, 1.8],
+            ],
+        ];
+
         return $this->downloadPdf(
             'laporan-barang-terjual.pdf',
             'Laporan Barang Terjual',
             $this->buildPeriodLabel($filters),
             $headers,
             $rows,
-            [
-                'Total Barang Terjual: ' . $totalItems,
-                'Total Harga: ' . $this->formatCurrency($totalPrice),
-            ],
+            [],
             'landscape',
-            [0.55, 1.35, 3.25, 0.85, 1.5, 2.0]
+            [],
+            $sections
         );
     }
 
@@ -228,14 +269,19 @@ class SoldItemsReportController extends Controller
         return 'PERIODE : ' . $startDate . ' s/d ' . $endDate;
     }
 
-    protected function downloadPdf(string $filename, string $title, string $period, array $headers, array $rows, array $footerLines = [], string $orientation = 'portrait', array $columnWidths = [])
+    protected function downloadPdf(string $filename, string $title, string $period, array $headers, array $rows, array $footerLines = [], string $orientation = 'portrait', array $columnWidths = [], array $sections = [])
     {
-        $pdfBinary = SimplePdfExport::make($title, $period, $headers, [], [[
-            "title" => "",
-            "rows" => $rows,
-            "footer_lines" => $footerLines,
-            "column_widths" => $columnWidths,
-        ]], $orientation);
+        $resolvedSections = count($sections) > 0
+            ? $sections
+            : [[
+                "title" => "",
+                "headers" => $headers,
+                "rows" => $rows,
+                "footer_lines" => $footerLines,
+                "column_widths" => $columnWidths,
+            ]];
+
+        $pdfBinary = SimplePdfExport::make($title, $period, $headers, [], $resolvedSections, $orientation);
 
         return response($pdfBinary, 200, [
             'Content-Type' => 'application/pdf',
