@@ -179,6 +179,7 @@ class SalesReportController extends Controller
                         ->pluck('product.title')
                         ->filter()
                         ->unique()
+                        ->sortBy(fn ($title) => mb_strtolower($title))
                         ->implode(', ');
 
                     return [
