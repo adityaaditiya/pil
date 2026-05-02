@@ -51,6 +51,7 @@ const defaultFilterState = {
     invoice: "",
     cashier_id: "",
     customer_id: "",
+    category_id: "",
     shift: "",
     payment_method: "",
 };
@@ -79,6 +80,7 @@ const Sales = ({
     filters,
     cashiers,
     customers,
+    categories,
     paymentMethods,
 }) => {
     const [showFilters, setShowFilters] = useState(false);
@@ -89,6 +91,7 @@ const Sales = ({
         invoice: castFilterString(filters?.invoice),
         cashier_id: castFilterString(filters?.cashier_id),
         customer_id: castFilterString(filters?.customer_id),
+        category_id: castFilterString(filters?.category_id),
         shift: castFilterString(filters?.shift),
         payment_method: castFilterString(filters?.payment_method),
     });
@@ -129,6 +132,7 @@ const Sales = ({
             invoice: castFilterString(filters?.invoice),
             cashier_id: castFilterString(filters?.cashier_id),
             customer_id: castFilterString(filters?.customer_id),
+            category_id: castFilterString(filters?.category_id),
             shift: castFilterString(filters?.shift),
             payment_method: castFilterString(filters?.payment_method),
         });
@@ -178,6 +182,7 @@ const Sales = ({
         filterData.end_date ||
         filterData.cashier_id ||
         filterData.customer_id ||
+        filterData.category_id ||
         filterData.shift ||
         filterData.payment_method;
 
@@ -277,7 +282,7 @@ const Sales = ({
                 {showFilters && (
                     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 animate-slide-up">
                         <form onSubmit={applyFilters}>
-                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                         Tanggal Mulai
@@ -335,6 +340,25 @@ const Sales = ({
                                     placeholder="Semua kasir"
                                     searchable
                                 /> */}
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Kategori
+                                    </label>
+                                    <select
+                                        value={filterData.category_id}
+                                        onChange={(e) =>
+                                            handleChange("category_id", e.target.value)
+                                        }
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                                    >
+                                        <option value="">Semua kategori</option>
+                                        {(categories ?? []).map((category) => (
+                                            <option key={category.id} value={category.id}>
+                                                {category.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                         Shift
