@@ -305,7 +305,7 @@ function Menu() {
             title: "Laporan",
             details: [
                 {
-                    title: "Laporan Penjualan",
+                    title: "Laporan Penjualan Produk",
                     href: route("reports.sales.index"),
                     active: url.startsWith("/dashboard/reports/sales"),
                     icon: (
