@@ -198,7 +198,7 @@ function Menu() {
                 //     permissions: hasAnyPermission(["dashboard-access"]),
                 // },
                 {
-                    title: "Timetable",
+                    title: "Transaksi Timetable",
                     href: route("timetable.index"),
                     active: url.startsWith("/dashboard/timetable"),
                     icon: <IconCalendarEvent size={20} strokeWidth={1.5} />,
@@ -212,7 +212,7 @@ function Menu() {
                     permissions: hasAnyPermission(["bookings-history-access"]),
                 },
                 {
-                    title: "Appointment",
+                    title: "Transaksi Appointment",
                     href: route("appointments.index"),
                     active: url.startsWith("/dashboard/appointments"),
                     icon: <IconCalendarClock size={20} strokeWidth={1.5} />,
@@ -232,7 +232,7 @@ function Menu() {
             title: "Membership",
             details: [
                 {
-                    title: "Membership",
+                    title: "Transaksi Membership",
                     href: route("memberships.plans"),
                     active: url === "/dashboard/memberships/plans",
                     icon: <IconBadge size={20} strokeWidth={1.5} />,
@@ -258,7 +258,7 @@ function Menu() {
             title: "Transaksi",
             details: [
                 {
-                    title: "Transaksi Penjualan",
+                    title: "Transaksi Penjualan Produk",
                     href: route("transactions.index"),
                     active: url === "/dashboard/transactions" ? true : false, // Update comparison here
                     icon: <IconShoppingCart size={20} strokeWidth={1.5} />,
