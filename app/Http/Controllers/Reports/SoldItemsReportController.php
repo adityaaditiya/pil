@@ -177,7 +177,7 @@ class SoldItemsReportController extends Controller
                 return [
                     'title' => $title !== '' ? $title : '-',
                     'total_qty' => (int) $items->sum(fn ($item) => (int) ($item->qty ?? 0)),
-                    'total_price' => (int) $items->sum(fn ($item) => ((int) ($item->qty ?? 0)) * ((int) ($item->price ?? 0))),
+                    'total_price' => (int) $items->sum(fn ($item) => (int) ($item->price ?? 0)),
                 ];
             })
             ->sortBy(fn ($item) => mb_strtolower($item['title']))
