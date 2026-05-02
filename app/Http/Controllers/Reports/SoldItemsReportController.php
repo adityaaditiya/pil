@@ -205,15 +205,15 @@ class SoldItemsReportController extends Controller
             ],
             [
                 'title' => 'Rekap Penjualan per Produk',
-                'headers' => ['No', 'Title Produk', 'Total Terjual', 'Total Penjualan'],
+                'headers' => ['No', 'Nama Produk', 'Total Terjual', 'Total Penjualan'],
                 'rows' => $recapRows,
                 'column_widths' => [0.6, 3.5, 1.2, 1.8],
             ],
         ];
 
         return $this->downloadPdf(
-            'laporan-barang-terjual.pdf',
-            'Laporan Barang Terjual',
+            'laporan-produk-terjual.pdf',
+            'Laporan produk Terjual',
             $this->buildPeriodLabel($filters),
             $headers,
             $rows,
