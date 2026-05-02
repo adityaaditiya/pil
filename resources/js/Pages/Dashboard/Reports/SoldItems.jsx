@@ -180,12 +180,12 @@ const SoldItems = ({ soldItems, summary, filters, cashiers, customers }) => {
 
     return (
         <>
-            <Head title="Laporan Barang Terjual" />
+            <Head title="Laporan Produk Terjual" />
             <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
-                            Laporan Barang Terjual
+                            Laporan Produk Terjual
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                             Detail produk yang terjual berdasarkan periode.
