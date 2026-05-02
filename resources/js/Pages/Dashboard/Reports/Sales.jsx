@@ -249,7 +249,7 @@ const Sales = ({
                                 size={28}
                                 className="text-primary-500"
                             />
-                            Laporan Penjualan
+                            Laporan Penjualan Produk
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
                             Analisis dan ringkasan penjualan produk
