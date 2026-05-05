@@ -131,6 +131,10 @@ export default function WelcomeSchedulePayment({
         data.payment_type === "drop_in" &&
         ["debit", "credit_card"].includes(data.payment_method);
 
+    const showQrisNotice =
+    data.payment_type === "drop_in" &&
+    data.payment_method === "qris";
+
     const submitBooking = (event) => {
         event.preventDefault();
 
@@ -322,7 +326,8 @@ export default function WelcomeSchedulePayment({
                                                     Slot Booking Peserta
                                                 </td>
                                                 <td className="px-4 py-3 text-slate-700">
-                                                    <input
+                                                    {/* ganti participan hanya 1 */}
+                                                    {/* <input
                                                         type="number"
                                                         min={1}
                                                         max={Math.max(
@@ -343,6 +348,13 @@ export default function WelcomeSchedulePayment({
                                                             )
                                                         }
                                                         className="w-24 rounded-xl border border-slate-300 px-3 py-2 text-sm"
+                                                    /> */}
+
+                                                    <input
+                                                        type="number"
+                                                        value={1}
+                                                        disabled
+                                                        className="w-24 rounded-xl border border-slate-300 px-3 py-2 text-sm bg-slate-100 cursor-not-allowed"
                                                     />
                                                 </td>
                                             </tr>
@@ -466,6 +478,12 @@ export default function WelcomeSchedulePayment({
                                         </div>
                                     )}
 
+                                    {showQrisNotice && (
+                                        <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-800">
+                                            Pembayaran QRIS belum tersedia.
+                                        </div>
+                                    )}
+
                                     {(bookingError || errors.payment_type) && (
                                         <p className="text-sm text-red-500">
                                             {bookingError ||
@@ -482,6 +500,7 @@ export default function WelcomeSchedulePayment({
                                         type="submit"
                                         disabled={
                                             showCashierOnlyNotice ||
+                                            showQrisNotice ||
                                             processing ||
                                             remainingSlots < 1 ||
                                             alreadyBooked

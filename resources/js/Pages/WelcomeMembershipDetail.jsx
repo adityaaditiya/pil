@@ -29,6 +29,7 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
     );
 
     const showCashierOnlyNotice = ["debit", "credit_card"].includes(data.payment_method);
+    const showQrisNotice = data.payment_method === "qris";
 
     const handleCheckout = (event) => {
         event.preventDefault();
@@ -160,9 +161,20 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                                             Pembayaran membership menggunakan metode DEBIT & CREDIT CARD hanya bisa dilakukan saat berada di kasir.
                                         </div>
                                     )}
+                                    {showQrisNotice && (
+                                        <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-800">
+                                            Pembayaran QRIS belum tersedia.
+                                        </div>
+                                    )}
                                     <button
                                         type="submit"
-                                        disabled={!auth?.user || !paymentGateways.length || processing || showCashierOnlyNotice}
+                                        disabled={
+                                            !auth?.user ||
+                                            !paymentGateways.length ||
+                                            processing ||
+                                            showCashierOnlyNotice ||
+                                            showQrisNotice
+                                        }
                                         className="w-full rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:bg-slate-400"
                                     >
                                         Selesaikan Pembayaran

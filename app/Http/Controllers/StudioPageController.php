@@ -899,7 +899,7 @@ class StudioPageController extends Controller
             'payment_type' => ['required', 'in:credit,drop_in'],
             'payment_method' => ['nullable', 'string', 'max:50'],
             'membership_id' => ['nullable', 'integer'],
-            'participants' => ['nullable', 'integer', 'min:1'],
+            'participants' => ['required', 'integer', 'in:1'],
         ]);
 
         $timetable = PilatesTimetable::query()
