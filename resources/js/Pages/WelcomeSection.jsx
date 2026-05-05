@@ -843,6 +843,10 @@ useEffect(() => {
         selectedAppointmentPaymentType === "drop_in" &&
         ["debit", "credit_card"].includes(selectedAppointmentPaymentGateway);
 
+    const showQrisNotice =
+        selectedAppointmentPaymentType === "drop_in" &&
+        selectedAppointmentPaymentGateway === "qris";
+
     const submitAppointmentCheckout = () => {
         if (!auth?.user) {
             router.get(route("login", { redirect: route("welcome.page", "appointment", false) }));
@@ -1594,7 +1598,7 @@ useEffect(() => {
                                                             </label>
                                                             {selectedAppointmentPaymentType === "drop_in" && (
                                                                 <div>
-                                                                    <label className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Pilih payment gateway</label>
+                                                                    <label className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Pilih metode pembayaran</label>
                                                                     <select
                                                                         value={selectedAppointmentPaymentGateway}
                                                                         onChange={(event) => setSelectedAppointmentPaymentGateway(event.target.value)}
@@ -1619,16 +1623,23 @@ useEffect(() => {
                                         </div>
 
                                         {showCashierOnlyNotice && (
-                                        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-medium text-amber-800">
-                                            Pembayaran booking menggunakan metode DEBIT & CREDIT CARD hanya bisa dilakukan saat berada di kasir.
-                                        </div>
-                                    )}
+                                            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-medium text-amber-800">
+                                                Pembayaran booking menggunakan metode DEBIT & CREDIT CARD hanya bisa dilakukan saat berada di kasir.
+                                            </div>
+                                        )}
+
+                                        {showQrisNotice && (
+                                            <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-800">
+                                                Pembayaran QRIS belum tersedia.
+                                            </div>
+                                        )}
 
                                         <button
                                             type="button"
                                             onClick={submitAppointmentCheckout}
                                             disabled={
                                                 showCashierOnlyNotice ||
+                                                showQrisNotice ||
                                                 !canShowAppointmentPrice ||
                                                 (selectedAppointmentPaymentType === "credit" && (!hasMembershipCreditForSelection || !hasEnoughCreditForSession))
                                             }
