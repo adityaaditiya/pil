@@ -129,6 +129,7 @@ class StudioPageController extends Controller
                 ])
                     ->withSum(['bookings as booked_slots' => fn ($query) => $this->bookingSlotsQuery($query)], 'participants')
                     ->where('status', 'scheduled')
+                    ->when($normalizedKey === 'schedule', fn ($query) => $query->where('start_at', '>=', now()))
                     ->when($normalizedKey === 'appointment', fn ($query) => $query->whereHas('pilatesClass', fn ($classQuery) => $classQuery->where('available_for_appointment', true)))
                     ->orderBy('start_at')
                     ->get(['id', 'pilates_class_id', 'trainer_id', 'start_at', 'capacity', 'duration_minutes', 'price_override', 'allow_drop_in'])
