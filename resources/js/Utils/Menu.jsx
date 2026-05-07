@@ -198,7 +198,7 @@ function Menu() {
                 //     permissions: hasAnyPermission(["dashboard-access"]),
                 // },
                 {
-                    title: "Transaksi Timetable",
+                    title: "Timetable",
                     href: route("timetable.index"),
                     active: url.startsWith("/dashboard/timetable"),
                     icon: <IconCalendarEvent size={20} strokeWidth={1.5} />,
@@ -212,7 +212,7 @@ function Menu() {
                     permissions: hasAnyPermission(["bookings-history-access"]),
                 },
                 {
-                    title: "Transaksi Appointment",
+                    title: "Appointment",
                     href: route("appointments.index"),
                     active: url.startsWith("/dashboard/appointments"),
                     icon: <IconCalendarClock size={20} strokeWidth={1.5} />,

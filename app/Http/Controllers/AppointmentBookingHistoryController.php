@@ -33,11 +33,11 @@ class AppointmentBookingHistoryController extends Controller
             ->latest('booked_at');
 
         if ($startDate) {
-            $query->where('booked_at', '>=', Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay()->timezone('UTC'));
+            $query->whereDate('booked_at', '>=', $startDate);
         }
 
         if ($endDate) {
-            $query->where('booked_at', '<=', Carbon::parse($endDate, 'Asia/Jakarta')->endOfDay()->timezone('UTC'));
+            $query->whereDate('booked_at', '<=', $endDate);
         }
 
         if ($invoice !== '') {

@@ -25,11 +25,11 @@ class MembershipHistoryController extends Controller
             ->latest('created_at');
 
         if ($startDate) {
-            $query->where('created_at', '>=', Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay()->timezone('UTC'));
+            $query->whereDate('created_at', '>=', $startDate);
         }
 
         if ($endDate) {
-            $query->where('created_at', '<=', Carbon::parse($endDate, 'Asia/Jakarta')->endOfDay()->timezone('UTC'));
+            $query->whereDate('created_at', '<=', $endDate);
         }
 
         if ($invoice !== '') {
