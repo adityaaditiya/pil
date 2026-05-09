@@ -478,7 +478,9 @@ class CashReportController extends Controller
                 ->whereTime('created_at', '<=', '23:59:59');
         }
 
-        if (! empty($filters['invoice']) || ! empty($filters['customer_id'])) {
+        $query->when($filters['invoice'] ?? null, fn ($q, $search) => $q->where('description', 'like', '%' . $search . '%'));
+
+        if (! empty($filters['customer_id'])) {
             $query->whereRaw('1 = 0');
         }
 
