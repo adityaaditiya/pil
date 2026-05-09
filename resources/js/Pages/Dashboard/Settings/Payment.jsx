@@ -95,7 +95,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
                     <select
                         value={data.default_gateway}
                         onChange={(e) => setData("default_gateway", e.target.value)}
-                        className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                        className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:text-white dark:bg-slate-800"
                     >
                         {supportedGateways.map((gw) => (
                             <option
@@ -115,7 +115,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
                     )}
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 dark:text-white p-6 space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className={methodCardClass}>
                             <p className="text-sm font-semibold">QRIS</p>
@@ -160,7 +160,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
                 </div>
 
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
-                    <h3 className="text-sm font-semibold">Detail QRIS</h3>
+                    <h3 className="text-sm font-semibold dark:text-white">Detail QRIS</h3>
                     <Input
                         label="Nama Lengkap"
                         type="text"
@@ -169,7 +169,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
                         errors={errors?.qris_full_name}
                     />
                     <div>
-                        <p className="text-sm font-medium mb-2">Upload Gambar QRIS</p>
+                        <p className="text-sm font-medium mb-2 dark:text-white">Upload Gambar QRIS</p>
                         <div className="w-44 h-44 border rounded-xl overflow-hidden bg-slate-100 mb-3 flex items-center justify-center">
                             {currentQrisImage ? (
                                 <img
@@ -191,7 +191,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
                 </div>
 
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
-                    <h3 className="text-sm font-semibold">Detail Transfer Bank</h3>
+                    <h3 className="text-sm font-semibold dark:text-white">Detail Transfer Bank</h3>
                     <div className="grid gap-4 md:grid-cols-2">
                         <Input
                             label="Nama Bank"
@@ -223,7 +223,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
 
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-semibold flex items-center gap-2">
+                        <h3 className="text-sm font-semibold dark:text-white flex items-center gap-2">
                             <IconBrandStripe size={18} /> Midtrans Snap
                         </h3>
                         <Checkbox
@@ -253,8 +253,8 @@ export default function Payment({ setting, supportedGateways = [] }) {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
-                    <h3 className="text-sm font-semibold">Xendit Invoice</h3>
+                {/* <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+                    <h3 className="text-sm font-semibold dark:text-white">Xendit Invoice</h3>
                     <Checkbox
                         checked={data.xendit_enabled}
                         onChange={(e) => setData("xendit_enabled", e.target.checked)}
@@ -279,7 +279,36 @@ export default function Payment({ setting, supportedGateways = [] }) {
                             errors={errors?.xendit_public_key}
                         />
                     </div>
+                </div> */}
+
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+                {/* Kontainer Header dengan Flexbox */}
+                <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold dark:text-white">Xendit Invoice</h3>
+                    <Checkbox
+                        checked={data.xendit_enabled}
+                        onChange={(e) => setData("xendit_enabled", e.target.checked)}
+                    />
                 </div>
+
+                {/* Grid Input */}
+                <div className="grid gap-4 md:grid-cols-2">
+                    <Input
+                        label="Secret Key"
+                        type="text"
+                        value={data.xendit_secret_key}
+                        onChange={(e) => setData("xendit_secret_key", e.target.value)}
+                        errors={errors?.xendit_secret_key}
+                    />
+                    <Input
+                        label="Public Key"
+                        type="text"
+                        value={data.xendit_public_key}
+                        onChange={(e) => setData("xendit_public_key", e.target.value)}
+                        errors={errors?.xendit_public_key}
+                    />
+                </div>
+            </div>
 
                 <div className="flex justify-end">
                     <button

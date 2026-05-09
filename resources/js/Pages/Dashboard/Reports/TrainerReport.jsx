@@ -13,6 +13,8 @@ import {
     IconX,
     IconClockHour4,
     IconPercentage,
+    IconFileTypePdf,
+    IconFileSpreadsheet,
 } from "@tabler/icons-react";
 
 const defaultFilterState = {
@@ -222,7 +224,7 @@ const TrainerReport = ({ filters, rows, summary, trainerOptions, classTypeOption
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="border-b border-slate-100 dark:border-slate-800">
+                                        <tr className="border-b border-slate-100 dark:border-slate-800 dark:text-slate-400">
                                             <th className="px-4 py-4 text-left text-xs font-semibold uppercase">No</th>
                                             <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Tanggal</th>
                                             <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Jenis Kelas</th>
@@ -234,7 +236,7 @@ const TrainerReport = ({ filters, rows, summary, trainerOptions, classTypeOption
                                             {/* <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Okupansi</th> */}
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 dark:text-slate-400">
                                         {tableRows.map((item, i) => (
                                             <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                                 <td className="px-4 py-4 text-sm">{i + 1 + (currentPage - 1) * perPage}</td>
@@ -254,11 +256,11 @@ const TrainerReport = ({ filters, rows, summary, trainerOptions, classTypeOption
                         </div>
 
                         <div className="flex flex-wrap justify-end gap-2">
-                            <a href={exportPdfHref} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800">
-                                <IconDownload size={16} /> Ekspor PDF
+                            <a href={exportPdfHref} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors">
+                                <IconFileTypePdf size={16} /> Ekspor PDF
                             </a>
-                            <a href={exportExcelHref} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white">
-                                <IconDownload size={16} /> Ekspor Excel
+                            <a href={exportExcelHref} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors">
+                                <IconFileSpreadsheet size={16} /> Ekspor Excel
                             </a>
                         </div>
                     </>

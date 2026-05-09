@@ -286,7 +286,7 @@ const Cash = ({ transactions, summary, filters, cashiers, customers }) => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Pencarian Global
+                                        Cari Data
                                     </label>
                                     <input
                                         type="text"
@@ -444,14 +444,14 @@ const Cash = ({ transactions, summary, filters, cashiers, customers }) => {
                                 type="button"
                                 label="Export PDF"
                                 icon={<IconFileTypePdf size={18} />}
-                                className="bg-red-500 hover:bg-red-600 text-white"
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors"
                                 onClick={handleExportPdf}
                             />
                             <Button
                                 type="button"
                                 label="Export Excel"
                                 icon={<IconFileSpreadsheet size={18} />}
-                                className="bg-success-500 hover:bg-success-600 text-white"
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors"
                                 onClick={handleExport}
                             />
                         </div>

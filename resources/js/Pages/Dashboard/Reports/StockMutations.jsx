@@ -192,7 +192,7 @@ const StockMutations = ({ mutations, filters, summary }) => {
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-slate-100 dark:border-slate-800">
+                                <tr className="border-b border-slate-100 dark:border-slate-800 dark:text-slate-400">
                                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase">Tanggal</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase">Produk</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase">Tipe</th>
@@ -204,7 +204,7 @@ const StockMutations = ({ mutations, filters, summary }) => {
                             <tbody>
                                 {rows.length > 0 ? (
                                     rows.map((item) => (
-                                        <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800">
+                                        <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 dark:text-slate-400">
                                             <td className="px-4 py-3 text-sm">{new Date(item.created_at).toLocaleString("id-ID")}</td>
                                             <td className="px-4 py-3 text-sm">{item.product?.title || "-"}</td>
                                             <td className="px-4 py-3 text-sm">
@@ -232,14 +232,14 @@ const StockMutations = ({ mutations, filters, summary }) => {
                 <div className="flex justify-end gap-2 mt-4 px-4 pb-4">
                     <a
                         href={route("reports.stock-mutations.export-pdf", filterData)}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors"
                     >
                         <IconFileTypePdf size={18} />
                         Export PDF
                     </a>
                     <a
                         href={route("reports.stock-mutations.export", filterData)}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-500 hover:bg-primary-600 text-white"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors"
                     >
                         <IconFileSpreadsheet size={18} />
                         Export Excel

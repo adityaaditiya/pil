@@ -556,7 +556,7 @@ const Sales = ({
                                 type="button"
                                 label="Export Excel"
                                 icon={<IconFileSpreadsheet size={18} />}
-                                className="bg-success-500 hover:bg-success-600 text-white"
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors"
                                 onClick={handleExport}
                             />
                         </div>

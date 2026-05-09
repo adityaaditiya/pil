@@ -514,7 +514,7 @@ export default function Welcome() {
                             <div className="mt-5 space-y-2 text-sm text-primary-100">
                                 <p className="flex items-center gap-2"><IconMapPin size={16} /> Jl. Layur No. 08, Kota Tegal</p>
                                 <p className="flex items-center gap-2"><IconClock size={16} /> Senin - Sabtu, 07:00 - 20:00</p>
-                                <p className="flex items-center gap-2"><IconPhone size={16} /> +62 823-2692-3196</p>
+                                <p className="flex items-center gap-2"><IconPhone size={16} /> +62 821-3003-567</p>
                             </div>
                         </div>
 
