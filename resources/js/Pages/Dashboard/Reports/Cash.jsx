@@ -286,11 +286,11 @@ const Cash = ({ transactions, summary, filters, cashiers, customers }) => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Invoice
+                                        Pencarian Global
                                     </label>
                                     <input
                                         type="text"
-                                        placeholder="TRX-..."
+                                        placeholder="Cari invoice / deskripsi..."
                                         value={filterData.invoice}
                                         onChange={(e) =>
                                             handleChange(
