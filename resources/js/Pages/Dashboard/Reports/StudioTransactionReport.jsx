@@ -321,7 +321,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                     </div>
                 )}
                 <div className="flex justify-end gap-2 mt-4">
-                    {report.route === "reports.membership.index" && exportBaseRoute && (<>
+                    {exportBaseRoute && (<>
                         <a href={route(`${exportBaseRoute}.export-pdf`, filterData)} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors">
                             <IconFileTypePdf size={18} />
                             Export PDF
