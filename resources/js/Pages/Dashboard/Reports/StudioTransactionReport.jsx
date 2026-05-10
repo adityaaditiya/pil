@@ -44,6 +44,7 @@ const defaultFilterState = {
     end_date: "",
     invoice: "",
     payment_method: "",
+    membership_plan_id: "",
 };
 
 const formatCurrency = (value = 0) =>
@@ -55,7 +56,7 @@ const formatCurrency = (value = 0) =>
 
 const castFilterString = (value) => (typeof value === "number" ? String(value) : value ?? "");
 
-const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethods }) => {
+const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethods, membershipPlans = [] }) => {
     const [showFilters, setShowFilters] = useState(false);
     const [filterData, setFilterData] = useState({
         ...defaultFilterState,
@@ -63,6 +64,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
         end_date: castFilterString(filters?.end_date),
         invoice: castFilterString(filters?.invoice),
         payment_method: castFilterString(filters?.payment_method),
+        membership_plan_id: castFilterString(filters?.membership_plan_id),
     });
 
     useEffect(() => {
@@ -72,6 +74,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
             end_date: castFilterString(filters?.end_date),
             invoice: castFilterString(filters?.invoice),
             payment_method: castFilterString(filters?.payment_method),
+            membership_plan_id: castFilterString(filters?.membership_plan_id),
         });
     }, [filters]);
 
@@ -100,7 +103,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
     const currentPage = rows?.current_page ?? 1;
     const perPage = rows?.per_page ? Number(rows?.per_page) : tableRows.length || 1;
 
-    const hasActiveFilters = filterData.invoice || filterData.start_date || filterData.end_date || filterData.payment_method;
+    const hasActiveFilters = filterData.invoice || filterData.start_date || filterData.end_date || filterData.payment_method || filterData.membership_plan_id;
 
     const exportBaseRoute = report.route === "reports.booking.index"
         ? "reports.booking"
@@ -185,7 +188,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                 {showFilters && (
                     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 animate-slide-up">
                         <form onSubmit={applyFilters}>
-                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tanggal Mulai</label>
                                     <input
@@ -229,6 +232,23 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                         ))}
                                     </select>
                                 </div>
+                                {report.route === "reports.membership.index" && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Membership Plan</label>
+                                        <select
+                                            value={filterData.membership_plan_id}
+                                            onChange={(e) => handleChange("membership_plan_id", e.target.value)}
+                                            className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                                        >
+                                            <option value="">Semua membership plan</option>
+                                            {membershipPlans.map((plan) => (
+                                                <option key={plan.id} value={plan.id}>
+                                                    {plan.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
                             </div>
                             <div className="flex justify-end gap-2 mt-4">
                                 {hasActiveFilters && (

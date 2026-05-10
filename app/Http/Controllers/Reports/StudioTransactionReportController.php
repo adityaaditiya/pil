@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
 use App\Models\AppointmentBooking;
+use App\Models\MembershipPlan;
 use App\Models\PilatesBooking;
 use App\Models\UserMembership;
 use App\Support\SimplePdfExport;
@@ -126,6 +127,7 @@ class StudioTransactionReportController extends Controller
             $filters,
             'created_at'
         )
+            ->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('membership_plan_id', $planId))
             ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method));
 
         $memberships = (clone $baseQuery)
@@ -162,6 +164,10 @@ class StudioTransactionReportController extends Controller
             'paymentMethods' => $this->extractPaymentMethods(
                 UserMembership::query()->whereNotIn('status', $excludedStatus)
             ),
+            'membershipPlans' => MembershipPlan::query()
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
@@ -174,6 +180,7 @@ class StudioTransactionReportController extends Controller
             'end_date' => $request->input('end_date') ?: $defaultDate,
             'invoice' => trim((string) $request->input('invoice')),
             'payment_method' => $request->input('payment_method'),
+            'membership_plan_id' => $request->input('membership_plan_id'),
         ];
     }
 
@@ -279,7 +286,8 @@ class StudioTransactionReportController extends Controller
                 UserMembership::query()->whereNotIn('status', $excludedStatus)->with(['user:id,name', 'plan:id,name,price']),
                 $filters,
                 'created_at'
-            )->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+            )->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('membership_plan_id', $planId))
+                ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
                 ->latest('created_at')->get();
 
             return ['Laporan Membership', $items->values()->map(fn ($membership, $index) => [
