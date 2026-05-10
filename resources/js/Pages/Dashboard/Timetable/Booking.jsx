@@ -87,9 +87,9 @@ export default function Booking({ session, customers = [], paymentGateways = [],
                             <input
                                 type="number"
                                 min={1}
-                                max={session?.remaining_slots || 1}
-                                value={data.participants}
-                                onChange={(e) => setData("participants", e.target.value)}
+                                max={1}
+                                value={1}
+                                readOnly
                                 className="w-full rounded-xl border border-slate-200 px-4 py-2.5"
                             />
                             {errors.participants && <p className="mt-1 text-xs text-red-500">{errors.participants}</p>}
