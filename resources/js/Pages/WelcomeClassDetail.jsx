@@ -8,8 +8,18 @@ import {
 } from "@tabler/icons-react";
 import Navbar from "@/Components/Landing/Navbar";
 
+const defaultNavItems = [
+        { name: "Home", key: "home" },
+        { name: "Classes", key: "classes" },
+        { name: "Schedule", key: "schedule" },
+        { name: "Pricing", key: "pricing" },
+        { name: "Trainer", key: "trainer" },
+        { name: "Appointment", key: "appointment" },
+        { name: "Contact", key: "contact" },
+    ];
+
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
-export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
+export default function WelcomeClassDetail({  navItems = defaultNavItems, classItem, menuItems = [] }) {
     const isAvailableForTimetable = Boolean(classItem.available_for_timetable);
     const isAvailableForAppointment = Boolean(classItem.available_for_appointment);
     const bookNowHref = isAvailableForTimetable
@@ -45,7 +55,7 @@ export default function WelcomeClassDetail({ classItem, menuItems = [] }) {
         <>
             <Head title={`${classItem.name} | Detail Kelas`} />
             <div className="min-h-screen bg-gradient-to-b from-wellness-beige to-white text-wellness-text">
-                <Navbar navItems={[{ name: "Home", key: "home" }, ...menuItems.filter((item) => item.key !== "home")]} currentKey="classes" />
+                <Navbar navItems={navItems} currentKey="home" />
 
                 <section className="mx-auto max-w-6xl px-4 py-10">
                     <Link href={route("welcome.page", "classes")} className="mb-6 inline-flex items-center gap-2 text-sm text-primary-600">

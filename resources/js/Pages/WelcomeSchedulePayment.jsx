@@ -106,8 +106,15 @@ export default function WelcomeSchedulePayment({
                   {
                       key: "drop_in",
                       title: "Drop-In Payment",
-                      description:
-                          "Bayar per sesi secara langsung dengan metode payment gateway yang tersedia.",
+                      description: (
+                            <>
+                                Bayar per sesi secara langsung dengan metode payment gateway yang tersedia.
+                                <br />
+                                <span className="text-xs italic text-red-500 mt-1 block">
+                                    *Pembayaran drop-in hanya bisa dilakukan di jam operasional studio.
+                                </span>
+                            </>
+                    ),
                       hint: formatRupiah(schedule.price_override),
                       icon: IconCreditCard,
                   },

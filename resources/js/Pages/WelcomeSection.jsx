@@ -152,7 +152,7 @@ const contactFaqs = [
 const contactInfo = {
     email: "oropadeltegal@gmail.com",
     address: "Jl. Layur No. 08, Tegalsari, Kec. Tegal Barat, Kota Tegal, Jawa Tengah 52111",
-    hours: "Senin - Minggu, 06:00 - 21:00 WIB",
+    hours: "Senin - Minggu, 06:00 - 19:00 WIB",
     instagramUrl: "https://www.instagram.com/orostudio.tegal/",
     tiktokUrl: "https://www.tiktok.com/@oropilatesstudio",
     whatsappUrl: "https://wa.me/628213003567",

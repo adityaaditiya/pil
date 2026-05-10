@@ -125,6 +125,9 @@ export default function WelcomeMembershipDetail({ plan, paymentGateways = [] }) 
                                     <p className="inline-flex items-center gap-2"><IconStar size={16} /> {plan?.credits || 0} total credits </p> &nbsp;&nbsp;
                                     <p className="mt-2 inline-flex items-center gap-1"><IconClock size={16} /> Masa aktif {plan?.valid_days ? `${plan.valid_days} hari` : "tanpa batas waktu"}</p>
                                     <p className="mt-2 inline-flex items-center gap-2"><IconCreditCard size={16} /> Total bayar {formatRupiah(plan?.price)}</p>
+                                    <span className="text-xs italic text-red-500 mt-1 block">
+                                    *Pembayaran drop-in hanya bisa dilakukan di jam operasional studio.
+                                    </span>
                                 </div>
 
                                 <form onSubmit={handleCheckout} className="space-y-3">

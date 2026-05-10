@@ -285,7 +285,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                         <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Pelanggan</th>
                                         <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Item</th>
                                         <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Metode Pembayaran</th>
-                                        <th className="px-4 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Qty</th>
+                                        <th className="px-4 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Credits</th>
                                         <th className="px-4 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Total</th>
                                     </tr>
                                 </thead>

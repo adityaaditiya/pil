@@ -237,7 +237,7 @@ class StudioTransactionReportController extends Controller
     {
         $filters = $this->buildFilters($request);
         [$title, $rows] = $this->buildExportRows($type, $filters);
-        $headers = ['No', 'Tanggal', 'Invoice', 'Pelanggan', 'Item', 'Metode Pembayaran', 'Qty', 'Total'];
+        $headers = ['No', 'Tanggal', 'Invoice', 'Pelanggan', 'Item', 'Metode Pembayaran', 'Credits', 'Total'];
 
         if (! $asPdf) {
             return $this->downloadExcel('laporan-' . $type . '.xls', $headers, $rows);
