@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Reports;
 use App\Http\Controllers\Controller;
 use App\Models\AppointmentBooking;
 use App\Models\PilatesBooking;
+use App\Models\MembershipPlan;
 use App\Models\UserMembership;
 use App\Support\SimplePdfExport;
 use Carbon\Carbon;
@@ -126,7 +127,10 @@ class StudioTransactionReportController extends Controller
             $filters,
             'created_at'
         )
-            ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method));
+            ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+            ->when($filters['membership_plan_name'] ?? null, function ($q, $planName) {
+                $q->whereHas('plan', fn ($planQuery) => $planQuery->where('name', $planName));
+            });
 
         $memberships = (clone $baseQuery)
             ->latest('created_at')
@@ -162,6 +166,9 @@ class StudioTransactionReportController extends Controller
             'paymentMethods' => $this->extractPaymentMethods(
                 UserMembership::query()->whereNotIn('status', $excludedStatus)
             ),
+            'membershipPlanNames' => MembershipPlan::query()
+                ->orderBy('name')
+                ->pluck('name'),
         ]);
     }
 
@@ -174,6 +181,7 @@ class StudioTransactionReportController extends Controller
             'end_date' => $request->input('end_date') ?: $defaultDate,
             'invoice' => trim((string) $request->input('invoice')),
             'payment_method' => $request->input('payment_method'),
+            'membership_plan_name' => trim((string) $request->input('membership_plan_name')),
         ];
     }
 
