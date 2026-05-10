@@ -289,127 +289,128 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
             </Modal>
 
             <Modal 
-    title="Data Peserta Appointment" 
-    show={Boolean(participantAppointment)} 
-    onClose={closeParticipantsModal} 
-    maxWidth="2xl"
->
-    {participantAppointment && (
-        <div className="space-y-6 p-2">
-            {/* Header Info Appointment - High-End Aesthetic */}
-            <div className="overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-white to-slate-50/50 p-6 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:to-slate-800">
-                <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-primary-600 dark:text-primary-400">
-                            Private Session
-                        </span>
-                        <h4 className="text-xl font-extrabold tracking-tight text-slate-800 dark:text-white">
-                            {participantAppointment.pilates_class?.name || "Appointment"}
-                        </h4>
-                        <div className="flex items-center gap-3 text-sm text-slate-500">
-                            <div className="flex items-center gap-1.5">
-                                <svg className="h-4 w-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <span>{participantAppointment.start_at_label} — {participantAppointment.end_at_label}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 dark:bg-primary-900/20">
-                         <svg className="h-7 w-7 text-primary-600 dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            {/* Content Section */}
-            <div className="space-y-4">
-                <div className="flex items-center justify-between px-1">
-                    <h5 className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                        Detail Reservasi
-                    </h5>
-                    <span className="text-[11px] font-medium text-slate-400">
-                        {participantAppointment.participants?.length || 0} Booking Terdaftar
-                    </span>
-                </div>
-                
-                {(participantAppointment.participants?.length || 0) > 0 ? (
-                    <div className="max-h-[45vh] overflow-y-auto pr-1 space-y-4 custom-scrollbar">
-                        {participantAppointment.participants.map((participant, index) => (
-                            <div 
-                                key={participant.id} 
-                                className="group relative rounded-2xl border border-slate-100 bg-white p-5 transition-all hover:border-primary-100 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/40"
-                            >
-                                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                                    <div className="flex gap-4">
-                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-50 text-[13px] font-bold text-slate-400 group-hover:bg-primary-600 group-hover:text-white transition-colors dark:bg-slate-800">
-                                            {index + 1}
-                                        </div>
-                                        <div>
-                                            <p className="text-base font-bold text-slate-900 dark:text-white">
-                                                {participant.name}
-                                            </p>
-                                            <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                                                <p className="text-xs text-slate-500">
-                                                    <span className="opacity-60">Inv:</span> <span className="font-mono">{participant.invoice || "-"}</span>
-                                                </p>
-                                            </div>
+                title="Data Peserta Appointment" 
+                show={Boolean(participantAppointment)} 
+                onClose={closeParticipantsModal} 
+                maxWidth="2xl"
+                >
+                    
+                {participantAppointment && (
+                    <div className="space-y-6 p-2">
+                        {/* Header Info Appointment - High-End Aesthetic */}
+                        <div className="overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-white to-slate-50/50 p-6 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:to-slate-800">
+                            <div className="flex items-center justify-between">
+                                <div className="space-y-1">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-primary-600 dark:text-primary-400">
+                                        Private Session
+                                    </span>
+                                    <h4 className="text-xl font-extrabold tracking-tight text-slate-800 dark:text-white">
+                                        {participantAppointment.pilates_class?.name || "Appointment"}
+                                    </h4>
+                                    <div className="flex items-center gap-3 text-sm text-slate-500">
+                                        <div className="flex items-center gap-1.5">
+                                            <svg className="h-4 w-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            <span>{participantAppointment.start_at_label} — {participantAppointment.end_at_label}</span>
                                         </div>
                                     </div>
-                                    
-                                    {participant.customer_id ? (
-                                        <Link
-                                            href={route("customers.questionnaire.edit", participant.customer_id)}
-                                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-tighter text-slate-600 transition hover:bg-slate-50 hover:text-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                                        >
-                                            Kuesioner
-                                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg>
-                                        </Link>
-                                    ) : (
-                                        <span className="text-[10px] font-medium text-slate-300 italic px-2">No profile</span>
-                                    )}
                                 </div>
-
-                                {/* Status Toggle - Premium Group */}
-                                <div className="mt-5 grid grid-cols-3 gap-2 border-t border-slate-50 pt-4 dark:border-slate-800">
-                                    {[
-                                        { label: "Belum Absen", value: "pending", color: "hover:bg-amber-50 hover:text-amber-600 active:bg-amber-100" },
-                                        { label: "Hadir", value: "present", color: "hover:bg-emerald-50 hover:text-emerald-600 active:bg-emerald-100" },
-                                        { label: "Tidak Hadir", value: "absent", color: "hover:bg-red-50 hover:text-red-600 active:bg-red-100" },
-                                    ].map((statusOption) => (
-                                        <button
-                                            key={statusOption.value}
-                                            type="button"
-                                            onClick={() => updateAttendanceStatus(participant.id, statusOption.value)}
-                                            className={`rounded-xl py-2.5 text-[11px] font-bold uppercase tracking-widest transition-all duration-200 ${
-                                                participant.attendance_status === statusOption.value
-                                                    ? "bg-primary-600 text-white shadow-lg shadow-primary-200 ring-2 ring-primary-600 dark:ring-offset-slate-900"
-                                                    : `bg-slate-50 text-slate-400 dark:bg-slate-800 ${statusOption.color}`
-                                            }`}
-                                        >
-                                            {statusOption.label}
-                                        </button>
-                                    ))}
+                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 dark:bg-primary-900/20">
+                                    <svg className="h-7 w-7 text-primary-600 dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-slate-100 py-16 dark:border-slate-800">
-                        <div className="mb-4 rounded-full bg-slate-50 p-4 dark:bg-slate-800">
-                            <svg className="h-10 w-10 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
                         </div>
-                        <p className="text-sm font-bold text-slate-300">Kosong</p>
-                        <p className="text-xs text-slate-400">Belum ada appointment terdaftar</p>
+
+                        {/* Content Section */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between px-1">
+                                <h5 className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                                    Detail Reservasi
+                                </h5>
+                                <span className="text-[11px] font-medium text-slate-400">
+                                    {participantAppointment.participants?.length || 0} Booking Terdaftar
+                                </span>
+                            </div>
+                            
+                            {(participantAppointment.participants?.length || 0) > 0 ? (
+                                <div className="max-h-[45vh] overflow-y-auto pr-1 space-y-4 custom-scrollbar">
+                                    {participantAppointment.participants.map((participant, index) => (
+                                        <div 
+                                            key={participant.id} 
+                                            className="group relative rounded-2xl border border-slate-100 bg-white p-5 transition-all hover:border-primary-100 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/40"
+                                        >
+                                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                                <div className="flex gap-4">
+                                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-50 text-[13px] font-bold text-slate-400 group-hover:bg-primary-600 group-hover:text-white transition-colors dark:bg-slate-800">
+                                                        {index + 1}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-base font-bold text-slate-900 dark:text-white">
+                                                            {participant.name}
+                                                        </p>
+                                                        <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                                                            <p className="text-xs text-slate-500">
+                                                                <span className="opacity-60">Inv:</span> <span className="font-mono">{participant.invoice || "-"}</span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                {participant.customer_id ? (
+                                                    <Link
+                                                        href={route("customers.questionnaire.edit", participant.customer_id)}
+                                                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-tighter text-slate-600 transition hover:bg-slate-50 hover:text-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                                                    >
+                                                        Kuesioner
+                                                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M9 5l7 7-7 7" /></svg>
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-[10px] font-medium text-slate-300 italic px-2">No profile</span>
+                                                )}
+                                            </div>
+
+                                            {/* Status Toggle - Premium Group */}
+                                            <div className="mt-5 grid grid-cols-3 gap-2 border-t border-slate-50 pt-4 dark:border-slate-800">
+                                                {[
+                                                    { label: "Belum Absen", value: "pending", color: "hover:bg-amber-50 hover:text-amber-600 active:bg-amber-100" },
+                                                    { label: "Hadir", value: "present", color: "hover:bg-emerald-50 hover:text-emerald-600 active:bg-emerald-100" },
+                                                    { label: "Tidak Hadir", value: "absent", color: "hover:bg-red-50 hover:text-red-600 active:bg-red-100" },
+                                                ].map((statusOption) => (
+                                                    <button
+                                                        key={statusOption.value}
+                                                        type="button"
+                                                        onClick={() => updateAttendanceStatus(participant.id, statusOption.value)}
+                                                        className={`rounded-xl py-2.5 text-[11px] font-bold uppercase tracking-widest transition-all duration-200 ${
+                                                            participant.attendance_status === statusOption.value
+                                                                ? "bg-primary-600 text-white shadow-lg shadow-primary-200 ring-2 ring-primary-600 dark:ring-offset-slate-900"
+                                                                : `bg-slate-50 text-slate-400 dark:bg-slate-800 ${statusOption.color}`
+                                                        }`}
+                                                    >
+                                                        {statusOption.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-slate-100 py-16 dark:border-slate-800">
+                                    <div className="mb-4 rounded-full bg-slate-50 p-4 dark:bg-slate-800">
+                                        <svg className="h-10 w-10 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                        </svg>
+                                    </div>
+                                    <p className="text-sm font-bold text-slate-300">Kosong</p>
+                                    <p className="text-xs text-slate-400">Belum ada appointment terdaftar</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
-            </div>
-        </div>
-    )}
-</Modal>
+            </Modal>
         </>
     );
 }
