@@ -335,59 +335,100 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                 )}
             </Modal>
 
-            <Modal title="Data Peserta" show={Boolean(participantSession)} onClose={closeParticipantsModal} maxWidth="3xl">
-                {participantSession && (
-                    <div className="space-y-4 p-1">
-                        <div className="rounded-2xl bg-slate-50 p-4 text-sm dark:bg-slate-800">
-                            <p className="font-semibold text-slate-800 dark:text-slate-100">{participantSession.class?.name}</p>
-                            <p className="text-slate-500">
-                                {participantSession.start_at_label} - {participantSession.end_at_label} WIB
-                            </p>
-                            {/* <p className="mt-1 text-slate-500">
-                                Total booking confirmed: <span className="font-semibold text-slate-800 dark:text-slate-100">{participantSession.participants?.length || 0}</span>
-                            </p> */}
+                    <Modal 
+            title="Data Peserta" 
+            show={Boolean(participantSession)} 
+            onClose={closeParticipantsModal} 
+            maxWidth="2xl" // Diperkecil dari 3xl agar lebih proporsional di tengah
+        >
+            {participantSession && (
+                <div className="space-y-6 p-2">
+                    {/* Header Info Sesi - Premium Card */}
+                    <div className="overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-5 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:to-slate-800">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h4 className="text-lg font-bold tracking-tight text-slate-800 dark:text-white">
+                                    {participantSession.class?.name}
+                                </h4>
+                                <div className="mt-1 flex items-center gap-2 text-sm text-slate-500">
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {participantSession.start_at_label} — {participantSession.end_at_label} 
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <span className="inline-flex items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">
+                                    {participantSession.participants?.length || 0} Peserta
+                                </span>
+                            </div>
                         </div>
+                    </div>
 
+                    {/* List Peserta */}
+                    <div className="space-y-4">
+                        <h5 className="px-1 text-xs font-bold uppercase tracking-widest text-slate-400">
+                            Daftar Absensi
+                        </h5>
+                        
                         {(participantSession.participants?.length || 0) > 0 ? (
-                            <div className="space-y-3">
+                            <div className="max-h-[50vh] overflow-y-auto pr-2 space-y-4 custom-scrollbar">
                                 {participantSession.participants.map((participant, index) => (
-                                    <div key={participant.id} className="rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
-                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                            <div>
-                                                <p className="font-semibold text-slate-900 dark:text-white">
-                                                    {index + 1}. {participant.name}
-                                                </p>
-                                                <p className="text-sm text-slate-500">Jumlah peserta: {participant.participants_count}</p>
-                                                <p className="text-sm text-slate-500">No. Invoice: {participant.invoice || "-"}</p>
+                                    <div 
+                                        key={participant.id} 
+                                        className="group relative rounded-2xl border border-slate-100 bg-white p-5 transition-all hover:border-primary-100 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/50"
+                                    >
+                                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                            <div className="flex gap-4">
+                                                {/* Avatar Placeholder / Index */}
+                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-500 group-hover:bg-primary-100 group-hover:text-primary-600 dark:bg-slate-800">
+                                                    {index + 1}
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-slate-900 dark:text-white">
+                                                        {participant.name}
+                                                    </p>
+                                                    <div className="mt-1 space-y-0.5">
+                                                        <p className="text-xs text-slate-500 flex items-center gap-1">
+                                                            <span className="font-medium">Invoice:</span> {participant.invoice || "-"}
+                                                        </p>
+                                                        {/* <p className="text-xs text-slate-500">
+                                                            {participant.participants_count} Peserta didaftarkan
+                                                        </p> */}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            {participant.customer_id ? (
-                                                <Link
-                                                    href={route("customers.questionnaire.edit", participant.customer_id)}
-                                                    className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-100"
-                                                >
-                                                    Data Kuesioner Peserta
-                                                </Link>
-                                            ) : (
-                                                <span className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-500 dark:bg-slate-700">
-                                                    Data customer tidak tersedia
-                                                </span>
-                                            )}
+                                            
+                                            <div className="flex flex-col items-end gap-2">
+                                                {participant.customer_id ? (
+                                                    <Link
+                                                        href={route("customers.questionnaire.edit", participant.customer_id)}
+                                                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-tight text-slate-600 transition hover:bg-slate-50 hover:text-primary-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                                                    >
+                                                        Kuesioner
+                                                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 5l7 7-7 7" strokeWidth={3} /></svg>
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-[10px] font-medium text-slate-400 italic">Data tidak tersedia</span>
+                                                )}
+                                            </div>
                                         </div>
 
-                                        <div className="mt-3 flex flex-wrap gap-2">
+                                        {/* Attendance Actions */}
+                                        <div className="mt-5 flex items-center gap-2 border-t border-slate-50 pt-4 dark:border-slate-800">
                                             {[
-                                                { label: "Belum Absen", value: "pending" },
-                                                { label: "Hadir", value: "present" },
-                                                { label: "Tidak Hadir", value: "absent" },
+                                                { label: "Belum Absen", value: "pending", color: "hover:bg-amber-50 hover:text-amber-600" },
+                                                { label: "Hadir", value: "present", color: "hover:bg-emerald-50 hover:text-emerald-600" },
+                                                { label: "Tidak Hadir", value: "absent", color: "hover:bg-red-50 hover:text-red-600" },
                                             ].map((statusOption) => (
                                                 <button
                                                     key={statusOption.value}
                                                     type="button"
                                                     onClick={() => updateAttendanceStatus(participant.id, statusOption.value)}
-                                                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                                                    className={`flex-1 rounded-xl py-2 text-[11px] font-bold uppercase tracking-wider transition-all ${
                                                         participant.attendance_status === statusOption.value
-                                                            ? "bg-primary-600 text-white"
-                                                            : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200"
+                                                            ? "bg-primary-600 text-white shadow-lg shadow-primary-200"
+                                                            : `bg-slate-50 text-slate-500 dark:bg-slate-800 ${statusOption.color}`
                                                     }`}
                                                 >
                                                     {statusOption.label}
@@ -398,13 +439,19 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                 ))}
                             </div>
                         ) : (
-                            <p className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-slate-700">
-                                Belum ada booking dengan status confirmed pada sesi ini.
-                            </p>
+                            <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-100 py-12 dark:border-slate-800">
+                                <div className="rounded-full bg-slate-50 p-4 dark:bg-slate-800">
+                                    <svg className="h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                </div>
+                                <p className="mt-4 text-sm font-medium text-slate-400">Belum ada booking pada sesi ini</p>
+                            </div>
                         )}
                     </div>
-                )}
-            </Modal>
+                </div>
+            )}
+        </Modal>
         </>
     );
 }
