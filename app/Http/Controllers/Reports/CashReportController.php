@@ -191,7 +191,7 @@ class CashReportController extends Controller
             'transactions' => $transactions,
             'summary' => $summary,
             'filters' => $filters,
-            'cashiers' => User::role('cashier')->select('id', 'name')->orderBy('name')->get(),
+            'cashiers' => User::select('id', 'name')->orderBy('name')->get(),
             'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
         ]);
     }
