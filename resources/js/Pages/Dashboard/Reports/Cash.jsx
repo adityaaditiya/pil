@@ -73,7 +73,7 @@ const cashEntryCategories = [
     "UANG LAIN LAIN",
 ];
 
-const Cash = ({ transactions, summary, filters, cashiers, customers }) => {
+const Cash = ({ transactions, summary, filters, cashiers }) => {
     const [showFilters, setShowFilters] = useState(false);
     const [filterData, setFilterData] = useState({
         ...defaultFilterState,
@@ -94,25 +94,11 @@ const Cash = ({ transactions, summary, filters, cashiers, customers }) => {
         [cashiers, filterData.cashier_id]
     );
 
-    const customerFromFilters = useMemo(
-        () =>
-            customers.find(
-                (c) => castFilterString(c.id) === filterData.customer_id
-            ) ?? null,
-        [customers, filterData.customer_id]
-    );
-
     const [selectedCashier, setSelectedCashier] = useState(cashierFromFilters);
-    const [selectedCustomer, setSelectedCustomer] =
-        useState(customerFromFilters);
 
     useEffect(
         () => setSelectedCashier(cashierFromFilters),
         [cashierFromFilters]
-    );
-    useEffect(
-        () => setSelectedCustomer(customerFromFilters),
-        [customerFromFilters]
     );
     useEffect(() => {
         setFilterData({
@@ -133,11 +119,6 @@ const Cash = ({ transactions, summary, filters, cashiers, customers }) => {
         setSelectedCashier(value);
         handleChange("cashier_id", value ? String(value.id) : "");
     };
-    const handleSelectCustomer = (value) => {
-        setSelectedCustomer(value);
-        handleChange("customer_id", value ? String(value.id) : "");
-    };
-
     const applyFilters = (e) => {
         e.preventDefault();
         router.get(route("reports.cash.index"), filterData, {
@@ -150,7 +131,6 @@ const Cash = ({ transactions, summary, filters, cashiers, customers }) => {
     const resetFilters = () => {
         setFilterData(defaultFilterState);
         setSelectedCashier(null);
-        setSelectedCustomer(null);
         router.get(route("reports.cash.index"), defaultFilterState, {
             preserveScroll: true,
             preserveState: true,
@@ -301,14 +281,14 @@ const Cash = ({ transactions, summary, filters, cashiers, customers }) => {
                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                     />
                                 </div>
-                                {/* <InputSelect
-                                    label="Kasir"
+                                <InputSelect
+                                    label="User Kasir"
                                     data={cashiers}
                                     selected={selectedCashier}
                                     setSelected={handleSelectCashier}
-                                    placeholder="Semua kasir"
+                                    placeholder="Semua user kasir"
                                     searchable
-                                /> */}
+                                />
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                         Shift
@@ -359,14 +339,6 @@ const Cash = ({ transactions, summary, filters, cashiers, customers }) => {
                                         ))}
                                     </select>
                                 </div>
-                                {/* <InputSelect
-                                    label="Pelanggan"
-                                    data={customers}
-                                    selected={selectedCustomer}
-                                    setSelected={handleSelectCustomer}
-                                    placeholder="Semua pelanggan"
-                                    searchable
-                                /> */}
                             </div>
                             <div className="flex justify-end gap-2 mt-4">
                                 {hasActiveFilters && (
