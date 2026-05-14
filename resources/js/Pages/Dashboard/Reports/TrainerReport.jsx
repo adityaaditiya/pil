@@ -226,7 +226,7 @@ const TrainerReport = ({ filters, rows, summary, trainerOptions, classTypeOption
                                     <thead>
                                         <tr className="border-b border-slate-100 dark:border-slate-800 dark:text-slate-400">
                                             <th className="px-4 py-4 text-left text-xs font-semibold uppercase">No</th>
-                                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Tanggal</th>
+                                            <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Tanggal Sesi</th>
                                             <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Jenis Kelas</th>
                                             <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Nama Kelas</th>
                                             <th className="px-4 py-4 text-left text-xs font-semibold uppercase">Trainer</th>
