@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Head, Link, usePage } from "@inertiajs/react";
-import { IconArrowLeft, IconFileInvoice, IconPrinter, IconReceipt, IconCheck } from "@tabler/icons-react";
+import { IconArrowLeft, IconFileInvoice, IconPrinter, IconReceipt } from "@tabler/icons-react";
 import { getImageUrl } from "@/Utils/imageUrl";
 
 export default function Print({ booking }) {
@@ -9,7 +9,7 @@ export default function Print({ booking }) {
     
     const studioLogoImage = getImageUrl(landingPageSetting?.studio_logo_image, "landing-page");
     const studioAddress = landingPageSetting?.studio_address || "Jl. Layur No. 08, Tegalsari, Kec. Tegal Barat, Kota Tegal";
-    const studioPhone = landingPageSetting?.studio_phone || "08123456789";
+    const studioPhone = landingPageSetting?.studio_phone || "08213003567";
 
     const formatDateTime = (value) =>
         value
@@ -31,10 +31,12 @@ export default function Print({ booking }) {
 
     const handlePrint = () => window.print();
 
+    const isThermal = printMode === "thermal58" || printMode === "thermal80";
+
     return (
         <>
             <Head title={`Print ${booking.invoice}`} />
-            <div className="min-h-screen bg-slate-100 px-4 py-8 print:bg-white print:p-0 dark:bg-slate-950">
+            <div className="min-h-screen bg-slate-50 px-4 py-8 print:bg-white print:p-0 dark:bg-slate-950">
                 <div className="mx-auto max-w-4xl space-y-6">
                     
                     {/* --- NAVIGATION & CONTROLS (Hidden on Print) --- */}
@@ -43,138 +45,115 @@ export default function Print({ booking }) {
                             href={route("appointments.history")} 
                             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
                         >
-                            <IconArrowLeft size={18} />Kembali ke Riwayat
+                            <IconArrowLeft size={18} />Kembali
                         </Link>
                         
                         <div className="flex items-center gap-2">
                             <div className="flex rounded-xl bg-slate-200 p-1 dark:bg-slate-800 shadow-inner">
-                                <button 
-                                    onClick={() => setPrintMode("invoice")} 
-                                    className={`rounded-lg px-4 py-2 text-xs font-semibold transition-all ${printMode === "invoice" ? "bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-white" : "text-slate-500 hover:text-slate-700"}`}
-                                >
-                                    <IconFileInvoice size={16} className="mr-1 inline" /> Invoice
-                                </button>
-                                <button 
-                                    onClick={() => setPrintMode("thermal80")} 
-                                    className={`rounded-lg px-4 py-2 text-xs font-semibold transition-all ${printMode === "thermal80" ? "bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-white" : "text-slate-500 hover:text-slate-700"}`}
-                                >
-                                    <IconReceipt size={16} className="mr-1 inline" /> 80mm
-                                </button>
-                                <button 
-                                    onClick={() => setPrintMode("thermal58")} 
-                                    className={`rounded-lg px-4 py-2 text-xs font-semibold transition-all ${printMode === "thermal58" ? "bg-white text-slate-900 shadow dark:bg-slate-700 dark:text-white" : "text-slate-500 hover:text-slate-700"}`}
-                                >
-                                    <IconReceipt size={16} className="mr-1 inline" /> 58mm
-                                </button>
+                                <button onClick={() => setPrintMode("invoice")} className={`rounded-lg px-4 py-2 text-xs font-bold transition-all ${printMode === "invoice" ? "bg-white shadow" : "text-slate-500"}`}>Invoice</button>
+                                <button onClick={() => setPrintMode("thermal80")} className={`rounded-lg px-4 py-2 text-xs font-bold transition-all ${printMode === "thermal80" ? "bg-white shadow" : "text-slate-500"}`}>80mm</button>
+                                <button onClick={() => setPrintMode("thermal58")} className={`rounded-lg px-4 py-2 text-xs font-bold transition-all ${printMode === "thermal58" ? "bg-white shadow" : "text-slate-500"}`}>58mm</button>
                             </div>
-                            <button 
-                                onClick={handlePrint} 
-                                className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white transition-all hover:bg-slate-800 active:scale-95"
-                            >
+                            <button onClick={handlePrint} className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-slate-800 transition-all">
                                 <IconPrinter size={18} /> Cetak
                             </button>
                         </div>
                     </div>
 
-                    {/* --- MAIN DOCUMENT CARD --- */}
-                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+                    {/* --- MAIN DOCUMENT --- */}
+                    <div className={`mx-auto bg-white dark:bg-slate-900 ${
+                        isThermal ? (printMode === "thermal58" ? "w-[58mm]" : "w-[80mm]") : "max-w-4xl rounded-3xl border border-slate-100 shadow-2xl"
+                    }`}>
                         
-                        <div className={
-                            printMode === "thermal58" ? "mx-auto w-[58mm] p-2" : 
-                            printMode === "thermal80" ? "mx-auto w-[80mm] p-3" : 
-                            "p-10 md:p-16" // Padding Premium untuk mode Invoice
-                        }>
+                        <div className={isThermal ? "p-4" : "p-10 md:p-16"}>
                             
-                            {/* HEADER SECTION */}
-                            <div className={`mb-10 border-b border-dashed border-slate-300 pb-8 ${printMode === 'invoice' ? 'flex flex-col md:flex-row justify-between items-start text-left border-solid border-slate-100' : 'text-center'}`}>
+                            {/* HEADER */}
+                            <div className={`mb-8 border-b border-dashed border-slate-200 pb-6 text-center ${!isThermal ? 'md:flex md:justify-between md:text-left md:items-start md:border-solid border-slate-100' : ''}`}>
                                 <div>
                                     {studioLogoImage && (
-                                        <div className={`flex items-center ${printMode === 'invoice' ? 'justify-start' : 'justify-center'} mb-4`}>
-                                            <img src={studioLogoImage} alt="Logo" className="h-14 w-auto object-contain" />
+                                        <div className={`flex mb-3 ${!isThermal ? 'justify-start' : 'justify-center'}`}>
+                                            <img src={studioLogoImage} alt="Logo" className="h-12 w-auto object-contain" />
                                         </div>
                                     )}
-                                    <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">ORO Studio</h2>
-                                    <p className="text-xs text-slate-500 mt-1 max-w-xs leading-relaxed">{studioAddress}</p>
-                                    <p className="text-xs text-slate-500 font-medium">Telp: {studioPhone}</p>
+                                    <h2 className="text-sm font-bold uppercase tracking-widest text-slate-900 dark:text-white">ORO STUDIO</h2>
+                                    <p className="text-[10px] text-slate-500 leading-tight mt-1">{studioAddress}</p>
+                                    <p className="text-[10px] text-slate-500">Telp. {studioPhone}</p>
                                 </div>
-
-                                {printMode === 'invoice' && (
-                                    <div className="text-right mt-8 md:mt-0">
-                                        <h1 className="text-4xl font-extralight tracking-[0.3em] text-slate-200 uppercase leading-none mb-2">Invoice</h1>
-                                        <p className="text-sm font-bold text-slate-900">NO. {booking.invoice}</p>
-                                        <div className="mt-4 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 border border-emerald-100">
-                                            <IconCheck size={12} /> {booking.status || "Paid"}
-                                        </div>
+                                
+                                {!isThermal && (
+                                    <div className="text-right hidden md:block">
+                                        <h1 className="text-4xl font-thin tracking-[0.2em] text-slate-200 uppercase mb-2">INVOICE</h1>
+                                        <p className="text-sm font-bold text-slate-800 leading-none">#{booking.invoice}</p>
                                     </div>
                                 )}
                             </div>
 
-                            {/* CONTENT / DETAIL SECTION */}
-                            <div className={printMode === 'invoice' ? 'grid md:grid-cols-2 gap-x-16 gap-y-10 mb-12' : 'space-y-1 text-sm'}>
+                            {/* DETAILS (Clean Style) */}
+                            <div className={`space-y-3 ${isThermal ? 'text-[11px]' : 'text-sm'}`}>
+                                <div className="flex justify-between items-start gap-4">
+                                    <span className="text-slate-400 shrink-0 uppercase tracking-tighter font-medium">Pelanggan</span>
+                                    <span className="font-bold text-slate-900 text-right">{booking.customer?.name || "-"}</span>
+                                </div>
+                                <div className="flex justify-between items-start gap-4">
+                                    <span className="text-slate-400 shrink-0 uppercase tracking-tighter font-medium">Tgl Booking</span>
+                                    <span className="text-slate-700 text-right">{formatDateTime(booking.booked_at || booking.created_at)}</span>
+                                </div>
+                                <div className="flex justify-between items-start gap-4">
+                                    <span className="text-slate-400 shrink-0 uppercase tracking-tighter font-medium">Pembayaran</span>
+                                    <span className="text-slate-700 text-right uppercase font-semibold">{booking.payment_method || "-"}</span>
+                                </div>
                                 
-                                {/* Info Group 1 */}
-                                <div className="space-y-2">
-                                    {printMode === 'invoice' && <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-50 pb-2">Detail Pelanggan</h3>}
-                                    <div className={printMode === 'invoice' ? 'pt-2' : ''}>
-                                        <p className={printMode === 'invoice' ? "text-[10px] text-slate-400 uppercase font-bold mb-1" : "text-slate-500"}>Pelanggan:</p>
-                                        <p className="font-bold text-slate-900 dark:text-white">{booking.customer?.name || "-"}</p>
-                                    </div>
-                                    <div>
-                                        <p className={printMode === 'invoice' ? "text-[10px] text-slate-400 uppercase font-bold mb-1" : "text-slate-500"}>Tanggal Booking:</p>
-                                        <p className="font-medium text-slate-700">{formatDateTime(booking.booked_at || booking.created_at)}</p>
-                                    </div>
-                                    <div>
-                                        <p className={printMode === 'invoice' ? "text-[10px] text-slate-400 uppercase font-bold mb-1" : "text-slate-500"}>Pembayaran:</p>
-                                        <p className="font-medium text-slate-700">{booking.payment_method || "-"}</p>
-                                    </div>
-                                </div>
-
-                                {/* Info Group 2 */}
-                                <div className="space-y-4">
-                                    {printMode === 'invoice' && <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-50 pb-2">Detail Sesi</h3>}
-                                    <div className={printMode === 'invoice' ? 'pt-2' : ''}>
-                                        <p className={printMode === 'invoice' ? "text-[10px] text-slate-400 uppercase font-bold mb-1" : "text-slate-500"}>Kelas & Sesi:</p>
-                                        <p className="font-bold text-slate-900 dark:text-white uppercase tracking-tight">{booking.appointment?.pilates_class?.name || "-"} ({booking.session_name || "-"})</p>
-                                    </div>
-                                    <div>
-                                        <p className={printMode === 'invoice' ? "text-[10px] text-slate-400 uppercase font-bold mb-1" : "text-slate-500"}>Trainer:</p>
-                                        <p className="font-medium text-slate-700">{booking.trainer?.name || "-"}</p>
-                                    </div>
-                                    <div className="flex gap-10">
-                                        <div>
-                                            <p className={printMode === 'invoice' ? "text-[10px] text-slate-400 uppercase font-bold mb-1" : "text-slate-500"}>Jadwal Sesi:</p>
-                                            <p className="font-medium text-slate-700">{formatDateTime(booking.appointment?.start_at)}</p>
-                                        </div>
-                                        <div>
-                                            <p className={printMode === 'invoice' ? "text-[10px] text-slate-400 uppercase font-bold mb-1" : "text-slate-500"}>Durasi:</p>
-                                            <p className="font-medium text-slate-700">{booking.appointment?.duration_minutes || 0} menit</p>
+                                <div className="pt-2 border-t border-slate-50 mt-2">
+                                    <div className="flex justify-between items-start gap-4">
+                                        <span className="text-slate-400 shrink-0 uppercase tracking-tighter font-medium">Kelas & Sesi</span>
+                                        <div className="text-right">
+                                            <p className="font-bold text-slate-900 uppercase leading-tight">{booking.appointment?.pilates_class?.name || "-"}</p>
+                                            <p className="text-[10px] text-slate-500 italic mt-0.5">{booking.session_name || "Private Session"}</p>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* PRICE SUMMARY SECTION */}
-                            <div className={`mt-4 pt-8 ${printMode === 'invoice' ? 'border-t-2 border-slate-900' : 'border-t border-dashed border-slate-300'}`}>
-                                <div className={`flex items-center justify-between ${printMode === 'invoice' ? 'bg-slate-50 p-8 rounded-2xl dark:bg-slate-800' : 'text-sm font-semibold'}`}>
-                                    <div className={printMode === 'invoice' ? 'space-y-1' : ''}>
-                                        <p className={printMode === 'invoice' ? 'text-sm font-bold uppercase tracking-widest text-slate-500' : ''}>Total Pembayaran</p>
-                                        {printMode === 'invoice' && <p className="text-[10px] text-slate-400 italic font-normal">Harga sudah termasuk pajak studio</p>}
-                                    </div>
-                                    <span className={printMode === 'invoice' ? 'text-4xl font-black text-slate-900 dark:text-white tracking-tighter' : ''}>
-                                        {formatCurrency(booking.price_amount || 0)}
+                                <div className="flex justify-between items-start gap-4">
+                                    <span className="text-slate-400 shrink-0 uppercase tracking-tighter font-medium">Trainer</span>
+                                    <span className="text-slate-700 text-right">{booking.trainer?.name || "-"}</span>
+                                </div>
+
+                                {/* Jadwal Sesi */}
+                                <div className="flex justify-between items-start gap-4">
+                                    <span className="text-slate-400 shrink-0 uppercase tracking-tighter font-medium">Jadwal Sesi</span>
+                                    <span className="text-slate-700 text-right">{formatDateTime(booking.appointment?.start_at || booking.timetable?.start_at)}</span>
+                                </div>
+
+                                {/* Durasi */}
+                                <div className="flex justify-between items-start gap-4">
+                                    <span className="text-slate-400 shrink-0 uppercase tracking-tighter font-medium">Durasi</span>
+                                    <span className="text-slate-700 text-right">
+                                        {booking.appointment?.duration_minutes || booking.timetable?.duration_minutes || 0} menit
                                     </span>
                                 </div>
                             </div>
 
-                            {/* FOOTER - INVOICE ONLY */}
-                            {printMode === 'invoice' && (
-                                <div className="mt-24 text-center border-t border-slate-100 pt-10">
-                                    <p className="text-sm italic text-slate-400 mb-6">"Investasi terbaik adalah kesehatan tubuh dan pikiran."</p>
-                                    <div className="flex justify-center gap-8 text-[10px] font-bold uppercase tracking-[0.4em] text-slate-300">
-                                        <span>Mindfulness</span>
-                                        <span>Movement</span>
-                                        <span>Wellness</span>
+                            {/* TOTAL SECTION */}
+                            <div className={`mt-8 pt-4 border-t ${isThermal ? 'border-dashed border-slate-300' : 'border-slate-900 border-t-2'}`}>
+                                <div className={`flex justify-between items-center ${!isThermal ? 'bg-slate-50 p-6 rounded-2xl' : ''}`}>
+                                    <span className={`font-bold text-slate-900 tracking-widest ${isThermal ? 'text-[11px]' : 'text-sm'}`}>TOTAL PEMBAYARAN
+                                        {printMode === 'invoice' && <p className="text-[10px] text-slate-400 italic font-normal">Harga sudah termasuk pajak studio</p>}
+                                    </span>
+                                    <span className={`font-black text-slate-900 ${isThermal ? 'text-sm' : 'text-3xl'}`}>
+                                        {formatCurrency(booking.price_amount || 0)}
+                                    </span>
+                                </div>
+                                {isThermal && (
+                                    <div className="mt-4 text-center">
+                                        <p className="text-[10px] text-slate-400 italic">Terima kasih atas kunjungan Anda</p>
                                     </div>
+                                )}
+                            </div>
+
+                            {/* FOOTER - INVOICE ONLY */}
+                            {!isThermal && (
+                                <div className="mt-16 text-center border-t border-slate-100 pt-10">
+                                     <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-200">ORO WELLNESS & MOVEMENT</p>
                                 </div>
                             )}
 
@@ -182,6 +161,19 @@ export default function Print({ booking }) {
                     </div>
                 </div>
             </div>
+
+            {/* CSS KHUSUS PRINT UNTUK THERMAL AGAR FULL HALAMAN KOSONG MENGIKUTI KERTAS */}
+            <style dangerouslySetInnerHTML={{ __html: `
+                @media print {
+                    @page { margin: 0; }
+                    body { margin: 0; padding: 0; background: white; }
+                    .print\\:hidden { display: none !important; }
+                    ${isThermal ? `
+                        .mx-auto { width: 100% !important; max-width: none !important; margin: 0 !important; border: none !important; box-shadow: none !important; }
+                        body { width: ${printMode === "thermal58" ? "58mm" : "80mm"}; }
+                    ` : ""}
+                }
+            `}} />
         </>
     );
 }
