@@ -22,8 +22,8 @@ export default function Index({ questions }) {
             </div>
 
             {/* Bagian Toolbar (Pencarian & Tombol Aksi) */}
-            <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:justify-between sm:items-center">
-                <div className="w-full sm:w-96 shadow-sm rounded-xl">
+            <div className="flex flex-col gap-4 mb-5 sm:flex-row sm:justify-between sm:items-center">
+                <div className="w-full sm:w-56 shadow-sm rounded-xl">
                     <Search url={route("questions.index")} placeholder="Cari pertanyaan..." className="w-full" />
                 </div>
                 <Link 
@@ -99,7 +99,7 @@ export default function Index({ questions }) {
 
             {/* Bagian Pagination */}
             {questions.last_page !== 1 && (
-                <div className="flex justify-center mt-8">
+                <div className="flex justify-end mt-1">
                     <Pagination links={questions.links} />
                 </div>
             )}

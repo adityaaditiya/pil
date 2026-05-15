@@ -46,7 +46,7 @@ class CustomerController extends Controller
                         $userQuery->where('email', 'like', '%' . $search . '%');
                     });
             });
-        })->with('user:id,email')->latest()->paginate(5);
+        })->with('user:id,email')->latest()->paginate(8);
 
         //return inertia
         return Inertia::render('Dashboard/Customers/Index', [
