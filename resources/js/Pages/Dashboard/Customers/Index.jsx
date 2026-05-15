@@ -22,15 +22,15 @@ import Pagination from "@/Components/Dashboard/Pagination";
 // Customer Card for Grid View
 function CustomerCard({ customer }) {
     return (
-        <div className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200">
+        <div className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 flex flex-col h-full">
             {/* Avatar & Name */}
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-3 mb-4">
                 <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent-400 to-accent-600 flex items-center justify-center text-white text-lg font-bold flex-shrink-0">
                         {customer.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                        <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200">
+                        <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200 line-clamp-1">
                             {customer.name}
                         </h3>
                     </div>
@@ -38,7 +38,7 @@ function CustomerCard({ customer }) {
             </div>
 
             {/* Contact Info */}
-            <div className="space-y-2 mb-4">
+            <div className="space-y-2 mb-6 flex-grow">
                 {customer.no_telp && (
                     <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                         <IconPhone size={16} />
@@ -63,23 +63,24 @@ function CustomerCard({ customer }) {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2 pt-4 border-t border-slate-100 dark:border-slate-800 mt-auto">
                 <Link
                     href={route("customers.questionnaire.edit", customer.id)}
                     className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-primary-100 text-primary-600 hover:bg-primary-200 dark:bg-primary-900/50 dark:text-primary-400 text-sm font-medium transition-colors"
+                    title="Kuesioner"
                 >
-                    <IconClipboardText size={16} />
-                    <span>Kuesioner</span>
+                    <IconClipboardText size={18} />
+                    {/* <span>Kuesioner</span> */}
                 </Link>
                 <Link
                     href={route("customers.edit", customer.id)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-warning-100 text-warning-600 hover:bg-warning-200 dark:bg-warning-900/50 dark:text-warning-400 text-sm font-medium transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-warning-50 text-warning-600 hover:bg-warning-500 hover:text-white border border-warning-100 transition-all"
+                    title="Edit"
                 >
-                    <IconPencilCog size={17} />
-                    {/* <span>Edit</span> */}
+                    <IconPencilCog size={18} />
                 </Link>
                 
-                <Button
+                {/* <Button
                     type={"delete"}
                     icon={<IconTrash size={16} />}
                     className={
@@ -87,6 +88,13 @@ function CustomerCard({ customer }) {
                     }
                     url={route("customers.destroy", customer.id)}
                     label=""
+                /> */}
+                <Button
+                    type={"delete"}
+                    icon={<IconTrash size={18} />}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-danger-100 text-danger-600 hover:bg-danger-200 dark:bg-danger-900/50 dark:text-danger-400 text-sm font-medium"
+                    url={route("customers.destroy", customer.id)}
+                    title="Delete"
                 />
             </div>
         </div>
