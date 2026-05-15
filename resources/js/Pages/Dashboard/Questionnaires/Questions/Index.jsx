@@ -22,7 +22,7 @@ export default function Index({ questions }) {
             </div>
 
             {/* Bagian Toolbar (Pencarian & Tombol Aksi) */}
-            <div className="flex flex-col gap-4 mb-5 sm:flex-row sm:justify-between sm:items-center">
+            <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:justify-between sm:items-center">
                 <div className="w-full sm:w-56 shadow-sm rounded-xl">
                     <Search url={route("questions.index")} placeholder="Cari pertanyaan..." className="w-full" />
                 </div>
@@ -39,7 +39,7 @@ export default function Index({ questions }) {
 
             {/* Bagian Tabel */}
             <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-2xl">
-                <Table.Card title="Template Pertanyaan Kuesioner" className="border-none shadow-none">
+                
                     <Table>
                         <Table.Thead className="bg-gray-50/80 border-b border-gray-100">
                             <tr>
@@ -94,7 +94,7 @@ export default function Index({ questions }) {
                             ))}
                         </Table.Tbody>
                     </Table>
-                </Table.Card>
+                
             </div>
 
             {/* Bagian Pagination */}
