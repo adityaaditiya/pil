@@ -297,13 +297,13 @@ export default function Dashboard({
                         icon={IconUserStar}
                         gradient="from-slate-600 to-slate-800"
                     />
-                    <StatCard
+                    {/* <StatCard
                         title="Okupansi Kelas Hari Ini"
                         value={`${todayClassOccupancyRate}%`}
                         subtitle={`${todayAttendanceCount}/${todayConfirmedBookingCount} hadir/tercatat`}
                         icon={IconBuildingCommunity}
                         gradient="from-stone-500 to-stone-700"
-                    />
+                    /> */}
                     <StatCard
                         title="Transaksi Hari Ini"
                         value={todayTransactions}
