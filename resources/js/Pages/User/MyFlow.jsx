@@ -272,18 +272,22 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                                                                 <IconUser size={16} />
                                                                 {client.name}
                                                             
-                                                            <span className={`rounded-full border px-3 py-0.9 text-xs font-semibold ${attendanceStyle[client.attendance_status] || attendanceStyle.pending}`}>
+                                                            {/* Status Kehadiran */}
+                                                            {/* <span className={`rounded-full border px-3 py-0.9 text-xs font-semibold ${attendanceStyle[client.attendance_status] || attendanceStyle.pending}`}>
                                                                 {attendanceText[client.attendance_status] || attendanceText.pending}
-                                                            </span>
+                                                            </span> */}
+
                                                             </p>
                                                             <span className="text-xs text-slate-500">Status Booking: {client.booking_status || "-"}</span>
                                                         </div>
 
-                                                        <div className="flex flex-wrap items-center gap-2">
+                                                        {/* Status Kehadiran */}
+                                                        {/* <div className="flex flex-wrap items-center gap-2"> */}
                                                             {/* <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${attendanceStyle[client.attendance_status] || attendanceStyle.pending}`}>
                                                                 {attendanceText[client.attendance_status] || attendanceText.pending}
                                                             </span> */}
-                                                            <button
+                                                            {/* ============================== */}
+                                                            {/* <button
                                                                 type="button"
                                                                 onClick={() => openQuestionnaire(client)}
                                                                 className="rounded-full border border-sky-200 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-50"
@@ -307,7 +311,7 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                                                             >
                                                                 Tidak Hadir
                                                             </button>
-                                                        </div>
+                                                        </div> */}
                                                     </div>
                                                 ))}
                                             </div>

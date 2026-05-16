@@ -416,7 +416,7 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                             </div>
 
                                             {/* Attendance Actions */}
-                                            <div className="mt-5 flex items-center gap-2 border-t border-slate-50 pt-4 dark:border-slate-800">
+                                            {/* <div className="mt-5 flex items-center gap-2 border-t border-slate-50 pt-4 dark:border-slate-800">
                                                 {[
                                                     { label: "Belum Absen", value: "pending", color: "hover:bg-amber-50 hover:text-amber-600" },
                                                     { label: "Hadir", value: "present", color: "hover:bg-emerald-50 hover:text-emerald-600" },
@@ -435,7 +435,7 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                                         {statusOption.label}
                                                     </button>
                                                 ))}
-                                            </div>
+                                            </div> */}
                                         </div>
                                     ))}
                                 </div>
