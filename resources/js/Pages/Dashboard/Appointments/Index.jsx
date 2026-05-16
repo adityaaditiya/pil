@@ -371,9 +371,10 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                                     <span className="text-[10px] font-medium text-slate-300 italic px-2">No profile</span>
                                                 )}
                                             </div>
-
+                                            
+                                            {/* Status Kehadiran */}
                                             {/* Status Toggle - Premium Group */}
-                                            <div className="mt-5 grid grid-cols-3 gap-2 border-t border-slate-50 pt-4 dark:border-slate-800">
+                                            {/* <div className="mt-5 grid grid-cols-3 gap-2 border-t border-slate-50 pt-4 dark:border-slate-800">
                                                 {[
                                                     { label: "Belum Absen", value: "pending", color: "hover:bg-amber-50 hover:text-amber-600 active:bg-amber-100" },
                                                     { label: "Hadir", value: "present", color: "hover:bg-emerald-50 hover:text-emerald-600 active:bg-emerald-100" },
@@ -392,7 +393,7 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                                         {statusOption.label}
                                                     </button>
                                                 ))}
-                                            </div>
+                                            </div> */}
                                         </div>
                                     ))}
                                 </div>
