@@ -244,11 +244,11 @@ class StudioTransactionReportController extends Controller
         }
 
         $pdfSections = [];
-        if (in_array($type, ['booking', 'appointment'], true)) {
+        if (in_array($type, ['booking', 'appointment', 'membership'], true)) {
             $pdfSections[] = [
                 'headers' => $headers,
                 'rows' => $rows,
-                'column_widths' => [0.55, 1.75, 1.05, 1.25, 1.3, 1.25, 0.85, 1.0],
+                'column_widths' => [0.50, 1.55, 1.30, 1.25, 1.3, 1.25, 0.85, 1.0],
             ];
         }
 
