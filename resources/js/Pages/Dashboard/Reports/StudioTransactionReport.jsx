@@ -298,12 +298,10 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                             <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">{item.customer_name}</td>
                                             <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">{item.item_name}</td>
                                             <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">{item.payment_method}</td>
-                                            <td className="px-4 py-4 text-center text-sm text-slate-600 dark:text-slate-400">
-                                                {item.qty == null ? "" : (
-                                                    <span className="px-2 py-0.5 text-xs font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-400 rounded-full">
-                                                        {item.qty}
-                                                    </span>
-                                                )}
+                                            <td className="px-4 py-4 text-center">
+                                                <span className="px-2 py-0.5 text-xs font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-400 rounded-full">
+                                                    {item.qty}
+                                                </span>
                                             </td>
                                             <td className="px-4 py-4 text-right text-sm font-semibold text-slate-900 dark:text-white">{formatCurrency(item.amount ?? 0)}</td>
                                         </tr>
