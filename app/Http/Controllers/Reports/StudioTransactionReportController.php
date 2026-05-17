@@ -243,12 +243,21 @@ class StudioTransactionReportController extends Controller
             return $this->downloadExcel('laporan-' . $type . '.xls', $headers, $rows);
         }
 
+        $pdfSections = [];
+        if (in_array($type, ['booking', 'appointment'], true)) {
+            $pdfSections[] = [
+                'headers' => $headers,
+                'rows' => $rows,
+                'column_widths' => [0.55, 1.75, 1.05, 1.25, 1.3, 1.25, 0.85, 1.0],
+            ];
+        }
+
         $pdfBinary = SimplePdfExport::make(
             $title,
             'PERIODE : ' . ($filters['start_date'] ?? '-') . ' s/d ' . ($filters['end_date'] ?? '-'),
             $headers,
             $rows,
-            [],
+            $pdfSections,
             'landscape'
         );
 
