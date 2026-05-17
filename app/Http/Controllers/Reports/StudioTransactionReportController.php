@@ -38,7 +38,7 @@ class StudioTransactionReportController extends Controller
                 'customer_name' => $booking->user?->name ?? '-',
                 'item_name' => $booking->timetable?->pilatesClass?->name ?? '-',
                 'payment_method' => $booking->payment_method ?? '-',
-                'qty' => (int) ($booking->participants ?? 0),
+                'qty' => $booking->payment_type === 'credit' ? (float) ($booking->credit_used ?? 0) : '-',
                 'amount' => (float) ($booking->price_amount ?? 0),
             ]);
 
@@ -88,7 +88,7 @@ class StudioTransactionReportController extends Controller
                 'customer_name' => $booking->customer?->name ?? '-',
                 'item_name' => $booking->appointment?->pilatesClass?->name ?? ($booking->session_name ?? '-'),
                 'payment_method' => $booking->payment_method ?? '-',
-                'qty' => 1,
+                'qty' => $booking->payment_type === 'credit' ? (int) ($booking->credit_used ?? 0) : '-',
                 'amount' => (float) ($booking->price_amount ?? 0),
             ]);
 
@@ -275,7 +275,7 @@ class StudioTransactionReportController extends Controller
                 $booking->user?->name ?? '-',
                 $booking->timetable?->pilatesClass?->name ?? '-',
                 $booking->payment_method ?? '-',
-                (int) ($booking->participants ?? 0),
+                $booking->payment_type === 'credit' ? (float) ($booking->credit_used ?? 0) : '-',
                 (float) ($booking->price_amount ?? 0),
             ])->all()];
         }
@@ -316,7 +316,7 @@ class StudioTransactionReportController extends Controller
             $booking->customer?->name ?? '-',
             $booking->appointment?->pilatesClass?->name ?? ($booking->session_name ?? '-'),
             $booking->payment_method ?? '-',
-            1,
+            $booking->payment_type === 'credit' ? (int) ($booking->credit_used ?? 0) : '-',
             (float) ($booking->price_amount ?? 0),
         ])->all()];
     }
