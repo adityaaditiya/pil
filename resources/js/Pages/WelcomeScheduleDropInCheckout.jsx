@@ -138,6 +138,7 @@ export default function WelcomeScheduleDropInCheckout({
                                         <span className="opacity-60">Atas Nama</span>
                                         <span className="font-bold">{paymentInstructions?.bank_account_name || "-"}</span>
                                     </div>
+                                    <p className="pt-2 text-xs text-[#8C8475]">* masukan kode invoice {booking?.invoice} kedalam referensi untuk mempercepat verifikasi</p>
                                 </div>
                             )}
                         </div>
@@ -204,7 +205,7 @@ export default function WelcomeScheduleDropInCheckout({
                                         {processing ? "Mengirim..." : "Konfirmasi & Kirim Bukti"}
                                     </button>
                                     
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-3 pt-2">
                                         <button
                                             type="button"
                                             onClick={() => router.visit(route("user.my-schedule"))}

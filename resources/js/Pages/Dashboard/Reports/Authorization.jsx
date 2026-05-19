@@ -175,7 +175,7 @@ const Authorization = ({ transactions, filters }) => {
                                         Keterangan
                                     </th>
                                     <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                        Username / Email
+                                        User Otorisasi
                                     </th>
                                     <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                         Waktu
