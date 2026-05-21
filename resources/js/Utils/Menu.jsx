@@ -10,6 +10,7 @@ import {
     IconChartInfographic,
     IconCirclePlus,
     IconClockHour6,
+    IconExchange,
     IconCreditCard,
     IconClipboardText,
     IconPhoto,
@@ -244,6 +245,13 @@ function Menu() {
                     active: url === "/dashboard/memberships/history",
                     icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["memberships-history-access"]),
+                },
+                {
+                    title: "Transfer Membership",
+                    href: route("memberships.transfer.index"),
+                    active: url === "/dashboard/memberships/transfer",
+                    icon: <IconExchange size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["memberships-transfer-access"]),
                 },
                 {
                     title: "My Memberships",

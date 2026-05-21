@@ -50,6 +50,7 @@ class PermissionSeeder extends Seeder
             'memberships-access',
             'my-memberships-access',
             'memberships-history-access',
+            'memberships-transfer-access',
 
             // transactions
             'transactions-access', 'my-transactions-access',
