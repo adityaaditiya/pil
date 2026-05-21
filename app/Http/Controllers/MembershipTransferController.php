@@ -90,7 +90,7 @@ class MembershipTransferController extends Controller
                     'membership_plan_id' => (int) $senderMembership->membership_plan_id,
                     'credits_total' => 0,
                     'credits_remaining' => 0,
-                    'starts_at' => $senderMembership->starts_at,
+                    'starts_at' => now(),
                     'activated_at' => $senderMembership->activated_at,
                     'expires_at' => $senderMembership->expires_at,
                     'payment_method' => 'transfer_credits',
