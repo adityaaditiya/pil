@@ -246,13 +246,6 @@ function Menu() {
                     permissions: hasAnyPermission(["memberships-history-access"]),
                 },
                 {
-                    title: "Transfer Membership",
-                    href: route("memberships.transfer"),
-                    active: url === "/dashboard/memberships/transfer",
-                    icon: <IconCreditCard size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["memberships-history-access"]),
-                },
-                {
                     title: "My Memberships",
                     href: route("memberships.my"),
                     active: url === "/dashboard/memberships/my",

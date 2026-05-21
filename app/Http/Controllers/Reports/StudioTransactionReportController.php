@@ -142,12 +142,12 @@ class StudioTransactionReportController extends Controller
                 'item_name' => $membership->plan?->name ?? '-',
                 'payment_method' => $membership->payment_method ?? '-',
                 'qty' => (int) ($membership->credits_total ?? 0),
-                'amount' => ($membership->payment_method === 'transfer credits') ? 0 : (float) ($membership->plan?->price ?? 0),
+                'amount' => (float) ($membership->plan?->price ?? 0),
             ]);
 
         $summary = [
             'transactions_count' => (clone $baseQuery)->count(),
-            'total_amount' => (float) ((clone $baseQuery)->get()->sum(fn ($item) => ($item->payment_method === 'transfer credits') ? 0 : (float) ($item->plan?->price ?? 0))),
+            'total_amount' => (float) ((clone $baseQuery)->get()->sum(fn ($item) => (float) ($item->plan?->price ?? 0))),
             'total_qty' => (int) ((clone $baseQuery)->sum('credits_total') ?? 0),
             'qty_label' => 'Kredit',
         ];
