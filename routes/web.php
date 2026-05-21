@@ -15,7 +15,6 @@ use App\Http\Controllers\Apps\CustomerQuestionnaireController;
 use App\Http\Controllers\Apps\TransactionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MembershipHistoryController;
-use App\Http\Controllers\MembershipCreditTransferController;
 use App\Http\Controllers\MembershipPlanController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PilatesBookingHistoryController;
@@ -295,16 +294,6 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::post('memberships/{userMembership}/reject-payment', [MembershipHistoryController::class, 'rejectPayment'])
         ->middleware('permission:memberships-history-access')
         ->name('memberships.reject-payment');
-
-    Route::get('memberships/transfer', [MembershipCreditTransferController::class, 'index'])
-        ->middleware('permission:memberships-transfer-access')
-        ->name('memberships.transfer.index');
-    Route::get('memberships/transfer/customers/search', [MembershipCreditTransferController::class, 'searchCustomers'])
-        ->middleware('permission:memberships-transfer-access')
-        ->name('memberships.transfer.customers.search');
-    Route::post('memberships/transfer', [MembershipCreditTransferController::class, 'store'])
-        ->middleware('permission:memberships-transfer-access')
-        ->name('memberships.transfer.store');
     Route::post('bookings', [BookingController::class, 'store'])->name('bookings.store');
     //route transaction
     Route::get('/transactions', [TransactionController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.index');
