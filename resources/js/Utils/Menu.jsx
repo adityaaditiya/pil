@@ -30,6 +30,7 @@ import {
     IconUsersPlus,
     IconBadge,
     IconYoga,
+    IconExchange,
 } from "@tabler/icons-react";
 import hasAnyPermission from "./Permission";
 import React from "react";
@@ -244,6 +245,13 @@ function Menu() {
                     active: url === "/dashboard/memberships/history",
                     icon: <IconClockHour6 size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["memberships-history-access"]),
+                },
+                {
+                    title: "Transfer Membership",
+                    href: route("memberships.transfer.index"),
+                    active: url === "/dashboard/memberships/transfer",
+                    icon: <IconExchange size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["memberships-access"]),
                 },
                 {
                     title: "My Memberships",
