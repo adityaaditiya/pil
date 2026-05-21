@@ -30,6 +30,7 @@ use App\Http\Controllers\Reports\SoldItemsReportController;
 use App\Http\Controllers\Reports\StockMutationReportController;
 use App\Http\Controllers\Reports\StudioTransactionReportController;
 use App\Http\Controllers\Reports\TrainerReportController;
+use App\Http\Controllers\MembershipTransferController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StudioPageController;
 use App\Http\Controllers\TrainerController;
@@ -294,6 +295,12 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::post('memberships/{userMembership}/reject-payment', [MembershipHistoryController::class, 'rejectPayment'])
         ->middleware('permission:memberships-history-access')
         ->name('memberships.reject-payment');
+    Route::get('memberships/transfer', [MembershipTransferController::class, 'index'])
+        ->middleware('permission:memberships-history-access')
+        ->name('memberships.transfer');
+    Route::post('memberships/transfer', [MembershipTransferController::class, 'store'])
+        ->middleware('permission:memberships-history-access')
+        ->name('memberships.transfer.store');
     Route::post('bookings', [BookingController::class, 'store'])->name('bookings.store');
     //route transaction
     Route::get('/transactions', [TransactionController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.index');
