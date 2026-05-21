@@ -114,7 +114,7 @@ class CashReportController extends Controller
                 'id' => 'membership-' . $membership->id,
                 'category' => 'TRANSAKSI MEMBERSHIP',
                 'description' => $membership->invoice,
-                'cash_in' => (int) ($membership->plan?->price ?? 0),
+                'cash_in' => $membership->payment_method === 'transfer_credits' ? 0 : (int) ($membership->plan?->price ?? 0),
                 'cash_out' => 0,
                 'created_at' => $membership->created_at,
             ])
@@ -165,7 +165,7 @@ class CashReportController extends Controller
                 ->first()
             : (object) ['cash_in_total' => 0, 'cash_out_total' => 0];
         $membershipTotals = $includeMemberships
-            ? (clone $membershipQuery)->get()->sum(fn ($membership) => (float) ($membership->plan?->price ?? 0))
+            ? (clone $membershipQuery)->get()->sum(fn ($membership) => $membership->payment_method === 'transfer_credits' ? 0 : (float) ($membership->plan?->price ?? 0))
             : 0;
         $appointmentDropInTotals = $includeAppointmentDropIns
             ? (float) ((clone $appointmentDropInQuery)->sum('price_amount') ?? 0)
@@ -270,7 +270,7 @@ class CashReportController extends Controller
             ? (clone $membershipQuery)->get()->map(fn ($membership) => [
                 'category' => 'TRANSAKSI MEMBERSHIP',
                 'description' => $membership->invoice,
-                'cash_in' => (int) ($membership->plan?->price ?? 0),
+                'cash_in' => $membership->payment_method === 'transfer_credits' ? 0 : (int) ($membership->plan?->price ?? 0),
                 'cash_out' => 0,
                 'created_at' => $membership->created_at,
             ])
@@ -387,7 +387,7 @@ class CashReportController extends Controller
             ? (clone $membershipQuery)->get()->map(fn ($membership) => [
                 'category' => 'TRANSAKSI MEMBERSHIP',
                 'description' => $membership->invoice,
-                'cash_in' => (int) ($membership->plan?->price ?? 0),
+                'cash_in' => $membership->payment_method === 'transfer_credits' ? 0 : (int) ($membership->plan?->price ?? 0),
                 'cash_out' => 0,
             ])
             : collect();
