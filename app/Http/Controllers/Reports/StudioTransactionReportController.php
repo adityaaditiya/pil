@@ -10,6 +10,7 @@ use App\Models\UserMembership;
 use App\Support\SimplePdfExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class StudioTransactionReportController extends Controller
@@ -164,6 +165,79 @@ class StudioTransactionReportController extends Controller
             'paymentMethods' => $this->extractPaymentMethods(
                 UserMembership::query()->whereNotIn('status', $excludedStatus)
             ),
+            'membershipPlans' => MembershipPlan::query()
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get(),
+        ]);
+    }
+
+    public function membershipTransfer(Request $request)
+    {
+        $filters = $this->buildFilters($request);
+
+        $baseQuery = DB::table('membership_credit_transfers as mct')
+            ->leftJoin('users as sender', 'sender.id', '=', 'mct.from_user_id')
+            ->leftJoin('users as receiver', 'receiver.id', '=', 'mct.to_user_id')
+            ->leftJoin('membership_plans as mp', 'mp.id', '=', 'mct.membership_plan_id')
+            ->leftJoin('user_memberships as um', 'um.id', '=', 'mct.receiver_membership_id')
+            ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('mct.created_at', '>=', $start))
+            ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('mct.created_at', '<=', $end))
+            ->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('mct.membership_plan_id', $planId));
+
+        $rows = (clone $baseQuery)
+            ->select([
+                'mct.id',
+                'mct.created_at',
+                'sender.name as sender_name',
+                'receiver.name as receiver_name',
+                'mp.name as plan_name',
+                'mct.credits_transferred',
+                'mct.notes',
+                'um.expires_at',
+            ])
+            ->orderByDesc('mct.created_at')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn ($item) => [
+                'id' => $item->id,
+                'created_at' => $item->created_at ? Carbon::parse($item->created_at)->timezone('Asia/Jakarta')->format('d M Y, H:i') : '-',
+                'sender_name' => $item->sender_name ?? '-',
+                'receiver_name' => $item->receiver_name ?? '-',
+                'plan_name' => $item->plan_name ?? '-',
+                'credits_transferred' => (int) ($item->credits_transferred ?? 0),
+                'notes' => $item->notes ?? '-',
+                'expires_at' => $item->expires_at ? Carbon::parse($item->expires_at)->timezone('Asia/Jakarta')->format('d M Y, H:i') : '-',
+            ]);
+
+        $summary = [
+            'transactions_count' => (clone $baseQuery)->count(),
+            'total_amount' => 0,
+            'total_qty' => (int) ((clone $baseQuery)->sum('mct.credits_transferred') ?? 0),
+            'qty_label' => 'Kredit Transfer',
+        ];
+
+        return Inertia::render('Dashboard/Reports/StudioTransactionReport', [
+            'report' => [
+                'title' => 'Laporan Transfer Membership',
+                'description' => 'Laporan riwayat transfer credit membership',
+                'route' => 'reports.membership-transfer.index',
+                'columns' => [
+                    ['key' => 'created_at', 'label' => 'Tanggal'],
+                    ['key' => 'sender_name', 'label' => 'Nama Pengirim'],
+                    ['key' => 'receiver_name', 'label' => 'Nama Penerima'],
+                    ['key' => 'plan_name', 'label' => 'Membership Plan'],
+                    ['key' => 'credits_transferred', 'label' => 'Jumlah Credit', 'type' => 'number'],
+                    ['key' => 'notes', 'label' => 'Catatan'],
+                    ['key' => 'expires_at', 'label' => 'Masa Expired Membership'],
+                ],
+                'show_payment_filter' => false,
+                'show_invoice_filter' => false,
+            ],
+            'filters' => $filters,
+            'rows' => $rows,
+            'summary' => $summary,
+            'paymentMethods' => [],
             'membershipPlans' => MembershipPlan::query()
                 ->select('id', 'name')
                 ->orderBy('name')

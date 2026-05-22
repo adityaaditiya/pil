@@ -357,11 +357,25 @@ function Menu() {
                     permissions: hasAnyPermission(["reports-access"]),
                 },
                 {
-                    title: "Laporan Membership",
-                    href: route("reports.membership.index"),
-                    active: url.startsWith("/dashboard/reports/membership"),
+                    title: "Laporan membership",
                     icon: <IconBadge size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["reports-access"]),
+                    subdetails: [
+                        {
+                            title: "Laporan transaksi membership",
+                            href: route("reports.membership.index"),
+                            active: url.startsWith("/dashboard/reports/membership") && !url.startsWith("/dashboard/reports/membership-transfer"),
+                            icon: <IconBadge size={20} strokeWidth={1.5} />,
+                            permissions: hasAnyPermission(["reports-access"]),
+                        },
+                        {
+                            title: "Laporan transfer membership",
+                            href: route("reports.membership-transfer.index"),
+                            active: url.startsWith("/dashboard/reports/membership-transfer"),
+                            icon: <IconBadge size={20} strokeWidth={1.5} />,
+                            permissions: hasAnyPermission(["reports-access"]),
+                        },
+                    ],
                 },
                 {
                     title: "Laporan Trainer",
