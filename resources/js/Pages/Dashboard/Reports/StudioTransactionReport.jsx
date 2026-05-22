@@ -103,7 +103,10 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
     const currentPage = rows?.current_page ?? 1;
     const perPage = rows?.per_page ? Number(rows?.per_page) : tableRows.length || 1;
 
-    const hasActiveFilters = filterData.invoice || filterData.start_date || filterData.end_date || filterData.payment_method || filterData.membership_plan_id;
+    const showInvoiceFilter = report?.show_invoice_filter !== false;
+    const showPaymentFilter = report?.show_payment_filter !== false;
+    const showMembershipPlanFilter = report.route === "reports.membership.index" || report.route === "reports.membership-transfer.index";
+    const hasActiveFilters = (showInvoiceFilter && filterData.invoice) || filterData.start_date || filterData.end_date || (showPaymentFilter && filterData.payment_method) || (showMembershipPlanFilter && filterData.membership_plan_id);
 
     const exportBaseRoute = report.route === "reports.booking.index"
         ? "reports.booking"
@@ -120,6 +123,16 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
         total_qty: summary?.total_qty ?? 0,
         qty_label: summary?.qty_label ?? "Jumlah",
     };
+
+    const columns = report?.columns ?? [
+        { key: "created_at", label: "Tanggal" },
+        { key: "invoice", label: "Invoice" },
+        { key: "customer_name", label: "Pelanggan" },
+        { key: "item_name", label: "Item" },
+        { key: "payment_method", label: "Metode Pembayaran" },
+        { key: "qty", label: "Credits", type: "number" },
+        { key: "amount", label: "Total", type: "currency" },
+    ];
 
     const summaryCards = [
         {
@@ -207,7 +220,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                     />
                                 </div>
-                                <div>
+                                {showInvoiceFilter && <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Invoice</label>
                                     <input
                                         type="text"
@@ -216,23 +229,22 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                         onChange={(e) => handleChange("invoice", e.target.value)}
                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                     />
-                                </div>
-                                <div>
+                                </div>}
+                                {showPaymentFilter && <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Metode Pembayaran</label>
                                     <select
                                         value={filterData.payment_method}
                                         onChange={(e) => handleChange("payment_method", e.target.value)}
                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                     >
-                                        <option value="">Semua metode pembayaran</option>
                                         {(paymentMethods ?? []).map((method) => (
                                             <option key={method} value={method}>
                                                 {method}
                                             </option>
                                         ))}
                                     </select>
-                                </div>
-                                {report.route === "reports.membership.index" && (
+                                </div>}
+                                {showMembershipPlanFilter && (
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Membership Plan</label>
                                         <select
@@ -280,30 +292,20 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                 <thead>
                                     <tr className="border-b border-slate-100 dark:border-slate-800">
                                         <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">No</th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Tanggal</th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Invoice</th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Pelanggan</th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Item</th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Metode Pembayaran</th>
-                                        <th className="px-4 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Credits</th>
-                                        <th className="px-4 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Total</th>
+                                        {columns.map((column) => (
+                                            <th key={column.key} className={`px-4 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase ${column.type === "currency" ? "text-right" : column.type === "number" ? "text-center" : "text-left"}`}>{column.label}</th>
+                                        ))}
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {tableRows.map((item, i) => (
                                         <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                             <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">{i + 1 + (currentPage - 1) * perPage}</td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">{item.created_at}</td>
-                                            <td className="px-4 py-4 text-sm font-semibold text-slate-900 dark:text-white">{item.invoice}</td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">{item.customer_name}</td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">{item.item_name}</td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">{item.payment_method}</td>
-                                            <td className="px-4 py-4 text-center">
-                                                <span className="px-2 py-0.5 text-xs font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-400 rounded-full">
-                                                    {item.qty}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-4 text-right text-sm font-semibold text-slate-900 dark:text-white">{formatCurrency(item.amount ?? 0)}</td>
+                                            {columns.map((column) => (
+                                                <td key={`${item.id}-${column.key}`} className={`px-4 py-4 text-sm text-slate-600 dark:text-slate-400 ${column.type === "currency" ? "text-right font-semibold text-slate-900 dark:text-white" : column.type === "number" ? "text-center" : ""}`}>
+                                                    {column.type === "currency" ? formatCurrency(item[column.key] ?? 0) : item[column.key] ?? "-"}
+                                                </td>
+                                            ))}
                                         </tr>
                                     ))}
                                 </tbody>
