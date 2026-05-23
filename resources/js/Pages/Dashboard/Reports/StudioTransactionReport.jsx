@@ -237,6 +237,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                         onChange={(e) => handleChange("payment_method", e.target.value)}
                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                     >
+                                        <option value="">Semua Metode Pembayaran</option>
                                         {(paymentMethods ?? []).map((method) => (
                                             <option key={method} value={method}>
                                                 {method}

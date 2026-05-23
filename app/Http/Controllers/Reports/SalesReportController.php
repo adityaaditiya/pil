@@ -167,6 +167,7 @@ class SalesReportController extends Controller
             $filters
         )->orderByDesc('created_at')->get();
 
+        // Modifikasi Header dengan tag instruksi style atau biarkan standar
         $headers = ['No', 'Invoice', 'Produk', 'Pelanggan', 'Item', 'Diskon', 'Total'];
 
         $overallGrandTotal = (int) $transactions->sum(fn ($trx) => (int) ($trx->grand_total ?? 0));
@@ -174,6 +175,12 @@ class SalesReportController extends Controller
         $sections = $transactions
             ->groupBy(fn ($trx) => $trx->payment_method ?: 'Tanpa Metode Pembayaran')
             ->map(function ($groupedTransactions, $paymentMethod) {
+                
+                // Hitung total akumulasi per metode pembayaran (section)
+                $sectionTotalItems = (int) $groupedTransactions->sum(fn ($trx) => (int) ($trx->total_items ?? 0));
+                $sectionTotalDiscount = (int) $groupedTransactions->sum(fn ($trx) => (int) ($trx->discount ?? 0));
+                $sectionTotalGrand = (int) $groupedTransactions->sum(fn ($trx) => (int) ($trx->grand_total ?? 0));
+
                 $rows = $groupedTransactions->values()->map(function ($trx, $index) {
                     $productNames = $trx->details
                         ->pluck('product.title')
@@ -192,6 +199,17 @@ class SalesReportController extends Controller
                         $this->formatCurrency((int) ($trx->grand_total ?? 0)),
                     ];
                 })->all();
+
+                // Tambahkan BARIS BARU sub-total di baris paling bawah tabel saat ini
+                $rows[] = [
+                    '', // Kolom No diisi teks 'Total'
+                    '',      // Invoice kosong
+                    '',      // Produk kosong
+                    'Total',      // Pelanggan kosong
+                    $sectionTotalItems,
+                    $this->formatCurrency($sectionTotalDiscount),
+                    $this->formatCurrency($sectionTotalGrand)
+                ];
 
                 return [
                     'title' => 'Metode Pembayaran: ' . $paymentMethod,

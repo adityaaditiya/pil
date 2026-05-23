@@ -310,27 +310,76 @@ class StudioTransactionReportController extends Controller
     private function exportStudioReport(Request $request, string $type, bool $asPdf)
     {
         $filters = $this->buildFilters($request);
-        [$title, $rows] = $this->buildExportRows($type, $filters);
+        
+        // 1. Ambil data mentah (Eloquent Collection) yang sudah dikelompokkan
+        [$title, $groupedData] = $this->buildGroupedExportData($type, $filters);
         $headers = ['No', 'Tanggal', 'Invoice', 'Pelanggan', 'Item', 'Metode Pembayaran', 'Credits', 'Total'];
 
+        // Jika export Excel (.xls), kita gabungkan kembali agar tidak merusak format spreadsheet tunggal
         if (! $asPdf) {
-            return $this->downloadExcel('laporan-' . $type . '.xls', $headers, $rows);
+            $flatRows = [];
+            foreach ($groupedData as $paymentMethod => $items) {
+                foreach ($items['rows'] as $row) {
+                    $flatRows[] = $row;
+                }
+                // Tambahkan baris subtotal untuk Excel
+                $flatRows[] = ['Subtotal (' . $paymentMethod . ')', '', '', '', $items['subtotal_qty'], '', '', $items['subtotal_amount']];
+            }
+            return $this->downloadExcel('laporan-' . $type . '.xls', $headers, $flatRows);
         }
 
+        // 2. Format menjadi array struktur Sections khusus untuk komponen PDF
         $pdfSections = [];
-        if (in_array($type, ['booking', 'appointment', 'membership'], true)) {
+        $overallGrandTotal = 0;
+
+        foreach ($groupedData as $paymentMethod => $data) {
+            $overallGrandTotal += $data['subtotal_amount'];
+            
+            // Siapkan baris data untuk dimasukkan ke tabel penampang PDF saat ini
+            $currentRows = $data['rows'];
+            
+            // Tambahkan baris penjumlahan (Subtotal) di bagian bawah masing-masing tabel
+            $currentRows[] = [
+                '', // Kolom No diisi teks 'Total'
+                '',      // Tanggal kosong
+                '',      // Invoice kosong
+                '',      // Pelanggan kosong
+                '',      // Item kosong
+                'Total',      // Metode Pembayaran kosong
+                $data['subtotal_qty'] > 0 ? $data['subtotal_qty'] : '-',
+                $data['subtotal_amount'],
+            ];
+
             $pdfSections[] = [
+                'title' => 'Metode Pembayaran: ' . strtoupper($paymentMethod),
                 'headers' => $headers,
-                'rows' => $rows,
-                'column_widths' => [0.50, 1.55, 1.30, 1.25, 1.3, 1.25, 0.85, 1.0],
+                'rows' => $currentRows,
+                'column_widths' => [0.45, 1.55, 1.30, 1.25, 1.35, 1.25, 0.85, 1.0],
+                'footer_lines' => [],
             ];
         }
+
+        if (count($pdfSections) === 0) {
+            $pdfSections[] = [
+                'title' => 'Tidak Ada Data',
+                'headers' => $headers,
+                'rows' => [],
+                'footer_lines' => [],
+            ];
+        }
+
+        // Tambahkan ringkasan akrual keseluruhan di halaman terakhir (paling bawah)
+        $lastSectionIndex = count($pdfSections) - 1;
+        $pdfSections[$lastSectionIndex]['footer_lines'] = [
+            'Total Keseluruhan Transaksi Terkonfirmasi',
+            'Total Pendapatan Akhir: Rp ' . number_format($overallGrandTotal, 0, ',', '.'),
+        ];
 
         $pdfBinary = SimplePdfExport::make(
             $title,
             'PERIODE : ' . ($filters['start_date'] ?? '-') . ' s/d ' . ($filters['end_date'] ?? '-'),
             $headers,
-            $rows,
+            [], // Kosongkan baris global karena sudah di-handle oleh parameter $pdfSections di bawah
             $pdfSections,
             'landscape'
         );
@@ -341,7 +390,10 @@ class StudioTransactionReportController extends Controller
         ]);
     }
 
-    private function buildExportRows(string $type, array $filters): array
+    /**
+     * Membangun data export yang ter-Group berdasarkan Metode Pembayaran beserta kalkulasi subtotalnya.
+     */
+    private function buildGroupedExportData(string $type, array $filters): array
     {
         if ($type === 'booking') {
             $items = $this->applyDateAndInvoiceFilters(
@@ -351,16 +403,29 @@ class StudioTransactionReportController extends Controller
             )->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
                 ->latest('booked_at')->get();
 
-            return ['Laporan Booking Schedule', $items->values()->map(fn ($booking, $index) => [
-                $index + 1,
-                $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
-                $booking->invoice ?? '-',
-                $booking->user?->name ?? '-',
-                $booking->timetable?->pilatesClass?->name ?? '-',
-                $booking->payment_method ?? '-',
-                $booking->payment_type === 'credit' ? (float) ($booking->credit_used ?? 0) : '-',
-                (float) ($booking->price_amount ?? 0),
-            ])->all()];
+            $title = 'Laporan Booking Schedule';
+            $grouped = $items->groupBy(fn ($item) => $item->payment_method ?: 'Tanpa Metode Pembayaran')
+                ->map(function ($group) {
+                    $subtotalQty = $group->sum(fn ($b) => $b->payment_type === 'credit' ? (int) $b->credit_used : 0);
+                    $subtotalAmount = $group->sum(fn ($b) => (float) $b->price_amount);
+
+                    return [
+                        'subtotal_qty' => $subtotalQty,
+                        'subtotal_amount' => $subtotalAmount,
+                        'rows' => $group->values()->map(fn ($booking, $index) => [
+                            $index + 1,
+                            $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                            $booking->invoice ?? '-',
+                            $booking->user?->name ?? '-',
+                            $booking->timetable?->pilatesClass?->name ?? '-',
+                            $booking->payment_method ?? '-',
+                            $booking->payment_type === 'credit' ? (float) ($booking->credit_used ?? 0) : '-',
+                            (float) ($booking->price_amount ?? 0),
+                        ])->all()
+                    ];
+                });
+
+            return [$title, $grouped];
         }
 
         if ($type === 'membership') {
@@ -373,18 +438,32 @@ class StudioTransactionReportController extends Controller
                 ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
                 ->latest('created_at')->get();
 
-            return ['Laporan Membership', $items->values()->map(fn ($membership, $index) => [
-                $index + 1,
-                $membership->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
-                $membership->invoice ?? '-',
-                $membership->user?->name ?? '-',
-                $membership->plan?->name ?? '-',
-                $membership->payment_method ?? '-',
-                (int) ($membership->credits_total ?? 0),
-                ($membership->payment_method === 'transfer_credits' ? 0 : (float) ($membership->plan?->price ?? 0)),
-            ])->all()];
+            $title = 'Laporan Membership';
+            $grouped = $items->groupBy(fn ($item) => $item->payment_method ?: 'Tanpa Metode Pembayaran')
+                ->map(function ($group) {
+                    $subtotalQty = $group->sum(fn ($m) => (int) $m->credits_total);
+                    $subtotalAmount = $group->sum(fn ($m) => $m->payment_method === 'transfer_credits' ? 0 : (float) ($m->plan?->price ?? 0));
+
+                    return [
+                        'subtotal_qty' => $subtotalQty,
+                        'subtotal_amount' => $subtotalAmount,
+                        'rows' => $group->values()->map(fn ($membership, $index) => [
+                            $index + 1,
+                            $membership->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                            $membership->invoice ?? '-',
+                            $membership->user?->name ?? '-',
+                            $membership->plan?->name ?? '-',
+                            $membership->payment_method ?? '-',
+                            (int) ($membership->credits_total ?? 0),
+                            ($membership->payment_method === 'transfer_credits' ? 0 : (float) ($membership->plan?->price ?? 0)),
+                        ])->all()
+                    ];
+                });
+
+            return [$title, $grouped];
         }
 
+        // Default / Appointment Type
         $items = $this->applyDateAndInvoiceFilters(
             AppointmentBooking::query()->where('status', 'confirmed')->with(['customer:id,name', 'appointment:id,pilates_class_id', 'appointment.pilatesClass:id,name']),
             $filters,
@@ -392,16 +471,29 @@ class StudioTransactionReportController extends Controller
         )->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
             ->latest('booked_at')->get();
 
-        return ['Laporan Appointment', $items->values()->map(fn ($booking, $index) => [
-            $index + 1,
-            $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
-            $booking->invoice ?? '-',
-            $booking->customer?->name ?? '-',
-            $booking->appointment?->pilatesClass?->name ?? ($booking->session_name ?? '-'),
-            $booking->payment_method ?? '-',
-            $booking->payment_type === 'credit' ? (int) ($booking->credit_used ?? 0) : '-',
-            (float) ($booking->price_amount ?? 0),
-        ])->all()];
+        $title = 'Laporan Appointment';
+        $grouped = $items->groupBy(fn ($item) => $item->payment_method ?: 'Tanpa Metode Pembayaran')
+            ->map(function ($group) {
+                $subtotalQty = $group->sum(fn ($b) => $b->payment_type === 'credit' ? (int) $b->credit_used : 0);
+                $subtotalAmount = $group->sum(fn ($b) => (float) $b->price_amount);
+
+                return [
+                    'subtotal_qty' => $subtotalQty,
+                    'subtotal_amount' => $subtotalAmount,
+                    'rows' => $group->values()->map(fn ($booking, $index) => [
+                        $index + 1,
+                        $booking->booked_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                        $booking->invoice ?? '-',
+                        $booking->customer?->name ?? '-',
+                        $booking->appointment?->pilatesClass?->name ?? ($booking->session_name ?? '-'),
+                        $booking->payment_method ?? '-',
+                        $booking->payment_type === 'credit' ? (int) ($booking->credit_used ?? 0) : '-',
+                        (float) ($booking->price_amount ?? 0),
+                    ])->all()
+                ];
+            });
+
+        return [$title, $grouped];
     }
 
     private function downloadExcel(string $filename, array $headers, array $rows)
