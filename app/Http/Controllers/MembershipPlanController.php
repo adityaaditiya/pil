@@ -11,14 +11,25 @@ use Inertia\Response;
 
 class MembershipPlanController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        // Tangkap parameter 'search' dari frontend
+        $search = $request->input('search');
+
         return Inertia::render('Dashboard/Memberships/Plans/Index', [
             'plans' => MembershipPlan::query()
                 ->withCount('classRules')
+                // Logika pencarian berdasarkan Nama atau Tag paket
+                ->when($search, function ($query, $search) {
+                    $query->where(function ($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%')
+                          ->orWhere('tag', 'like', '%' . $search . '%');
+                    });
+                })
                 ->orderBy('order_position')
                 ->latest('id')
-                ->paginate(10),
+                ->paginate(10)
+                ->withQueryString(), // <-- Menjaga parameter ?search tetap ada di link pagination
         ]);
     }
 

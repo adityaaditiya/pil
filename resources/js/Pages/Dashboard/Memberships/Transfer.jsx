@@ -129,7 +129,7 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                                 </div>
 
                                 {/* Lingkaran Anak Panah Tengah (Diperbaiki posisi z-index dan ukuran bayangan) */}
-                                <div className="hidden md:flex absolute left-1/2 top-[62%] -translate-x-1/2 -translate-y-1/2 bg-white p-1.5 rounded-full border border-slate-100 shadow-md z-20 text-slate-400 transition-transform hover:scale-110">
+                                <div className="hidden md:flex absolute left-1/2 top-[58%] -translate-x-1/2 -translate-y-1/2 bg-white p-1.5 rounded-full border border-slate-100 shadow-md z-20 text-slate-400 transition-transform hover:scale-110">
                                     <IconArrowRight size={16} className="text-slate-500" />
                                 </div>
 
