@@ -312,35 +312,43 @@ function Menu() {
         {
             title: "Laporan",
             details: [
+
                 {
-                    title: "Laporan Penjualan Produk",
-                    href: route("reports.sales.index"),
-                    active: url.startsWith("/dashboard/reports/sales"),
-                    icon: (
-                        <IconChartArrowsVertical size={20} strokeWidth={1.5} />
-                    ),
+                    title: "Laporan Produk",
+                    icon: <IconChartArrowsVertical size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["reports-access"]),
-                },
-                {
-                    title: "Laporan Produk Terjual",
-                    href: route("reports.sold-items.index"),
-                    active: url.startsWith("/dashboard/reports/sold-items"),
-                    icon: <IconBooks size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["reports-access"]),
-                },
-                {
-                    title: "Laporan Kelola Stok",
-                    href: route("reports.stock-mutations.index"),
-                    active: url.startsWith("/dashboard/reports/stock-mutations"),
-                    icon: <IconTable size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["reports-access"]),
-                },
-                {
-                    title: "Laporan Profit Produk",
-                    href: route("reports.profits.index"),
-                    active: url.startsWith("/dashboard/reports/profits"),
-                    icon: <IconChartBarPopular size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["profits-access"]),
+                    subdetails: [
+                        {
+                            title: "Laporan Penjualan Produk",
+                            href: route("reports.sales.index"),
+                            active: url.startsWith("/dashboard/reports/sales"),
+                            icon: (
+                                <IconChartArrowsVertical size={20} strokeWidth={1.5} />
+                            ),
+                            permissions: hasAnyPermission(["reports-access"]),
+                        },
+                        {
+                            title: "Laporan Produk Terjual",
+                            href: route("reports.sold-items.index"),
+                            active: url.startsWith("/dashboard/reports/sold-items"),
+                            icon: <IconBooks size={20} strokeWidth={1.5} />,
+                            permissions: hasAnyPermission(["reports-access"]),
+                        },
+                        {
+                            title: "Laporan Kelola Stok",
+                            href: route("reports.stock-mutations.index"),
+                            active: url.startsWith("/dashboard/reports/stock-mutations"),
+                            icon: <IconTable size={20} strokeWidth={1.5} />,
+                            permissions: hasAnyPermission(["reports-access"]),
+                        },
+                        {
+                            title: "Laporan Profit Produk",
+                            href: route("reports.profits.index"),
+                            active: url.startsWith("/dashboard/reports/profits"),
+                            icon: <IconChartBarPopular size={20} strokeWidth={1.5} />,
+                            permissions: hasAnyPermission(["profits-access"]),
+                        },
+                    ],
                 },
                 {
                     title: "Laporan Booking Schedule",

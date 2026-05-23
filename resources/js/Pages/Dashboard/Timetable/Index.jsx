@@ -368,10 +368,13 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
 
                         {/* List Peserta */}
                         <div className="space-y-4">
-                            <h5 className="px-1 text-xs font-bold uppercase tracking-widest text-slate-400">
+                            {/* <h5 className="px-1 text-xs font-bold uppercase tracking-widest text-slate-400">
                                 Daftar Absensi
+                            </h5> */}
+                            <h5 className="px-1 text-xs font-bold uppercase tracking-widest text-slate-400">
+                                Daftar Peserta
                             </h5>
-                            
+
                             {(participantSession.participants?.length || 0) > 0 ? (
                                 <div className="max-h-[50vh] overflow-y-auto pr-2 space-y-4 custom-scrollbar">
                                     {participantSession.participants.map((participant, index) => (

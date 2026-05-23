@@ -62,7 +62,8 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
         <DashboardLayout>
             <Head title="Transfer Membership Credits" />
             
-            <div className="py-10 bg-slate-50/50 min-h-screen">
+            {/* <div className="py-10 bg-slate-50/50 min-h-screen"> */}
+            <div className="py-5 min-h-screen">
                 <div className="mx-auto max-w-5xl px-4 md:px-6">
                     
                     {/* Header Halaman */}
@@ -235,7 +236,7 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                                     rows={3} 
                                     value={data.notes} 
                                     onChange={(e) => setData('notes', e.target.value)} 
-                                    placeholder="Tuliskan alasan transfer credits..." 
+                                    placeholder="Catat alasan transfer credits..." 
                                 />
                             </div>
 
