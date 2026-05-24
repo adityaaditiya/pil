@@ -159,9 +159,9 @@ export default function Welcome() {
             <Head title="Pilates Studio | Move Better. Feel Stronger." />
 
             <div className="min-h-screen bg-wellness-beige text-wellness-text">
-                <div className="bg-primary-600 px-4 py-2 text-center text-xs font-medium text-white md:text-sm">
+                {/* <div className="bg-primary-600 px-4 py-2 text-center text-xs font-medium text-white md:text-sm">
                     Get discount 20% Off Private Class — Reservasi sekarang.
-                </div>
+                </div> */}
 
                 <Navbar navItems={navItems} currentKey="home" />
 
