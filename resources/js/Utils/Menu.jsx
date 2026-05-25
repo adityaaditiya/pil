@@ -365,12 +365,12 @@ function Menu() {
                     permissions: hasAnyPermission(["reports-access"]),
                 },
                 {
-                    title: "Laporan membership",
+                    title: "Laporan Membership",
                     icon: <IconBadge size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["reports-access"]),
                     subdetails: [
                         {
-                            title: "Laporan transaksi membership",
+                            title: "Laporan Transaksi Membership",
                             href: route("reports.membership.index"),
                             active: url.startsWith("/dashboard/reports/membership") && !url.startsWith("/dashboard/reports/membership-transfer"),
                             icon: <IconBadge size={20} strokeWidth={1.5} />,
