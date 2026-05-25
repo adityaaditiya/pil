@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AppointmentBooking;
 use App\Models\MembershipPlan;
 use App\Models\PilatesBooking;
+use App\Models\User;
 use App\Models\UserMembership;
 use App\Support\SimplePdfExport;
 use Carbon\Carbon;
@@ -26,7 +27,8 @@ class StudioTransactionReportController extends Controller
             $filters,
             'booked_at'
         )
-            ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method));
+            ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+            ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('cashier_id', $cashierId));
 
         $bookings = (clone $baseQuery)
             ->latest('booked_at')
@@ -62,6 +64,7 @@ class StudioTransactionReportController extends Controller
             'paymentMethods' => $this->extractPaymentMethods(
                 PilatesBooking::query()->where('status', 'confirmed')
             ),
+            'cashiers' => $this->getCashierOptions(),
         ]);
     }
 
@@ -76,7 +79,8 @@ class StudioTransactionReportController extends Controller
             $filters,
             'booked_at'
         )
-            ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method));
+            ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+            ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('cashier_id', $cashierId));
 
         $appointments = (clone $baseQuery)
             ->latest('booked_at')
@@ -112,6 +116,7 @@ class StudioTransactionReportController extends Controller
             'paymentMethods' => $this->extractPaymentMethods(
                 AppointmentBooking::query()->where('status', 'confirmed')
             ),
+            'cashiers' => $this->getCashierOptions(),
         ]);
     }
 
@@ -129,7 +134,8 @@ class StudioTransactionReportController extends Controller
             'created_at'
         )
             ->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('membership_plan_id', $planId))
-            ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method));
+            ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+            ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('cashier_id', $cashierId));
 
         $memberships = (clone $baseQuery)
             ->latest('created_at')
@@ -165,6 +171,7 @@ class StudioTransactionReportController extends Controller
             'paymentMethods' => $this->extractPaymentMethods(
                 UserMembership::query()->whereNotIn('status', $excludedStatus)
             ),
+            'cashiers' => $this->getCashierOptions(),
             'membershipPlans' => MembershipPlan::query()
                 ->select('id', 'name')
                 ->orderBy('name')
@@ -255,6 +262,7 @@ class StudioTransactionReportController extends Controller
             'invoice' => trim((string) $request->input('invoice')),
             'payment_method' => $request->input('payment_method'),
             'membership_plan_id' => $request->input('membership_plan_id'),
+            'cashier_id' => $request->input('cashier_id'),
         ];
     }
 
@@ -264,6 +272,15 @@ class StudioTransactionReportController extends Controller
             ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . strtoupper($invoice) . '%'))
             ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate($dateColumn, '>=', $start))
             ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate($dateColumn, '<=', $end));
+    }
+
+    private function getCashierOptions()
+    {
+        return User::query()
+            ->role('cashier')
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get();
     }
 
     private function extractPaymentMethods($query)
@@ -401,6 +418,7 @@ class StudioTransactionReportController extends Controller
                 $filters,
                 'booked_at'
             )->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+                ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('cashier_id', $cashierId))
                 ->latest('booked_at')->get();
 
             $title = 'Laporan Booking Schedule';
@@ -436,6 +454,7 @@ class StudioTransactionReportController extends Controller
                 'created_at'
             )->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('membership_plan_id', $planId))
                 ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+                ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('cashier_id', $cashierId))
                 ->latest('created_at')->get();
 
             $title = 'Laporan Membership';
@@ -469,6 +488,7 @@ class StudioTransactionReportController extends Controller
             $filters,
             'booked_at'
         )->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+            ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('cashier_id', $cashierId))
             ->latest('booked_at')->get();
 
         $title = 'Laporan Appointment';
