@@ -11,6 +11,7 @@ use App\Models\UserMembership;
 use App\Support\SimplePdfExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -263,7 +264,7 @@ class StudioTransactionReportController extends Controller
             ->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('membership_plan_id', $planId))
             ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('cashier_id', $cashierId))
-            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', "%{$invoice}%"));
+            ->when($filters['invoice'] ?? null, fn ($q, $search) => $this->applyGlobalSearchFilter($q, $search));
 
         $memberships = (clone $baseQuery)
             ->orderBy('expires_at')
@@ -336,9 +337,58 @@ class StudioTransactionReportController extends Controller
     private function applyDateAndInvoiceFilters($query, array $filters, string $dateColumn)
     {
         return $query
-            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . strtoupper($invoice) . '%'))
+            ->when($filters['invoice'] ?? null, fn ($q, $search) => $this->applyGlobalSearchFilter($q, $search))
             ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate($dateColumn, '>=', $start))
             ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate($dateColumn, '<=', $end));
+    }
+
+    private function applyGlobalSearchFilter(Builder $query, string $search): Builder
+    {
+        $term = trim($search);
+
+        if ($term === '') {
+            return $query;
+        }
+
+        $upperTerm = strtoupper($term);
+        $numericSearch = preg_replace('/[^0-9]/', '', $term);
+        $modelClass = get_class($query->getModel());
+
+        return $query->where(function (Builder $builder) use ($modelClass, $term, $upperTerm, $numericSearch) {
+            $builder->where('invoice', 'like', '%' . $upperTerm . '%')
+                ->orWhere('payment_method', 'like', '%' . $term . '%');
+
+            if ($modelClass === PilatesBooking::class) {
+                $builder->orWhereHas('user', fn (Builder $q) => $q->where('name', 'like', '%' . $term . '%'))
+                    ->orWhereHas('timetable.pilatesClass', fn (Builder $q) => $q->where('name', 'like', '%' . $term . '%'));
+
+                if ($numericSearch !== '') {
+                    $builder->orWhere('price_amount', 'like', '%' . $numericSearch . '%')
+                        ->orWhere('participants', 'like', '%' . $numericSearch . '%');
+                }
+            }
+
+            if ($modelClass === AppointmentBooking::class) {
+                $builder->orWhereHas('customer', fn (Builder $q) => $q->where('name', 'like', '%' . $term . '%'))
+                    ->orWhereHas('appointment.pilatesClass', fn (Builder $q) => $q->where('name', 'like', '%' . $term . '%'))
+                    ->orWhere('session_name', 'like', '%' . $term . '%');
+
+                if ($numericSearch !== '') {
+                    $builder->orWhere('price_amount', 'like', '%' . $numericSearch . '%')
+                        ->orWhere('credit_used', 'like', '%' . $numericSearch . '%');
+                }
+            }
+
+            if ($modelClass === UserMembership::class) {
+                $builder->orWhereHas('user', fn (Builder $q) => $q->where('name', 'like', '%' . $term . '%'))
+                    ->orWhereHas('plan', fn (Builder $q) => $q->where('name', 'like', '%' . $term . '%'));
+
+                if ($numericSearch !== '') {
+                    $builder->orWhere('credits_total', 'like', '%' . $numericSearch . '%')
+                        ->orWhere('credits_remaining', 'like', '%' . $numericSearch . '%');
+                }
+            }
+        });
     }
 
     private function getCashierOptions()
