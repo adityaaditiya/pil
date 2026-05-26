@@ -252,6 +252,73 @@ class StudioTransactionReportController extends Controller
         ]);
     }
 
+    public function membershipValidity(Request $request)
+    {
+        $filters = $this->buildFilters($request);
+
+        $baseQuery = UserMembership::query()
+            ->where('status', 'active')
+            ->whereDate('expires_at', '>=', Carbon::today()->toDateString())
+            ->with(['user:id,name', 'plan:id,name'])
+            ->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('membership_plan_id', $planId))
+            ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+            ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('cashier_id', $cashierId))
+            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', "%{$invoice}%"));
+
+        $memberships = (clone $baseQuery)
+            ->orderBy('expires_at')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn (UserMembership $membership) => [
+                'id' => $membership->id,
+                'customer_name' => $membership->user?->name ?? '-',
+                'plan_name' => $membership->plan?->name ?? '-',
+                'invoice' => $membership->invoice ?? '-',
+                'credits_total' => (int) ($membership->credits_total ?? 0),
+                'credits_remaining' => (int) ($membership->credits_remaining ?? 0),
+                'purchased_at' => $membership->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                'starts_at' => $membership->starts_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                'expires_at' => $membership->expires_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                'payment_method' => $membership->payment_method ?? '-',
+            ]);
+
+        return Inertia::render('Dashboard/Reports/StudioTransactionReport', [
+            'report' => [
+                'title' => 'Laporan Validity Membership',
+                'description' => 'Laporan membership aktif berdasarkan masa berlaku terdekat',
+                'route' => 'reports.membership-validity.index',
+                'columns' => [
+                    ['key' => 'customer_name', 'label' => 'Pelanggan'],
+                    ['key' => 'plan_name', 'label' => 'Membership Plan'],
+                    ['key' => 'invoice', 'label' => 'Invoice'],
+                    ['key' => 'credits_total', 'label' => 'Total Credits', 'type' => 'number'],
+                    ['key' => 'credits_remaining', 'label' => 'Sisa Credits', 'type' => 'number'],
+                    ['key' => 'purchased_at', 'label' => 'Tanggal Pembelian Credits'],
+                    ['key' => 'starts_at', 'label' => 'Tanggal Mulai Pakai Credits'],
+                    ['key' => 'expires_at', 'label' => 'Tanggal Expired Credits'],
+                    ['key' => 'payment_method', 'label' => 'Metode Pembayaran'],
+                ],
+                'show_date_filter' => false,
+            ],
+            'filters' => $filters,
+            'rows' => $memberships,
+            'summary' => [
+                'transactions_count' => (clone $baseQuery)->count(),
+                'total_amount' => 0,
+                'total_qty' => (int) ((clone $baseQuery)->sum('credits_remaining') ?? 0),
+                'qty_label' => 'Sisa Kredit Aktif',
+            ],
+            'paymentMethods' => $this->extractPaymentMethods(
+                UserMembership::query()->where('status', 'active')
+            ),
+            'cashiers' => $this->getCashierOptions(),
+            'membershipPlans' => MembershipPlan::query()
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get(),
+        ]);
+    }
+
     private function buildFilters(Request $request): array
     {
         $defaultDate = Carbon::today()->toDateString();

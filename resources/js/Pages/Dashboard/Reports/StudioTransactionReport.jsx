@@ -108,8 +108,9 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
 
     const showInvoiceFilter = report?.show_invoice_filter !== false;
     const showPaymentFilter = report?.show_payment_filter !== false;
-    const showMembershipPlanFilter = report.route === "reports.membership.index" || report.route === "reports.membership-transfer.index";
-    const hasActiveFilters = (showInvoiceFilter && filterData.invoice) || filterData.start_date || filterData.end_date || (showPaymentFilter && filterData.payment_method) || (showMembershipPlanFilter && filterData.membership_plan_id) || filterData.cashier_id;
+    const showDateFilter = report?.show_date_filter !== false;
+    const showMembershipPlanFilter = ["reports.membership.index", "reports.membership-transfer.index", "reports.membership-validity.index"].includes(report.route);
+    const hasActiveFilters = (showInvoiceFilter && filterData.invoice) || (showDateFilter && (filterData.start_date || filterData.end_date)) || (showPaymentFilter && filterData.payment_method) || (showMembershipPlanFilter && filterData.membership_plan_id) || filterData.cashier_id;
 
     const exportBaseRoute = report.route === "reports.booking.index"
         ? "reports.booking"
@@ -205,7 +206,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 animate-slide-up">
                         <form onSubmit={applyFilters}>
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-                                <div>
+                                {showDateFilter && <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tanggal Mulai</label>
                                     <input
                                         type="date"
@@ -213,8 +214,8 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                         onChange={(e) => handleChange("start_date", e.target.value)}
                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                     />
-                                </div>
-                                <div>
+                                </div>}
+                                {showDateFilter && <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tanggal Akhir</label>
                                     <input
                                         type="date"
@@ -222,7 +223,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                         onChange={(e) => handleChange("end_date", e.target.value)}
                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                     />
-                                </div>
+                                </div>}
                                 {showInvoiceFilter && <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Invoice</label>
                                     <input
