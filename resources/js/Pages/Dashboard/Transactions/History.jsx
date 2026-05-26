@@ -215,7 +215,7 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Pencarian Global
+                                        Pencarian
                                     </label>
                                     <input
                                         type="text"

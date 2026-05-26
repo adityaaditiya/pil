@@ -457,7 +457,7 @@ export default function History({ bookings, filters = {} }) {
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                        Pencarian Global
+                                        Pencarian
                                     </label>
                                     <input
                                         type="text"
