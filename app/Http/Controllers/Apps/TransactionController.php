@@ -555,7 +555,7 @@ class TransactionController extends Controller
     {
         $defaultDate = Carbon::today()->toDateString();
         $filters = [
-            'invoice'    => $request->input('invoice'),
+            'search'     => $request->input('search'),
             'start_date' => $request->input('start_date') ?: $defaultDate,
             'end_date'   => $request->input('end_date') ?: $defaultDate,
         ];
@@ -571,8 +571,12 @@ class TransactionController extends Controller
         }
 
         $query
-            ->when($filters['invoice'], function (Builder $builder, $invoice) {
-                $builder->where('invoice', 'like', '%' . $invoice . '%');
+            ->when($filters['search'], function (Builder $builder, $search) {
+                $builder->where(function (Builder $query) use ($search) {
+                    $query->where('invoice', 'like', '%' . $search . '%')
+                        ->orWhere('grand_total', 'like', '%' . $search . '%')
+                        ->orWhereHas('customer', fn (Builder $customerQuery) => $customerQuery->where('name', 'like', '%' . $search . '%'));
+                });
             })
             ->when($filters['start_date'], function (Builder $builder, $date) {
                 $builder->whereDate('created_at', '>=', $date);
@@ -598,7 +602,7 @@ class TransactionController extends Controller
     {
         $defaultDate = Carbon::today()->toDateString();
         $filters = [
-            'invoice'    => $request->input('invoice'),
+            'search'     => $request->input('search'),
             'start_date' => $request->input('start_date') ?: $defaultDate,
             'end_date'   => $request->input('end_date') ?: $defaultDate,
         ];
@@ -612,8 +616,12 @@ class TransactionController extends Controller
             });
 
         $query
-            ->when($filters['invoice'], function (Builder $builder, $invoice) {
-                $builder->where('invoice', 'like', '%' . $invoice . '%');
+            ->when($filters['search'], function (Builder $builder, $search) {
+                $builder->where(function (Builder $query) use ($search) {
+                    $query->where('invoice', 'like', '%' . $search . '%')
+                        ->orWhere('grand_total', 'like', '%' . $search . '%')
+                        ->orWhereHas('customer', fn (Builder $customerQuery) => $customerQuery->where('name', 'like', '%' . $search . '%'));
+                });
             })
             ->when($filters['start_date'], function (Builder $builder, $date) {
                 $builder->whereDate('created_at', '>=', $date);

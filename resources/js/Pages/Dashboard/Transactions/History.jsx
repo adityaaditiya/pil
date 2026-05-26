@@ -14,7 +14,7 @@ import {
 } from "@tabler/icons-react";
 
 const defaultFilters = {
-    invoice: "",
+    search: "",
     start_date: "",
     end_date: "",
 };
@@ -83,7 +83,7 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
         : rows.length || 1;
 
     const hasActiveFilters =
-        filterData.invoice || filterData.start_date || filterData.end_date;
+        filterData.search || filterData.start_date || filterData.end_date;
 
     const handleCancel = (transaction) => {
         Swal.fire({
@@ -215,15 +215,15 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Nomor Invoice
+                                        Pencarian Global
                                     </label>
                                     <input
                                         type="text"
-                                        placeholder="TRX-..."
-                                        value={filterData.invoice}
+                                        placeholder="Invoice / Nama pelanggan / Nominal"
+                                        value={filterData.search}
                                         onChange={(e) =>
                                             handleChange(
-                                                "invoice",
+                                                "search",
                                                 e.target.value
                                             )
                                         }
