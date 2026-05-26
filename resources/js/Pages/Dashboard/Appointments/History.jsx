@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import { IconArrowsShuffle, IconBan, IconEye, IconFilter, IconHistory, IconListDetails, IconPrinter, IconSearch, IconUsers, IconX } from "@tabler/icons-react";
 
 const defaultFilters = {
-    invoice: "",
+    search: "",
     start_date: "",
     end_date: "",
 };
@@ -49,7 +49,7 @@ export default function History({ bookings, filters = {} }) {
     const links = bookings?.links ?? [];
 
     const hasActiveFilters =
-        Boolean(filterData.invoice) ||
+        Boolean(filterData.search) ||
         Boolean(filterData.start_date) ||
         Boolean(filterData.end_date);
 
@@ -457,14 +457,14 @@ export default function History({ bookings, filters = {} }) {
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                        Nomor Invoice
+                                        Pencarian Global
                                     </label>
                                     <input
                                         type="text"
-                                        placeholder="APT-..."
-                                        value={filterData.invoice}
+                                        placeholder="Invoice / Nama pelanggan / Nominal"
+                                        value={filterData.search}
                                         onChange={(event) =>
-                                            handleChange("invoice", event.target.value)
+                                            handleChange("search", event.target.value)
                                         }
                                         className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 placeholder-slate-400 transition-all focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                                     />

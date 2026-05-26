@@ -17,7 +17,7 @@ import {
 } from "@tabler/icons-react";
 
 const defaultFilters = {
-    invoice: "",
+    search: "",
     start_date: "",
     end_date: "",
 };
@@ -59,7 +59,7 @@ export default function BookingHistory({ bookings, filters = {} }) {
     const links = bookings?.links ?? [];
 
     const hasActiveFilters =
-        Boolean(filterData.invoice) ||
+        Boolean(filterData.search) ||
         Boolean(filterData.start_date) ||
         Boolean(filterData.end_date);
 
@@ -464,15 +464,15 @@ export default function BookingHistory({ bookings, filters = {} }) {
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                        Nomor Invoice
+                                        Pencarian Global
                                     </label>
                                     <input
                                         type="text"
                                         placeholder="INV-..."
-                                        value={filterData.invoice}
+                                        value={filterData.search}
                                         onChange={(event) =>
                                             handleChange(
-                                                "invoice",
+                                                "search",
                                                 event.target.value,
                                             )
                                         }

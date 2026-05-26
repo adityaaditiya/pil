@@ -16,7 +16,7 @@ class MembershipHistoryController extends Controller
 {
     public function index(Request $request): Response
     {
-        $invoice = trim((string) $request->string('invoice'));
+        $search = trim((string) $request->string('search'));
         $startDate = trim((string) $request->string('start_date'));
         $endDate = trim((string) $request->string('end_date'));
 
@@ -32,8 +32,12 @@ class MembershipHistoryController extends Controller
             $query->whereDate('created_at', '<=', $endDate);
         }
 
-        if ($invoice !== '') {
-            $query->where('invoice', 'like', '%' . strtoupper($invoice) . '%');
+        if ($search !== '') {
+            $query->where(function ($builder) use ($search) {
+                $builder->where('invoice', 'like', '%' . strtoupper($search) . '%')
+                    ->orWhereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', '%' . $search . '%'))
+                    ->orWhereHas('plan', fn ($planQuery) => $planQuery->where('price', 'like', '%' . $search . '%'));
+            });
         }
 
         $memberships = $query
@@ -72,7 +76,7 @@ class MembershipHistoryController extends Controller
         return Inertia::render('Dashboard/Memberships/History', [
             'memberships' => $memberships,
             'filters' => [
-                'invoice' => $invoice,
+                'search' => $search,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
             ],

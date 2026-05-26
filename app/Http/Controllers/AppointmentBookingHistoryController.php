@@ -18,7 +18,7 @@ class AppointmentBookingHistoryController extends Controller
 {
     public function index(Request $request): Response
     {
-        $invoice = trim((string) $request->string('invoice'));
+        $search = trim((string) $request->string('search'));
         $startDate = trim((string) $request->string('start_date'));
         $endDate = trim((string) $request->string('end_date'));
 
@@ -40,8 +40,12 @@ class AppointmentBookingHistoryController extends Controller
             $query->whereDate('booked_at', '<=', $endDate);
         }
 
-        if ($invoice !== '') {
-            $query->where('invoice', 'like', '%' . strtoupper($invoice) . '%');
+        if ($search !== '') {
+            $query->where(function ($builder) use ($search) {
+                $builder->where('invoice', 'like', '%' . strtoupper($search) . '%')
+                    ->orWhereHas('customer', fn ($customerQuery) => $customerQuery->where('name', 'like', '%' . $search . '%'))
+                    ->orWhere('price_amount', 'like', '%' . $search . '%');
+            });
         }
 
         $bookings = $query
@@ -157,7 +161,7 @@ class AppointmentBookingHistoryController extends Controller
         return Inertia::render('Dashboard/Appointments/History', [
             'bookings' => $bookings,
             'filters' => [
-                'invoice' => $invoice,
+                'search' => $search,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
             ],
