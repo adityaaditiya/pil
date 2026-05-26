@@ -383,6 +383,13 @@ function Menu() {
                             icon: <IconBadge size={20} strokeWidth={1.5} />,
                             permissions: hasAnyPermission(["reports-access"]),
                         },
+                        {
+                            title: "Laporan Validity Membership",
+                            href: route("reports.membership-validity.index"),
+                            active: url.startsWith("/dashboard/reports/membership-validity"),
+                            icon: <IconBadge size={20} strokeWidth={1.5} />,
+                            permissions: hasAnyPermission(["reports-access"]),
+                        },
                     ],
                 },
                 {
