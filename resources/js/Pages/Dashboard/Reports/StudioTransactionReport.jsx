@@ -249,13 +249,13 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                     </select>
                                 </div>}
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">User Kasir</label>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Kasir</label>
                                     <select
                                         value={filterData.cashier_id}
                                         onChange={(e) => handleChange("cashier_id", e.target.value)}
                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                     >
-                                        <option value="">Semua user cashier</option>
+                                        <option value="">Semua Kasir</option>
                                         {(cashiers ?? []).map((cashier) => (
                                             <option key={cashier.id} value={cashier.id}>
                                                 {cashier.name}
