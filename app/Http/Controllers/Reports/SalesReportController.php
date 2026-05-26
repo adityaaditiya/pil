@@ -251,7 +251,16 @@ class SalesReportController extends Controller
     protected function applyFilters($query, array $filters)
     {
         $query = $query
-            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
+            ->when($filters['invoice'] ?? null, function ($q, $search) {
+                $q->where(function ($query) use ($search) {
+                    $query->where('invoice', 'like', '%' . $search . '%')
+                        ->orWhere('grand_total', 'like', '%' . $search . '%')
+                        ->orWhere('discount', 'like', '%' . $search . '%')
+                        ->orWhereHas('customer', fn ($customer) => $customer->where('name', 'like', '%' . $search . '%'))
+                        ->orWhereHas('cashier', fn ($cashier) => $cashier->where('name', 'like', '%' . $search . '%'))
+                        ->orWhereHas('details.product', fn ($product) => $product->where('title', 'like', '%' . $search . '%'));
+                });
+            })
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashier) => $q->where('cashier_id', $cashier))
             ->when($filters['customer_id'] ?? null, fn ($q, $customer) => $q->where('customer_id', $customer))
             ->when($filters['category_id'] ?? null, fn ($q, $category) => $q->whereHas('details.product', fn ($product) => $product->where('category_id', $category)))

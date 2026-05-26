@@ -227,7 +227,19 @@ class SoldItemsReportController extends Controller
     protected function applyFilters($query, array $filters)
     {
         return $query
-            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->whereHas('transaction', fn ($trx) => $trx->where('invoice', 'like', '%' . $invoice . '%')))
+            ->when($filters['invoice'] ?? null, function ($q, $search) {
+                $q->where(function ($query) use ($search) {
+                    $query->whereHas('transaction', function ($trx) use ($search) {
+                        $trx->where('invoice', 'like', '%' . $search . '%')
+                            ->orWhere('grand_total', 'like', '%' . $search . '%')
+                            ->orWhereHas('customer', fn ($customer) => $customer->where('name', 'like', '%' . $search . '%'))
+                            ->orWhereHas('cashier', fn ($cashier) => $cashier->where('name', 'like', '%' . $search . '%'));
+                    })
+                    ->orWhereHas('product', fn ($product) => $product->where('title', 'like', '%' . $search . '%'))
+                    ->orWhere('price', 'like', '%' . $search . '%')
+                    ->orWhere('qty', 'like', '%' . $search . '%');
+                });
+            })
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashier) => $q->whereHas('transaction', fn ($trx) => $trx->where('cashier_id', $cashier)))
             ->when($filters['customer_id'] ?? null, fn ($q, $customer) => $q->whereHas('transaction', fn ($trx) => $trx->where('customer_id', $customer)))
             ->when($filters['category_id'] ?? null, fn ($q, $category) => $q->whereHas('product', fn ($product) => $product->where('category_id', $category)))
