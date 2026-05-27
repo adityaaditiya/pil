@@ -37,17 +37,18 @@ const formatPaymentMethod = (value = "") => {
 };
 
 const History = ({ transactions, filters, isMyTransactions = false }) => {
-    const [filterData, setFilterData] = useState({
-        ...defaultFilters,
-        ...filters,
+    // Memastikan jika value dari backend bernilai null, akan dikonversi ke string kosong ""
+    const initializeFilters = (incomingFilters) => ({
+        search: incomingFilters?.search ?? "",
+        start_date: incomingFilters?.start_date ?? "",
+        end_date: incomingFilters?.end_date ?? "",
     });
+
+    const [filterData, setFilterData] = useState(() => initializeFilters(filters));
     const [showFilters, setShowFilters] = useState(false);
 
     useEffect(() => {
-        setFilterData({
-            ...defaultFilters,
-            ...filters,
-        });
+        setFilterData(initializeFilters(filters));
     }, [filters]);
 
     const handleChange = (field, value) => {
@@ -220,7 +221,8 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
                                     <input
                                         type="text"
                                         placeholder="Invoice / Nama pelanggan / Nominal"
-                                        value={filterData.search}
+                                        // Menggunakan perlindungan tambahan || "" agar value tidak pernah null
+                                        value={filterData.search || ""}
                                         onChange={(e) =>
                                             handleChange(
                                                 "search",
@@ -236,7 +238,7 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
                                     </label>
                                     <input
                                         type="date"
-                                        value={filterData.start_date}
+                                        value={filterData.start_date || ""}
                                         onChange={(e) =>
                                             handleChange(
                                                 "start_date",
@@ -252,7 +254,7 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
                                     </label>
                                     <input
                                         type="date"
-                                        value={filterData.end_date}
+                                        value={filterData.end_date || ""}
                                         onChange={(e) =>
                                             handleChange(
                                                 "end_date",
@@ -315,18 +317,6 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
                                     <th className="px-4 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                         Total
                                     </th>
-                                    {/* <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                        Keterangan Otorisasi
-                                    </th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                        Email Otorisasi
-                                    </th>
-                                    <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                        Waktu Otorisasi
-                                    </th> */}
-                                    {/* <th className="px-4 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                        Profit
-                                    </th> */}
                                     <th className="px-4 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"></th>
                                 </tr>
                             </thead>
@@ -378,23 +368,6 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
                                                     transaction.grand_total ?? 0
                                                 )}
                                             </td>
-                                            {/* <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                                {transaction.cancellation_note ||
-                                                    "-"}
-                                            </td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                                {transaction.canceled_by_email ||
-                                                    "-"}
-                                            </td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                                {transaction.canceled_at || "-"}
-                                            </td> */}
-                                            {/* <td className="px-4 py-4 text-right text-sm font-semibold text-success-600 dark:text-success-400">
-                                                {formatCurrency(
-                                                    transaction.total_profit ??
-                                                        0
-                                                )}
-                                            </td> */}
                                             <td className="px-4 py-4 text-center">
                                                 {!isMyTransactions && (
                                                     <div className="flex items-center justify-center gap-2">
@@ -438,7 +411,7 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
                                 ) : (
                                     <tr>
                                         <td
-                                            colSpan={12}
+                                            colSpan={9}
                                             className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400"
                                         >
                                             Tidak ada transaksi hari ini.

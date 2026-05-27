@@ -1,5 +1,8 @@
-import { Head, router } from "@inertiajs/react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Head, router, Link } from "@inertiajs/react";
+import Swal from "sweetalert2";
+import DashboardLayout from "@/Layouts/DashboardLayout";
+import Pagination from "@/Components/Dashboard/Pagination";
 import Navbar from "@/Components/Landing/Navbar";
 import {
     IconCalendarEvent,
@@ -20,7 +23,6 @@ const applyFilters = (filters) => {
 
 const formatDate = (date) => {
     if (!date) return "-";
-    // Tambahkan pengecekan agar JS tidak menganggap ini UTC
     const d = new Date(date.replace(' ', 'T')); 
     return new Intl.DateTimeFormat("id-ID", {
         weekday: "long",
@@ -36,7 +38,7 @@ const formatTime = (date) => {
     return new Intl.DateTimeFormat("id-ID", {
         hour: "2-digit",
         minute: "2-digit",
-        hour12: false // Opsional: paksa format 24 jam
+        hour12: false
     }).format(d);
 };
 
@@ -85,6 +87,23 @@ const updateAttendance = (bookingType, bookingId, attendanceStatus) => {
 
 export default function MyFlow({ sessions = [], stats = {}, filters = {}, classTypeOptions = {} }) {
     const [selectedQuestionnaire, setSelectedQuestionnaire] = useState(null);
+
+    // Fitur: Tutup Pop-up otomatis saat menekan tombol ESC di Keyboard
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === "Escape") {
+                setSelectedQuestionnaire(null);
+            }
+        };
+
+        if (selectedQuestionnaire) {
+            window.addEventListener("keydown", handleKeyDown);
+        }
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [selectedQuestionnaire]);
 
     const handleFilterChange = (key, value) => {
         applyFilters({
@@ -139,87 +158,76 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                         </article>
                     </div>
 
-                                    <div className="p-6 mb-6 bg-white border shadow-sm border-slate-200/60 rounded-2xl ring-1 ring-slate-900/5">
-                    {/* Bagian Atas: Form Input */}
-                    <div className="grid grid-cols-1 gap-5 md:grid-cols-3 mb-7">
-                        
-                        {/* Input Tanggal Mulai */}
-                        <div>
-                            <label className="block mb-2 text-xs font-semibold tracking-wider uppercase text-slate-500">
-                                Tanggal Mulai
-                            </label>
-                            <input
-                                type="date"
-                                value={filters.start_date || ""}
-                                onChange={(event) => handleFilterChange("start_date", event.target.value)}
-                                className="w-full px-4 py-2.5 text-sm transition-all duration-200 border outline-none text-slate-700 bg-slate-50/50 border-slate-200 rounded-xl focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 hover:border-slate-300"
-                            />
-                        </div>
-
-                        {/* Input Tanggal Akhir */}
-                        <div>
-                            <label className="block mb-2 text-xs font-semibold tracking-wider uppercase text-slate-500">
-                                Tanggal Akhir
-                            </label>
-                            <input
-                                type="date"
-                                value={filters.end_date || ""}
-                                onChange={(event) => handleFilterChange("end_date", event.target.value)}
-                                className="w-full px-4 py-2.5 text-sm transition-all duration-200 border outline-none text-slate-700 bg-slate-50/50 border-slate-200 rounded-xl focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 hover:border-slate-300"
-                            />
-                        </div>
-
-                        {/* Pilihan Jenis Kelas */}
-                        <div>
-                            <label className="block mb-2 text-xs font-semibold tracking-wider uppercase text-slate-500">
-                                Jenis Kelas
-                            </label>
-                            <select
-                                value={filters.class_type || ""}
-                                onChange={(event) => handleFilterChange("class_type", event.target.value)}
-                                disabled={Boolean(filters.upcoming_only)}
-                                className="w-full px-4 py-2.5 text-sm transition-all duration-200 border outline-none text-slate-700 bg-slate-50/50 border-slate-200 rounded-xl focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 hover:border-slate-300 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
-                            >
-                                <option value="">Semua Jenis</option>
-                                {classTypeOptions.appointment && <option value="appointment">Appointment</option>}
-                                {classTypeOptions.timetable && <option value="timetable">Fixed Timetable</option>}
-                            </select>
-                        </div>
-                        
-                    </div>
-
-                    {/* Bagian Bawah: Aksi & Toggle (Garis Pembatas) */}
-                    <div className="flex flex-col items-center justify-between pt-5 border-t sm:flex-row border-slate-100 gap-4">
-                        
-                        {/* Checkbox Sesi Akan Datang */}
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                            <div className="relative flex items-center justify-center">
+                    <div className="p-6 mb-6 bg-white border shadow-sm border-slate-200/60 rounded-2xl ring-1 ring-slate-900/5">
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-3 mb-7">
+                            <div>
+                                <label className="block mb-2 text-xs font-semibold tracking-wider uppercase text-slate-500">
+                                    Tanggal Mulai
+                                </label>
                                 <input
-                                    type="checkbox"
-                                    checked={Boolean(filters.upcoming_only)}
-                                    onChange={(event) => handleFilterChange("upcoming_only", event.target.checked)}
-                                    className="w-5 h-5 transition-all bg-white rounded cursor-pointer border-slate-300 text-primary-600 focus:ring-primary-500 focus:ring-offset-0"
+                                    type="date"
+                                    value={filters.start_date || ""}
+                                    onChange={(event) => handleFilterChange("start_date", event.target.value)}
+                                    className="w-full px-4 py-2.5 text-sm transition-all duration-200 border outline-none text-slate-700 bg-slate-50/50 border-slate-200 rounded-xl focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 hover:border-slate-300"
                                 />
                             </div>
-                            <span className="text-sm font-medium transition-colors text-slate-600 group-hover:text-slate-900">
-                                Tampilkan hanya Sesi Akan Datang
-                            </span>
-                        </label>
 
-                        {/* Tombol Reset */}
-                        <button
-                            type="button"
-                            onClick={resetFilters}
-                            className="flex items-center justify-center w-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 bg-white border shadow-sm sm:w-auto text-slate-600 border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200"
-                        >
-                            <svg className="w-4 h-4 mr-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                            </svg>
-                            Reset Filter
-                        </button>
-                        
+                            <div>
+                                <label className="block mb-2 text-xs font-semibold tracking-wider uppercase text-slate-500">
+                                    Tanggal Akhir
+                                </label>
+                                <input
+                                    type="date"
+                                    value={filters.end_date || ""}
+                                    onChange={(event) => handleFilterChange("end_date", event.target.value)}
+                                    className="w-full px-4 py-2.5 text-sm transition-all duration-200 border outline-none text-slate-700 bg-slate-50/50 border-slate-200 rounded-xl focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 hover:border-slate-300"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block mb-2 text-xs font-semibold tracking-wider uppercase text-slate-500">
+                                    Jenis Kelas
+                                </label>
+                                <select
+                                    value={filters.class_type || ""}
+                                    onChange={(event) => handleFilterChange("class_type", event.target.value)}
+                                    disabled={Boolean(filters.upcoming_only)}
+                                    className="w-full px-4 py-2.5 text-sm transition-all duration-200 border outline-none text-slate-700 bg-slate-50/50 border-slate-200 rounded-xl focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 hover:border-slate-300 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                >
+                                    <option value="">Semua Jenis</option>
+                                    {classTypeOptions.appointment && <option value="appointment">Appointment</option>}
+                                    {classTypeOptions.timetable && <option value="timetable">Fixed Timetable</option>}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col items-center justify-between pt-5 border-t sm:flex-row border-slate-100 gap-4">
+                            <label className="flex items-center gap-3 cursor-pointer group">
+                                <div className="relative flex items-center justify-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={Boolean(filters.upcoming_only)}
+                                        onChange={(event) => handleFilterChange("upcoming_only", event.target.checked)}
+                                        className="w-5 h-5 transition-all bg-white rounded cursor-pointer border-slate-300 text-primary-600 focus:ring-primary-500 focus:ring-offset-0"
+                                    />
+                                </div>
+                                <span className="text-sm font-medium transition-colors text-slate-600 group-hover:text-slate-900">
+                                    Tampilkan hanya Sesi Akan Datang
+                                </span>
+                            </label>
+
+                            <button
+                                type="button"
+                                onClick={resetFilters}
+                                className="flex items-center justify-center w-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 bg-white border shadow-sm sm:w-auto text-slate-600 border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                            >
+                                <svg className="w-4 h-4 mr-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                                Reset Filter
+                            </button>
+                        </div>
                     </div>
-                </div>
 
                     {sessions.length === 0 ? (
                         <div className="rounded-3xl border border-primary-100 bg-white p-8 text-center shadow-sm">
@@ -271,23 +279,34 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                                                             <p className="inline-flex items-center gap-2 font-medium text-slate-800">
                                                                 <IconUser size={16} />
                                                                 {client.name}
-                                                            
                                                             {/* Status Kehadiran */}
                                                             {/* <span className={`rounded-full border px-3 py-0.9 text-xs font-semibold ${attendanceStyle[client.attendance_status] || attendanceStyle.pending}`}>
                                                                 {attendanceText[client.attendance_status] || attendanceText.pending}
                                                             </span> */}
-
                                                             </p>
                                                             <span className="text-xs text-slate-500">Status Booking: {client.booking_status || "-"}</span>
                                                         </div>
-
                                                         {/* Status Kehadiran */}
-                                                        {/* <div className="flex flex-wrap items-center gap-2"> */}
-                                                            {/* <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${attendanceStyle[client.attendance_status] || attendanceStyle.pending}`}>
-                                                                {attendanceText[client.attendance_status] || attendanceText.pending}
-                                                            </span> */}
+                                                        <div className="flex flex-wrap items-center gap-2">
+
                                                             {/* ============================== */}
                                                             {/* <button
+                                                                type="button"
+                                                                onClick={() => updateAttendance(session.session_type, client.id, "present")}
+                                                                className="rounded-full border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
+                                                            >
+                                                                Hadir
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => updateAttendance(session.session_type, client.id, "absent")}
+                                                                className="rounded-full border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                                                            >
+                                                                Tidak Hadir
+                                                            </button> */}
+                                                            {/* ============================== */}
+
+                                                            <button
                                                                 type="button"
                                                                 onClick={() => openQuestionnaire(client)}
                                                                 className="rounded-full border border-sky-200 px-3 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-50"
@@ -297,21 +316,7 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                                                                     Kuesioner
                                                                 </span>
                                                             </button>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => updateAttendance(session.session_type, client.id, "present")}
-                                                                className="rounded-full border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
-                                                            >
-                                                                Check-in
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => updateAttendance(session.session_type, client.id, "absent")}
-                                                                className="rounded-full border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
-                                                            >
-                                                                Tidak Hadir
-                                                            </button>
-                                                        </div> */}
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>
@@ -325,9 +330,22 @@ export default function MyFlow({ sessions = [], stats = {}, filters = {}, classT
                     )}
                 </section>
             </div>
+
             {selectedQuestionnaire && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
-                    <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+                /* BACKDROP (Lapisan Hitam Transparan) 
+                   Ditambahkan onClick untuk menutup saat luar area diklik
+                */
+                <div 
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm px-4"
+                    onClick={() => setSelectedQuestionnaire(null)}
+                >
+                    {/* KOTAK KONTEN POP-UP 
+                       Ditambahkan e.stopPropagation() agar saat form/text di klik tidak ikut close
+                    */}
+                    <div 
+                        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="mb-4 flex items-center justify-between gap-3">
                             <h3 className="text-lg font-semibold text-slate-800">
                                 Kuesioner Peserta - {selectedQuestionnaire.clientName}
