@@ -269,7 +269,7 @@ const SoldItems = ({ soldItems, summary, filters, cashiers, customers, categorie
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Pencarian Global
+                                        Pencarian
                                     </label>
                                     <input
                                         type="text"

@@ -225,7 +225,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                     />
                                 </div>}
                                 {showInvoiceFilter && <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Pencarian Global</label>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Pencarian</label>
                                     <input
                                         type="text"
                                         placeholder="Cari invoice, nama pelanggan, nominal, item, dll..."

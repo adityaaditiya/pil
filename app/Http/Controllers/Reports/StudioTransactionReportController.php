@@ -185,28 +185,43 @@ class StudioTransactionReportController extends Controller
         $filters = $this->buildFilters($request);
 
         $baseQuery = DB::table('membership_credit_transfers as mct')
-            ->leftJoin('users as sender', 'sender.id', '=', 'mct.from_user_id')
-            ->leftJoin('users as receiver', 'receiver.id', '=', 'mct.to_user_id')
-            ->leftJoin('membership_plans as mp', 'mp.id', '=', 'mct.membership_plan_id')
-            ->leftJoin('user_memberships as um', 'um.id', '=', 'mct.receiver_membership_id')
-            ->leftJoin('users as cashier', 'cashier.id', '=', 'mct.cashier_id')
-            ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('mct.created_at', '>=', $start))
-            ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('mct.created_at', '<=', $end))
-            ->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('mct.membership_plan_id', $planId))
-            ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('mct.cashier_id', $cashierId));
+        ->leftJoin('users as sender', 'sender.id', '=', 'mct.from_user_id')
+        ->leftJoin('users as receiver', 'receiver.id', '=', 'mct.to_user_id')
+        ->leftJoin('membership_plans as mp', 'mp.id', '=', 'mct.membership_plan_id')
+        ->leftJoin('user_memberships as um', 'um.id', '=', 'mct.receiver_membership_id')
+        
+        // 1. SAMBUNGKAN KE KOLOM YANG BENAR (Misal: created_by)
+        ->leftJoin('users as cashier', 'cashier.id', '=', 'mct.created_by') 
+        
+        ->when(!empty($filters['start_date']), function ($q) use ($filters) {
+            return $q->whereDate('mct.created_at', '>=', $filters['start_date']);
+        })
+        ->when(!empty($filters['end_date']), function ($q) use ($filters) {
+            return $q->whereDate('mct.created_at', '<=', $filters['end_date']);
+        })
+        ->when(!empty($filters['membership_plan_id']), function ($q) use ($filters) {
+            return $q->where('mct.membership_plan_id', $filters['membership_plan_id']);
+        })
+        
+        // 2. AKTIFKAN KEMBALI FILTER KASIR MENGGUNAKAN KOLOM YANG BENAR
+        ->when(!empty($filters['cashier_id']), function ($q) use ($filters) {
+            return $q->where('mct.created_by', $filters['cashier_id']);
+        });
 
-        $rows = (clone $baseQuery)
-            ->select([
-                'mct.id',
-                'mct.created_at',
-                'sender.name as sender_name',
-                'receiver.name as receiver_name',
-                'mp.name as plan_name',
-                'mct.credits_transferred',
-                'mct.notes',
-                'um.expires_at',
-                'cashier.name as cashier_name',
-            ])
+    $rows = (clone $baseQuery)
+        ->select([
+            'mct.id',
+            'mct.created_at',
+            'sender.name as sender_name',
+            'receiver.name as receiver_name',
+            'mp.name as plan_name',
+            'mct.credits_transferred',
+            'mct.notes',
+            'um.expires_at',
+            // 3. AMBIL NAMA KASIR ASLI DARI HASIL JOIN, JANGAN DIGANTI STRIP PUKUL RATA (-) LAGI
+            'cashier.name as cashier_name', 
+        ])
+        // ... sisa kode code paginate dan return Inertia sama seperti sebelumnya
             ->orderByDesc('mct.created_at')
             ->paginate(10)
             ->withQueryString()
