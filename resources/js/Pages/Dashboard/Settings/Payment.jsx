@@ -9,6 +9,12 @@ import {
     IconDeviceFloppy,
     IconBrandStripe,
     IconCash,
+    IconHome2,
+    IconQrcode,
+    IconChartArrowsVertical,
+    IconWallet,
+    IconReceipt,
+    
     IconPhoto,
 } from "@tabler/icons-react";
 import toast from "react-hot-toast";
@@ -116,6 +122,10 @@ export default function Payment({ setting, supportedGateways = [] }) {
                 </div>
 
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 dark:text-white p-6 space-y-4">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+                        <IconHome2 size={18} />
+                        Aktivasi Payment
+                    </h3>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className={methodCardClass}>
                             <p className="text-sm font-semibold">QRIS</p>
@@ -160,7 +170,10 @@ export default function Payment({ setting, supportedGateways = [] }) {
                 </div>
 
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
-                    <h3 className="text-sm font-semibold dark:text-white">Detail QRIS</h3>
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+                        <IconQrcode size={18} />
+                        Detail QRIS
+                    </h3>
                     <Input
                         label="Nama Lengkap"
                         type="text"
@@ -191,7 +204,10 @@ export default function Payment({ setting, supportedGateways = [] }) {
                 </div>
 
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
-                    <h3 className="text-sm font-semibold dark:text-white">Detail Transfer Bank</h3>
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+                        <IconChartArrowsVertical size={18} />
+                        Detail Transfer Bank
+                    </h3>
                     <div className="grid gap-4 md:grid-cols-2">
                         <Input
                             label="Nama Bank"
@@ -284,7 +300,11 @@ export default function Payment({ setting, supportedGateways = [] }) {
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
                 {/* Kontainer Header dengan Flexbox */}
                 <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold dark:text-white">Xendit Invoice</h3>
+                    {/* <h3 className="text-sm font-semibold dark:text-white">Xendit Invoice</h3> */}
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <IconReceipt size={18} />
+                        Xendit Invoice
+                    </h3>
                     <Checkbox
                         checked={data.xendit_enabled}
                         onChange={(e) => setData("xendit_enabled", e.target.checked)}
