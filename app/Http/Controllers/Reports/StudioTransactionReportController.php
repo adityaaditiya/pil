@@ -189,9 +189,11 @@ class StudioTransactionReportController extends Controller
             ->leftJoin('users as receiver', 'receiver.id', '=', 'mct.to_user_id')
             ->leftJoin('membership_plans as mp', 'mp.id', '=', 'mct.membership_plan_id')
             ->leftJoin('user_memberships as um', 'um.id', '=', 'mct.receiver_membership_id')
+            ->leftJoin('users as cashier', 'cashier.id', '=', 'mct.cashier_id')
             ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('mct.created_at', '>=', $start))
             ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('mct.created_at', '<=', $end))
-            ->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('mct.membership_plan_id', $planId));
+            ->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('mct.membership_plan_id', $planId))
+            ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('mct.cashier_id', $cashierId));
 
         $rows = (clone $baseQuery)
             ->select([
@@ -203,6 +205,7 @@ class StudioTransactionReportController extends Controller
                 'mct.credits_transferred',
                 'mct.notes',
                 'um.expires_at',
+                'cashier.name as cashier_name',
             ])
             ->orderByDesc('mct.created_at')
             ->paginate(10)
@@ -216,6 +219,7 @@ class StudioTransactionReportController extends Controller
                 'credits_transferred' => (int) ($item->credits_transferred ?? 0),
                 'notes' => $item->notes ?? '-',
                 'expires_at' => $item->expires_at ? Carbon::parse($item->expires_at)->timezone('Asia/Jakarta')->format('d M Y, H:i') : '-',
+                'cashier_name' => $item->cashier_name ?? '-',
             ]);
 
         $summary = [
@@ -238,6 +242,7 @@ class StudioTransactionReportController extends Controller
                     ['key' => 'credits_transferred', 'label' => 'Jumlah Credit', 'type' => 'number'],
                     ['key' => 'notes', 'label' => 'Catatan'],
                     ['key' => 'expires_at', 'label' => 'Masa Expired Membership'],
+                    ['key' => 'cashier_name', 'label' => 'Kasir'],
                 ],
                 'show_payment_filter' => false,
                 'show_invoice_filter' => false,
@@ -246,6 +251,7 @@ class StudioTransactionReportController extends Controller
             'rows' => $rows,
             'summary' => $summary,
             'paymentMethods' => [],
+            'cashiers' => $this->getCashierOptions(),
             'membershipPlans' => MembershipPlan::query()
                 ->select('id', 'name')
                 ->orderBy('name')
