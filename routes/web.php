@@ -295,8 +295,8 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::post('memberships/{userMembership}/reject-payment', [MembershipHistoryController::class, 'rejectPayment'])
         ->middleware('permission:memberships-history-access')
         ->name('memberships.reject-payment');
-    Route::get('memberships/transfer', [MembershipTransferController::class, 'index'])->middleware('permission:memberships-access')->name('memberships.transfer.index');
-    Route::post('memberships/transfer', [MembershipTransferController::class, 'store'])->middleware('permission:memberships-access')->name('memberships.transfer.store');
+    Route::get('memberships/transfer', [MembershipTransferController::class, 'index'])->middleware('permission:membership-transfer-access')->name('memberships.transfer.index');
+    Route::post('memberships/transfer', [MembershipTransferController::class, 'store'])->middleware('permission:membership-transfer-access')->name('memberships.transfer.store');
     Route::post('bookings', [BookingController::class, 'store'])->name('bookings.store');
     //route transaction
     Route::get('/transactions', [TransactionController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.index');
@@ -331,8 +331,8 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/transactions/cash/ambil', [CashEntryController::class, 'index'])->middleware('permission:transactions-access')->defaults('type', 'out')->name('transactions.cash.out');
     Route::post('/transactions/cash/ambil', [CashEntryController::class, 'store'])->middleware('permission:transactions-access')->defaults('type', 'out')->name('transactions.cash.out.store');
 
-    Route::get('/settings/payments/activation', [PaymentSettingController::class, 'editActivation'])->middleware('permission:payment-settings-access')->name('settings.payment-activation.edit');
-    Route::put('/settings/payments/activation', [PaymentSettingController::class, 'updateActivation'])->middleware('permission:payment-settings-access')->name('settings.payment-activation.update');
+    Route::get('/settings/payments/activation', [PaymentSettingController::class, 'editActivation'])->middleware('permission:payment-activation-access')->name('settings.payment-activation.edit');
+    Route::put('/settings/payments/activation', [PaymentSettingController::class, 'updateActivation'])->middleware('permission:payment-activation-access')->name('settings.payment-activation.update');
     Route::get('/settings/payments', [PaymentSettingController::class, 'edit'])->middleware('permission:payment-settings-access')->name('settings.payments.edit');
     Route::put('/settings/payments', [PaymentSettingController::class, 'update'])->middleware('permission:payment-settings-access')->name('settings.payments.update');
 

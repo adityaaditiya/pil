@@ -251,7 +251,7 @@ function Menu() {
                     href: route("memberships.transfer.index"),
                     active: url === "/dashboard/memberships/transfer",
                     icon: <IconExchange size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["memberships-access"]),
+                    permissions: hasAnyPermission(["membership-transfer-access"]),
                 },
                 {
                     title: "My Memberships",
@@ -470,7 +470,7 @@ function Menu() {
                     href: route("settings.payment-activation.edit"),
                     active: url === "/dashboard/settings/payments/activation",
                     icon: <IconWallet size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["payment-settings-access"]),
+                    permissions: hasAnyPermission(["payment-activation-access"]),
                 },
                 {
                     title: "Payment Gateway",
