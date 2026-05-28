@@ -466,6 +466,13 @@ function Menu() {
             title: "Pengaturan",
             details: [
                 {
+                    title: "Aktivasi Payment",
+                    href: route("settings.payment-activation.edit"),
+                    active: url === "/dashboard/settings/payments/activation",
+                    icon: <IconWallet size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["payment-settings-access"]),
+                },
+                {
                     title: "Payment Gateway",
                     href: route("settings.payments.edit"),
                     active: url === "/dashboard/settings/payments",

@@ -3,18 +3,16 @@ import { Head, useForm, usePage } from "@inertiajs/react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Input from "@/Components/Dashboard/Input";
 import Checkbox from "@/Components/Dashboard/Checkbox";
+import PaymentActivationCard from "@/Components/Dashboard/PaymentActivationCard";
 import { getImageUrl } from "@/Utils/imageUrl";
 import {
     IconCreditCard,
     IconDeviceFloppy,
     IconBrandStripe,
     IconCash,
-    IconHome2,
     IconQrcode,
     IconChartArrowsVertical,
-    IconWallet,
     IconReceipt,
-    
     IconPhoto,
 } from "@tabler/icons-react";
 import toast from "react-hot-toast";
@@ -78,9 +76,6 @@ export default function Payment({ setting, supportedGateways = [] }) {
         return false;
     };
 
-    const methodCardClass =
-        "flex items-center justify-between rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3";
-
     return (
         <>
             <Head title="Pengaturan Payment" />
@@ -121,53 +116,11 @@ export default function Payment({ setting, supportedGateways = [] }) {
                     )}
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 dark:text-white p-6 space-y-4">
-                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
-                        <IconHome2 size={18} />
-                        Aktivasi Payment
-                    </h3>
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div className={methodCardClass}>
-                            <p className="text-sm font-semibold">QRIS</p>
-                            <Checkbox
-                                checked={data.qris_enabled}
-                                onChange={(e) => setData("qris_enabled", e.target.checked)}
-                            />
-                        </div>
-                        <div className={methodCardClass}>
-                            <p className="text-sm font-semibold">Transfer Bank</p>
-                            <Checkbox
-                                checked={data.bank_transfer_enabled}
-                                onChange={(e) =>
-                                    setData("bank_transfer_enabled", e.target.checked)
-                                }
-                            />
-                        </div>
-                        <div className={methodCardClass}>
-                            <p className="text-sm font-semibold">Debit</p>
-                            <Checkbox
-                                checked={data.debit_enabled}
-                                onChange={(e) => setData("debit_enabled", e.target.checked)}
-                            />
-                        </div>
-                        <div className={methodCardClass}>
-                            <p className="text-sm font-semibold">AYO</p>
-                            <Checkbox
-                                checked={data.ayo_enabled}
-                                onChange={(e) => setData("ayo_enabled", e.target.checked)}
-                            />
-                        </div>
-                        <div className={methodCardClass}>
-                            <p className="text-sm font-semibold">Credit Card</p>
-                            <Checkbox
-                                checked={data.credit_card_enabled}
-                                onChange={(e) =>
-                                    setData("credit_card_enabled", e.target.checked)
-                                }
-                            />
-                        </div>
-                    </div>
-                </div>
+                <PaymentActivationCard
+                    data={data}
+                    setData={setData}
+                    errors={errors}
+                />
 
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
                     <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">

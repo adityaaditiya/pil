@@ -32,6 +32,74 @@ class PaymentSettingController extends Controller
         ]);
     }
 
+    public function editActivation()
+    {
+        $setting = PaymentSetting::firstOrCreate([], [
+            'default_gateway' => 'cash',
+        ]);
+
+        return Inertia::render('Dashboard/Settings/PaymentActivation', [
+            'setting' => $setting,
+        ]);
+    }
+
+    public function updateActivation(Request $request)
+    {
+        $setting = PaymentSetting::firstOrCreate([], [
+            'default_gateway' => 'cash',
+        ]);
+
+        $data = $request->validate([
+            'qris_enabled' => ['boolean'],
+            'bank_transfer_enabled' => ['boolean'],
+            'debit_enabled' => ['boolean'],
+            'ayo_enabled' => ['boolean'],
+            'credit_card_enabled' => ['boolean'],
+        ]);
+
+        $qrisEnabled = (bool) ($data['qris_enabled'] ?? false);
+        $bankTransferEnabled = (bool) ($data['bank_transfer_enabled'] ?? false);
+        $debitEnabled = (bool) ($data['debit_enabled'] ?? false);
+        $ayoEnabled = (bool) ($data['ayo_enabled'] ?? false);
+        $creditCardEnabled = (bool) ($data['credit_card_enabled'] ?? false);
+
+        if ($qrisEnabled && (blank($setting->qris_full_name) || blank($setting->qris_image))) {
+            return back()->withErrors([
+                'qris_enabled' => 'Lengkapi nama dan gambar QRIS di menu Payment Gateway sebelum mengaktifkan QRIS.',
+            ])->withInput();
+        }
+
+        if ($bankTransferEnabled && (blank($setting->bank_name) || blank($setting->bank_account_name) || blank($setting->bank_account_number))) {
+            return back()->withErrors([
+                'bank_transfer_enabled' => 'Lengkapi detail transfer bank di menu Payment Gateway sebelum mengaktifkan Transfer Bank.',
+            ])->withInput();
+        }
+
+        $defaultGateway = $setting->default_gateway;
+        if (
+            ($defaultGateway === PaymentSetting::GATEWAY_QRIS && ! $qrisEnabled)
+            || ($defaultGateway === PaymentSetting::GATEWAY_BANK_TRANSFER && ! $bankTransferEnabled)
+            || ($defaultGateway === PaymentSetting::GATEWAY_DEBIT && ! $debitEnabled)
+            || ($defaultGateway === PaymentSetting::GATEWAY_AYO && ! $ayoEnabled)
+            || ($defaultGateway === PaymentSetting::GATEWAY_CREDIT_CARD && ! $creditCardEnabled)
+        ) {
+            $defaultGateway = 'cash';
+        }
+
+        $setting->update([
+            'default_gateway' => $defaultGateway,
+            'qris_enabled' => $qrisEnabled,
+            'bank_transfer_enabled' => $bankTransferEnabled,
+            'debit_enabled' => $debitEnabled,
+            'ayo_enabled' => $ayoEnabled,
+            'credit_card_enabled' => $creditCardEnabled,
+        ]);
+
+        return redirect()
+            ->route('settings.payment-activation.edit')
+            ->with('success', 'Aktivasi payment berhasil disimpan.');
+    }
+
     public function update(Request $request)
     {
         $setting = PaymentSetting::firstOrCreate([], [
