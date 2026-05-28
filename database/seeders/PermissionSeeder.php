@@ -48,6 +48,7 @@ class PermissionSeeder extends Seeder
             'bookings-history-access',
             'membership-plans-access',
             'memberships-access',
+            'membership-transfer-access',
             'my-memberships-access',
             'memberships-history-access',
 
@@ -61,6 +62,7 @@ class PermissionSeeder extends Seeder
             'reports-access', 'profits-access',
 
             // settings
+            'payment-activation-access',
             'payment-settings-access',
             'landing-page-settings-access',
         ];
