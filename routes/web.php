@@ -331,6 +331,8 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/transactions/cash/ambil', [CashEntryController::class, 'index'])->middleware('permission:transactions-access')->defaults('type', 'out')->name('transactions.cash.out');
     Route::post('/transactions/cash/ambil', [CashEntryController::class, 'store'])->middleware('permission:transactions-access')->defaults('type', 'out')->name('transactions.cash.out.store');
 
+    Route::get('/settings/payments/activation', [PaymentSettingController::class, 'editActivation'])->middleware('permission:payment-settings-access')->name('settings.payment-activation.edit');
+    Route::put('/settings/payments/activation', [PaymentSettingController::class, 'updateActivation'])->middleware('permission:payment-settings-access')->name('settings.payment-activation.update');
     Route::get('/settings/payments', [PaymentSettingController::class, 'edit'])->middleware('permission:payment-settings-access')->name('settings.payments.edit');
     Route::put('/settings/payments', [PaymentSettingController::class, 'update'])->middleware('permission:payment-settings-access')->name('settings.payments.update');
 
