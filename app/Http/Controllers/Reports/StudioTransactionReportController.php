@@ -462,6 +462,26 @@ class StudioTransactionReportController extends Controller
         return $this->exportStudioReport($request, 'membership', true);
     }
 
+    public function membershipValidityExport(Request $request)
+    {
+        return $this->exportMembershipValidityReport($request, false);
+    }
+
+    public function membershipValidityExportPdf(Request $request)
+    {
+        return $this->exportMembershipValidityReport($request, true);
+    }
+
+    public function membershipTransferExport(Request $request)
+    {
+        return $this->exportMembershipTransferReport($request, false);
+    }
+
+    public function membershipTransferExportPdf(Request $request)
+    {
+        return $this->exportMembershipTransferReport($request, true);
+    }
+
     private function exportStudioReport(Request $request, string $type, bool $asPdf)
     {
         $filters = $this->buildFilters($request);
@@ -652,6 +672,168 @@ class StudioTransactionReportController extends Controller
             });
 
         return [$title, $grouped];
+    }
+
+    private function exportMembershipValidityReport(Request $request, bool $asPdf)
+    {
+        $filters = $this->buildFilters($request);
+        $headers = [
+            'No',
+            'Pelanggan',
+            'Membership Plan',
+            'Invoice',
+            'Total Credits',
+            'Sisa Credits',
+            'Tanggal Pembelian Credits',
+            'Tanggal Mulai Pakai Credits',
+            'Tanggal Expired Credits',
+            'Metode Pembayaran',
+        ];
+
+        $items = UserMembership::query()
+            ->where('status', 'active')
+            ->whereDate('expires_at', '>=', Carbon::today()->toDateString())
+            ->with(['user:id,name', 'plan:id,name'])
+            ->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('membership_plan_id', $planId))
+            ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+            ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('cashier_id', $cashierId))
+            ->when($filters['invoice'] ?? null, fn ($q, $search) => $this->applyGlobalSearchFilter($q, $search))
+            ->orderBy('expires_at')
+            ->get();
+
+        $rows = $items->values()->map(fn (UserMembership $membership, $index) => [
+            $index + 1,
+            $membership->user?->name ?? '-',
+            $membership->plan?->name ?? '-',
+            $membership->invoice ?? '-',
+            (int) ($membership->credits_total ?? 0),
+            (int) ($membership->credits_remaining ?? 0),
+            $membership->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+            $membership->starts_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+            $membership->expires_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+            $membership->payment_method ?? '-',
+        ])->all();
+
+        if (! $asPdf) {
+            $rows[] = ['Total', '', '', '', (int) $items->sum('credits_total'), (int) $items->sum('credits_remaining'), '', '', '', ''];
+
+            return $this->downloadExcel('laporan-membership-validity.xls', $headers, $rows);
+        }
+
+        $pdfRows = $rows;
+        $pdfRows[] = ['', '', '', 'Total', (int) $items->sum('credits_total'), (int) $items->sum('credits_remaining'), '', '', '', ''];
+
+        $pdfBinary = SimplePdfExport::make(
+            'Laporan Validity Membership',
+            'DATA MEMBERSHIP AKTIF PER ' . Carbon::now('Asia/Jakarta')->format('d M Y H:i'),
+            $headers,
+            [],
+            [[
+                'title' => 'Membership Aktif',
+                'headers' => $headers,
+                'rows' => $pdfRows,
+                'column_widths' => [0.35, 1.05, 1.15, 1.0, 0.65, 0.65, 1.05, 1.05, 1.05, 0.9],
+                'footer_lines' => [
+                    'Total Membership Aktif: ' . number_format($items->count(), 0, ',', '.'),
+                    'Total Sisa Credits: ' . number_format((int) $items->sum('credits_remaining'), 0, ',', '.'),
+                ],
+            ]],
+            'landscape'
+        );
+
+        return response($pdfBinary, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="laporan-membership-validity.pdf"',
+        ]);
+    }
+
+    private function exportMembershipTransferReport(Request $request, bool $asPdf)
+    {
+        $filters = $this->buildFilters($request);
+        $headers = [
+            'No',
+            'Tanggal',
+            'Nama Pengirim',
+            'Nama Penerima',
+            'Membership Plan',
+            'Jumlah Credit',
+            'Catatan',
+            'Masa Expired Membership',
+            'Kasir',
+        ];
+
+        $items = $this->buildMembershipTransferQuery($filters)
+            ->select([
+                'mct.id',
+                'mct.created_at',
+                'sender.name as sender_name',
+                'receiver.name as receiver_name',
+                'mp.name as plan_name',
+                'mct.credits_transferred',
+                'mct.notes',
+                'um.expires_at',
+                'cashier.name as cashier_name',
+            ])
+            ->orderByDesc('mct.created_at')
+            ->get();
+
+        $rows = $items->values()->map(fn ($item, $index) => [
+            $index + 1,
+            $item->created_at ? Carbon::parse($item->created_at)->timezone('Asia/Jakarta')->format('d M Y, H:i') : '-',
+            $item->sender_name ?? '-',
+            $item->receiver_name ?? '-',
+            $item->plan_name ?? '-',
+            (int) ($item->credits_transferred ?? 0),
+            $item->notes ?? '-',
+            $item->expires_at ? Carbon::parse($item->expires_at)->timezone('Asia/Jakarta')->format('d M Y, H:i') : '-',
+            $item->cashier_name ?? '-',
+        ])->all();
+
+        if (! $asPdf) {
+            $rows[] = ['Total', '', '', '', '', (int) $items->sum('credits_transferred'), '', '', ''];
+
+            return $this->downloadExcel('laporan-membership-transfer.xls', $headers, $rows);
+        }
+
+        $pdfRows = $rows;
+        $pdfRows[] = ['', '', '', '', 'Total', (int) $items->sum('credits_transferred'), '', '', ''];
+
+        $pdfBinary = SimplePdfExport::make(
+            'Laporan Transfer Membership',
+            'PERIODE : ' . ($filters['start_date'] ?? '-') . ' s/d ' . ($filters['end_date'] ?? '-'),
+            $headers,
+            [],
+            [[
+                'title' => 'Riwayat Transfer Credit Membership',
+                'headers' => $headers,
+                'rows' => $pdfRows,
+                'column_widths' => [0.35, 1.1, 1.1, 1.1, 1.1, 0.7, 1.25, 1.1, 1.0],
+                'footer_lines' => [
+                    'Total Transfer: ' . number_format($items->count(), 0, ',', '.'),
+                    'Total Credits Transfer: ' . number_format((int) $items->sum('credits_transferred'), 0, ',', '.'),
+                ],
+            ]],
+            'landscape'
+        );
+
+        return response($pdfBinary, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="laporan-membership-transfer.pdf"',
+        ]);
+    }
+
+    private function buildMembershipTransferQuery(array $filters)
+    {
+        return DB::table('membership_credit_transfers as mct')
+            ->leftJoin('users as sender', 'sender.id', '=', 'mct.from_user_id')
+            ->leftJoin('users as receiver', 'receiver.id', '=', 'mct.to_user_id')
+            ->leftJoin('membership_plans as mp', 'mp.id', '=', 'mct.membership_plan_id')
+            ->leftJoin('user_memberships as um', 'um.id', '=', 'mct.receiver_membership_id')
+            ->leftJoin('users as cashier', 'cashier.id', '=', 'mct.created_by')
+            ->when(! empty($filters['start_date']), fn ($q) => $q->whereDate('mct.created_at', '>=', $filters['start_date']))
+            ->when(! empty($filters['end_date']), fn ($q) => $q->whereDate('mct.created_at', '<=', $filters['end_date']))
+            ->when(! empty($filters['membership_plan_id']), fn ($q) => $q->where('mct.membership_plan_id', $filters['membership_plan_id']))
+            ->when(! empty($filters['cashier_id']), fn ($q) => $q->where('mct.created_by', $filters['cashier_id']));
     }
 
     private function downloadExcel(string $filename, array $headers, array $rows)

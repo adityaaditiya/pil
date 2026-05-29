@@ -354,9 +354,13 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/reports/appointment/export-pdf', [StudioTransactionReportController::class, 'appointmentExportPdf'])->middleware('permission:reports-access')->name('reports.appointment.export-pdf');
     Route::get('/reports/membership', [StudioTransactionReportController::class, 'membership'])->middleware('permission:reports-access')->name('reports.membership.index');
     Route::get('/reports/membership-validity', [StudioTransactionReportController::class, 'membershipValidity'])->middleware('permission:reports-access')->name('reports.membership-validity.index');
+    Route::get('/reports/membership-validity/export', [StudioTransactionReportController::class, 'membershipValidityExport'])->middleware('permission:reports-access')->name('reports.membership-validity.export');
+    Route::get('/reports/membership-validity/export-pdf', [StudioTransactionReportController::class, 'membershipValidityExportPdf'])->middleware('permission:reports-access')->name('reports.membership-validity.export-pdf');
     Route::get('/reports/membership/export', [StudioTransactionReportController::class, 'membershipExport'])->middleware('permission:reports-access')->name('reports.membership.export');
     Route::get('/reports/membership/export-pdf', [StudioTransactionReportController::class, 'membershipExportPdf'])->middleware('permission:reports-access')->name('reports.membership.export-pdf');
     Route::get('/reports/membership-transfer', [StudioTransactionReportController::class, 'membershipTransfer'])->middleware('permission:reports-access')->name('reports.membership-transfer.index');
+    Route::get('/reports/membership-transfer/export', [StudioTransactionReportController::class, 'membershipTransferExport'])->middleware('permission:reports-access')->name('reports.membership-transfer.export');
+    Route::get('/reports/membership-transfer/export-pdf', [StudioTransactionReportController::class, 'membershipTransferExportPdf'])->middleware('permission:reports-access')->name('reports.membership-transfer.export-pdf');
     Route::get('/reports/profits', [ProfitReportController::class, 'index'])->middleware('permission:profits-access')->name('reports.profits.index');
     Route::get('/reports/profits/export', [ProfitReportController::class, 'export'])->middleware('permission:profits-access')->name('reports.profits.export');
     Route::get('/reports/profits/export-pdf', [ProfitReportController::class, 'exportPdf'])->middleware('permission:profits-access')->name('reports.profits.export-pdf');

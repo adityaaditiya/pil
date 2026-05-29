@@ -112,13 +112,14 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
     const showMembershipPlanFilter = ["reports.membership.index", "reports.membership-transfer.index", "reports.membership-validity.index"].includes(report.route);
     const hasActiveFilters = (showInvoiceFilter && filterData.invoice) || (showDateFilter && (filterData.start_date || filterData.end_date)) || (showPaymentFilter && filterData.payment_method) || (showMembershipPlanFilter && filterData.membership_plan_id) || filterData.cashier_id;
 
-    const exportBaseRoute = report.route === "reports.booking.index"
-        ? "reports.booking"
-        : report.route === "reports.appointment.index"
-            ? "reports.appointment"
-            : report.route === "reports.membership.index"
-                ? "reports.membership"
-            : null;
+    const exportRouteMap = {
+        "reports.booking.index": "reports.booking",
+        "reports.appointment.index": "reports.appointment",
+        "reports.membership.index": "reports.membership",
+        "reports.membership-validity.index": "reports.membership-validity",
+        "reports.membership-transfer.index": "reports.membership-transfer",
+    };
+    const exportBaseRoute = exportRouteMap[report.route] ?? null;
 
 
     const safeSummary = {
