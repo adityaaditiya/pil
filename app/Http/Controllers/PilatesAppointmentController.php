@@ -226,7 +226,7 @@ class PilatesAppointmentController extends Controller
             ]);
         }
 
-        $this->assertNoConflicts($occurrences, $validated['trainer_ids']);
+        $this->assertNoConflicts($occurrences, $validated['trainer_ids'], [], false);
 
         DB::transaction(function () use ($validated, $occurrences) {
             $parent = null;
@@ -863,16 +863,18 @@ class PilatesAppointmentController extends Controller
         })->toArray();
     }
 
-    private function assertNoConflicts(Collection $occurrences, array $trainerIds, array $ignoreAppointmentIds = []): void
+    private function assertNoConflicts(Collection $occurrences, array $trainerIds, array $ignoreAppointmentIds = [], bool $checkTimetableConflicts = true): void
     {
         $rangeStart = $occurrences->min(fn ($occurrence) => $occurrence['start_at'])->clone()->timezone('Asia/Jakarta');
         $rangeEnd = $occurrences->max(fn ($occurrence) => $occurrence['end_at'])->clone()->timezone('Asia/Jakarta');
 
-        $timetables = PilatesTimetable::query()
-            ->with('pilatesClass:id,duration')
-            ->where('start_at', '>=', $rangeStart->copy()->subDay())
-            ->where('start_at', '<', $rangeEnd)
-            ->get();
+        $timetables = $checkTimetableConflicts
+            ? PilatesTimetable::query()
+                ->with('pilatesClass:id,duration')
+                ->where('start_at', '>=', $rangeStart->copy()->subDay())
+                ->where('start_at', '<', $rangeEnd)
+                ->get()
+            : collect();
 
         $appointments = PilatesAppointment::query()
             ->with('trainers:id')
@@ -909,7 +911,9 @@ class PilatesAppointmentController extends Controller
 
             if ($timetableConflict || $trainerConflict) {
                 throw ValidationException::withMessages([
-                    'schedules' => 'Jadwal bentrok dengan timetable studio atau appointment trainer lain.',
+                    'schedules' => $timetableConflict
+                        ? 'Jadwal bentrok dengan timetable studio atau appointment trainer lain.'
+                        : 'Jadwal bentrok dengan appointment trainer lain.',
                 ]);
             }
         }
