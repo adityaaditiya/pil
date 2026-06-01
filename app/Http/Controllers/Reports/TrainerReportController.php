@@ -135,6 +135,12 @@ class TrainerReportController extends Controller
                     'capacity' => $capacity,
                     'duration_minutes' => (int) ($booking->timetable?->duration_minutes ?? 0),
                     'duration_hours' => round(((int) ($booking->timetable?->duration_minutes ?? 0)) / 60, 2),
+                    'session_key' => $this->buildTeachingSessionKey(
+                        'booking_schedule',
+                        $sessionDate?->toDateTimeString(),
+                        $booking->timetable?->pilates_class_id,
+                        $booking->timetable?->trainer_id
+                    ),
                     'occupancy_rate' => $capacity > 0 ? round(($participants / $capacity) * 100, 1) : 0,
                 ];
             });
@@ -172,6 +178,12 @@ class TrainerReportController extends Controller
                     'capacity' => 1,
                     'duration_minutes' => (int) ($booking->appointment?->duration_minutes ?? 0),
                     'duration_hours' => round(((int) ($booking->appointment?->duration_minutes ?? 0)) / 60, 2),
+                    'session_key' => $this->buildTeachingSessionKey(
+                        'appointment',
+                        $sessionDate?->toDateTimeString(),
+                        $booking->appointment?->pilates_class_id ?? $booking->session_name ?? $booking->appointment?->session_name,
+                        $trainer?->id
+                    ),
                     'occupancy_rate' => 100,
                 ];
             });
@@ -233,9 +245,21 @@ class TrainerReportController extends Controller
         );
     }
 
+    private function buildTeachingSessionKey(string $classType, ?string $startAt, int|string|null $classIdentifier, int|string|null $trainerIdentifier): string
+    {
+        return implode('|', [
+            $classType,
+            $startAt ?? '-',
+            $classIdentifier ?? '-',
+            $trainerIdentifier ?? '-',
+        ]);
+    }
+
     private function buildSummary(Collection $rows): array
     {
-        $totalMinutes = (int) $rows->sum('duration_minutes');
+        $totalMinutes = (int) $rows
+            ->unique('session_key')
+            ->sum('duration_minutes');
         $participants = (int) $rows->sum('participants');
         $attendance = (int) $rows->sum('attendance_count');
 
