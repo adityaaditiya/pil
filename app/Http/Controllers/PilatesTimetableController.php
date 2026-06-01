@@ -240,7 +240,7 @@ class PilatesTimetableController extends Controller
         }
 
         $occurrences = $this->buildOccurrences($validated, (int) ($validated['duration_minutes'] ?: $pilatesClass->duration));
-        $this->assertNoConflicts($occurrences, (int) $validated['trainer_id']);
+        $this->assertNoConflicts($occurrences, (int) $validated['trainer_id'], [], true);
 
         DB::transaction(function () use ($validated, $occurrences) {
             $parent = null;
@@ -625,22 +625,21 @@ class PilatesTimetableController extends Controller
         ])->toArray();
     }
 
-    private function assertNoConflicts(Collection $occurrences, int $trainerId, array $ignoreTimetableIds = []): void
+    private function assertNoConflicts(Collection $occurrences, int $trainerId, array $ignoreTimetableIds = [], bool $blockAnyAppointmentConflict = false): void
     {
-
-            if ($occurrences->isEmpty()) {
+        if ($occurrences->isEmpty()) {
             return;
         }
 
         $minStart = $occurrences->min(fn ($occurrence) => $occurrence['start_at']);
         $maxEnd = $occurrences->max(fn ($occurrence) => $occurrence['end_at']);
 
-        if (!$minStart || !$maxEnd) {
+        if (! $minStart || ! $maxEnd) {
             return;
         }
 
-        $rangeStart = $occurrences->min(fn ($occurrence) => $occurrence['start_at'])->clone()->timezone('Asia/Jakarta');
-        $rangeEnd = $occurrences->max(fn ($occurrence) => $occurrence['end_at'])->clone()->timezone('Asia/Jakarta');
+        $rangeStart = $minStart->clone()->timezone('Asia/Jakarta');
+        $rangeEnd = $maxEnd->clone()->timezone('Asia/Jakarta');
 
         $timetables = PilatesTimetable::query()
             ->when(! empty($ignoreTimetableIds), fn ($query) => $query->whereNotIn('id', $ignoreTimetableIds))
@@ -669,24 +668,35 @@ class PilatesTimetableController extends Controller
                     && $endAt->gt($existingStart);
             });
 
-            $appointmentConflict = $appointments->first(function (PilatesAppointment $appointment) use ($startAt, $endAt, $trainerId) {
+            if ($trainerTimetableConflict) {
+                throw ValidationException::withMessages([
+                    'schedules' => 'Jadwal bentrok dengan timetable lain.',
+                ]);
+            }
+
+            $appointmentConflict = $appointments->first(function (PilatesAppointment $appointment) use ($startAt, $endAt, $trainerId, $blockAnyAppointmentConflict) {
                 $existingStart = $appointment->start_at?->clone()->timezone('Asia/Jakarta');
                 $existingEnd = $appointment->end_at?->clone()->timezone('Asia/Jakarta');
+
+                if (! $existingStart || ! $existingEnd || ! $startAt->lt($existingEnd) || ! $endAt->gt($existingStart)) {
+                    return false;
+                }
+
+                if ($blockAnyAppointmentConflict) {
+                    return true;
+                }
+
                 $appointmentTrainerIds = $appointment->trainers->pluck('id')
                     ->whenEmpty(fn ($collection) => collect([$appointment->trainer_id])->filter())
                     ->map(fn ($id) => (int) $id)
                     ->all();
 
-                return in_array($trainerId, $appointmentTrainerIds, true)
-                    && $existingStart
-                    && $existingEnd
-                    && $startAt->lt($existingEnd)
-                    && $endAt->gt($existingStart);
+                return in_array($trainerId, $appointmentTrainerIds, true);
             });
 
-            if ($trainerTimetableConflict || $appointmentConflict) {
+            if ($appointmentConflict) {
                 throw ValidationException::withMessages([
-                    'schedules' => 'Jadwal bentrok dengan timetable lain atau appointment trainer.',
+                    'schedules' => 'Jadwal bentrok dengan appointment.',
                 ]);
             }
         }
