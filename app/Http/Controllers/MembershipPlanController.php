@@ -82,6 +82,7 @@ class MembershipPlanController extends Controller
             'credits' => ['required', 'integer', 'min:1'],
             'price' => ['required', 'numeric', 'min:0'],
             'valid_days' => ['nullable', 'integer', 'min:1'],
+            'activation_setting' => ['required', 'string', 'in:' . implode(',', MembershipPlan::activationSettingOptions())],
             'is_active' => ['nullable', 'boolean'],
             'description' => ['nullable', 'string'],
             'tag' => ['nullable', 'string', 'max:255'],
