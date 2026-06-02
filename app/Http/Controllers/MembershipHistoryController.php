@@ -134,10 +134,20 @@ class MembershipHistoryController extends Controller
             return back()->withErrors(['message' => 'Pembayaran membership tidak dapat dikonfirmasi.']);
         }
 
+        $userMembership->loadMissing('plan');
+
+        $startsAt = $userMembership->starts_at ?? now();
+        $activationDates = (! $userMembership->activated_at && $userMembership->plan?->activatesImmediately())
+            ? $userMembership->plan->activationDates()
+            : [
+                'activated_at' => $userMembership->activated_at,
+                'expires_at' => $userMembership->activated_at ? $userMembership->expires_at : null,
+            ];
+
         $userMembership->update([
             'status' => 'active',
-            'starts_at' => $userMembership->starts_at ?? now(),
-            'expires_at' => $userMembership->activated_at ? $userMembership->expires_at : null,
+            'starts_at' => $startsAt,
+            ...$activationDates,
             'cashier_id' => auth()->id(),
         ]);
 

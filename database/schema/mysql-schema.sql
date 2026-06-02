@@ -256,6 +256,7 @@ CREATE TABLE `membership_plans` (
   `credits` int(11) NOT NULL,
   `price` decimal(12,2) NOT NULL,
   `valid_days` int(11) DEFAULT NULL,
+  `activation_setting` varchar(50) NOT NULL DEFAULT 'on_first_credit_use',
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `description` text DEFAULT NULL,
   `tag` varchar(255) DEFAULT NULL,
@@ -765,3 +766,4 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (58,'2026_03_24_000
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (59,'2026_03_24_000500_drop_price_from_pilates_appointments_table',17);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (60,'2026_03_25_000100_add_default_prices_and_payment_method_to_appointment_sessions_table',18);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (61,'2026_03_25_142816_add_payment_type_to_appointment_bookings_table',19);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (62,'2026_06_01_000001_add_activation_setting_to_membership_plans_table',20);

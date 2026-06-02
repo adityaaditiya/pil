@@ -118,6 +118,27 @@ document.addEventListener("wheel", function (event) {
                 </div>
             </div>
 
+            {/* Setting aktivasi */}
+            <div>
+                <FieldLabel required>Setting Aktivasi</FieldLabel>
+                <select
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 shadow-sm outline-none transition focus:border-slate-300 focus:ring-4 focus:ring-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-slate-800"
+                    value={data.activation_setting || "on_first_credit_use"}
+                    onChange={(e) => setData("activation_setting", e.target.value)}
+                >
+                    <option value="on_first_credit_use">
+                        Membership active saat credit pertama kali berkurang
+                    </option>
+                    <option value="immediate">
+                        Membership otomatis langsung active
+                    </option>
+                </select>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Pilih kapan tanggal aktivasi dan masa berlaku membership mulai dihitung.
+                </p>
+                <FieldError message={errors?.activation_setting} />
+            </div>
+
             {/* Deskripsi */}
             <div>
                 <FieldLabel>Deskripsi</FieldLabel>

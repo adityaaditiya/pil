@@ -100,6 +100,9 @@ class UserMembershipController extends Controller
         }
 
         $startsAt = now();
+        $activationDates = $membershipPlan->activatesImmediately()
+            ? $membershipPlan->activationDates($startsAt)
+            : ['activated_at' => null, 'expires_at' => null];
 
         UserMembership::create([
             'user_id' => $customer->user_id,
@@ -108,8 +111,7 @@ class UserMembershipController extends Controller
             'credits_remaining' => $membershipPlan->credits,
             'payment_method' => $validated['payment_method'] ?? 'cash',
             'starts_at' => $startsAt,
-            'activated_at' => null,
-            'expires_at' => null,
+            ...$activationDates,
             'status' => 'active',
             'cashier_id' => auth()->id(),
         ]);

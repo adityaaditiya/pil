@@ -94,12 +94,13 @@ class UserMembership extends Model
             return;
         }
 
-        $activatedAt = now();
-        $validDays = (int) ($this->plan?->valid_days ?? 0);
+        if (! $this->relationLoaded('plan')) {
+            $this->load('plan');
+        }
 
-        $this->forceFill([
-            'activated_at' => $activatedAt,
-            'expires_at' => $validDays > 0 ? $activatedAt->copy()->addDays($validDays) : null,
+        $this->forceFill($this->plan?->activationDates() ?? [
+            'activated_at' => now(),
+            'expires_at' => null,
         ])->saveQuietly();
     }
 }
