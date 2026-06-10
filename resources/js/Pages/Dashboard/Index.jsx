@@ -348,13 +348,21 @@ export default function Dashboard({
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <ListCard
                         title="Membership Insight"
-                        subtitle="Member yang segera berakhir"
+                        subtitle="Member yang segera berakhir dan masih memiliki sisa credits"
                         icon={IconCalendarTime}
-                        emptyMessage="Tidak ada membership yang akan berakhir"
+                        emptyMessage="Tidak ada membership dengan sisa credits yang akan berakhir"
                     >
-                        {expiringMemberships.length > 0 && (
-                            <div className="space-y-3">
-                                {expiringMemberships.map((member, index) => (
+                        <div className="space-y-3">
+                            <div className="flex justify-end">
+                                <Link
+                                    href={route("reports.membership-validity.index")}
+                                    className="text-xs font-semibold text-primary-600 hover:text-primary-700"
+                                >
+                                    Lihat semua data
+                                </Link>
+                            </div>
+                            {expiringMemberships.length > 0 ? (
+                                expiringMemberships.map((member, index) => (
                                     <div
                                         key={index}
                                         className="flex items-center justify-between p-3 rounded-xl bg-amber-50"
@@ -369,16 +377,23 @@ export default function Dashboard({
                                             <p className="text-xs text-slate-400">
                                                 Berakhir: {member.expires_at}
                                             </p>
+                                            <p className="text-xs font-medium text-amber-700">
+                                                Sisa credits: {member.credits_remaining}
+                                            </p>
                                         </div>
                                         <p className="text-xs font-semibold text-amber-700">
-                                            {Math.ceil(member.days_left) <= 0 
-                                                ? "Hari ini" 
+                                            {Math.ceil(member.days_left) <= 0
+                                                ? "Hari ini"
                                                 : `${Math.ceil(member.days_left)} hari lagi`}
                                         </p>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                ))
+                            ) : (
+                                <div className="flex h-32 items-center justify-center text-sm text-slate-400 dark:text-slate-500">
+                                    Tidak ada membership dengan sisa credits yang akan berakhir
+                                </div>
+                            )}
+                        </div>
                     </ListCard>
                     <ListCard
                         title="Trainer Insight"
