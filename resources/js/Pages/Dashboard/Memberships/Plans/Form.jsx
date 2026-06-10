@@ -127,14 +127,14 @@ document.addEventListener("wheel", function (event) {
                     onChange={(e) => setData("activation_setting", e.target.value)}
                 >
                     <option value="on_first_credit_use">
-                        Membership active saat credit pertama kali berkurang
+                        MEMBERSHIP AKTIF SETELAH TRANSAKSI SESI PERTAMA
                     </option>
                     <option value="immediate">
-                        Membership otomatis langsung active
+                        MEMBERSHIP OTOMATIS LANGSUNG ACTIVE
                     </option>
                 </select>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    Pilih kapan tanggal aktivasi dan masa berlaku membership mulai dihitung.
+                    Pilih kapan aktivasi atau masa berlaku membership mulai dihitung.
                 </p>
                 <FieldError message={errors?.activation_setting} />
             </div>
