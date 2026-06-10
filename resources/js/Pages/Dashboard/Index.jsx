@@ -348,19 +348,12 @@ export default function Dashboard({
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <ListCard
                         title="Membership Insight"
-                        subtitle="Member yang segera berakhir dan masih memiliki sisa credits"
+                        subtitle="Membership segera berakhir dengan sisa credits"
                         icon={IconCalendarTime}
                         emptyMessage="Tidak ada membership dengan sisa credits yang akan berakhir"
                     >
                         <div className="space-y-3">
-                            <div className="flex justify-end">
-                                <Link
-                                    href={route("reports.membership-validity.index")}
-                                    className="text-xs font-semibold text-primary-600 hover:text-primary-700"
-                                >
-                                    Lihat semua data
-                                </Link>
-                            </div>
+                            
                             {expiringMemberships.length > 0 ? (
                                 expiringMemberships.map((member, index) => (
                                     <div
@@ -393,6 +386,14 @@ export default function Dashboard({
                                     Tidak ada membership dengan sisa credits yang akan berakhir
                                 </div>
                             )}
+                            <div className="flex justify-center">
+                                <Link
+                                    href={route("reports.membership-validity.index")}
+                                    className="text-xs font-semibold text-primary-600 hover:text-primary-700 mt-3"
+                                >
+                                    Lihat semua data
+                                </Link>
+                            </div>
                         </div>
                     </ListCard>
                     <ListCard
