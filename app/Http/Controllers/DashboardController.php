@@ -153,6 +153,7 @@ class DashboardController extends Controller
             ->with(['user:id,name', 'plan:id,name'])
             ->where('status', 'active')
             ->whereNotNull('expires_at')
+            ->where('credits_remaining', '>', 0)
             ->whereDate('expires_at', '>=', $today)
             ->whereDate('expires_at', '<=', $today->copy()->addDays(7))
             ->orderBy('expires_at')
@@ -163,6 +164,7 @@ class DashboardController extends Controller
                 'plan' => $membership->plan?->name ?? '-',
                 'expires_at' => $membership->expires_at?->format('d M Y'),
                 'days_left' => max($today->diffInDays($membership->expires_at, false), 0),
+                'credits_remaining' => (int) $membership->credits_remaining,
             ]);
 
         $topTrainers = Trainer::query()
