@@ -49,7 +49,6 @@ class PermissionSeeder extends Seeder
             'membership-plans-access',
             'memberships-access',
             'membership-transfer-access',
-            'membership-extension-access',
             'my-memberships-access',
             'memberships-history-access',
 
