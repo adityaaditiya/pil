@@ -4,7 +4,6 @@ import {
     IconBox,
     IconCategory,
     IconCalendarEvent,
-    IconCalendarPlus,
     IconCalendarClock,
     IconChartArrowsVertical,
     IconChartBarPopular,
@@ -253,13 +252,6 @@ function Menu() {
                     active: url === "/dashboard/memberships/transfer",
                     icon: <IconExchange size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["membership-transfer-access"]),
-                },
-                {
-                    title: "Perpanjang Membership",
-                    href: route("memberships.extend.index"),
-                    active: url === "/dashboard/memberships/extend",
-                    icon: <IconCalendarPlus size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["membership-extension-access"]),
                 },
                 {
                     title: "My Memberships",
