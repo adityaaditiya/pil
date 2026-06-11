@@ -37,6 +37,7 @@ use App\Http\Controllers\TrainerFlowController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserMembershipController;
 use App\Http\Controllers\MembershipTransferController;
+use App\Http\Controllers\MembershipExtensionController;
 use App\Http\Controllers\UserMembershipHistoryController;
 use App\Http\Controllers\UserAppointmentController;
 use App\Http\Controllers\UserFormController;
@@ -297,6 +298,8 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         ->name('memberships.reject-payment');
     Route::get('memberships/transfer', [MembershipTransferController::class, 'index'])->middleware('permission:membership-transfer-access')->name('memberships.transfer.index');
     Route::post('memberships/transfer', [MembershipTransferController::class, 'store'])->middleware('permission:membership-transfer-access')->name('memberships.transfer.store');
+    Route::get('memberships/extend', [MembershipExtensionController::class, 'index'])->middleware('permission:membership-extension-access')->name('memberships.extend.index');
+    Route::post('memberships/extend', [MembershipExtensionController::class, 'store'])->middleware('permission:membership-extension-access')->name('memberships.extend.store');
     Route::post('bookings', [BookingController::class, 'store'])->name('bookings.store');
     //route transaction
     Route::get('/transactions', [TransactionController::class, 'index'])->middleware('permission:transactions-access')->name('transactions.index');
