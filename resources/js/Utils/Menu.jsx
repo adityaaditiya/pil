@@ -31,6 +31,7 @@ import {
     IconBadge,
     IconYoga,
     IconExchange,
+    IconCalendarPlus,
 } from "@tabler/icons-react";
 import hasAnyPermission from "./Permission";
 import React from "react";
@@ -252,6 +253,13 @@ function Menu() {
                     active: url === "/dashboard/memberships/transfer",
                     icon: <IconExchange size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["membership-transfer-access"]),
+                },
+                {
+                    title: "Perpanjang Membership",
+                    href: route("memberships.extensions.index"),
+                    active: url === "/dashboard/memberships/extensions",
+                    icon: <IconCalendarPlus size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["membership-extension-access"]),
                 },
                 {
                     title: "My Memberships",
