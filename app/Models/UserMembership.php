@@ -88,6 +88,11 @@ class UserMembership extends Model
         return $this->belongsTo(User::class, 'cashier_id');
     }
 
+    public function extensions()
+    {
+        return $this->hasMany(MembershipExtension::class, 'user_membership_id');
+    }
+
     public function activateIfNeeded(): void
     {
         if ($this->activated_at) {
