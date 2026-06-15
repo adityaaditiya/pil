@@ -124,7 +124,7 @@ export default function Extend({ customers = [], activeMemberships = [], payment
                 <div className="mx-auto max-w-5xl px-4 md:px-6">
                     <div className="mb-8">
                         <h1 className="text-2xl font-black tracking-tight text-slate-900">Perpanjang Membership</h1>
-                        <p className="text-sm text-slate-500 mt-1">Tambah masa aktif membership tanpa mengubah metode pembayaran transaksi pembelian awal.</p>
+                        <p className="text-sm text-slate-500 mt-1">Tambah masa aktif membership.</p>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -205,7 +205,7 @@ export default function Extend({ customers = [], activeMemberships = [], payment
                                         <p className="text-2xl font-black text-slate-900 mt-1">{selectedMembership.credits_remaining} <span className="text-xs font-normal text-slate-400">credits</span></p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] uppercase font-bold text-slate-400">Expired Sekarang</p>
+                                        <p className="text-[10px] uppercase font-bold text-slate-400">Expired Saat ini</p>
                                         <p className="text-lg font-extrabold text-slate-900 mt-1">{formatDate(selectedMembership.expires_at)}</p>
                                     </div>
                                 </div>
@@ -241,14 +241,14 @@ export default function Extend({ customers = [], activeMemberships = [], payment
 
                             {selectedMembership && previewNewDate && (
                                 <div className={`rounded-xl border px-4 py-3 text-sm font-semibold ${extensionDateIsInvalid ? "border-red-100 bg-red-50 text-red-700" : "border-emerald-100 bg-emerald-50 text-emerald-700"}`}>
-                                    Preview: expired berubah dari {formatDate(selectedMembership.expires_at)} menjadi {formatDate(previewNewDate)}.
+                                    Expired dari {formatDate(selectedMembership.expires_at)} menjadi {formatDate(previewNewDate)}.
                                     {extensionDateIsInvalid && " Tanggal baru harus lebih besar dari expired saat ini."}
                                 </div>
                             )}
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">Biaya Perpanjangan (Rupiah)</label>
+                                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">Biaya Perpanjangan</label>
                                     <div className="relative">
                                         <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
                                             <IconCash size={17} />
@@ -269,7 +269,7 @@ export default function Extend({ customers = [], activeMemberships = [], payment
                                     {isComplimentary ? (
                                         <div className="min-h-[46px] inline-flex w-full items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
                                             <IconSparkles size={17} />
-                                            ✨ Complimentary (Kompensasi / Sistem Gratis)
+                                            Complimentary (Kompensasi)
                                         </div>
                                     ) : (
                                         <select
@@ -294,7 +294,7 @@ export default function Extend({ customers = [], activeMemberships = [], payment
                                     rows={4}
                                     value={data.notes}
                                     onChange={(event) => setData("notes", event.target.value)}
-                                    placeholder="Wajib diisi untuk audit trail, contoh: kompensasi freeze membership, promo renewal, dll."
+                                    placeholder="Wajib diisi, contoh: kompensasi membership, promo renewal, dll."
                                 />
                                 {errors?.notes && <small className="text-xs text-red-500 mt-1 block">{errors.notes}</small>}
                             </div>
@@ -315,7 +315,7 @@ export default function Extend({ customers = [], activeMemberships = [], payment
                                 {selectedMembership ? (
                                     <div className="space-y-4">
                                         <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-400">Plan Terpilih</p>
+                                            <p className="text-[10px] uppercase font-bold text-slate-400">Membership Plan Terpilih</p>
                                             <p className="font-bold text-slate-800 text-base mt-0.5">{selectedMembership.membership_plan_name}</p>
                                         </div>
                                         <div className="pt-2 border-t border-slate-50">
@@ -339,9 +339,13 @@ export default function Extend({ customers = [], activeMemberships = [], payment
                             </div>
 
                             <div className="rounded-2xl border border-amber-100 bg-amber-50 p-5 text-amber-800">
-                                <div className="flex items-start gap-2">
-                                    <IconAlertTriangle size={18} className="mt-0.5" />
-                                    <p className="text-xs leading-relaxed">Perpanjangan disimpan sebagai transaksi baru di audit trail. Sistem hanya memperbarui tanggal expired membership aktif yang dipilih dan tidak menimpa payment method transaksi pembelian awal.</p>
+                                {/* <div className="flex items-start gap-2">
+                                    <IconAlertTriangle size={36} className="mt-0.5" />
+                                    <p className="text-xs leading-relaxed">Perpanjangan membership disimpan sebagai transaksi baru pada laporan. Sistem hanya memperbarui tanggal expired membership aktif yang dipilih.</p>
+                                </div> */}
+                                 <div className="flex items-start gap-2">
+                                    <IconAlertTriangle size={36} className="mt-0.5" />
+                                    <p className="text-xs leading-relaxed">Sebelum simpan transaksi harap perhatikan tanggal expired saat ini.</p>
                                 </div>
                             </div>
                         </div>
