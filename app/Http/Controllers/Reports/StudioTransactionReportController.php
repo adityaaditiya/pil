@@ -217,8 +217,8 @@ class StudioTransactionReportController extends Controller
                     ['key' => 'plan_name', 'label' => 'Membership Plan'],
                     ['key' => 'previous_expires_at', 'label' => 'Expired Lama'],
                     ['key' => 'new_expires_at', 'label' => 'Expired Baru'],
-                    ['key' => 'duration_days', 'label' => 'Durasi Hari', 'type' => 'number'],
-                    ['key' => 'extension_date', 'label' => 'Tanggal Perpanjang'],
+                    // ['key' => 'duration_days', 'label' => 'Durasi Hari', 'type' => 'number'],
+                    // ['key' => 'extension_date', 'label' => 'Tanggal Perpanjang'],
                     ['key' => 'payment_method', 'label' => 'Metode Pembayaran'],
                     ['key' => 'fee_amount', 'label' => 'Biaya', 'type' => 'currency'],
                     ['key' => 'notes', 'label' => 'Catatan'],
@@ -749,7 +749,8 @@ class StudioTransactionReportController extends Controller
     private function exportMembershipExtensionReport(Request $request, bool $asPdf)
     {
         $filters = $this->buildFilters($request);
-        $headers = ['No', 'Tanggal', 'Pelanggan', 'Membership Plan', 'Expired Lama', 'Expired Baru', 'Durasi Hari', 'Tanggal Perpanjang', 'Metode Pembayaran', 'Biaya', 'Catatan', 'Kasir'];
+        // $headers = ['No', 'Tanggal', 'Pelanggan', 'Membership Plan', 'Expired Lama', 'Expired Baru', 'Durasi Hari', 'Tanggal Perpanjang', 'Metode Pembayaran', 'Biaya', 'Catatan', 'Kasir'];
+        $headers = ['No', 'Tanggal', 'Pelanggan', 'Membership Plan', 'Expired Lama', 'Expired Baru', 'Metode Pembayaran', 'Biaya', 'Catatan', 'Kasir'];
 
         $items = $this->buildMembershipExtensionQuery($filters)->latest('created_at')->get();
 
@@ -760,8 +761,8 @@ class StudioTransactionReportController extends Controller
             $extension->plan?->name ?? '-',
             $extension->previous_expires_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
             $extension->new_expires_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
-            (int) ($extension->duration_days ?? 0),
-            $extension->extension_date?->format('d M Y') ?? '-',
+            // (int) ($extension->duration_days ?? 0),
+            // $extension->extension_date?->format('d M Y') ?? '-',
             $extension->payment_method ?? '-',
             (float) ($extension->fee_amount ?? 0),
             $extension->notes ?? '-',
@@ -769,13 +770,16 @@ class StudioTransactionReportController extends Controller
         ])->all();
 
         if (! $asPdf) {
-            $rows[] = ['Total', '', '', '', '', '', (int) $items->sum('duration_days'), '', '', (float) $items->sum('fee_amount'), '', ''];
+            // $rows[] = ['Total', '', '', '', '', '', (int) $items->sum('duration_days'), '', '', (float) $items->sum('fee_amount'), '', ''];
+            $rows[] = ['', '', '', '', '', '', 'Total', (float) $items->sum('fee_amount'), '', ''];
 
             return $this->downloadExcel('laporan-perpanjang-membership.xls', $headers, $rows);
         }
 
         $pdfRows = $rows;
-        $pdfRows[] = ['', '', '', '', '', 'Total', (int) $items->sum('duration_days'), '', '', (float) $items->sum('fee_amount'), '', ''];
+        // $pdfRows[] = ['', '', '', '', '', 'Total', (int) $items->sum('duration_days'), '', '', (float) $items->sum('fee_amount'), '', ''];
+        $pdfRows[] = ['', '', '', '', '', '', 'Total', (float) $items->sum('fee_amount'), '', ''];
+
 
         $pdfBinary = SimplePdfExport::make(
             'Laporan Perpanjang Membership',
@@ -786,7 +790,8 @@ class StudioTransactionReportController extends Controller
                 'title' => 'Detail Transaksi Perpanjang Membership',
                 'headers' => $headers,
                 'rows' => $pdfRows,
-                'column_widths' => [0.35, 0.9, 0.9, 0.95, 0.85, 0.85, 0.5, 0.8, 0.8, 0.65, 1.0, 0.75],
+                // 'column_widths' => [0.35, 0.9, 0.9, 0.95, 0.85, 0.85, 0.5, 0.8, 0.8, 0.65, 1.0, 0.75],
+                'column_widths' => [0.30, 0.9, 1.1, 0.95, 0.85, 0.85, 0.8, 0.65, 1.1, 0.55],
                 'footer_lines' => [
                     'Total Transaksi: ' . number_format($items->count(), 0, ',', '.'),
                     'Total Biaya: Rp ' . number_format((float) $items->sum('fee_amount'), 0, ',', '.'),

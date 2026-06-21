@@ -38,7 +38,8 @@ class TrainerReportController extends Controller
         $filters = $this->buildFilters($request);
         $rows = $this->buildRows($filters);
 
-        $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Status Kehadiran', 'Durasi (Menit)'];
+        // $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Status Kehadiran', 'Durasi (Menit)'];
+        $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Durasi (Menit)'];
         $excelRows = $rows->values()->map(fn ($row, $index) => [
             $index + 1,
             $row['date'] ?? '-',
@@ -46,7 +47,7 @@ class TrainerReportController extends Controller
             $row['class_name'] ?? '-',
             $row['trainer_name'] ?? '-',
             $row['participant_name'] ?? '-',
-            $row['attendance_status_label'] ?? '-',
+            // $row['attendance_status_label'] ?? '-',
             (int) ($row['duration_minutes'] ?? 0),
         ])->all();
 
@@ -58,7 +59,8 @@ class TrainerReportController extends Controller
         $filters = $this->buildFilters($request);
         $rows = $this->buildRows($filters);
 
-        $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Status Kehadiran', 'Durasi (Menit)'];
+        // $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Status Kehadiran', 'Durasi (Menit)'];
+        $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Durasi (Menit)'];
         $pdfRows = $rows->values()->map(fn ($row, $index) => [
             $index + 1,
             $row['date'] ?? '-',
@@ -66,7 +68,7 @@ class TrainerReportController extends Controller
             $row['class_name'] ?? '-',
             $row['trainer_name'] ?? '-',
             $row['participant_name'] ?? '-',
-            $row['attendance_status_label'] ?? '-',
+            // $row['attendance_status_label'] ?? '-',
             (int) ($row['duration_minutes'] ?? 0),
         ])->all();
 
