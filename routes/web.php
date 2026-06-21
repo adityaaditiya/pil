@@ -356,6 +356,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/reports/appointment/export', [StudioTransactionReportController::class, 'appointmentExport'])->middleware('permission:reports-access')->name('reports.appointment.export');
     Route::get('/reports/appointment/export-pdf', [StudioTransactionReportController::class, 'appointmentExportPdf'])->middleware('permission:reports-access')->name('reports.appointment.export-pdf');
     Route::get('/reports/membership', [StudioTransactionReportController::class, 'membership'])->middleware('permission:reports-access')->name('reports.membership.index');
+    Route::get('/reports/membership-extension', [StudioTransactionReportController::class, 'membershipExtension'])->middleware('permission:reports-access')->name('reports.membership-extension.index');
+    Route::get('/reports/membership-extension/export', [StudioTransactionReportController::class, 'membershipExtensionExport'])->middleware('permission:reports-access')->name('reports.membership-extension.export');
+    Route::get('/reports/membership-extension/export-pdf', [StudioTransactionReportController::class, 'membershipExtensionExportPdf'])->middleware('permission:reports-access')->name('reports.membership-extension.export-pdf');
     Route::get('/reports/membership-validity', [StudioTransactionReportController::class, 'membershipValidity'])->middleware('permission:reports-access')->name('reports.membership-validity.index');
     Route::get('/reports/membership-validity/export', [StudioTransactionReportController::class, 'membershipValidityExport'])->middleware('permission:reports-access')->name('reports.membership-validity.export');
     Route::get('/reports/membership-validity/export-pdf', [StudioTransactionReportController::class, 'membershipValidityExportPdf'])->middleware('permission:reports-access')->name('reports.membership-validity.export-pdf');
