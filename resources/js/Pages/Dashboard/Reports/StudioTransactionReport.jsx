@@ -109,7 +109,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
     const showInvoiceFilter = report?.show_invoice_filter !== false;
     const showPaymentFilter = report?.show_payment_filter !== false;
     const showDateFilter = report?.show_date_filter !== false;
-    const showMembershipPlanFilter = ["reports.membership.index", "reports.membership-transfer.index", "reports.membership-validity.index"].includes(report.route);
+    const showMembershipPlanFilter = ["reports.membership.index", "reports.membership-extension.index", "reports.membership-transfer.index", "reports.membership-validity.index"].includes(report.route);
     const hasActiveFilters = (showInvoiceFilter && filterData.invoice) || (showDateFilter && (filterData.start_date || filterData.end_date)) || (showPaymentFilter && filterData.payment_method) || (showMembershipPlanFilter && filterData.membership_plan_id) || filterData.cashier_id;
 
     const exportRouteMap = {
@@ -117,6 +117,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
         "reports.appointment.index": "reports.appointment",
         "reports.membership.index": "reports.membership",
         "reports.membership-validity.index": "reports.membership-validity",
+        "reports.membership-extension.index": "reports.membership-extension",
         "reports.membership-transfer.index": "reports.membership-transfer",
     };
     const exportBaseRoute = exportRouteMap[report.route] ?? null;

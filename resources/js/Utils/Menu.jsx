@@ -380,7 +380,7 @@ function Menu() {
                         {
                             title: "Laporan Transaksi Membership",
                             href: route("reports.membership.index"),
-                            active: url.startsWith("/dashboard/reports/membership") && !url.startsWith("/dashboard/reports/membership-transfer"),
+                            active: url.startsWith("/dashboard/reports/membership") && !url.startsWith("/dashboard/reports/membership-transfer") && !url.startsWith("/dashboard/reports/membership-extension") && !url.startsWith("/dashboard/reports/membership-validity"),
                             icon: <IconBadge size={20} strokeWidth={1.5} />,
                             permissions: hasAnyPermission(["reports-access"]),
                         },
@@ -388,6 +388,13 @@ function Menu() {
                             title: "Laporan Validity Membership",
                             href: route("reports.membership-validity.index"),
                             active: url.startsWith("/dashboard/reports/membership-validity"),
+                            icon: <IconBadge size={20} strokeWidth={1.5} />,
+                            permissions: hasAnyPermission(["reports-access"]),
+                        },
+                        {
+                            title: "Laporan Perpanjang Membership",
+                            href: route("reports.membership-extension.index"),
+                            active: url.startsWith("/dashboard/reports/membership-extension"),
                             icon: <IconBadge size={20} strokeWidth={1.5} />,
                             permissions: hasAnyPermission(["reports-access"]),
                         },

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
 use App\Models\AppointmentBooking;
+use App\Models\MembershipExtension;
 use App\Models\MembershipPlan;
 use App\Models\PilatesBooking;
 use App\Models\User;
@@ -172,6 +173,67 @@ class StudioTransactionReportController extends Controller
             'paymentMethods' => $this->extractPaymentMethods(
                 UserMembership::query()->whereNotIn('status', $excludedStatus)
             ),
+            'cashiers' => $this->getCashierOptions(),
+            'membershipPlans' => MembershipPlan::query()
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get(),
+        ]);
+    }
+
+    public function membershipExtension(Request $request)
+    {
+        $filters = $this->buildFilters($request);
+
+        $baseQuery = $this->buildMembershipExtensionQuery($filters);
+
+        $rows = (clone $baseQuery)
+            ->latest('created_at')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn (MembershipExtension $extension) => [
+                'id' => $extension->id,
+                'created_at' => $extension->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                'customer_name' => $extension->user?->name ?? '-',
+                'plan_name' => $extension->plan?->name ?? '-',
+                'previous_expires_at' => $extension->previous_expires_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                'new_expires_at' => $extension->new_expires_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                'duration_days' => (int) ($extension->duration_days ?? 0),
+                'extension_date' => $extension->extension_date?->format('d M Y') ?? '-',
+                'payment_method' => $extension->payment_method ?? '-',
+                'fee_amount' => (float) ($extension->fee_amount ?? 0),
+                'notes' => $extension->notes ?? '-',
+                'cashier_name' => $extension->creator?->name ?? '-',
+            ]);
+
+        return Inertia::render('Dashboard/Reports/StudioTransactionReport', [
+            'report' => [
+                'title' => 'Laporan Perpanjang Membership',
+                'description' => 'Detail laporan transaksi Perpanjang Membership',
+                'route' => 'reports.membership-extension.index',
+                'columns' => [
+                    ['key' => 'created_at', 'label' => 'Tanggal'],
+                    ['key' => 'customer_name', 'label' => 'Pelanggan'],
+                    ['key' => 'plan_name', 'label' => 'Membership Plan'],
+                    ['key' => 'previous_expires_at', 'label' => 'Expired Lama'],
+                    ['key' => 'new_expires_at', 'label' => 'Expired Baru'],
+                    ['key' => 'duration_days', 'label' => 'Durasi Hari', 'type' => 'number'],
+                    ['key' => 'extension_date', 'label' => 'Tanggal Perpanjang'],
+                    ['key' => 'payment_method', 'label' => 'Metode Pembayaran'],
+                    ['key' => 'fee_amount', 'label' => 'Biaya', 'type' => 'currency'],
+                    ['key' => 'notes', 'label' => 'Catatan'],
+                    ['key' => 'cashier_name', 'label' => 'Kasir'],
+                ],
+            ],
+            'filters' => $filters,
+            'rows' => $rows,
+            'summary' => [
+                'transactions_count' => (clone $baseQuery)->count(),
+                'total_amount' => (float) ((clone $baseQuery)->sum('fee_amount') ?? 0),
+                'total_qty' => (int) ((clone $baseQuery)->sum('duration_days') ?? 0),
+                'qty_label' => 'Total Hari Perpanjangan',
+            ],
+            'paymentMethods' => $this->extractPaymentMethods(MembershipExtension::query()),
             'cashiers' => $this->getCashierOptions(),
             'membershipPlans' => MembershipPlan::query()
                 ->select('id', 'name')
@@ -462,6 +524,16 @@ class StudioTransactionReportController extends Controller
         return $this->exportStudioReport($request, 'membership', true);
     }
 
+    public function membershipExtensionExport(Request $request)
+    {
+        return $this->exportMembershipExtensionReport($request, false);
+    }
+
+    public function membershipExtensionExportPdf(Request $request)
+    {
+        return $this->exportMembershipExtensionReport($request, true);
+    }
+
     public function membershipValidityExport(Request $request)
     {
         return $this->exportMembershipValidityReport($request, false);
@@ -674,6 +746,61 @@ class StudioTransactionReportController extends Controller
         return [$title, $grouped];
     }
 
+    private function exportMembershipExtensionReport(Request $request, bool $asPdf)
+    {
+        $filters = $this->buildFilters($request);
+        $headers = ['No', 'Tanggal', 'Pelanggan', 'Membership Plan', 'Expired Lama', 'Expired Baru', 'Durasi Hari', 'Tanggal Perpanjang', 'Metode Pembayaran', 'Biaya', 'Catatan', 'Kasir'];
+
+        $items = $this->buildMembershipExtensionQuery($filters)->latest('created_at')->get();
+
+        $rows = $items->values()->map(fn (MembershipExtension $extension, $index) => [
+            $index + 1,
+            $extension->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+            $extension->user?->name ?? '-',
+            $extension->plan?->name ?? '-',
+            $extension->previous_expires_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+            $extension->new_expires_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+            (int) ($extension->duration_days ?? 0),
+            $extension->extension_date?->format('d M Y') ?? '-',
+            $extension->payment_method ?? '-',
+            (float) ($extension->fee_amount ?? 0),
+            $extension->notes ?? '-',
+            $extension->creator?->name ?? '-',
+        ])->all();
+
+        if (! $asPdf) {
+            $rows[] = ['Total', '', '', '', '', '', (int) $items->sum('duration_days'), '', '', (float) $items->sum('fee_amount'), '', ''];
+
+            return $this->downloadExcel('laporan-perpanjang-membership.xls', $headers, $rows);
+        }
+
+        $pdfRows = $rows;
+        $pdfRows[] = ['', '', '', '', '', 'Total', (int) $items->sum('duration_days'), '', '', (float) $items->sum('fee_amount'), '', ''];
+
+        $pdfBinary = SimplePdfExport::make(
+            'Laporan Perpanjang Membership',
+            'PERIODE : ' . ($filters['start_date'] ?? '-') . ' s/d ' . ($filters['end_date'] ?? '-'),
+            $headers,
+            [],
+            [[
+                'title' => 'Detail Transaksi Perpanjang Membership',
+                'headers' => $headers,
+                'rows' => $pdfRows,
+                'column_widths' => [0.35, 0.9, 0.9, 0.95, 0.85, 0.85, 0.5, 0.8, 0.8, 0.65, 1.0, 0.75],
+                'footer_lines' => [
+                    'Total Transaksi: ' . number_format($items->count(), 0, ',', '.'),
+                    'Total Biaya: Rp ' . number_format((float) $items->sum('fee_amount'), 0, ',', '.'),
+                ],
+            ]],
+            'landscape'
+        );
+
+        return response($pdfBinary, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="laporan-perpanjang-membership.pdf"',
+        ]);
+    }
+
     private function exportMembershipValidityReport(Request $request, bool $asPdf)
     {
         $filters = $this->buildFilters($request);
@@ -820,6 +947,42 @@ class StudioTransactionReportController extends Controller
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="laporan-membership-transfer.pdf"',
         ]);
+    }
+
+    private function buildMembershipExtensionQuery(array $filters)
+    {
+        return MembershipExtension::query()
+            ->with(['user:id,name', 'plan:id,name', 'creator:id,name'])
+            ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('created_at', '>=', $start))
+            ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('created_at', '<=', $end))
+            ->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('membership_plan_id', $planId))
+            ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
+            ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('created_by', $cashierId))
+            ->when($filters['invoice'] ?? null, fn ($q, $search) => $this->applyMembershipExtensionSearchFilter($q, $search));
+    }
+
+    private function applyMembershipExtensionSearchFilter(Builder $query, string $search): Builder
+    {
+        $term = trim($search);
+
+        if ($term === '') {
+            return $query;
+        }
+
+        $numericSearch = preg_replace('/[^0-9]/', '', $term);
+
+        return $query->where(function (Builder $builder) use ($term, $numericSearch) {
+            $builder->where('payment_method', 'like', '%' . $term . '%')
+                ->orWhere('notes', 'like', '%' . $term . '%')
+                ->orWhereHas('user', fn (Builder $q) => $q->where('name', 'like', '%' . $term . '%'))
+                ->orWhereHas('plan', fn (Builder $q) => $q->where('name', 'like', '%' . $term . '%'))
+                ->orWhereHas('creator', fn (Builder $q) => $q->where('name', 'like', '%' . $term . '%'));
+
+            if ($numericSearch !== '') {
+                $builder->orWhere('fee_amount', 'like', '%' . $numericSearch . '%')
+                    ->orWhere('duration_days', 'like', '%' . $numericSearch . '%');
+            }
+        });
     }
 
     private function buildMembershipTransferQuery(array $filters)
