@@ -180,9 +180,50 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                 <span className="font-medium">{session.trainer?.name || "TBA"}</span>
                             </div>
                         </div>
-                        <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${statusClasses[session.status] || statusClasses.closed}`}>
+                        {/* <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${statusClasses[session.status] || statusClasses.closed}`}>
                             {session.status}
-                        </span>
+                        </span> */}
+                        {canManageTimetable && (
+                            <button
+                                type="button"
+                                role="switch"
+                                aria-checked={session.status === "closed"}
+                                onClick={() => updateTimetableStatus(session)}
+                                className={`relative inline-flex h-8 w-24 shrink-0 items-center rounded-full p-1 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-inner ${
+                                    session.status === "closed" 
+                                        ? "bg-slate-400" 
+                                        : session.status === "scheduled" 
+                                            ? "bg-primary-600" /* Warna coklat premium / earth tone */
+                                            : "bg-slate-300"
+                                }`}
+                                title={session.status === "closed" ? "Ubah ke schedule" : "Ubah ke closed"}
+                            >
+                                {/* Teks "CLOSED" */}
+                                <span
+                                    className={`absolute left-3 text-[10px] font-bold uppercase tracking-wider text-white transition-opacity duration-300 ${
+                                        session.status === "closed" ? "opacity-100" : "opacity-0"
+                                    }`}
+                                >
+                                    Closed
+                                </span>
+
+                                {/* Teks "SCHEDULE" */}
+                                <span
+                                    className={`absolute right-3 text-[9px] font-bold uppercase tracking-wider text-white transition-opacity duration-300 ${ 
+                                        session.status === "scheduled" ? "opacity-100" : "opacity-0"
+                                    }`}
+                                >
+                                    Schedule
+                                </span>
+
+                                {/* Knob / Bundaran Putih */}
+                                <span
+                                    className={`z-10 inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out ${
+                                        session.status === "closed" ? "translate-x-16" : "translate-x-0"
+                                    }`}
+                                />
+                            </button>
+                        )}
                     </div>
 
                     {/* Body: Waktu & Info */}
@@ -227,15 +268,22 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                 <span>Ketersediaan: <span className="font-bold text-slate-900 dark:text-white">{session.remaining_slots} / {session.capacity}</span></span>
                             </div>
                             {/* Bar Kapasitas Sederhana */}
-                            <div className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                            {/* Latar Belakang Bar (Track) */}
+                            <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-100 shadow-inner ring-1 ring-black/5 dark:bg-slate-800/80 dark:ring-white/5">
+                                
+                                {/* Bar Pengisi (Progress) */}
                                 <div 
-                                    className="h-full bg-primary-500" 
+                                    className="h-full rounded-full bg-gradient-to-r from-[#967259] to-[#634832] transition-all duration-1000 ease-out relative" 
                                     style={{ width: `${(session.remaining_slots / session.capacity) * 100}%` }}
-                                ></div>
+                                >
+                                    {/* (Opsional) Efek kilauan/pantulan cahaya lembut di ujung bar */}
+                                    <div className="absolute top-0 right-0 bottom-0 w-3 bg-gradient-to-l from-white/20 to-transparent rounded-full"></div>
+                                </div>
+
                             </div>
                         </div>
 
-                        {canManageTimetable && (
+                        {/* {canManageTimetable && (
                             <div className="mt-3 rounded-2xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
                                 <div className="flex items-center justify-between gap-3">
                                     <div>
@@ -266,14 +314,18 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                     <span>Closed</span>
                                 </div>
                             </div>
-                        )}
+                        )} */}
 
-                        {session.admin_notes && (
-                            <div className="flex items-start gap-2 text-xs italic text-slate-500">
-                                <IconInfoCircle size={16} className="mt-0.5 shrink-0" />
-                                <span>{session.admin_notes}</span>
+                        <div className="flex flex-col dark:border-slate-800">
+                            <div className="flex items-center justify-between">
+                                    {session.admin_notes && (
+                                        <div className="flex items-start gap-2 text-xs italic text-slate-500">
+                                            <IconInfoCircle size={16} className="mt-0.5 shrink-0" />
+                                            <span>{session.admin_notes}</span>
+                                        </div>
+                                    )}    
                             </div>
-                        )}
+                        </div>  
                     </div>
 
                     {/* Action Buttons */}
