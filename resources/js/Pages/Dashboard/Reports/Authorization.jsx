@@ -14,6 +14,7 @@ import {
 const defaultFilters = {
     start_date: "",
     end_date: "",
+    search: "",
 };
 
 const Authorization = ({ transactions, filters }) => {
@@ -22,6 +23,7 @@ const Authorization = ({ transactions, filters }) => {
         ...defaultFilters,
         start_date: filters?.start_date ?? "",
         end_date: filters?.end_date ?? "",
+        search: filters?.search ?? "",
     });
 
     useEffect(() => {
@@ -29,6 +31,7 @@ const Authorization = ({ transactions, filters }) => {
             ...defaultFilters,
             start_date: filters?.start_date ?? "",
             end_date: filters?.end_date ?? "",
+            search: filters?.search ?? "",
         });
     }, [filters]);
 
@@ -56,7 +59,7 @@ const Authorization = ({ transactions, filters }) => {
     const rows = transactions?.data ?? [];
     const links = transactions?.links ?? [];
 
-    const hasActiveFilters = filterData.start_date || filterData.end_date;
+    const hasActiveFilters = filterData.start_date || filterData.end_date || filterData.search;
     const handleExport = () => {
         window.location.href = route("reports.authorizations.export", filterData);
     };
@@ -101,7 +104,7 @@ const Authorization = ({ transactions, filters }) => {
                 {showFilters && (
                     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 animate-slide-up">
                         <form onSubmit={applyFilters}>
-                            <div className="grid gap-4 md:grid-cols-3">
+                            <div className="grid gap-4 md:grid-cols-4">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                         Tanggal Mulai
@@ -131,6 +134,20 @@ const Authorization = ({ transactions, filters }) => {
                                                 e.target.value
                                             )
                                         }
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Pencarian Global
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={filterData.search}
+                                        onChange={(e) =>
+                                            handleChange("search", e.target.value)
+                                        }
+                                        placeholder="Nama pelanggan, invoice, kasir, email..."
                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                     />
                                 </div>
@@ -169,6 +186,9 @@ const Authorization = ({ transactions, filters }) => {
                                         Invoice
                                     </th>
                                     <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        Pelanggan
+                                    </th>
+                                    <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                         Kasir
                                     </th>
                                     <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -202,6 +222,9 @@ const Authorization = ({ transactions, filters }) => {
                                                 {transaction.invoice ?? "-"}
                                             </td>
                                             <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
+                                                {transaction.customer_name || "-"}
+                                            </td>
+                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
                                                 {transaction.cashier?.name ??
                                                     "-"}
                                             </td>
@@ -222,7 +245,7 @@ const Authorization = ({ transactions, filters }) => {
                                 ) : (
                                     <tr>
                                         <td
-                                            colSpan={6}
+                                            colSpan={7}
                                             className="px-4 py-10 text-center text-sm text-slate-500 dark:text-slate-400"
                                         >
                                             Tidak ada data otorisasi.

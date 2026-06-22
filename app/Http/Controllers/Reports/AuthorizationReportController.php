@@ -24,25 +24,27 @@ class AuthorizationReportController extends Controller
         $filters = [
             'start_date' => $request->input('start_date') ?: $defaultDate,
             'end_date' => $request->input('end_date') ?: $defaultDate,
+            'search' => trim((string) $request->input('search', '')),
         ];
 
         $items = collect()
             ->merge($this->formatTransactions($this->applyFilters(
-                Transaction::query()->whereNotNull('canceled_at')->with(['cashier:id,name']),
+                Transaction::query()->whereNotNull('canceled_at')->with(['cashier:id,name', 'customer:id,name']),
                 $filters
             )->get()))
             ->merge($this->formatTransactions($this->applyFilters(
-                PilatesBooking::query()->whereNotNull('canceled_at')->with(['cashier:id,name']),
+                PilatesBooking::query()->whereNotNull('canceled_at')->with(['cashier:id,name', 'user:id,name,email', 'user.customer:id,user_id,name']),
                 $filters
             )->get()))
             ->merge($this->formatTransactions($this->applyFilters(
-                AppointmentBooking::query()->whereNotNull('canceled_at')->with(['cashier:id,name']),
+                AppointmentBooking::query()->whereNotNull('canceled_at')->with(['cashier:id,name', 'customer:id,name']),
                 $filters
             )->get()))
             ->merge($this->formatTransactions($this->applyFilters(
-                UserMembership::query()->whereNotNull('canceled_at')->with(['cashier:id,name']),
+                UserMembership::query()->whereNotNull('canceled_at')->with(['cashier:id,name', 'user:id,name,email', 'user.customer:id,user_id,name']),
                 $filters
             )->get()))
+            ->pipe(fn ($items) => $this->applySearchFilter($items, $filters['search'] ?? ''))
             ->sortByDesc('canceled_at')
             ->values();
 
@@ -77,6 +79,7 @@ class AuthorizationReportController extends Controller
             'cashier' => [
                 'name' => $row->cashier?->name ?? 'System',
             ],
+            'customer_name' => $this->getCustomerName($row),
             'cancellation_note' => $row->cancellation_note,
             'canceled_by_email' => $row->canceled_by_email,
             // PERBAIKAN DI SINI: Format Carbon ke String dengan Timezone Jakarta
@@ -92,6 +95,7 @@ class AuthorizationReportController extends Controller
         $rows = $this->getFilteredItems($filters)->values()->map(fn ($transaction, $index) => [
             $index + 1,
             $transaction['invoice'] ?? '-',
+            $transaction['customer_name'] ?? '-',
             $transaction['cashier']['name'] ?? '-',
             $transaction['cancellation_note'] ?? '-',
             $transaction['canceled_by_email'] ?? '-',
@@ -100,7 +104,7 @@ class AuthorizationReportController extends Controller
 
         return response()->streamDownload(function () use ($rows) {
             echo '<html><head><style>@page { size: landscape; } table { width: 100%; border-collapse: collapse; } th, td { padding: 6px; }</style></head><body>';
-            echo '<table border="1"><thead><tr><th>No</th><th>Invoice</th><th>Kasir</th><th>Keterangan</th><th>Username / Email</th><th>Waktu</th></tr></thead><tbody>';
+            echo '<table border="1"><thead><tr><th>No</th><th>Invoice</th><th>Pelanggan</th><th>Kasir</th><th>Keterangan</th><th>Username / Email</th><th>Waktu</th></tr></thead><tbody>';
             foreach ($rows as $row) {
                 echo '<tr>';
                 foreach ($row as $cell) {
@@ -120,6 +124,7 @@ class AuthorizationReportController extends Controller
         $rows = $this->getFilteredItems($filters)->values()->map(fn ($transaction, $index) => [
             $index + 1,
             $transaction['invoice'] ?? '-',
+            $transaction['customer_name'] ?? '-',
             $transaction['cashier']['name'] ?? '-',
             $transaction['cancellation_note'] ?? '-',
             $transaction['canceled_by_email'] ?? '-',
@@ -129,7 +134,7 @@ class AuthorizationReportController extends Controller
         $pdfBinary = SimplePdfExport::make(
             'Laporan Otorisasi',
             'PERIODE : ' . ($filters['start_date'] ?? '-') . ' s/d ' . ($filters['end_date'] ?? '-'),
-            ['No', 'Invoice', 'Kasir', 'Keterangan', 'Username / Email', 'Waktu'],
+            ['No', 'Invoice', 'Pelanggan', 'Kasir', 'Keterangan', 'Username / Email', 'Waktu'],
             $rows,
             [],
             'landscape'
@@ -148,6 +153,7 @@ class AuthorizationReportController extends Controller
         return [
             'start_date' => $request->input('start_date') ?: $defaultDate,
             'end_date' => $request->input('end_date') ?: $defaultDate,
+            'search' => trim((string) $request->input('search', '')),
         ];
     }
 
@@ -155,22 +161,55 @@ class AuthorizationReportController extends Controller
     {
         return collect()
             ->merge($this->formatTransactions($this->applyFilters(
-                Transaction::query()->whereNotNull('canceled_at')->with(['cashier:id,name']),
+                Transaction::query()->whereNotNull('canceled_at')->with(['cashier:id,name', 'customer:id,name']),
                 $filters
             )->get()))
             ->merge($this->formatTransactions($this->applyFilters(
-                PilatesBooking::query()->whereNotNull('canceled_at')->with(['cashier:id,name']),
+                PilatesBooking::query()->whereNotNull('canceled_at')->with(['cashier:id,name', 'user:id,name,email', 'user.customer:id,user_id,name']),
                 $filters
             )->get()))
             ->merge($this->formatTransactions($this->applyFilters(
-                AppointmentBooking::query()->whereNotNull('canceled_at')->with(['cashier:id,name']),
+                AppointmentBooking::query()->whereNotNull('canceled_at')->with(['cashier:id,name', 'customer:id,name']),
                 $filters
             )->get()))
             ->merge($this->formatTransactions($this->applyFilters(
-                UserMembership::query()->whereNotNull('canceled_at')->with(['cashier:id,name']),
+                UserMembership::query()->whereNotNull('canceled_at')->with(['cashier:id,name', 'user:id,name,email', 'user.customer:id,user_id,name']),
                 $filters
             )->get()))
+            ->pipe(fn ($items) => $this->applySearchFilter($items, $filters['search'] ?? ''))
             ->sortByDesc('canceled_at')
             ->values();
+    }
+
+    private function applySearchFilter($items, ?string $search)
+    {
+        $keyword = mb_strtolower(trim((string) $search));
+
+        if ($keyword === '') {
+            return $items;
+        }
+
+        return $items->filter(function (array $item) use ($keyword) {
+            $searchableValues = [
+                $item['invoice'] ?? '',
+                $item['customer_name'] ?? '',
+                $item['cashier']['name'] ?? '',
+                $item['cancellation_note'] ?? '',
+                $item['canceled_by_email'] ?? '',
+                $item['canceled_at'] ?? '',
+            ];
+
+            return collect($searchableValues)->contains(
+                fn ($value) => str_contains(mb_strtolower((string) $value), $keyword)
+            );
+        });
+    }
+
+    private function getCustomerName($row): string
+    {
+        return $row->customer?->name
+            ?? $row->user?->customer?->name
+            ?? $row->user?->name
+            ?? '-';
     }
 }
