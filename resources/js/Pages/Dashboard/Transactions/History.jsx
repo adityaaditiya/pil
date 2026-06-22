@@ -17,6 +17,7 @@ const defaultFilters = {
     search: "",
     start_date: "",
     end_date: "",
+    status: "",
 };
 
 const formatCurrency = (value = 0) =>
@@ -42,6 +43,7 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
         search: incomingFilters?.search ?? "",
         start_date: incomingFilters?.start_date ?? "",
         end_date: incomingFilters?.end_date ?? "",
+        status: incomingFilters?.status ?? "",
     });
 
     const [filterData, setFilterData] = useState(() => initializeFilters(filters));
@@ -84,7 +86,7 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
         : rows.length || 1;
 
     const hasActiveFilters =
-        filterData.search || filterData.start_date || filterData.end_date;
+        filterData.search || filterData.start_date || filterData.end_date || filterData.status;
 
     const handleCancel = (transaction) => {
         Swal.fire({
@@ -263,6 +265,22 @@ const History = ({ transactions, filters, isMyTransactions = false }) => {
                                         }
                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                     />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Status Transaksi
+                                    </label>
+                                    <select
+                                        value={filterData.status || ""}
+                                        onChange={(e) => handleChange("status", e.target.value)}
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                                    >
+                                        <option value="">Semua Status</option>
+                                        <option value="paid">Paid</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="canceled">Canceled</option>
+                                    </select>
                                 </div>
                                 <div className="flex items-end gap-2">
                                     <button
