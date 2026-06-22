@@ -71,6 +71,21 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
         );
     };
 
+    const updateTimetableStatus = (session) => {
+        const nextStatus = session.status === "closed" ? "scheduled" : "closed";
+
+        router.patch(
+            route("timetable.status", session.id),
+            { status: nextStatus },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => toast.success(`Status timetable berhasil diubah menjadi ${nextStatus === "closed" ? "closed" : "schedule"}.`),
+                onError: () => toast.error("Status timetable gagal diubah."),
+            },
+        );
+    };
+
     const handleDelete = (session) => {
         if (Number(session.confirmed_bookings_count || 0) > 0) {
             toast.error("Sesi tidak dapat dihapus karena sudah memiliki booking pelanggan berstatus confirmed.");
@@ -219,6 +234,39 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                 ></div>
                             </div>
                         </div>
+
+                        {canManageTimetable && (
+                            <div className="mt-3 rounded-2xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
+                                <div className="flex items-center justify-between gap-3">
+                                    <div>
+                                        <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Status Timetable</p>
+                                        <p className="text-xs text-slate-500">
+                                            {session.status === "closed" ? "Closed untuk booking pelanggan" : session.status === "scheduled" ? "Schedule dan bisa dibooking" : `Status saat ini: ${session.status}`}
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        role="switch"
+                                        aria-checked={session.status === "closed"}
+                                        onClick={() => updateTimetableStatus(session)}
+                                        className={`relative inline-flex h-7 w-14 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-300 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
+                                            session.status === "closed" ? "bg-rose-500" : session.status === "scheduled" ? "bg-emerald-500" : "bg-slate-400"
+                                        }`}
+                                        title={session.status === "closed" ? "Ubah ke schedule" : "Ubah ke closed"}
+                                    >
+                                        <span
+                                            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                                                session.status === "closed" ? "translate-x-8" : "translate-x-1"
+                                            }`}
+                                        />
+                                    </button>
+                                </div>
+                                <div className="mt-2 flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                    <span>Schedule</span>
+                                    <span>Closed</span>
+                                </div>
+                            </div>
+                        )}
 
                         {session.admin_notes && (
                             <div className="flex items-start gap-2 text-xs italic text-slate-500">
