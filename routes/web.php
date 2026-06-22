@@ -200,6 +200,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::put('timetable/{timetable}', [PilatesTimetableController::class, 'update'])
         ->middleware('permission:timetable-access')
         ->name('timetable.update');
+    Route::patch('timetable/{timetable}/status', [PilatesTimetableController::class, 'updateStatus'])
+        ->middleware('permission:timetable-access')
+        ->name('timetable.status');
     Route::delete('timetable/{timetable}', [PilatesTimetableController::class, 'destroy'])
         ->middleware('permission:timetable-access')
         ->name('timetable.destroy');

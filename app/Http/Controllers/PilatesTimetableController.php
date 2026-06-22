@@ -285,6 +285,19 @@ class PilatesTimetableController extends Controller
         return back()->with('success', 'Status kehadiran peserta berhasil diperbarui.');
     }
 
+    public function updateStatus(Request $request, PilatesTimetable $timetable): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['scheduled', 'closed'])],
+        ]);
+
+        $timetable->update([
+            'status' => $validated['status'],
+        ]);
+
+        return back()->with('success', 'Status timetable berhasil diperbarui.');
+    }
+
     public function update(Request $request, PilatesTimetable $timetable): RedirectResponse
     {
         $validated = $request->validate([
