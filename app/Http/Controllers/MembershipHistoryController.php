@@ -19,6 +19,7 @@ class MembershipHistoryController extends Controller
         $search = trim((string) $request->string('search'));
         $startDate = trim((string) $request->string('start_date'));
         $endDate = trim((string) $request->string('end_date'));
+        $status = trim((string) $request->string('status'));
 
         $query = UserMembership::query()
             ->with(['user:id,name,email', 'plan:id,name,price,valid_days', 'cashier:id,name'])
@@ -30,6 +31,10 @@ class MembershipHistoryController extends Controller
 
         if ($endDate) {
             $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        if ($status !== '') {
+            $query->where('status', $status);
         }
 
         if ($search !== '') {
@@ -79,6 +84,7 @@ class MembershipHistoryController extends Controller
                 'search' => $search,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
+                'status' => $status,
             ],
         ]);
     }

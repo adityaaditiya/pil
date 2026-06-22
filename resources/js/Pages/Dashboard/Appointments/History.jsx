@@ -9,6 +9,7 @@ const defaultFilters = {
     search: "",
     start_date: "",
     end_date: "",
+    status: "",
 };
 
 const statusClass = {
@@ -51,7 +52,8 @@ export default function History({ bookings, filters = {} }) {
     const hasActiveFilters =
         Boolean(filterData.search) ||
         Boolean(filterData.start_date) ||
-        Boolean(filterData.end_date);
+        Boolean(filterData.end_date) ||
+        Boolean(filterData.status);
 
     const applyFilters = (event) => {
         event.preventDefault();
@@ -494,6 +496,24 @@ export default function History({ bookings, filters = {} }) {
                                         }
                                         className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 transition-all focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                                     />
+                                </div>
+
+                                <div>
+                                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                        Status Transaksi
+                                    </label>
+                                    <select
+                                        value={filterData.status}
+                                        onChange={(event) => handleChange("status", event.target.value)}
+                                        className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 transition-all focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                                    >
+                                        <option value="">Semua Status</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="pending_payment">Pending Payment</option>
+                                        <option value="confirmed">Confirmed</option>
+                                        <option value="cancelled">Cancelled</option>
+                                        <option value="expired">Expired</option>
+                                    </select>
                                 </div>
                                 <div className="flex items-end gap-2">
                                     <button

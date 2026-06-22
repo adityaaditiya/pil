@@ -558,6 +558,7 @@ class TransactionController extends Controller
             'search'     => $request->input('search'),
             'start_date' => $request->input('start_date') ?: $defaultDate,
             'end_date'   => $request->input('end_date') ?: $defaultDate,
+            'status'     => $request->input('status'),
         ];
 
         $query = Transaction::query()
@@ -583,6 +584,9 @@ class TransactionController extends Controller
             })
             ->when($filters['end_date'], function (Builder $builder, $date) {
                 $builder->whereDate('created_at', '<=', $date);
+            })
+            ->when($filters['status'], function (Builder $builder, $status) {
+                $builder->where('payment_status', $status);
             });
 
         $transactions = $query->paginate(10)->withQueryString();
@@ -605,6 +609,7 @@ class TransactionController extends Controller
             'search'     => $request->input('search'),
             'start_date' => $request->input('start_date') ?: $defaultDate,
             'end_date'   => $request->input('end_date') ?: $defaultDate,
+            'status'     => $request->input('status'),
         ];
 
         $query = Transaction::query()
@@ -628,6 +633,9 @@ class TransactionController extends Controller
             })
             ->when($filters['end_date'], function (Builder $builder, $date) {
                 $builder->whereDate('created_at', '<=', $date);
+            })
+            ->when($filters['status'], function (Builder $builder, $status) {
+                $builder->where('payment_status', $status);
             });
 
         $transactions = $query->paginate(10)->withQueryString();

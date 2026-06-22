@@ -14,7 +14,7 @@ import {
     IconX,
 } from "@tabler/icons-react";
 
-const defaultFilters = { search: "", start_date: "", end_date: "" };
+const defaultFilters = { search: "", start_date: "", end_date: "", status: "" };
 const statusClass = {
     pending: "bg-amber-100 text-amber-700",
     pending_payment: "bg-blue-100 text-blue-700",
@@ -30,7 +30,7 @@ export default function History({ memberships, filters = {} }) {
     useEffect(() => setFilterData({ ...defaultFilters, ...filters }), [filters]);
     const rows = memberships?.data ?? [];
     const links = memberships?.links ?? [];
-    const hasActiveFilters = Boolean(filterData.search) || Boolean(filterData.start_date) || Boolean(filterData.end_date);
+    const hasActiveFilters = Boolean(filterData.search) || Boolean(filterData.start_date) || Boolean(filterData.end_date) || Boolean(filterData.status);
     const handleChange = (field, value) => setFilterData((prev) => ({ ...prev, [field]: value }));
     const applyFilters = (event) => {
         event.preventDefault();
@@ -150,7 +150,7 @@ export default function History({ memberships, filters = {} }) {
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                                 <div><label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Pencarian</label><input type="text" placeholder="Invoice / Nama pelanggan / Nominal" value={filterData.search} onChange={(event) => handleChange("search", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 placeholder-slate-400 transition-all focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" /></div>
                                 <div><label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Tanggal Mulai</label><input type="date" value={filterData.start_date} onChange={(event) => handleChange("start_date", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 transition-all focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" /></div>
-                                <div><label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Tanggal Akhir</label><input type="date" value={filterData.end_date} onChange={(event) => handleChange("end_date", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 transition-all focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" /></div>
+                                <div><label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Tanggal Akhir</label><input type="date" value={filterData.end_date} onChange={(event) => handleChange("end_date", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 transition-all focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" /></div><div><label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Status Transaksi</label><select value={filterData.status} onChange={(event) => handleChange("status", event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 transition-all focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"><option value="">Semua Status</option><option value="pending">Pending</option><option value="pending_payment">Pending Payment</option><option value="active">Active</option><option value="cancelled">Cancelled</option><option value="expired">Expired</option></select></div>
                                 <div className="flex items-end gap-2"><button type="submit" className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-primary-500 font-medium text-white transition-colors hover:bg-primary-600"><IconSearch size={18} />Cari</button>{hasActiveFilters && <button type="button" onClick={resetFilters} className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-slate-600 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"><IconX size={18} /></button>}</div>
                             </div>
                         </form>

@@ -20,6 +20,7 @@ class PilatesBookingHistoryController extends Controller
         $search = trim((string) $request->string('search'));
         $startDate = trim((string) $request->string('start_date'));
         $endDate = trim((string) $request->string('end_date'));
+        $status = trim((string) $request->string('status'));
 
         $query = PilatesBooking::query()
             ->with([
@@ -37,6 +38,10 @@ class PilatesBookingHistoryController extends Controller
         
         if ($endDate) {
             $query->whereDate('booked_at', '<=', $endDate);
+        }
+
+        if ($status !== '') {
+            $query->where('status', $status);
         }
 
         if ($search !== '') {
@@ -163,6 +168,7 @@ class PilatesBookingHistoryController extends Controller
                 'search' => $search,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
+                'status' => $status,
             ],
         ]);
     }
