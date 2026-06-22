@@ -525,7 +525,7 @@ export default function BookingHistory({ bookings, filters = {} }) {
                                     >
                                         <option value="">Semua Status</option>
                                         <option value="pending">Pending</option>
-                                        <option value="pending_payment">Pending Payment</option>
+                                        {/* <option value="pending_payment">Pending Payment</option> */}
                                         <option value="confirmed">Confirmed</option>
                                         <option value="cancelled">Cancelled</option>
                                         <option value="expired">Expired</option>
