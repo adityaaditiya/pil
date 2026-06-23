@@ -35,7 +35,7 @@ const addDays = (dateString, days) => {
 
 export default function Extend({ customers = [], activeMemberships = [], paymentMethods = [] }) {
     const { flash } = usePage().props;
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         user_id: "",
         user_membership_id: "",
         duration_days: "",
@@ -125,7 +125,14 @@ export default function Extend({ customers = [], activeMemberships = [], payment
 
     const submit = (event) => {
         event.preventDefault();
-        post(route("memberships.extensions.store"));
+        post(route("memberships.extensions.store"), {
+            onSuccess: () => {
+                reset();
+                clearErrors();
+                setCustomerSearch("");
+                setOpenCustomerDropdown(false);
+            },
+        });
     };
 
     return (
