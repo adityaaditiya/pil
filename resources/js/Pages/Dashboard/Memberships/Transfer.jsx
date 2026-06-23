@@ -254,8 +254,8 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
 
                         {/* Live Summary Card (Sisi Kanan) */}
                         <div className="space-y-4">
-                            <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/40 p-6">
-                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 pb-3 mb-4">Informasi Membership</h3>
+                            <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/40 p-5">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-center text-slate-400 border-b border-slate-100 pb-3 mb-4">Detail Transfer Membership</h3>
                                 
                                 {selectedMembership ? (
                                     <div className="space-y-4">
@@ -266,12 +266,12 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                                         <div className="grid grid-cols-2 gap-4 pt-1">
                                             <div>
                                                 <p className="text-[10px] uppercase font-bold text-slate-400">Sisa Awal</p>
-                                                <p className="font-extrabold text-slate-900 text-xl mt-0.5">{selectedMembership.credits_remaining} <span className="text-xs font-normal text-slate-400">crs</span></p>
+                                                <p className="font-extrabold text-slate-900 text-xl mt-0.5">{selectedMembership.credits_remaining} <span className="text-xs font-normal text-slate-400">credits</span></p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] uppercase font-bold text-slate-400">Setelah Transfer</p>
                                                 <p className={`font-extrabold text-xl mt-0.5 ${invalidCredits ? 'text-red-600' : 'text-emerald-600'}`}>
-                                                    {Number(selectedMembership.credits_remaining) - creditsAmount} <span className="text-xs font-normal text-slate-400">crs</span>
+                                                    {Number(selectedMembership.credits_remaining) - creditsAmount} <span className="text-xs font-normal text-slate-400">credits</span>
                                                 </p>
                                             </div>
                                         </div>
@@ -283,7 +283,7 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                                 ) : (
                                     <div className="text-center py-6 text-slate-400 flex flex-col items-center gap-2">
                                         <IconInfoCircle size={28} className="text-slate-300" />
-                                        <p className="text-xs max-w-[200px] leading-relaxed">Pilih pelanggan dan plan aktif untuk melihat ringkasan kalkulasi sisa credits.</p>
+                                        <p className="text-xs max-w-[200px] leading-relaxed">Pilih pelanggan dan membership plan aktif untuk melihat ringkasan kalkulasi sisa credits.</p>
                                     </div>
                                 )}
                             </div>
