@@ -1,9 +1,20 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, useForm } from "@inertiajs/react";
-import { useMemo, useState } from "react";
-import { IconArrowRight, IconSend, IconInfoCircle, IconAlertTriangle, IconUser, IconSearch, IconChevronDown } from "@tabler/icons-react";
+import { Head, useForm, usePage } from "@inertiajs/react";
+import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { IconArrowRight, IconSend, IconInfoCircle, IconAlertTriangle, IconUser, IconChevronDown } from "@tabler/icons-react";
+
+
+const matchesCustomerSearch = (customer, search) => {
+    const keyword = search.toLowerCase();
+
+    return [customer.name, customer.email, customer.no_telp]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(keyword));
+};
 
 export default function Transfer({ customers = [], senderMemberships = [] }) {
+    const { flash } = usePage().props;
     const { data, setData, post, processing } = useForm({
         from_user_id: "",
         to_user_id: "",
@@ -11,6 +22,16 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
         credits_amount: "",
         notes: "",
     });
+
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
 
     // State untuk teks input pencarian
     const [senderSearch, setSenderSearch] = useState("");
@@ -24,7 +45,7 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
     const filteredSenders = useMemo(() => {
         if (!senderSearch) return customers.slice(0, 5); // Tampilkan 5 pertama jika kosong
         return customers
-            .filter((c) => c.name.toLowerCase().includes(senderSearch.toLowerCase()))
+            .filter((c) => matchesCustomerSearch(c, senderSearch))
             .slice(0, 5); // BATASI HANYA 5 DATA
     }, [customers, senderSearch]);
 
@@ -32,7 +53,7 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
     const filteredReceivers = useMemo(() => {
         if (!receiverSearch) return customers.slice(0, 5);
         return customers
-            .filter((c) => c.name.toLowerCase().includes(receiverSearch.toLowerCase()))
+            .filter((c) => matchesCustomerSearch(c, receiverSearch))
             .slice(0, 5); // BATASI HANYA 5 DATA
     }, [customers, receiverSearch]);
 
@@ -44,6 +65,16 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
     const selectedMembership = useMemo(() => 
         senderMembershipOptions.find((m) => String(m.id) === String(data.sender_membership_id)) || null, 
         [senderMembershipOptions, data.sender_membership_id]
+    );
+
+    const selectedSender = useMemo(() =>
+        customers.find((c) => String(c.user_id) === String(data.from_user_id)) || null,
+        [customers, data.from_user_id]
+    );
+
+    const selectedReceiver = useMemo(() =>
+        customers.find((c) => String(c.user_id) === String(data.to_user_id)) || null,
+        [customers, data.to_user_id]
     );
 
     const formatDateTime = (value) => value ? new Date(value).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) : "-";
@@ -118,7 +149,10 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                                                         }}
                                                         className="flex items-center px-3 py-2 text-sm text-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 hover:text-slate-900 font-medium"
                                                     >
-                                                        {c.name}
+                                                        <span className="flex flex-col leading-tight">
+                                                            <span>{c.name}</span>
+                                                            <span className="text-[11px] font-normal text-slate-400">{c.email || "Email belum tersedia"} • {c.no_telp || "No. telepon belum tersedia"}</span>
+                                                        </span>
                                                     </div>
                                                 ))
                                             ) : (
@@ -170,7 +204,10 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                                                         }}
                                                         className="flex items-center px-3 py-2 text-sm text-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 hover:text-slate-900 font-medium"
                                                     >
-                                                        {c.name}
+                                                        <span className="flex flex-col leading-tight">
+                                                            <span>{c.name}</span>
+                                                            <span className="text-[11px] font-normal text-slate-400">{c.email || "Email belum tersedia"} • {c.no_telp || "No. telepon belum tersedia"}</span>
+                                                        </span>
                                                     </div>
                                                 ))
                                             ) : (
@@ -259,6 +296,23 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                                 
                                 {selectedMembership ? (
                                     <div className="space-y-4">
+                                        {(selectedSender || selectedReceiver) && (
+                                            <div className="grid grid-cols-1 gap-3 border-b border-slate-50 pb-4 md:grid-cols-2">
+                                                <div className="rounded-2xl bg-slate-50 p-3">
+                                                    <p className="text-[10px] uppercase font-bold text-slate-400">Data Pengirim</p>
+                                                    <p className="mt-1 text-sm font-extrabold text-slate-800">{selectedSender?.name || "-"}</p>
+                                                    <p className="mt-1 text-[11px] font-medium text-slate-500">Email: {selectedSender?.email || "-"}</p>
+                                                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">No. Telp: {selectedSender?.no_telp || "-"}</p>
+                                                </div>
+                                                <div className="rounded-2xl bg-emerald-50 p-3">
+                                                    <p className="text-[10px] uppercase font-bold text-emerald-500">Data Penerima</p>
+                                                    <p className="mt-1 text-sm font-extrabold text-slate-800">{selectedReceiver?.name || "-"}</p>
+                                                    <p className="mt-1 text-[11px] font-medium text-slate-500">Email: {selectedReceiver?.email || "-"}</p>
+                                                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">No. Telp: {selectedReceiver?.no_telp || "-"}</p>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div>
                                             <p className="text-[10px] uppercase font-bold text-slate-400">Plan Terpilih</p>
                                             <p className="font-bold text-slate-800 text-base mt-0.5">{selectedMembership.membership_plan_name}</p>
