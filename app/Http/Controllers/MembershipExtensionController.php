@@ -140,7 +140,8 @@ class MembershipExtensionController extends Controller
         });
 
         return to_route('memberships.extensions.index')
-            ->with('success', "Masa aktif {$result['plan_name']} milik {$result['member_name']} berhasil diperpanjang sampai {$result['new_expires_at']}.");
+            // ->with('success', "Masa aktif {$result['plan_name']} milik {$result['member_name']} berhasil diperpanjang sampai {$result['new_expires_at']}.");
+            ->with('success', "Masa aktif membership berhasil diperpanjang sampai {$result['new_expires_at']}.");
     }
 
     private function resolveNewExpiresAt(Carbon $previousExpiresAt, array $validated): Carbon
