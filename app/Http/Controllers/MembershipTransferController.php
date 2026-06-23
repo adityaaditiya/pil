@@ -16,9 +16,17 @@ class MembershipTransferController extends Controller
     {
         $customers = Customer::query()
             ->whereNotNull('user_id')
-            ->select('id', 'name', 'user_id')
+            ->select('id', 'name', 'user_id', 'no_telp')
+            ->with('user:id,email')
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(fn (Customer $customer) => [
+                'id' => $customer->id,
+                'name' => $customer->name,
+                'user_id' => $customer->user_id,
+                'email' => $customer->user?->email,
+                'no_telp' => $customer->no_telp,
+            ]);
 
         $activeMemberships = UserMembership::query()
             ->where('status', 'active')
