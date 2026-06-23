@@ -130,6 +130,7 @@ class MembershipTransferController extends Controller
             ];
         });
 
-        return to_route('memberships.transfer.index')->with('success', "Berhasil mentransfer {$result['plan_name']} {$validated['credits_amount']} credits dari {$result['sender_name']} ke {$result['receiver_name']}.");
+        // return to_route('memberships.transfer.index')->with('success', "Berhasil mentransfer {$result['plan_name']} {$validated['credits_amount']} credits dari {$result['sender_name']} ke {$result['receiver_name']}.");
+        return to_route('memberships.transfer.index')->with('success', "Berhasil transfer {$validated['credits_amount']} credits dari {$result['sender_name']} ke {$result['receiver_name']}.");
     }
 }

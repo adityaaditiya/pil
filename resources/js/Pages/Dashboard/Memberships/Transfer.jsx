@@ -100,7 +100,7 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                     {/* Header Halaman */}
                     <div className="mb-8">
                         <h1 className="text-2xl font-black tracking-tight text-slate-900">Transfer Membership</h1>
-                        <p className="text-sm text-slate-500 mt-1">Pindahkan sisa credits antar member dengan aman.</p>
+                        <p className="text-sm text-slate-500 mt-1">Maksimalkan sisa kredit dengan fitur transfer antar member dengan aman.</p>
                     </div>
 
                     {/* Main Container Layout */}
@@ -151,7 +151,12 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                                                     >
                                                         <span className="flex flex-col leading-tight">
                                                             <span>{c.name}</span>
-                                                            <span className="text-[11px] font-normal text-slate-400">{c.email || "Email belum tersedia"} • {c.no_telp || "No. telepon belum tersedia"}</span>
+                                                            {/* flex flex-col membuat email dan no. telp menumpuk ke bawah */}
+                                                            <div className="flex flex-col text-[11px] font-normal text-slate-400">
+                                                            <span>{c.email || "Email belum tersedia"}</span>
+                                                            <span>{c.no_telp || "No. telepon belum tersedia"}</span>
+                                                            </div>
+
                                                         </span>
                                                     </div>
                                                 ))
@@ -297,14 +302,14 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                                 {selectedMembership ? (
                                     <div className="space-y-4">
                                         {(selectedSender || selectedReceiver) && (
-                                            <div className="grid grid-cols-1 gap-3 border-b border-slate-50 pb-4 md:grid-cols-2">
-                                                <div className="rounded-2xl bg-slate-50 p-3">
+                                            <div className="grid grid-cols-1 gap-3 border-b border-slate-50 pb-4">
+                                                <div className="pl-5 rounded-2xl bg-slate-50 p-3">
                                                     <p className="text-[10px] uppercase font-bold text-slate-400">Data Pengirim</p>
                                                     <p className="mt-1 text-sm font-extrabold text-slate-800">{selectedSender?.name || "-"}</p>
                                                     <p className="mt-1 text-[11px] font-medium text-slate-500">Email: {selectedSender?.email || "-"}</p>
                                                     <p className="mt-0.5 text-[11px] font-medium text-slate-500">No. Telp: {selectedSender?.no_telp || "-"}</p>
                                                 </div>
-                                                <div className="rounded-2xl bg-emerald-50 p-3">
+                                                <div className="pl-5 rounded-2xl bg-emerald-50 p-3">
                                                     <p className="text-[10px] uppercase font-bold text-emerald-500">Data Penerima</p>
                                                     <p className="mt-1 text-sm font-extrabold text-slate-800">{selectedReceiver?.name || "-"}</p>
                                                     <p className="mt-1 text-[11px] font-medium text-slate-500">Email: {selectedReceiver?.email || "-"}</p>
@@ -314,7 +319,7 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                                         )}
 
                                         <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-400">Plan Terpilih</p>
+                                            <p className="text-[10px] uppercase font-bold text-slate-400">Membership Plan Terpilih</p>
                                             <p className="font-bold text-slate-800 text-base mt-0.5">{selectedMembership.membership_plan_name}</p>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4 pt-1">
