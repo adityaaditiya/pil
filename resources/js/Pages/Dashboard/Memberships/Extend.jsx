@@ -1,6 +1,7 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, useForm } from "@inertiajs/react";
+import { Head, useForm, usePage } from "@inertiajs/react";
 import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import {
     IconAlertTriangle,
     IconCalendarPlus,
@@ -33,6 +34,7 @@ const addDays = (dateString, days) => {
 };
 
 export default function Extend({ customers = [], activeMemberships = [], paymentMethods = [] }) {
+    const { flash } = usePage().props;
     const { data, setData, post, processing, errors } = useForm({
         user_id: "",
         user_membership_id: "",
@@ -90,6 +92,16 @@ export default function Extend({ customers = [], activeMemberships = [], payment
         || !data.notes.trim()
         || extensionDateIsInvalid
         || (!isComplimentary && !data.payment_method);
+
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
 
     useEffect(() => {
         if (isComplimentary && data.payment_method !== "complimentary") {
