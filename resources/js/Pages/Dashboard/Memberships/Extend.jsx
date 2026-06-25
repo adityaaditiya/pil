@@ -142,6 +142,7 @@ export default function Extend({ customers = [], activeMemberships = [], payment
     const submit = (event) => {
         event.preventDefault();
         post(route("memberships.extensions.store"), {
+            preserveState: false,
             onSuccess: () => {
                 reset();
                 clearErrors();
