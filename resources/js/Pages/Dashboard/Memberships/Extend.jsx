@@ -17,7 +17,16 @@ import {
 const formatDate = (value) => {
     if (!value) return "-";
 
-    return new Date(`${value}T00:00:00`).toLocaleDateString("id-ID", {
+    const [year, month, day] = value.split("-");
+    const date = new Date(year, month - 1, day);
+
+    // return new Date(`${value}T00:00:00`).toLocaleDateString("id-ID", {
+    //     day: "2-digit",
+    //     month: "short",
+    //     year: "numeric",
+    // });
+
+    return date.toLocaleDateString("id-ID", {
         day: "2-digit",
         month: "short",
         year: "numeric",
@@ -27,10 +36,17 @@ const formatDate = (value) => {
 const addDays = (dateString, days) => {
     if (!dateString || !days) return null;
 
-    const date = new Date(`${dateString}T00:00:00`);
+    // const date = new Date(`${dateString}T00:00:00`);
+    const [year, month, day] = dateString.split("-");
+    const date = new Date(year, month - 1, day);
     date.setDate(date.getDate() + Number(days));
 
-    return date.toISOString().slice(0, 10);
+    // return date.toISOString().slice(0, 10);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+
+    return `${yyyy}-${mm}-${dd}`;
 };
 
 export default function Extend({ customers = [], activeMemberships = [], paymentMethods = [] }) {
