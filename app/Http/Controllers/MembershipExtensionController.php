@@ -34,6 +34,7 @@ class MembershipExtensionController extends Controller
 
         $activeMemberships = UserMembership::query()
             ->where('status', 'active')
+            ->where('credits_remaining', '>=', 1)
             ->whereNotNull('user_id')
             ->whereNotNull('expires_at')
             ->with(['plan:id,name', 'user:id,name,email'])
@@ -99,6 +100,7 @@ class MembershipExtensionController extends Controller
                 ->where('id', $validated['user_membership_id'])
                 ->where('user_id', $validated['user_id'])
                 ->where('status', 'active')
+                ->where('credits_remaining', '>=', 1)
                 ->firstOrFail();
 
             if (! $membership->expires_at) {

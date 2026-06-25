@@ -81,6 +81,7 @@ export default function Extend({ customers = [], activeMemberships = [], payment
 
     const membershipOptions = useMemo(() => activeMemberships.filter(
         (membership) => String(membership.user_id) === String(data.user_id)
+            && Number(membership.credits_remaining || 0) >= 1
     ), [activeMemberships, data.user_id]);
 
     const selectedMembership = useMemo(() => membershipOptions.find(
@@ -229,7 +230,7 @@ export default function Extend({ customers = [], activeMemberships = [], payment
                                     ))}
                                 </select>
                                 {data.user_id && membershipOptions.length === 0 && (
-                                    <p className="text-xs text-amber-600 mt-2">Pelanggan ini belum memiliki membership aktif dengan tanggal expired.</p>
+                                    <p className="text-xs text-amber-600 mt-2">Pelanggan ini belum memiliki membership aktif dengan minimal 1 credit dan tanggal expired.</p>
                                 )}
                                 {errors?.user_membership_id && <small className="text-xs text-red-500 mt-1 block">{errors.user_membership_id}</small>}
                             </div>
