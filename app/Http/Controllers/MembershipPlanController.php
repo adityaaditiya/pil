@@ -26,6 +26,7 @@ class MembershipPlanController extends Controller
                           ->orWhere('tag', 'like', '%' . $search . '%');
                     });
                 })
+                ->orderByDesc('is_active')
                 ->orderBy('order_position')
                 ->latest('id')
                 ->paginate(10)
