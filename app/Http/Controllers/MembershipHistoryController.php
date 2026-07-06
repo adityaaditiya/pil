@@ -23,6 +23,7 @@ class MembershipHistoryController extends Controller
 
         $query = UserMembership::query()
             ->with(['user:id,name,email', 'plan:id,name,price,valid_days', 'cashier:id,name'])
+            ->orderByRaw("CASE status WHEN 'pending' THEN 0 WHEN 'pending_payment' THEN 1 ELSE 2 END")
             ->latest('created_at');
 
         if ($startDate) {
