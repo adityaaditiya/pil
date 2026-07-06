@@ -30,6 +30,7 @@ class PilatesBookingHistoryController extends Controller
                 'timetable.trainer:id,user_id',
                 'cashier:id,name',
             ])
+            ->orderByRaw("CASE status WHEN 'pending' THEN 0 WHEN 'pending_payment' THEN 1 ELSE 2 END")
             ->latest('booked_at');
 
         if ($startDate) {
