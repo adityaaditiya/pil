@@ -601,7 +601,7 @@ class StudioTransactionReportController extends Controller
                 'title' => 'Metode Pembayaran: ' . strtoupper($paymentMethod),
                 'headers' => $headers,
                 'rows' => $currentRows,
-                'column_widths' => [0.45, 1.55, 1.30, 1.25, 1.35, 1.25, 0.85, 1.0],
+                'column_widths' => [0.30, 1.55, 1.30, 1.25, 2, 1.2, 0.55, 0.7],
                 'footer_lines' => [],
             ];
         }
@@ -888,7 +888,7 @@ class StudioTransactionReportController extends Controller
             'Nama Pengirim',
             'Nama Penerima',
             'Membership Plan',
-            'Jumlah Credit',
+            'Credit',
             'Catatan',
             'Masa Expired Membership',
             'Kasir',
@@ -939,7 +939,7 @@ class StudioTransactionReportController extends Controller
                 'title' => 'Riwayat Transfer Credit Membership',
                 'headers' => $headers,
                 'rows' => $pdfRows,
-                'column_widths' => [0.35, 1.1, 1.1, 1.1, 1.1, 0.7, 1.25, 1.1, 1.0],
+                'column_widths' => [0.35, 1.1, 1.1, 1.1, 1.7, 0.5, 1.7, 1.1, 0.5],
                 'footer_lines' => [
                     'Total Transfer: ' . number_format($items->count(), 0, ',', '.'),
                     'Total Credits Transfer: ' . number_format((int) $items->sum('credits_transferred'), 0, ',', '.'),

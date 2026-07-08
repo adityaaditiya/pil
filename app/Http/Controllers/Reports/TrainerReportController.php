@@ -54,33 +54,55 @@ class TrainerReportController extends Controller
         return $this->downloadExcel('laporan-trainer.xls', $headers, $excelRows);
     }
 
-    public function exportPdf(Request $request)
-    {
-        $filters = $this->buildFilters($request);
-        $rows = $this->buildRows($filters);
+   public function exportPdf(Request $request)
+{
+    $filters = $this->buildFilters($request);
+    $rows = $this->buildRows($filters);
+    
+    // $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Status Kehadiran', 'Durasi (Menit)'];
+    $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Durasi (Menit)'];
+    
+    $pdfRows = $rows->values()->map(fn ($row, $index) => [
+        $index + 1,
+        $row['date'] ?? '-',
+        $row['class_type_label'] ?? '-',
+        $row['class_name'] ?? '-',
+        $row['trainer_name'] ?? '-',
+        $row['participant_name'] ?? '-',
+        // $row['attendance_status_label'] ?? '-',
+        (int) ($row['duration_minutes'] ?? 0),
+    ])->all();
 
-        // $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Status Kehadiran', 'Durasi (Menit)'];
-        $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Durasi (Menit)'];
-        $pdfRows = $rows->values()->map(fn ($row, $index) => [
-            $index + 1,
-            $row['date'] ?? '-',
-            $row['class_type_label'] ?? '-',
-            $row['class_name'] ?? '-',
-            $row['trainer_name'] ?? '-',
-            $row['participant_name'] ?? '-',
-            // $row['attendance_status_label'] ?? '-',
-            (int) ($row['duration_minutes'] ?? 0),
-        ])->all();
+    // Tentukan rasio/bobot lebar kolom (Total bebas, nanti dihitung persentasenya otomatis oleh class PDF)
+    // Kolom 'Nama Kelas' dan 'Peserta' diberi bobot lebih besar agar tidak terpotong (...)
+    $columnWidths = [
+        0 => 0.6,  // No (bisa agak tipis)
+        1 => 2.2,  // Tanggal
+        2 => 2.2,  // Jenis Kelas
+        3 => 5.0,  // Nama Kelas (Dibuat super lebar biar SCULPT TOWER / ATHLETIC REFORMER muat)
+        4 => 1.7,  // Trainer
+        5 => 3.0,  // Peserta (Lebih lebar juga)
+        6 => 2,  // Durasi
+    ];
 
-        return $this->downloadPdf(
-            'laporan-trainer.pdf',
-            'Laporan Trainer',
-            $this->buildPeriodLabel($filters),
-            $headers,
-            $pdfRows
-        );
-    }
+    // Bungkus ke dalam parameter $sections sesuai format dokumentasi @param class SimplePdfExport
+    $sections = [[
+        'title' => '',
+        'headers' => $headers,
+        'rows' => $pdfRows,
+        'footer_lines' => [],
+        'column_widths' => $columnWidths,
+    ]];
 
+    // Kita oper $sections ke parameter ke-5 (menggantikan array kosong sebelumnya)
+    return $this->downloadPdf(
+        'laporan-trainer.pdf',
+        'Laporan Trainer',
+        $this->buildPeriodLabel($filters),
+        $headers,
+        $sections // <-- Ubah dari $pdfRows menjadi $sections
+    );
+}
     private function buildFilters(Request $request): array
     {
         $defaultDate = Carbon::today()->toDateString();
@@ -316,13 +338,27 @@ class TrainerReportController extends Controller
         ]);
     }
 
-    private function downloadPdf(string $filename, string $title, string $period, array $headers, array $rows)
+    // private function downloadPdf(string $filename, string $title, string $period, array $headers, array $rows)
+    // {
+    //     $pdfBinary = SimplePdfExport::make($title, $period, $headers, $rows);
+
+    //     return response($pdfBinary, 200, [
+    //         'Content-Type' => 'application/pdf',
+    //         'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    //     ]);
+    // }
+
+    
+    private function downloadPdf(string $filename, string $title, string $period, array $headers, array $sections)
     {
-        $pdfBinary = SimplePdfExport::make($title, $period, $headers, $rows);
+        // Panggil method make() dengan menyisipkan variabel $sections ke parameter ke-5
+        $pdfBinary = SimplePdfExport::make($title, $period, $headers, [], $sections, 'landscape');
 
         return response($pdfBinary, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }
+
+
 }

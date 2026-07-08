@@ -111,7 +111,8 @@ class ProfitReportController extends Controller
             $filters
         )->orderByDesc('created_at')->get();
 
-        $headers = ['No', 'Invoice', 'Tanggal', 'Kasir', 'Pelanggan', 'Harga Pokok', 'Item', 'Penjualan', 'Pajak', 'Profit'];
+        // $headers = ['No', 'Invoice', 'Tanggal', 'Kasir', 'Pelanggan', 'Harga Pokok', 'Item', 'Penjualan', 'Pajak', 'Profit'];
+        $headers = ['No', 'Invoice', 'Tanggal', 'Kasir', 'Pelanggan', 'Harga Pokok', 'Penjualan', 'Pajak', 'Profit'];
         $rows = $transactions->values()->map(function ($trx, $index) {
             return [
                 $index + 1,
@@ -121,7 +122,7 @@ class ProfitReportController extends Controller
                 $trx->cashier?->name ?? '-',
                 $trx->customer?->name ?? '-',
                 $this->formatCurrency((int) ($trx->cost_price ?? 0)),
-                (int) ($trx->total_items ?? 0),
+                // (int) ($trx->total_items ?? 0),
                 $this->formatCurrency((int) ($trx->grand_total ?? 0)),
                 $this->formatCurrency((int) ($trx->tax_amount ?? round(($trx->grand_total ?? 0) * 0.1))),
                 $this->formatCurrency((int) ($trx->total_profit ?? 0)),
@@ -159,7 +160,8 @@ class ProfitReportController extends Controller
             $filters
         )->orderByDesc('created_at')->get();
 
-        $headers = ['No', 'Invoice', 'Kasir', 'Pelanggan', 'Harga Pokok', 'Item', 'Penjualan', 'Pajak', 'Profit'];
+        // $headers = ['No', 'Invoice', 'Kasir', 'Pelanggan', 'Harga Pokok', 'Item', 'Penjualan', 'Pajak', 'Profit'];
+        $headers = ['No', 'Invoice', 'Kasir', 'Pelanggan', 'Harga Pokok', 'Penjualan', 'Pajak', 'Profit'];
         $rows = $transactions->values()->map(function ($trx, $index) {
             return [
                 $index + 1,
@@ -167,7 +169,7 @@ class ProfitReportController extends Controller
                 $trx->cashier?->name ?? '-',
                 $trx->customer?->name ?? '-',
                 $this->formatCurrency((int) ($trx->cost_price ?? 0)),
-                (int) ($trx->total_items ?? 0),
+                // (int) ($trx->total_items ?? 0),
                 $this->formatCurrency((int) ($trx->grand_total ?? 0)),
                 $this->formatCurrency((int) ($trx->tax_amount ?? round(($trx->grand_total ?? 0) * 0.1))),
                 $this->formatCurrency((int) ($trx->total_profit ?? 0)),
@@ -223,7 +225,7 @@ class ProfitReportController extends Controller
 
     protected function downloadPdf(string $filename, string $title, string $period, array $headers, array $rows)
     {
-        $pdfBinary = SimplePdfExport::make($title, $period, $headers, $rows);
+        $pdfBinary = SimplePdfExport::make($title, $period, $headers, $rows, [], 'landscape');
 
         return response($pdfBinary, 200, [
             'Content-Type' => 'application/pdf',

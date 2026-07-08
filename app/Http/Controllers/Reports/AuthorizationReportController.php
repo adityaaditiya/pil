@@ -82,7 +82,6 @@ class AuthorizationReportController extends Controller
             'customer_name' => $this->getCustomerName($row),
             'cancellation_note' => $row->cancellation_note,
             'canceled_by_email' => $row->canceled_by_email,
-            // PERBAIKAN DI SINI: Format Carbon ke String dengan Timezone Jakarta
             'canceled_at' => $row->canceled_at 
                 ? Carbon::parse($row->canceled_at)->timezone('Asia/Jakarta')->format('Y-m-d H:i:s') 
                 : null,
@@ -121,7 +120,9 @@ class AuthorizationReportController extends Controller
     public function exportPdf(Request $request)
     {
         $filters = $this->getFilters($request);
-        $rows = $this->getFilteredItems($filters)->values()->map(fn ($transaction, $index) => [
+        $headers = ['No', 'Invoice', 'Pelanggan', 'Kasir', 'Keterangan', 'Username / Email', 'Waktu'];
+        
+        $pdfRows = $this->getFilteredItems($filters)->values()->map(fn ($transaction, $index) => [
             $index + 1,
             $transaction['invoice'] ?? '-',
             $transaction['customer_name'] ?? '-',
@@ -131,12 +132,34 @@ class AuthorizationReportController extends Controller
             $transaction['canceled_at'] ?? '-',
         ])->all();
 
+        // Tentukan rasio/bobot lebar kolom (Total bebas, dihitung persentasenya otomatis oleh class PDF)
+        // Kolom 'Keterangan' (index 4) diberi bobot lebih besar (misal: 4.5) agar teks alasan pembatalan tidak terpotong panjangnya.
+        $columnWidths = [
+            0 => 0.6,  // No
+            1 => 2.5,  // Invoice
+            2 => 2.5,  // Pelanggan
+            3 => 1,  // Kasir
+            4 => 4.5,  // Keterangan / Alasan Pembatalan (Lebih lebar)
+            5 => 3.0,  // Username / Email
+            6 => 2.3,  // Waktu
+        ];
+
+        // Bungkus ke dalam parameter $sections sesuai format dokumentasi @param class SimplePdfExport
+        $sections = [[
+            'title' => '',
+            'headers' => $headers,
+            'rows' => $pdfRows,
+            'footer_lines' => [],
+            'column_widths' => $columnWidths,
+        ]];
+
+        // Panggil method make() dengan menyisipkan variabel $sections ke parameter ke-5
         $pdfBinary = SimplePdfExport::make(
             'Laporan Otorisasi',
             'PERIODE : ' . ($filters['start_date'] ?? '-') . ' s/d ' . ($filters['end_date'] ?? '-'),
-            ['No', 'Invoice', 'Pelanggan', 'Kasir', 'Keterangan', 'Username / Email', 'Waktu'],
-            $rows,
-            [],
+            $headers,
+            [], // Array kosong untuk data row default lama
+            $sections,
             'landscape'
         );
 

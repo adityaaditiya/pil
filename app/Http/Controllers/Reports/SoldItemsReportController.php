@@ -197,16 +197,20 @@ class SoldItemsReportController extends Controller
                 'title' => 'Detail Penjualan Produk',
                 'headers' => $headers,
                 'rows' => $rows,
-                'footer_lines' => [
-                    'Total Barang Terjual: ' . $totalItems,
-                    'Total Harga: ' . $this->formatCurrency($totalPrice),
-                ],
+                // 'footer_lines' => [
+                //     'Total Barang Terjual: ' . $totalItems,
+                //     'Total Harga: ' . $this->formatCurrency($totalPrice),
+                // ],
                 'column_widths' => [0.55, 1.35, 3.25, 0.85, 1.5, 2.0],
             ],
             [
                 'title' => 'Rekap Penjualan per Produk',
                 'headers' => ['No', 'Nama Produk', 'Total Terjual', 'Total Penjualan'],
                 'rows' => $recapRows,
+                'footer_lines' => [
+                    'Total Barang Terjual: ' . $totalItems,
+                    'Total Harga: ' . $this->formatCurrency($totalPrice),
+                ],
                 'column_widths' => [0.6, 3.5, 1.2, 1.8],
             ],
         ];

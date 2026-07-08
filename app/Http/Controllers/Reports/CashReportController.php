@@ -416,7 +416,7 @@ class CashReportController extends Controller
             ->values();
 
         $headers = ['Kategori', 'Deskripsi', 'Uang Masuk', 'Uang Keluar'];
-        $rows = $mergedRows->map(function ($row) {
+        $pdfRows = $mergedRows->map(function ($row) {
             return [
                 $row['category'],
                 $row['description'],
@@ -425,7 +425,29 @@ class CashReportController extends Controller
             ];
         })->all();
 
-        return $this->downloadPdf('laporan-keuangan-cash.pdf', 'Laporan Keuangan Cash', $this->buildPeriodLabel($filters), $headers, $rows);
+        $columnWidths = [
+            4.5, // Kategori
+            10, // Deskripsi
+            1.7, // Uang Masuk
+            1.7, // Uang Keluar
+        ];
+
+        $sections = [[
+            'title' => '',
+            'headers' => $headers,
+            'rows' => $pdfRows,
+            'footer_lines' => [],
+            'column_widths' => $columnWidths,
+        ]];
+
+        return $this->downloadPdf(
+            'laporan-keuangan-cash.pdf',
+            'Laporan Keuangan Cash',
+            $this->buildPeriodLabel($filters),
+            $headers,
+            $pdfRows,
+            $columnWidths
+        );
     }
 
     /**
@@ -568,13 +590,36 @@ class CashReportController extends Controller
         ]);
     }
 
-    protected function downloadPdf(string $filename, string $title, string $period, array $headers, array $rows)
-    {
-        $pdfBinary = SimplePdfExport::make($title, $period, $headers, $rows);
+    private function downloadPdf(
+        string $filename,
+        string $title,
+        string $period,
+        array $headers,
+        array $rows,
+        array $columnWidths = []
+    ) {
+        $sections = [[
+            'title' => '',
+            'headers' => $headers,
+            'rows' => $rows,
+            'footer_lines' => [],
+            'column_widths' => $columnWidths,
+        ]];
 
-        return response($pdfBinary, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ]);
+        $pdfBinary = SimplePdfExport::make(
+            $title,
+            $period,
+            [],
+            [],
+            $sections,
+            'landscape'
+        );
+
+        return response($pdfBinary)
+            ->header('Content-Type', 'application/pdf')
+            ->header(
+                'Content-Disposition',
+                'attachment; filename="'.$filename.'"'
+            );
     }
 }
