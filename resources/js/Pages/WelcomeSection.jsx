@@ -1666,73 +1666,86 @@ useEffect(() => {
                             <p className="text-wellness-muted">Belum ada data membership.</p>
                         )}
                         {memberships.map((membership) => (
-                            /* h-full memastikan semua kartu sama tinggi, flex-col untuk mengatur posisi vertikal */
-                            <article 
-                                key={membership.id} 
-                                className="flex flex-col h-full rounded-3xl border border-primary-100 bg-white p-6 shadow-sm"
-                            >
-                                {/* Bagian Atas: Header & Harga */}
-                                <div className="flex-none">
-                                    <div className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
-                                        <IconSparkles size={14} /> Membership
+                        /* h-full memastikan semua kartu sama tinggi */
+                        <article 
+                            key={membership.id} 
+                            className="flex flex-col h-full rounded-3xl border border-primary-100 bg-white p-6 shadow-sm justify-between"
+                        >
+                            {/* Bagian Atas: Header, Judul & Harga */}
+                            <div className="flex-none">
+                                <div className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
+                                    <IconSparkles size={14} /> Membership
+                                </div>
+                                
+                                {/* KUNCI 1: Mengunci tinggi judul (min-h-[56px]) agar kartu 1 baris & 2 baris tetap sejajar */}
+                                <div className="min-h-[56px] flex items-center mt-1">
+                                    <h3 className="text-xl font-semibold leading-tight text-[#2b2b2b]">{membership.name}</h3>
+                                </div>
+                                
+                                <p className="text-3xl font-bold text-primary-600">
+                                    {formatRupiah(membership.price)}
+                                </p>
+                                
+                                <div className="mt-3 space-y-2 text-sm text-wellness-muted border-b border-slate-100 pb-4">
+                                    <div className="flex items-center gap-2">
+                                        <IconStar size={16} /> <span>{membership.credits} credits class</span>
                                     </div>
-                                    
-                                    {/* min-h-14 (56px) memastikan baris harga tetap sejajar walau judul cuma 1 baris */}
-                                    <div className="min-h-[40px] flex items-center mt-1">
-                                        <h3 className="text-xl font-semibold leading-tight">{membership.name}</h3>
+                                    <div className="flex items-center gap-2">
+                                        <IconClock size={16} /> <span>Berlaku {membership.valid_days || "-"} hari</span>
                                     </div>
-                                    
-                                    <p className="mt-0.2 text-3xl font-bold text-primary-600">
-                                        {formatRupiah(membership.price)}
-                                    </p>
-                                    
-                                    <div className="mt-4 space-y-2 text-sm text-wellness-muted">
-                                        <div className="flex items-center gap-2">
-                                            <IconStar size={16} /> <span>{membership.credits} credits class</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <IconClock size={16} /> <span>Berlaku {membership.valid_days || "-"} hari</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <IconCurrencyDollar size={16} /> <span>Benefit Terbaik Setiap Sesi</span>
-                                        </div>
+                                    <div className="flex items-center gap-2">
+                                        <IconCurrencyDollar size={16} /> <span>Benefit Terbaik Setiap Sesi</span>
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* Bagian Tengah: Deskripsi & List Kelas (Dibuat Flex-1 agar mendorong tombol ke bawah) */}
-                                <div className="flex-1 flex flex-col mt-3">
-                                    <p className="text-sm text-wellness-muted whitespace-pre-line mb-2">
+                            {/* Bagian Tengah: Deskripsi & List Kelas */}
+                            <div className="flex-1 flex flex-col pt-3 justify-between">
+                                {/* KUNCI 2: Mengunci tinggi deskripsi agar pembatas di bawahnya tidak naik turun */}
+                                <div className="min-h-[72px] flex items-start">
+                                    <p className="text-sm text-wellness-muted whitespace-pre-line leading-relaxed">
                                         {membership.description || "Paket membership untuk latihan konsisten."}
                                     </p>
+                                </div>
 
-                                    {/* mt-auto di sini memastikan 'Daftar kelas' nempel ke area tombol di bawah */}
-                                    <div className="mt-auto pt-2 border-t border-slate-300">
-                                        <p className="text-sm font-medium text-wellness-text">Daftar kelas yang bisa dipesan:</p>
-                                        <div className="mt-2 min-h-[40px]"> {/* min-h agar area list punya ruang tetap */}
-                                            {membership.classes && membership.classes.length > 0 ? (
-                                                <ul className="list-disc list-inside text-sm text-wellness-muted space-y-1">
-                                                    {membership.classes.map((c) => (
-                                                        <li key={c.id} className="leading-tight">{c.name}</li>
-                                                    ))}
-                                                </ul>
-                                            ) : (
-                                                <p className="text-sm text-wellness-muted">-</p>
-                                            )}
-                                        </div>
+                                {/* Bagian Daftar Kelas */}
+                                <div className="pt-4 border-t border-slate-200 mt-1">
+                                    <p className="text-xs font-semibold text-[#2b2b2b] uppercase tracking-wider">
+                                        Daftar kelas yang bisa dipesan:
+                                    </p>
+                                    
+                                    {/* KUNCI 3: Mengunci tinggi box list agar seragam baik isinya sedikit/banyak */}
+                                    <div className="mt-2 max-h-[160px] min-h-[160px] overflow-y-auto pr-2 text-xs text-gray-600 scrollbar-thin">
+                                        {membership.classes && membership.classes.length > 0 ? (
+                        <ul className="list-disc list-inside space-y-1.5">
+                            {/* Kita buat duplikat array dulu dengan [...array] lalu di-sort berdasarkan properti 'name' */}
+                            {[...membership.classes]
+                                .sort((a, b) => a.name.localeCompare(b.name))
+                                .map((c) => (
+                                    <li key={c.id} className="leading-tight text-gray-600 hover:text-gray-900 transition-colors">
+                                        {c.name}
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                    ) : (
+                        <p className="text-gray-400 italic">-</p>
+                    )}
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* Bagian Bawah: Tombol */}
-                                <div className="mt-4 flex-none">
-                                    <Link
-                                        href={auth?.user ? route("welcome.membership-detail", membership.id) : route("login", { redirect: route("welcome.membership-detail", membership.id, false) })}
-                                        className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 shadow-md"
-                                    >
-                                        Buy Now
-                                    </Link>
-                                </div>
-                            </article>
-                        ))}
+                            {/* Bagian Bawah: Tombol */}
+                            <div className="mt-6 flex-none">
+                                <Link
+                                    href={auth?.user ? route("welcome.membership-detail", membership.id) : route("login", { redirect: route("welcome.membership-detail", membership.id, false) })}
+                                    className="inline-flex w-full items-center justify-center rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 shadow-md"
+                                >
+                                    Buy Now
+                                </Link>
+                            </div>
+                        </article>
+                    ))}
                     </section>
                 )}
 

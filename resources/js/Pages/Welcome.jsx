@@ -165,19 +165,20 @@ export default function Welcome() {
 
                 <Navbar navItems={navItems} currentKey="home" />
 
-                <section className="bg-gradient-to-br from-wellness-beige via-wellness-soft to-wellness-greige px-4 pb-20 pt-16 md:px-6 md:pt-20">
-    {/* Menggunakan 'flex flex-col-reverse' agar pada mobile kolom kedua (gambar) naik ke atas, 
-        lalu 'lg:grid' untuk mengembalikan tampilan kolom di layar besar */}
-    <div className="mx-auto flex flex-col-reverse lg:grid max-w-7xl items-center gap-12 lg:grid-cols-2">
+                <section className="bg-gradient-to-br from-wellness-beige via-wellness-soft to-wellness-greige px-4 pb-20 pt-11 md:px-6 md:pt-18">
+                {/* Menggunakan 'flex flex-col-reverse' agar pada mobile kolom kedua (gambar) naik ke atas, 
+                    lalu 'lg:grid' untuk mengembalikan tampilan kolom di layar besar */}
+                <div className="mx-auto flex flex-col-reverse lg:grid max-w-7xl items-center gap-12 lg:grid-cols-2">
         
         {/* KOLOM TEKS */}
         <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">Premium Pilates Studio</p>
-            <h1 className="mt-5 text-4xl font-semibold leading-tight md:text-6xl">Move Better. Feel Stronger.</h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-wellness-muted md:text-lg">
+            <h1 className="mt-2 font-serif text-5xl font-medium leading-tight text-gray-800 md:text-7xl">
+                Move Better. <span className="text-amber-800 font-serif">Feel Stronger.</span>
+            </h1>            
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-wellness-muted md:text-lg">
                 Tingkatkan postur, kekuatan core, dan mobilitas melalui kelas pilates yang personal, elegan, dan menenangkan.
             </p>
-
             <div className="mt-10 flex flex-wrap gap-4">
                 <Button as={Link} href={route("welcome.page", "classes")}>Book A Class</Button>
                 <Button as={Link} href={route("welcome.page", "pricing")} variant="secondary">Join Membership</Button>
@@ -194,12 +195,11 @@ export default function Welcome() {
         </div>
 
         {/* KOLOM GAMBAR (Sekarang muncul di atas pada Mobile) */}
-        <div className="overflow-hidden p-0">
+        <div className="w-full overflow-hidden backdrop-blur-sm">
             <img
                 src={heroBackgroundImage}
-                alt="Pilates class"
-                className="h-auto w-full md:w-full object-contain mx-auto"
-                style={{ maxWidth: "100%", height: "auto" }}
+                alt="ORO Pilates Studio Building"
+                className="h-auto w-full rounded-[24px] object-cover"
             />
         </div>
     </div>
