@@ -9,7 +9,6 @@ import {
     XMarkIcon,
     EyeIcon
 } from "@heroicons/react/24/outline";
-
 const imageUrl = (folder, file) => (file ? `/storage/${folder}/${file}` : null);
 
 const formatRupiah = (value) =>
@@ -25,6 +24,7 @@ export default function WelcomeMembershipCheckout({
     selectedGateway,
     paymentInstructions = {},
 }) {
+    const [showAllClasses, setShowAllClasses] = useState(false);
     const { flash } = usePage().props;
     const [preview, setPreview] = useState(null);
     const [secondsLeft, setSecondsLeft] = useState(() => {
@@ -123,14 +123,34 @@ export default function WelcomeMembershipCheckout({
                             <div className="pt-1">
                                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Akses Kelas:</span>
                                 <div className="flex flex-wrap gap-1.5">
-                                    {plan?.classes?.map((item, index) => (
-                                        <span key={index} className="inline-flex items-center gap-1 rounded-lg bg-slate-50 px-2.5 py-1 text-xs text-slate-600 border border-slate-100">
-                                            <TicketIcon className="h-3.5 w-3.5 text-slate-400" />
-                                            {item.name}
-                                        </span>
-                                    )) || <span className="text-xs text-slate-400 italic">-</span>}
+                                    {plan?.classes && plan.classes.length > 0 ? (
+                                        <>
+                                            {/* Render hanya 5 kelas pertama jika tidak di-expand */}
+                                            {(showAllClasses ? plan.classes : plan.classes.slice(0, 5)).map((item, index) => (
+                                                <span key={index} className="inline-flex items-center gap-1 rounded-lg bg-slate-50 px-2.5 py-1 text-xs text-slate-600 border border-slate-100">
+                                                    <TicketIcon className="h-3.5 w-3.5 text-slate-400" />
+                                                    {item.name}
+                                                </span>
+                                            ))}
+                                        
+
+                                            {/* Tombol Toggle jika kelas lebih dari 5 */}
+                                            {plan.classes.length > 5 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowAllClasses(!showAllClasses)}
+                                                    className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-[#4A4439] hover:bg-slate-200 transition-colors"
+                                                >
+                                                    {showAllClasses ? "Sembunyikan" : `+ ${plan.classes.length - 5} Kelas Lainnya`}
+                                                </button>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <span className="text-xs text-slate-400 italic">-</span>
+                                    )}
                                 </div>
                             </div>
+
                         </div>
 
                         {/* Instruksi Gateway (QRIS / Transfer) */}

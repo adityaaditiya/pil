@@ -8,6 +8,8 @@ const formatRupiah = (value = 0) =>
 
 export default function Checkout({ plan, customers = [], paymentGateways = [] }) {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
+    // State untuk mengontrol status "Lihat Semua / Sembunyikan" kelas terkait
+    const [showAllClasses, setShowAllClasses] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
         customer_id: "",
@@ -42,9 +44,13 @@ export default function Checkout({ plan, customers = [], paymentGateways = [] })
     const cashAmount = Math.max(0, Number(data.cash_amount) || 0);
     const change = isCashPayment ? Math.max(cashAmount - total, 0) : 0;
 
+    // Menentukan daftar kelas yang dipotong (maksimal 5 jika state showAllClasses bernilai false)
+    const visibleClasses = showAllClasses 
+        ? plan?.classes || [] 
+        : (plan?.classes || []).slice(0, 5);
+
     const submit = (e) => {
         e.preventDefault();
-
         post(route("memberships.activate", plan.id));
     };
 
@@ -64,12 +70,30 @@ export default function Checkout({ plan, customers = [], paymentGateways = [] })
                     <div className="mt-2 text-sm text-wellness-muted">
                         <span className="font-medium block mb-1">Kelas Terkait:</span>
                         <div className="flex flex-col gap-1">
-                            {plan.classes.map((c) => (
-                                <div key={c.id} className="flex items-center gap-2">
-                                    <span className="h-1 w-1 rounded-full bg-slate-400"></span> {/* Bullet point kecil */}
-                                    {c.name}
-                                </div>
-                            ))}
+                            {plan.classes && plan.classes.length > 0 ? (
+                                <>
+                                    {/* Render kelas yang difilter */}
+                                    {visibleClasses.map((c) => (
+                                        <div key={c.id} className="flex items-center gap-2 text-slate-600">
+                                            <span className="h-1 w-1 rounded-full bg-slate-400"></span>
+                                            {c.name}
+                                        </div>
+                                    ))}
+
+                                    {/* Tombol pemicu jika kelas lebih dari 5 */}
+                                    {plan.classes.length > 5 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowAllClasses(!showAllClasses)}
+                                            className="mt-1 w-fit text-left text-xs font-bold text-primary-600 hover:text-primary-700 hover:underline focus:outline-none"
+                                        >
+                                            {showAllClasses ? "Lihat lebih sedikit" : `+ ${plan.classes.length - 5} Kelas Lainnya`}
+                                        </button>
+                                    )}
+                                </>
+                            ) : (
+                                <span className="text-xs text-slate-400 italic">Tidak ada kelas terkait</span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -110,8 +134,6 @@ export default function Checkout({ plan, customers = [], paymentGateways = [] })
                                 ))}
                             </div>
                         </div>
-
-                        
                     </div>
 
                     <div className="rounded-xl border bg-white p-4">
@@ -139,7 +161,7 @@ export default function Checkout({ plan, customers = [], paymentGateways = [] })
                                         <p className="mt-1 text-xs text-danger-500">{errors.cash_amount}</p>
                                     )}
                                 </div>
-                                    <br />
+                                <br />
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-slate-700">
                                         Diskon (Rp)
