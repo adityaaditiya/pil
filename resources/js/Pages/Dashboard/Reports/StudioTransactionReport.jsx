@@ -46,6 +46,7 @@ const defaultFilterState = {
     payment_method: "",
     membership_plan_id: "",
     cashier_id: "",
+    has_remaining_credits: "",
 };
 
 const formatCurrency = (value = 0) =>
@@ -67,6 +68,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
         payment_method: castFilterString(filters?.payment_method),
         membership_plan_id: castFilterString(filters?.membership_plan_id),
         cashier_id: castFilterString(filters?.cashier_id),
+        has_remaining_credits: castFilterString(filters?.has_remaining_credits),
     });
 
     useEffect(() => {
@@ -78,6 +80,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
             payment_method: castFilterString(filters?.payment_method),
             membership_plan_id: castFilterString(filters?.membership_plan_id),
             cashier_id: castFilterString(filters?.cashier_id),
+            has_remaining_credits: castFilterString(filters?.has_remaining_credits),
         });
     }, [filters]);
 
@@ -110,7 +113,8 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
     const showPaymentFilter = report?.show_payment_filter !== false;
     const showDateFilter = report?.show_date_filter !== false;
     const showMembershipPlanFilter = ["reports.membership.index", "reports.membership-extension.index", "reports.membership-transfer.index", "reports.membership-validity.index"].includes(report.route);
-    const hasActiveFilters = (showInvoiceFilter && filterData.invoice) || (showDateFilter && (filterData.start_date || filterData.end_date)) || (showPaymentFilter && filterData.payment_method) || (showMembershipPlanFilter && filterData.membership_plan_id) || filterData.cashier_id;
+    const showRemainingCreditsFilter = report.route === "reports.membership-validity.index";
+    const hasActiveFilters = (showInvoiceFilter && filterData.invoice) || (showDateFilter && (filterData.start_date || filterData.end_date)) || (showPaymentFilter && filterData.payment_method) || (showMembershipPlanFilter && filterData.membership_plan_id) || (showRemainingCreditsFilter && filterData.has_remaining_credits) || filterData.cashier_id;
 
     const exportRouteMap = {
         "reports.booking.index": "reports.booking",
@@ -280,6 +284,19 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                                     {plan.name}
                                                 </option>
                                             ))}
+                                        </select>
+                                    </div>
+                                )}
+                                {showRemainingCreditsFilter && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Sisa Credits</label>
+                                        <select
+                                            value={filterData.has_remaining_credits}
+                                            onChange={(e) => handleChange("has_remaining_credits", e.target.value)}
+                                            className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                                        >
+                                            <option value="">Semua sisa credits</option>
+                                            <option value="1">Ada sisa credits</option>
                                         </select>
                                     </div>
                                 )}

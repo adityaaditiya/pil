@@ -347,6 +347,7 @@ class StudioTransactionReportController extends Controller
             ->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('membership_plan_id', $planId))
             ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('cashier_id', $cashierId))
+            ->when($filters['has_remaining_credits'] ?? null, fn ($q) => $q->where('credits_remaining', '>', 0))
             ->when($filters['invoice'] ?? null, fn ($q, $search) => $this->applyGlobalSearchFilter($q, $search));
 
         $memberships = (clone $baseQuery)
@@ -414,6 +415,7 @@ class StudioTransactionReportController extends Controller
             'payment_method' => $request->input('payment_method'),
             'membership_plan_id' => $request->input('membership_plan_id'),
             'cashier_id' => $request->input('cashier_id'),
+            'has_remaining_credits' => $request->boolean('has_remaining_credits') ? '1' : null,
         ];
     }
 
@@ -829,6 +831,7 @@ class StudioTransactionReportController extends Controller
             ->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('membership_plan_id', $planId))
             ->when($filters['payment_method'] ?? null, fn ($q, $method) => $q->where('payment_method', $method))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashierId) => $q->where('cashier_id', $cashierId))
+            ->when($filters['has_remaining_credits'] ?? null, fn ($q) => $q->where('credits_remaining', '>', 0))
             ->when($filters['invoice'] ?? null, fn ($q, $search) => $this->applyGlobalSearchFilter($q, $search))
             ->orderBy('expires_at')
             ->get();
