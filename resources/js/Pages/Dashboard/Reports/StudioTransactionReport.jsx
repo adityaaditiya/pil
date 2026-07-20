@@ -278,7 +278,7 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                             onChange={(e) => handleChange("membership_plan_id", e.target.value)}
                                             className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                         >
-                                            <option value="">Semua membership plan</option>
+                                            <option value="">Semua Membership</option>
                                             {membershipPlans.map((plan) => (
                                                 <option key={plan.id} value={plan.id}>
                                                     {plan.name}
@@ -295,8 +295,8 @@ const StudioTransactionReport = ({ report, filters, rows, summary, paymentMethod
                                             onChange={(e) => handleChange("has_remaining_credits", e.target.value)}
                                             className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                                         >
-                                            <option value="">Semua sisa credits</option>
-                                            <option value="1">Ada sisa credits</option>
+                                            <option value="">Semua Data</option>
+                                            <option value="1">Memiliki sisa credits</option>
                                         </select>
                                     </div>
                                 )}
