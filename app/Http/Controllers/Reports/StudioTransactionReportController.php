@@ -126,11 +126,8 @@ class StudioTransactionReportController extends Controller
     {
         $filters = $this->buildFilters($request);
 
-        $excludedStatus = ['pending', 'pending_payment', 'cancelled', 'expired'];
-
         $baseQuery = $this->applyDateAndInvoiceFilters(
-            UserMembership::query()
-                ->whereNotIn('status', $excludedStatus)
+            $this->membershipTransactionQuery()
                 ->with(['user:id,name', 'plan:id,name,price']),
             $filters,
             'created_at'
@@ -171,7 +168,7 @@ class StudioTransactionReportController extends Controller
             'rows' => $memberships,
             'summary' => $summary,
             'paymentMethods' => $this->extractPaymentMethods(
-                UserMembership::query()->whereNotIn('status', $excludedStatus)
+                $this->membershipTransactionQuery()
             ),
             'cashiers' => $this->getCashierOptions(),
             'membershipPlans' => MembershipPlan::query()
@@ -402,6 +399,17 @@ class StudioTransactionReportController extends Controller
                 ->orderBy('name')
                 ->get(),
         ]);
+    }
+
+
+    private function membershipTransactionQuery(): Builder
+    {
+        return UserMembership::query()
+            ->whereNotIn('status', ['pending', 'pending_payment', 'cancelled', 'expired'])
+            ->where(function (Builder $query) {
+                $query->whereNull('expires_at')
+                    ->orWhereDate('expires_at', '>=', Carbon::today()->toDateString());
+            });
     }
 
     private function buildFilters(Request $request): array
@@ -679,9 +687,8 @@ class StudioTransactionReportController extends Controller
         }
 
         if ($type === 'membership') {
-            $excludedStatus = ['pending', 'pending_payment', 'cancelled', 'expired'];
             $items = $this->applyDateAndInvoiceFilters(
-                UserMembership::query()->whereNotIn('status', $excludedStatus)->with(['user:id,name', 'plan:id,name,price']),
+                $this->membershipTransactionQuery()->with(['user:id,name', 'plan:id,name,price']),
                 $filters,
                 'created_at'
             )->when($filters['membership_plan_id'] ?? null, fn ($q, $planId) => $q->where('membership_plan_id', $planId))
