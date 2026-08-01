@@ -226,7 +226,6 @@ class AppointmentBookingHistoryController extends Controller
 
             $booking->update([
                 'status' => 'cancelled',
-                'cashier_id' => auth()->id(),
                 'canceled_at' => now(),
                 'cancellation_note' => $validated['authorization_note'] ?? null,
                 'canceled_by_email' => $validated['super_admin_email'],
