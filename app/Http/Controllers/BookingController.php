@@ -84,6 +84,8 @@ class BookingController extends Controller
 
     public function store(StorePilatesBookingRequest $request): RedirectResponse
     {
+        $this->expirePendingBookings((int) $request->integer('timetable_id'));
+
         $timetable = PilatesTimetable::query()
             ->with(['pilatesClass:id,name'])
             ->withSum(['bookings as booked_slots' => fn ($query) => $query->where('status', 'confirmed')], 'participants')
@@ -116,7 +118,7 @@ class BookingController extends Controller
         $alreadyBooked = PilatesBooking::query()
             ->where('user_id', $customer->user_id)
             ->where('timetable_id', $timetable->id)
-            ->where('status', '!=', 'cancelled')
+            ->whereNotIn('status', ['cancelled', 'expired'])
             ->exists();
 
         if ($alreadyBooked) {
@@ -199,5 +201,28 @@ class BookingController extends Controller
         return redirect()
             ->route('timetable.index', ['date' => $timetable->start_at?->timezone('Asia/Jakarta')->toDateString()])
             ->with('success', 'Booking berhasil disimpan.');
+    }
+
+    private function expirePendingBookings(?int $timetableId = null): void
+    {
+        $query = PilatesBooking::query()
+            ->whereIn('status', ['pending', 'pending_payment'])
+            ->where('payment_type', 'drop_in')
+            ->whereNull('payment_proof_image')
+            ->where(function ($builder) {
+                $builder
+                    ->where('expired_at', '<=', now())
+                    ->orWhere(function ($fallback) {
+                        $fallback->whereNull('expired_at')->where('created_at', '<=', now()->subMinutes(15));
+                    });
+            });
+
+        if ($timetableId) {
+            $query->where('timetable_id', $timetableId);
+        }
+
+        $query->update([
+            'status' => 'expired',
+        ]);
     }
 }
