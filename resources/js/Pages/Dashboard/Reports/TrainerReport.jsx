@@ -23,6 +23,7 @@ const defaultFilterState = {
     class_type: "",
     trainer_id: "",
     search: "",
+    report_type: "detail",
 };
 
 const castString = (value) => (typeof value === "number" ? String(value) : value ?? "");
@@ -56,6 +57,7 @@ const TrainerReport = ({ filters, rows, summary, trainerOptions, classTypeOption
         class_type: castString(filters?.class_type),
         trainer_id: castString(filters?.trainer_id),
         search: castString(filters?.search),
+        report_type: castString(filters?.report_type || "detail"),
     });
 
     useEffect(() => {
@@ -66,6 +68,7 @@ const TrainerReport = ({ filters, rows, summary, trainerOptions, classTypeOption
             class_type: castString(filters?.class_type),
             trainer_id: castString(filters?.trainer_id),
             search: castString(filters?.search),
+            report_type: castString(filters?.report_type || "detail"),
         });
     }, [filters]);
 
@@ -174,6 +177,13 @@ const TrainerReport = ({ filters, rows, summary, trainerOptions, classTypeOption
                     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 animate-slide-up">
                         <form onSubmit={applyFilters}>
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tipe Laporan</label>
+                                    <select value={filterData.report_type} onChange={(e) => handleChange("report_type", e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                                        <option value="detail">Laporan Detail</option>
+                                        <option value="recap">Laporan Rekap</option>
+                                    </select>
+                                </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tanggal Mulai</label>
                                     <input type="date" value={filterData.start_date} onChange={(e) => handleChange("start_date", e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />

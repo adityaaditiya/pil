@@ -113,6 +113,7 @@ class TrainerReportController extends Controller
             'class_type' => trim((string) $request->input('class_type')),
             'trainer_id' => $request->input('trainer_id'),
             'search' => trim((string) $request->input('search')),
+            'report_type' => $request->input('report_type', 'detail'),
         ];
     }
 
@@ -212,7 +213,7 @@ class TrainerReportController extends Controller
                 ];
             });
 
-        return $scheduleRows
+        $result = $scheduleRows
             ->merge($appointmentRows)
             ->when($filters['class_type'] ?? null, fn ($rows, $type) => $rows->where('class_type', $type))
             ->when($filters['trainer_id'] ?? null, function ($rows, $trainerId) {
@@ -249,6 +250,24 @@ class TrainerReportController extends Controller
             })
             ->sortByDesc('sort_date')
             ->values();
+
+        if (($filters['report_type'] ?? 'detail') === 'recap') {
+            $result = $result->groupBy('session_key')->map(function ($group) {
+                $first = $group->first();
+                $first['participant_name'] = $group->pluck('participant_name')
+                    ->filter(fn($name) => $name !== '-')
+                    ->unique()
+                    ->implode(', ');
+                
+                if (empty($first['participant_name'])) {
+                    $first['participant_name'] = '-';
+                }
+
+                return $first;
+            })->values();
+        }
+
+        return $result;
     }
 
     private function paginateRows(Collection $rows, Request $request): LengthAwarePaginator

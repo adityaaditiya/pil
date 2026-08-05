@@ -149,18 +149,36 @@ class SimplePdfExport
             }
 
             foreach ($section['rows'] as $row) {
-                $ensureSpace($rowHeight);
-
-                $x = $marginLeft;
+                // Determine wrapped lines for each cell
+                $rowLines = [];
+                $maxLines = 1;
                 for ($i = 0; $i < $colCount; $i++) {
                     $cell = $row[$i] ?? '';
                     $width = $columnWidths[$i] ?? ($columnWidths[count($columnWidths) - 1] ?? 0.0);
-                    $content .= self::drawRect($x, $currentY - $rowHeight, $width, $rowHeight);
-                    $content .= self::drawText($x + 4, $currentY - 15, 10, self::truncateToWidth($cell, $width - 8));
+                    $lines = self::wrapText($cell, $width - 8);
+                    $rowLines[$i] = $lines;
+                    if (count($lines) > $maxLines) {
+                        $maxLines = count($lines);
+                    }
+                }
+                
+                $dynamicRowHeight = max($rowHeight, ($maxLines * 12) + 10);
+                $ensureSpace($dynamicRowHeight);
+
+                $x = $marginLeft;
+                for ($i = 0; $i < $colCount; $i++) {
+                    $width = $columnWidths[$i] ?? ($columnWidths[count($columnWidths) - 1] ?? 0.0);
+                    $content .= self::drawRect($x, $currentY - $dynamicRowHeight, $width, $dynamicRowHeight);
+                    
+                    $lineY = $currentY - 15;
+                    foreach ($rowLines[$i] as $lineIndex => $line) {
+                        $content .= self::drawText($x + 4, $lineY - ($lineIndex * 12), 10, $line);
+                    }
+                    
                     $x += $width;
                 }
 
-                $currentY -= $rowHeight;
+                $currentY -= $dynamicRowHeight;
             }
 
             foreach ($section['footer_lines'] as $lineIndex => $line) {
@@ -253,6 +271,42 @@ class SimplePdfExport
         $maxChars = max((int) floor($usableWidth / $approxCharWidth), 1);
 
         return mb_strimwidth($value, 0, $maxChars, '...');
+    }
+
+    protected static function wrapText(string $text, float $usableWidth): array
+    {
+        $approxCharWidth = 5.1;
+        $maxChars = max((int) floor($usableWidth / $approxCharWidth), 1);
+        
+        if (mb_strlen($text) <= $maxChars) {
+            return [$text];
+        }
+        
+        $words = explode(' ', $text);
+        $lines = [];
+        $currentLine = '';
+        
+        foreach ($words as $word) {
+            $testLine = $currentLine === '' ? $word : $currentLine . ' ' . $word;
+            if (mb_strlen($testLine) > $maxChars) {
+                if ($currentLine !== '') {
+                    $lines[] = $currentLine;
+                    $currentLine = $word;
+                } else {
+                    // word itself is longer than maxChars
+                    $lines[] = mb_strimwidth($word, 0, $maxChars);
+                    $currentLine = '';
+                }
+            } else {
+                $currentLine = $testLine;
+            }
+        }
+        
+        if ($currentLine !== '') {
+            $lines[] = $currentLine;
+        }
+        
+        return $lines;
     }
 
     protected static function normalizeCell(string $value): string
