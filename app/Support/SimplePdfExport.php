@@ -278,32 +278,37 @@ class SimplePdfExport
         $approxCharWidth = 5.1;
         $maxChars = max((int) floor($usableWidth / $approxCharWidth), 1);
         
-        if (mb_strlen($text) <= $maxChars) {
-            return [$text];
-        }
-        
-        $words = explode(' ', $text);
         $lines = [];
-        $currentLine = '';
+        $explicitLines = explode("\n", str_replace("\r", "", $text));
         
-        foreach ($words as $word) {
-            $testLine = $currentLine === '' ? $word : $currentLine . ' ' . $word;
-            if (mb_strlen($testLine) > $maxChars) {
-                if ($currentLine !== '') {
-                    $lines[] = $currentLine;
-                    $currentLine = $word;
-                } else {
-                    // word itself is longer than maxChars
-                    $lines[] = mb_strimwidth($word, 0, $maxChars);
-                    $currentLine = '';
-                }
-            } else {
-                $currentLine = $testLine;
+        foreach ($explicitLines as $explicitLine) {
+            if (mb_strlen($explicitLine) <= $maxChars) {
+                $lines[] = $explicitLine;
+                continue;
             }
-        }
-        
-        if ($currentLine !== '') {
-            $lines[] = $currentLine;
+            
+            $words = explode(' ', $explicitLine);
+            $currentLine = '';
+            
+            foreach ($words as $word) {
+                $testLine = $currentLine === '' ? $word : $currentLine . ' ' . $word;
+                if (mb_strlen($testLine) > $maxChars) {
+                    if ($currentLine !== '') {
+                        $lines[] = $currentLine;
+                        $currentLine = $word;
+                    } else {
+                        // word itself is longer than maxChars
+                        $lines[] = mb_strimwidth($word, 0, $maxChars);
+                        $currentLine = '';
+                    }
+                } else {
+                    $currentLine = $testLine;
+                }
+            }
+            
+            if ($currentLine !== '') {
+                $lines[] = $currentLine;
+            }
         }
         
         return $lines;

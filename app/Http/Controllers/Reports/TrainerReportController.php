@@ -38,8 +38,7 @@ class TrainerReportController extends Controller
         $filters = $this->buildFilters($request);
         $rows = $this->buildRows($filters);
 
-        // $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Status Kehadiran', 'Durasi (Menit)'];
-        $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Durasi (Menit)'];
+        $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Jumlah Peserta', 'Durasi (Menit)'];
         $excelRows = $rows->values()->map(fn ($row, $index) => [
             $index + 1,
             $row['date'] ?? '-',
@@ -47,11 +46,13 @@ class TrainerReportController extends Controller
             $row['class_name'] ?? '-',
             $row['trainer_name'] ?? '-',
             $row['participant_name'] ?? '-',
-            // $row['attendance_status_label'] ?? '-',
+            $row['participant_count_label'] ?? '-',
             (int) ($row['duration_minutes'] ?? 0),
         ])->all();
 
-        return $this->downloadExcel('laporan-trainer.xls', $headers, $excelRows);
+        $trainerSummaryHtml = $this->buildTrainerDurationsSummaryHtml($rows);
+
+        return $this->downloadExcel('laporan-trainer.xls', $headers, $excelRows, $trainerSummaryHtml);
     }
 
    public function exportPdf(Request $request)
@@ -59,8 +60,7 @@ class TrainerReportController extends Controller
     $filters = $this->buildFilters($request);
     $rows = $this->buildRows($filters);
     
-    // $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Status Kehadiran', 'Durasi (Menit)'];
-    $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Durasi (Menit)'];
+    $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Jumlah Peserta', 'Durasi (Menit)'];
     
     $pdfRows = $rows->values()->map(fn ($row, $index) => [
         $index + 1,
@@ -69,23 +69,21 @@ class TrainerReportController extends Controller
         $row['class_name'] ?? '-',
         $row['trainer_name'] ?? '-',
         $row['participant_name'] ?? '-',
-        // $row['attendance_status_label'] ?? '-',
+        $row['participant_count_label'] ?? '-',
         (int) ($row['duration_minutes'] ?? 0),
     ])->all();
 
-    // Tentukan rasio/bobot lebar kolom (Total bebas, nanti dihitung persentasenya otomatis oleh class PDF)
-    // Kolom 'Nama Kelas' dan 'Peserta' diberi bobot lebih besar agar tidak terpotong (...)
     $columnWidths = [
-        0 => 0.6,  // No (bisa agak tipis)
-        1 => 2.2,  // Tanggal
-        2 => 2.2,  // Jenis Kelas
-        3 => 5.0,  // Nama Kelas (Dibuat super lebar biar SCULPT TOWER / ATHLETIC REFORMER muat)
-        4 => 1.7,  // Trainer
-        5 => 3.0,  // Peserta (Lebih lebar juga)
-        6 => 2,  // Durasi
+        0 => 0.6,
+        1 => 2.2,
+        2 => 2.2,
+        3 => 4.5,
+        4 => 1.7,
+        5 => 3.0,
+        6 => 1.5, // Jumlah Peserta
+        7 => 2,
     ];
 
-    // Bungkus ke dalam parameter $sections sesuai format dokumentasi @param class SimplePdfExport
     $sections = [[
         'title' => '',
         'headers' => $headers,
@@ -93,6 +91,17 @@ class TrainerReportController extends Controller
         'footer_lines' => [],
         'column_widths' => $columnWidths,
     ]];
+
+    $trainerSummaryText = $this->buildTrainerDurationsSummaryText($rows);
+    if (!empty($trainerSummaryText)) {
+        $sections[] = [
+            'title' => '',
+            'headers' => ['Daftar Trainer'],
+            'rows' => [[$trainerSummaryText]],
+            'footer_lines' => [],
+            'column_widths' => [1, 5],
+        ];
+    }
 
     // Kita oper $sections ke parameter ke-5 (menggantikan array kosong sebelumnya)
     return $this->downloadPdf(
@@ -251,16 +260,25 @@ class TrainerReportController extends Controller
             ->sortByDesc('sort_date')
             ->values();
 
+        // Assign default count label for detail
+        $result = $result->map(function ($row) {
+            $row['participant_count_label'] = '1 orang';
+            return $row;
+        });
+
         if (($filters['report_type'] ?? 'detail') === 'recap') {
             $result = $result->groupBy('session_key')->map(function ($group) {
                 $first = $group->first();
-                $first['participant_name'] = $group->pluck('participant_name')
+                $uniqueParticipants = $group->pluck('participant_name')
                     ->filter(fn($name) => $name !== '-')
-                    ->unique()
-                    ->implode(', ');
+                    ->unique();
+                $first['participant_name'] = $uniqueParticipants->implode(', ');
                 
                 if (empty($first['participant_name'])) {
                     $first['participant_name'] = '-';
+                    $first['participant_count_label'] = '0 orang';
+                } else {
+                    $first['participant_count_label'] = $uniqueParticipants->count() . ' orang';
                 }
 
                 return $first;
@@ -336,9 +354,36 @@ class TrainerReportController extends Controller
         return 'PERIODE : ' . $startDate . ' s/d ' . $endDate;
     }
 
-    private function downloadExcel(string $filename, array $headers, array $rows)
+    private function buildTrainerDurationsSummaryText(Collection $rows): string
     {
-        return response()->streamDownload(function () use ($headers, $rows) {
+        $trainerDurations = $rows->unique('session_key')->groupBy('trainer_name')->map(function ($group) {
+            return $group->sum('duration_minutes');
+        })->filter(fn($minutes) => $minutes > 0)->sortDesc();
+
+        $lines = [];
+        foreach ($trainerDurations as $trainerName => $minutes) {
+            $hours = (int) floor($minutes / 60);
+            $remainingMinutes = $minutes % 60;
+
+            if ($remainingMinutes === 0) {
+                $lines[] = "{$trainerName} ({$hours} Jam)";
+            } else {
+                $lines[] = "{$trainerName} ({$hours} Jam {$remainingMinutes} Menit)";
+            }
+        }
+
+        return implode("\n", $lines);
+    }
+
+    private function buildTrainerDurationsSummaryHtml(Collection $rows): string
+    {
+        $text = $this->buildTrainerDurationsSummaryText($rows);
+        return nl2br(e($text));
+    }
+
+    private function downloadExcel(string $filename, array $headers, array $rows, string $summaryHtml = '')
+    {
+        return response()->streamDownload(function () use ($headers, $rows, $summaryHtml) {
             echo '<table border="1"><thead><tr>';
             foreach ($headers as $header) {
                 echo '<th>' . e($header) . '</th>';
@@ -351,6 +396,15 @@ class TrainerReportController extends Controller
                 }
                 echo '</tr>';
             }
+            
+            if ($summaryHtml !== '') {
+                $colspan = count($headers) - 1;
+                echo '<tr>';
+                echo '<td colspan="1"><strong>Total Jam</strong></td>';
+                echo '<td colspan="' . $colspan . '" style="background-color: lightgreen; white-space: nowrap;">' . $summaryHtml . '</td>';
+                echo '</tr>';
+            }
+            
             echo '</tbody></table>';
         }, $filename, [
             'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
