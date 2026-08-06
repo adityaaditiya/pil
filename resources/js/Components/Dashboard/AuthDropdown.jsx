@@ -30,7 +30,19 @@ export default function AuthDropdown({ auth, isMobile }) {
     // get menu from utils
     const menuNavigation = MenuLink();
 
-    // define useEffect
+    // define useEffect for locking body scroll when mobile sidebar is open
+    useEffect(() => {
+        if (isToggle && isMobile) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isToggle, isMobile]);
+
+    // define useEffect for click outside
     useEffect(() => {
         // add event listener
         window.addEventListener("mousedown", handleClickOutside);
@@ -85,16 +97,40 @@ export default function AuthDropdown({ auth, isMobile }) {
                     <button className="flex items-center group" onClick={() => setIsToggle(!isToggle)}>
                         <img src={auth.user.avatar ? auth.user.avatar : "https://ui-avatars.com/api/?name=" + auth.user.name} alt={auth.user.name} className='w-10 h-10 rounded-full' />
                     </button>
-                    <div className={`${isToggle ? 'translate-x-0 opacity-100' : '-translate-x-full'} fixed top-0 left-0 z-50 w-[300px] h-full transition-all duration-300 transform border-r bg-white dark:bg-gray-950 dark:border-gray-900`}>
-                        <div className="flex justify-center items-center px-6 py-2 h-16">
-                            <div className="text-2xl font-bold text-center leading-loose tracking-wider text-gray-900 dark:text-gray-200">
+
+                    {/* Backdrop Overlay */}
+                    {isToggle && (
+                        <div
+                            className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm transition-opacity"
+                            onClick={() => setIsToggle(false)}
+                        />
+                    )}
+
+                    {/* Mobile Sidebar */}
+                    <div
+                        style={{ overscrollBehavior: 'contain' }}
+                        className={`${
+                            isToggle
+                                ? 'translate-x-0 opacity-100 pointer-events-auto'
+                                : '-translate-x-full opacity-0 pointer-events-none'
+                        } fixed top-0 left-0 z-50 w-[300px] h-screen h-[100dvh] max-h-screen max-h-[100dvh] flex flex-col overflow-y-auto overscroll-contain transition-all duration-300 transform border-r bg-white dark:bg-gray-950 dark:border-gray-900`}
+                    >
+                        <div className="flex justify-between items-center px-6 py-2 h-16 shrink-0 border-b dark:border-gray-900">
+                            <div className="text-2xl font-bold leading-loose tracking-wider text-gray-900 dark:text-gray-200">
                                Menu
                             </div>
+                            <button
+                                onClick={() => setIsToggle(false)}
+                                className="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            >
+                                ✕
+                            </button>
                         </div>
-                        <div className="w-full p-3 flex items-center gap-4 border-b border-t dark:bg-gray-950/50 dark:border-gray-900">
+                        <div className="w-full p-3 flex items-center gap-4 border-b shrink-0 dark:bg-gray-950/50 dark:border-gray-900">
                             <img
                                 src={auth.user.avatar ? auth.user.avatar : "https://ui-avatars.com/api/?name=" + auth.user.name}
                                 className="w-12 h-12 rounded-full"
+                                alt={auth.user.name}
                             />
                             <div className="flex flex-col gap-0.5">
                                 <div className="text-sm font-semibold capitalize text-gray-700 dark:text-gray-50">
@@ -105,7 +141,10 @@ export default function AuthDropdown({ auth, isMobile }) {
                                 </div>
                             </div>
                         </div>
-                        <div className="w-full flex flex-col overflow-y-auto">
+                        <div
+                            style={{ overscrollBehavior: 'contain' }}
+                            className="w-full flex-1 flex flex-col overflow-y-auto overscroll-contain p-3 pb-8"
+                        >
                             {menuNavigation.map((item, index) => (
                                 item.details.some(detail => detail.permissions === true) && (
 
