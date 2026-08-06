@@ -38,80 +38,118 @@ class TrainerReportController extends Controller
         $filters = $this->buildFilters($request);
         $rows = $this->buildRows($filters);
 
-        $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Jumlah Peserta', 'Durasi (Menit)'];
-        $excelRows = $rows->values()->map(fn ($row, $index) => [
-            $index + 1,
-            $row['date'] ?? '-',
-            $row['class_type_label'] ?? '-',
-            $row['class_name'] ?? '-',
-            $row['trainer_name'] ?? '-',
-            $row['participant_name'] ?? '-',
-            $row['participant_count_label'] ?? '-',
-            (int) ($row['duration_minutes'] ?? 0),
-        ])->all();
+        $isDetail = ($filters['report_type'] ?? 'detail') === 'detail';
+
+        if ($isDetail) {
+            $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Durasi (Menit)'];
+            $excelRows = $rows->values()->map(fn ($row, $index) => [
+                $index + 1,
+                $row['date'] ?? '-',
+                $row['class_type_label'] ?? '-',
+                $row['class_name'] ?? '-',
+                $row['trainer_name'] ?? '-',
+                $row['participant_name'] ?? '-',
+                (int) ($row['duration_minutes'] ?? 0),
+            ])->all();
+        } else {
+            $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Jumlah Peserta', 'Durasi (Menit)'];
+            $excelRows = $rows->values()->map(fn ($row, $index) => [
+                $index + 1,
+                $row['date'] ?? '-',
+                $row['class_type_label'] ?? '-',
+                $row['class_name'] ?? '-',
+                $row['trainer_name'] ?? '-',
+                $row['participant_name'] ?? '-',
+                $row['participant_count_label'] ?? '-',
+                (int) ($row['duration_minutes'] ?? 0),
+            ])->all();
+        }
 
         $trainerSummaryHtml = $this->buildTrainerDurationsSummaryHtml($rows);
 
         return $this->downloadExcel('laporan-trainer.xls', $headers, $excelRows, $trainerSummaryHtml);
     }
 
-   public function exportPdf(Request $request)
-{
-    $filters = $this->buildFilters($request);
-    $rows = $this->buildRows($filters);
-    
-    $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Jumlah Peserta', 'Durasi (Menit)'];
-    
-    $pdfRows = $rows->values()->map(fn ($row, $index) => [
-        $index + 1,
-        $row['date'] ?? '-',
-        $row['class_type_label'] ?? '-',
-        $row['class_name'] ?? '-',
-        $row['trainer_name'] ?? '-',
-        $row['participant_name'] ?? '-',
-        $row['participant_count_label'] ?? '-',
-        (int) ($row['duration_minutes'] ?? 0),
-    ])->all();
+    public function exportPdf(Request $request)
+    {
+        $filters = $this->buildFilters($request);
+        $rows = $this->buildRows($filters);
 
-    $columnWidths = [
-        0 => 0.6,
-        1 => 2.2,
-        2 => 2.2,
-        3 => 4.5,
-        4 => 1.7,
-        5 => 3.0,
-        6 => 1.5, // Jumlah Peserta
-        7 => 2,
-    ];
+        $isDetail = ($filters['report_type'] ?? 'detail') === 'detail';
 
-    $sections = [[
-        'title' => '',
-        'headers' => $headers,
-        'rows' => $pdfRows,
-        'footer_lines' => [],
-        'column_widths' => $columnWidths,
-    ]];
+        if ($isDetail) {
+            $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Durasi (Menit)'];
+            $pdfRows = $rows->values()->map(fn ($row, $index) => [
+                $index + 1,
+                $row['date'] ?? '-',
+                $row['class_type_label'] ?? '-',
+                $row['class_name'] ?? '-',
+                $row['trainer_name'] ?? '-',
+                $row['participant_name'] ?? '-',
+                (int) ($row['duration_minutes'] ?? 0),
+            ])->all();
 
-    $trainerSummaryText = $this->buildTrainerDurationsSummaryText($rows);
-    if (!empty($trainerSummaryText)) {
-        $sections[] = [
+            $columnWidths = [
+                0 => 0.6,
+                1 => 2.2,
+                2 => 2.2,
+                3 => 4.5,
+                4 => 2.0,
+                5 => 3.5,
+                6 => 2.0,
+            ];
+        } else {
+            $headers = ['No', 'Tanggal', 'Jenis Kelas', 'Nama Kelas', 'Trainer', 'Peserta', 'Jumlah Peserta', 'Durasi (Menit)'];
+            $pdfRows = $rows->values()->map(fn ($row, $index) => [
+                $index + 1,
+                $row['date'] ?? '-',
+                $row['class_type_label'] ?? '-',
+                $row['class_name'] ?? '-',
+                $row['trainer_name'] ?? '-',
+                $row['participant_name'] ?? '-',
+                $row['participant_count_label'] ?? '-',
+                (int) ($row['duration_minutes'] ?? 0),
+            ])->all();
+
+            $columnWidths = [
+                0 => 0.6,
+                1 => 2.2,
+                2 => 2.2,
+                3 => 4.5,
+                4 => 1.7,
+                5 => 3.0,
+                6 => 1.5,
+                7 => 2.0,
+            ];
+        }
+
+        $sections = [[
             'title' => '',
-            'headers' => ['Daftar Trainer'],
-            'rows' => [[$trainerSummaryText]],
+            'headers' => $headers,
+            'rows' => $pdfRows,
             'footer_lines' => [],
-            'column_widths' => [1, 5],
-        ];
-    }
+            'column_widths' => $columnWidths,
+        ]];
 
-    // Kita oper $sections ke parameter ke-5 (menggantikan array kosong sebelumnya)
-    return $this->downloadPdf(
-        'laporan-trainer.pdf',
-        'Laporan Trainer',
-        $this->buildPeriodLabel($filters),
-        $headers,
-        $sections // <-- Ubah dari $pdfRows menjadi $sections
-    );
-}
+        $trainerSummaryText = $this->buildTrainerDurationsSummaryText($rows);
+        if (!empty($trainerSummaryText)) {
+            $sections[] = [
+                'title' => '',
+                'headers' => ['Daftar Trainer'],
+                'rows' => [[$trainerSummaryText]],
+                'footer_lines' => [],
+                'column_widths' => [1, 5],
+            ];
+        }
+
+        return $this->downloadPdf(
+            'laporan-trainer.pdf',
+            'Laporan Trainer',
+            $this->buildPeriodLabel($filters),
+            $headers,
+            $sections
+        );
+    }
     private function buildFilters(Request $request): array
     {
         $defaultDate = Carbon::today()->toDateString();
