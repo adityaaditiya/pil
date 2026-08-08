@@ -59,6 +59,9 @@ class PermissionSeeder extends Seeder
             // questionnaires
             'questions-access',
 
+            // authorizations
+            'authorization-cancel-transactions',
+
             // reports
             'reports-access', 'profits-access',
 

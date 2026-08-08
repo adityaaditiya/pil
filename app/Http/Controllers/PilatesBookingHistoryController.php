@@ -200,13 +200,13 @@ class PilatesBookingHistoryController extends Controller
             'super_admin_password' => ['required', 'string'],
         ]);
 
-        $superAdmin = User::query()
+        $authorizer = User::query()
             ->where('email', $validated['super_admin_email'])
             ->first();
 
-        if (! $superAdmin || ! $superAdmin->isSuperAdmin() || ! Hash::check($validated['super_admin_password'], $superAdmin->password)) {
+        if (! $authorizer || (! $authorizer->isSuperAdmin() && ! $authorizer->hasPermissionTo('authorization-cancel-transactions')) || ! Hash::check($validated['super_admin_password'], $authorizer->password)) {
             return back()->withErrors([
-                'message' => 'Otorisasi super-admin gagal.',
+                'message' => 'Otorisasi gagal. Anda tidak memiliki akses.',
             ]);
         }
 

@@ -110,10 +110,10 @@ class MembershipHistoryController extends Controller
             'super_admin_password' => ['required', 'string'],
         ]);
 
-        $superAdmin = User::query()->where('email', $validated['super_admin_email'])->first();
+        $authorizer = User::query()->where('email', $validated['super_admin_email'])->first();
 
-        if (! $superAdmin || ! $superAdmin->isSuperAdmin() || ! Hash::check($validated['super_admin_password'], $superAdmin->password)) {
-            return back()->withErrors(['message' => 'Otorisasi super-admin gagal.']);
+        if (! $authorizer || (! $authorizer->isSuperAdmin() && ! $authorizer->hasPermissionTo('authorization-cancel-transactions')) || ! Hash::check($validated['super_admin_password'], $authorizer->password)) {
+            return back()->withErrors(['message' => 'Otorisasi gagal. Anda tidak memiliki akses.']);
         }
 
         if ($userMembership->status === 'cancelled') {
