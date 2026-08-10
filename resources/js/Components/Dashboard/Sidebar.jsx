@@ -133,6 +133,8 @@ export default function Sidebar({ sidebarOpen }) {
                                             href={detail.href}
                                             access={detail.permissions}
                                             sidebarOpen={sidebarOpen}
+                                            method={detail.method}
+                                            as={detail.as}
                                         />
                                     );
                                 })}

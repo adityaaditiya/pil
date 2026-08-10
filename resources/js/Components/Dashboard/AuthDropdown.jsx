@@ -108,16 +108,16 @@ export default function AuthDropdown({ auth, isMobile }) {
 
                     {/* Mobile Sidebar */}
                     <div
-                        style={{ overscrollBehavior: 'contain' }}
                         className={`${
                             isToggle
                                 ? 'translate-x-0 opacity-100 pointer-events-auto'
                                 : '-translate-x-full opacity-0 pointer-events-none'
-                        } fixed top-0 left-0 z-50 w-[300px] h-screen h-[100dvh] max-h-screen max-h-[100dvh] flex flex-col overflow-y-auto overscroll-contain transition-all duration-300 transform border-r bg-white dark:bg-gray-950 dark:border-gray-900`}
+                        } fixed top-0 left-0 z-50 w-[300px] h-dvh max-h-dvh flex flex-col overflow-hidden transition-all duration-300 transform border-r bg-white dark:bg-gray-950 dark:border-gray-900`}
                     >
+                        {/* Header Sidebar (tetap di atas) */}
                         <div className="flex justify-between items-center px-6 py-2 h-16 shrink-0 border-b dark:border-gray-900">
                             <div className="text-2xl font-bold leading-loose tracking-wider text-gray-900 dark:text-gray-200">
-                               Menu
+                                Menu
                             </div>
                             <button
                                 onClick={() => setIsToggle(false)}
@@ -126,6 +126,8 @@ export default function AuthDropdown({ auth, isMobile }) {
                                 ✕
                             </button>
                         </div>
+
+                        {/* User Info (tetap di atas) */}
                         <div className="w-full p-3 flex items-center gap-4 border-b shrink-0 dark:bg-gray-950/50 dark:border-gray-900">
                             <img
                                 src={auth.user.avatar ? auth.user.avatar : "https://ui-avatars.com/api/?name=" + auth.user.name}
@@ -141,13 +143,14 @@ export default function AuthDropdown({ auth, isMobile }) {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Area Scroll Navigation (Hanya bagian ini yang scroll) */}
                         <div
                             style={{ overscrollBehavior: 'contain' }}
-                            className="w-full flex-1 flex flex-col overflow-y-auto overscroll-contain p-3 pb-8"
+                            className="w-full flex-1 overflow-y-auto overscroll-contain p-3 pb-16 min-h-0"
                         >
                             {menuNavigation.map((item, index) => (
                                 item.details.some(detail => detail.permissions === true) && (
-
                                     <div key={index}>
                                         <div className="text-gray-500 text-xs py-3 px-4 font-bold uppercase">
                                             {item.title}
@@ -171,6 +174,8 @@ export default function AuthDropdown({ auth, isMobile }) {
                                                     href={detail.href}
                                                     access={detail.permissions}
                                                     sidebarOpen={true}
+                                                    method={detail.method}
+                                                    as={detail.as}
                                                     onClick={() => setIsToggle(!isToggle)}
                                                 />
                                         ))}

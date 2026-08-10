@@ -32,6 +32,7 @@ import {
     IconYoga,
     IconExchange,
     IconCalendarPlus,
+    IconLogout,
 } from "@tabler/icons-react";
 import hasAnyPermission from "./Permission";
 import React from "react";
@@ -64,6 +65,19 @@ function Menu() {
                         href: route("memberships.my"),
                         active: url === "/dashboard/memberships/my",
                         icon: <IconFileDescription size={20} strokeWidth={1.5} />,
+                        permissions: true,
+                    },
+                ],
+            },
+            {
+                title: "Pengaturan",
+                details: [
+                    {
+                        title: "Logout",
+                        href: route("logout"),
+                        method: "post",
+                        as: "button",
+                        icon: <IconLogout size={20} strokeWidth={1.5} />,
                         permissions: true,
                     },
                 ],
@@ -500,6 +514,14 @@ function Menu() {
                     active: url === "/dashboard/settings/landing-page",
                     icon: <IconPhoto size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["landing-page-settings-access"]),
+                },
+                {
+                    title: "Logout",
+                    href: route("logout"),
+                    method: "post",
+                    as: "button",
+                    icon: <IconLogout size={20} strokeWidth={1.5} />,
+                    permissions: true,
                 },
             ],
         },
