@@ -49,7 +49,7 @@ export default function Edit({ appointmentSession }) {
                             <select
                                 value={data.default_payment_method}
                                 onChange={(event) => setData("default_payment_method", event.target.value)}
-                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:bg-slate-800"
+                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm dark:border-slate-700 dark:text-slate-200 dark:bg-slate-800"
                             >
                                 <option value="credit_only">Hanya bisa pakai credits</option>
                                 <option value="allow_drop_in">Bisa pakai credit atau drop-in</option>

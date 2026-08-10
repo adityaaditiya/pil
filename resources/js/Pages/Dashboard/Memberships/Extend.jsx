@@ -160,12 +160,12 @@ export default function Extend({ customers = [], activeMemberships = [], payment
             <div className="py-5 min-h-screen">
                 <div className="mx-auto max-w-5xl px-4 md:px-6">
                     <div className="mb-8">
-                        <h1 className="text-2xl font-black tracking-tight text-slate-900">Perpanjang Membership</h1>
-                        <p className="text-sm text-slate-500 mt-1">Tambah masa aktif membership.</p>
+                        <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-200">Perpanjang Membership</h1>
+                        <p className="text-sm text-slate-500 mt-1 dark:text-slate-200">Tambah masa aktif membership.</p>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                        <form onSubmit={submit} className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/40 p-6 md:p-8 space-y-6">
+                        <form onSubmit={submit} className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/40 p-6 md:p-8 space-y-6 dark:bg-slate-900">
                             <div className="relative">
                                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">Pilih Pelanggan</label>
                                 <div className="relative">
@@ -338,7 +338,7 @@ export default function Extend({ customers = [], activeMemberships = [], payment
 
                             <button
                                 disabled={disabledSubmit}
-                                className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-slate-800 active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none"
+                                className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-slate-800 active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none dark:bg-slate-400"
                             >
                                 <IconCalendarPlus size={16} />
                                 {processing ? "Memproses Perpanjangan..." : "Tambah Masa Aktif Membership"}
@@ -346,7 +346,7 @@ export default function Extend({ customers = [], activeMemberships = [], payment
                         </form>
 
                         <div className="space-y-4">
-                            <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/40 p-6">
+                            <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/40 p-6 dark:bg-slate-900">
                                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 pb-3 mb-4">Ringkasan</h3>
 
                                 {selectedMembership ? (

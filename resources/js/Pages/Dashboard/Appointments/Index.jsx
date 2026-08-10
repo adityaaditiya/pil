@@ -91,14 +91,14 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                                 <input type="date" value={startDate} onChange={(event) => {
                                     setStartDate(event.target.value);
                                     applyFilter(event.target.value, endDate);
-                                }} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800" />
+                                }} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm dark:text-slate-200 dark:border-slate-700 dark:bg-slate-800" />
                             </div>
                             <div>
                                 <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">Tanggal Akhir</label>
                                 <input type="date" value={endDate} onChange={(event) => {
                                     setEndDate(event.target.value);
                                     applyFilter(startDate, event.target.value);
-                                }} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800" />
+                                }} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm dark:text-slate-200 dark:border-slate-700 dark:bg-slate-800" />
                             </div>
                             <Link href={route("appointments.create")} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700 md:self-end">
                                 <IconPlus size={16} /> Tambah Appointment

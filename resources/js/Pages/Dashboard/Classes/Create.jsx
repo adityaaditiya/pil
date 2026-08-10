@@ -55,7 +55,7 @@ export default function Create({ trainers, classCategories }) {
                     <Input type="file" label="Gambar" errors={errors.image} onChange={(e) => setData("image", e.target.files[0])} />
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Kategori Kelas</label>
-                        <select value={data.class_category_id} onChange={(e) => setData("class_category_id", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                        <select value={data.class_category_id} onChange={(e) => setData("class_category_id", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:text-slate-200 dark:bg-slate-800">
                             <option value="">Pilih kategori kelas</option>
                             {classCategories.map((category) => (
                                 <option key={category.id} value={category.id}>{category.name}</option>
@@ -67,7 +67,7 @@ export default function Create({ trainers, classCategories }) {
                     <Input type="number" label="Durasi (menit)" value={data.duration} errors={errors.duration} onChange={(e) => setData("duration", e.target.value)} />
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Difficulty Level</label>
-                        <select value={data.difficulty_level} onChange={(e) => setData("difficulty_level", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                        <select value={data.difficulty_level} onChange={(e) => setData("difficulty_level", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:text-slate-200 dark:bg-slate-800">
                             {difficultyLevels.map((level) => (
                                 <option key={level} value={level}>{level}</option>
                             ))}
@@ -78,7 +78,7 @@ export default function Create({ trainers, classCategories }) {
                     <Textarea label="Perlengkapan" value={data.equipment} errors={errors.equipment} onChange={(e) => setData("equipment", e.target.value)} rows={3} />
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Default Metode Pembayaran</label>
-                        <select value={data.default_payment_method} onChange={(e) => setData("default_payment_method", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                        <select value={data.default_payment_method} onChange={(e) => setData("default_payment_method", e.target.value)} className="w-full h-11 px-4 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:text-slate-200 dark:bg-slate-800">
                             <option value="drop_in">Drop-in</option>
                             <option value="credit">Credits</option>
                         </select>
@@ -109,7 +109,7 @@ export default function Create({ trainers, classCategories }) {
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Trainers</label>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             {trainers.map((trainer) => (
-                                <label key={trainer.id} className="inline-flex items-center gap-2 text-sm">
+                                <label key={trainer.id} className="inline-flex items-center gap-2 text-sm dark:text-slate-200">
                                     <input type="checkbox" checked={data.trainer_ids.includes(trainer.id)} onChange={() => toggleTrainer(trainer.id)} />
                                     {trainer.name}
                                 </label>
@@ -119,7 +119,7 @@ export default function Create({ trainers, classCategories }) {
                     </div>
 
                     <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-                        <Link href={route("classes.index")} className="px-5 py-2.5 rounded-xl border border-slate-200">Batal</Link>
+                        <Link href={route("classes.index")} className="px-5 py-2.5 rounded-xl border border-slate-200 dark:text-slate-200">Batal</Link>
                         <button type="submit" disabled={processing} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-500 text-white">
                             <IconDeviceFloppy size={18} /> {processing ? "Menyimpan..." : "Simpan"}
                         </button>

@@ -121,7 +121,7 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                     type="date"
                                     value={startDate}
                                     onChange={(event) => onStartDateChange(event.target.value)}
-                                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800"
+                                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:text-white dark:border-slate-700 dark:bg-slate-800"
                                 />
                             </div>
 
@@ -131,7 +131,7 @@ export default function Index({ sessions = [], selectedStartDate, selectedEndDat
                                     type="date"
                                     value={endDate}
                                     onChange={(event) => onEndDateChange(event.target.value)}
-                                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800"
+                                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:text-white dark:border-slate-700 dark:bg-slate-800"
                                 />
                             </div>
 

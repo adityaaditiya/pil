@@ -99,7 +99,7 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                     
                     {/* Header Halaman */}
                     <div className="mb-8">
-                        <h1 className="text-2xl font-black tracking-tight text-slate-900">Transfer Membership</h1>
+                        <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-200">Transfer Membership</h1>
                         <p className="text-sm text-slate-500 mt-1">Maksimalkan sisa kredit dengan fitur transfer antar member dengan aman.</p>
                     </div>
 
@@ -107,10 +107,10 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                         
                         {/* Form Sisi Kiri */}
-                        <form onSubmit={submit} className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/40 p-6 md:p-8 space-y-6">
+                        <form onSubmit={submit} className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/40 p-6 md:p-8 space-y-6 dark:bg-slate-900">
                             
                             {/* Alur Pengirim & Penerima (Layout Diperbaiki agar tidak mepet) */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 md:gap-x-12 items-end bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-100/80 relative w-full">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 md:gap-x-12 items-end bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-100/80 relative w-full dark:bg-slate-900">
                                 
                                 {/* CUSTOM SELECT PENGIRIM */}
                                 <div className="relative w-full">
@@ -286,7 +286,7 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
                             <div className="pt-2">
                                 <button 
                                     disabled={disabledSubmit} 
-                                    className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-slate-800 active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none"
+                                    className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-slate-800 active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none dark:bg-slate-400"
                                 >
                                     <IconSend size={16} />
                                     {processing ? "Memproses Transfer..." : "Kirim Credits Membership"}
@@ -296,7 +296,7 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
 
                         {/* Live Summary Card (Sisi Kanan) */}
                         <div className="space-y-4">
-                            <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/40 p-5">
+                            <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/40 p-5 dark:bg-slate-900">
                                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-center text-slate-400 border-b border-slate-100 pb-3 mb-4">Detail Transfer Membership</h3>
                                 
                                 {selectedMembership ? (
@@ -320,7 +320,7 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
 
                                         <div>
                                             <p className="text-[10px] uppercase font-bold text-slate-400">Membership Plan Terpilih</p>
-                                            <p className="font-bold text-slate-800 text-base mt-0.5">{selectedMembership.membership_plan_name}</p>
+                                            <p className="font-bold text-slate-800 text-base mt-0.5 dark:text-slate-200">{selectedMembership.membership_plan_name}</p>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4 pt-1">
                                             <div>

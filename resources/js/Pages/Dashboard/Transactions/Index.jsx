@@ -521,7 +521,7 @@ export default function Index({
                                                 >
                                                     -
                                                 </button>
-                                                <span className="w-6 text-center text-xs font-medium">
+                                                <span className="w-6 text-center text-xs font-medium dark:text-slate-200">
                                                     {item.qty}
                                                 </span>
                                                 <button
@@ -669,7 +669,7 @@ export default function Index({
                                             )
                                         }
                                         placeholder="0"
-                                        className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                                        className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 dark:text-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
                                     />
                                 </div>
                             </div>
@@ -697,7 +697,7 @@ export default function Index({
                                                 )
                                             }
                                             placeholder="0"
-                                            className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-base font-semibold focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                                            className="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 dark:text-slate-200 text-base font-semibold focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
                                         />
                                     </div>
                                 </div>
@@ -710,7 +710,7 @@ export default function Index({
                         {/* Summary Row */}
                         <div className="flex justify-between items-center mb-2 text-sm">
                             <span className="text-slate-500">Subtotal</span>
-                            <span className="font-medium">
+                            <span className="font-medium dark:text-slate-200">
                                 {formatPrice(subtotal)}
                             </span>
                         </div>

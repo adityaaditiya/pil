@@ -12,8 +12,8 @@ export default function Index({ questions }) {
             <Head title="Kelola Kuesioner" />
 
             {/* Bagian Header Halaman */}
-            <div className="mb-8">
-                <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            <div className="mb-4">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     Kelola Kuesioner
                 </h2>
                 <p className="mt-2 text-sm text-gray-500">

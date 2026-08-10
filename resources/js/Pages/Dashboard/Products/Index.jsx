@@ -57,13 +57,13 @@ function StockModal({
 
                 <form onSubmit={onSubmit} className="p-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium mb-2">Nama Produk</label>
+                        <label className="block text-sm font-medium mb-2 dark:text-slate-200">Nama Produk</label>
                         <select
                             value={form.product_id}
                             onChange={(e) =>
                                 setField("product_id", e.target.value)
                             }
-                            className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                            className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-slate-200"
                         >
                             <option value="">Pilih produk</option>
                             {products.map((product) => (
@@ -78,7 +78,7 @@ function StockModal({
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-2">Jumlah Stok</label>
+                        <label className="block text-sm font-medium mb-2 dark:text-slate-200">Jumlah Stok</label>
                         <input
                             type="number"
                             min="1"
@@ -86,20 +86,20 @@ function StockModal({
                             onChange={(e) =>
                                 setField("qty", e.target.value)
                             }
-                            className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                            className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:text-slate-200 dark:bg-slate-800"
                         />
                         {errors.qty && <small className="text-danger-500">{errors.qty}</small>}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-2">Catatan</label>
+                        <label className="block text-sm font-medium mb-2 dark:text-slate-200">Catatan</label>
                         <textarea
                             value={form.note}
                             onChange={(e) =>
                                 setField("note", e.target.value)
                             }
                             rows={3}
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:text-slate-200 dark:bg-slate-800"
                         />
                         {errors.note && <small className="text-danger-500">{errors.note}</small>}
                     </div>
@@ -108,7 +108,7 @@ function StockModal({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700"
+                            className="px-4 py-2.5 rounded-xl border border-slate-200 dark:text-slate-200 dark:border-slate-700"
                         >
                             Batal
                         </button>

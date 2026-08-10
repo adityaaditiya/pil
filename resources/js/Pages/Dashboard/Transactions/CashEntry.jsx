@@ -71,7 +71,7 @@ export default function CashEntry() {
                     <IconArrowLeft size={16} />
                     Kembali ke Riwayat Transaksi
                 </Link>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <h1 className="mb-2 text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <IconWallet size={28} className="text-primary-500" />
                     {isCashIn ? "Tambah Uang Kas" : "Ambil Uang Kas"}
                 </h1>
@@ -127,7 +127,11 @@ export default function CashEntry() {
                             <Input
                                 type="text"
                                 label="Deskripsi"
-                                placeholder="Contoh: Biaya listrik"
+                                placeholder={
+                                    isCashIn
+                                        ? "Contoh: Tambah Modal Awal"
+                                        : "Contoh: Biaya listrik"
+                                }
                                 errors={errors.description}
                                 onChange={(e) =>
                                     setData("description", e.target.value)
