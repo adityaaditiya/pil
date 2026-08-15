@@ -72,19 +72,21 @@ class CashReportController extends Controller
         $membershipQuery = $this->applyMembershipFilters(
             UserMembership::query()
                 ->whereNotIn('status', ['pending', 'pending_payment', 'cancelled', 'expired'])
-                ->with(['plan:id,price']),
+                ->with(['plan:id,price', 'user:id,name']),
             $filters
         )->orderByDesc('created_at');
         $appointmentDropInQuery = $this->applyAppointmentDropInFilters(
             AppointmentBooking::query()
                 ->where('status', 'confirmed')
-                ->where('payment_type', 'drop_in'),
+                ->where('payment_type', 'drop_in')
+                ->with(['customer:id,name']),
             $filters
         )->orderByDesc('booked_at');
         $timetableDropInQuery = $this->applyTimetableDropInFilters(
             PilatesBooking::query()
                 ->where('status', 'confirmed')
-                ->where('payment_type', 'drop_in'),
+                ->where('payment_type', 'drop_in')
+                ->with(['user:id,name']),
             $filters
         )->orderByDesc('booked_at');
 
@@ -92,7 +94,7 @@ class CashReportController extends Controller
             ? (clone $transactionQuery)->get()->map(fn ($trx) => [
                 'id' => 'transaction-' . $trx->id,
                 'category' => 'TRANSAKSI PENJUALAN PRODUK',
-                'description' => $trx->invoice,
+                'description' => $trx->customer?->name ? ($trx->invoice . ' - ' . $trx->customer->name) : $trx->invoice,
                 'cash_in' => (int) $trx->grand_total,
                 'cash_out' => 0,
                 'created_at' => $trx->created_at,
@@ -113,8 +115,8 @@ class CashReportController extends Controller
             ? (clone $membershipQuery)->get()->map(fn ($membership) => [
                 'id' => 'membership-' . $membership->id,
                 'category' => 'TRANSAKSI MEMBERSHIP',
-                'description' => $membership->invoice,
-                'cash_in' => $membership->payment_method === 'transfer_credits' ? 0 : (int) ($membership->plan?->price ?? 0),
+                'description' => $membership->user?->name ? ($membership->invoice . ' - ' . $membership->user->name) : $membership->invoice,
+                'cash_in' => (int) ($membership->plan?->price ?? 0),
                 'cash_out' => 0,
                 'created_at' => $membership->created_at,
             ])
@@ -123,7 +125,7 @@ class CashReportController extends Controller
             ? (clone $appointmentDropInQuery)->get()->map(fn ($booking) => [
                 'id' => 'appointment-drop-in-' . $booking->id,
                 'category' => 'TRANSAKSI APPOINTMENT',
-                'description' => $booking->invoice,
+                'description' => $booking->customer?->name ? ($booking->invoice . ' - ' . $booking->customer->name) : $booking->invoice,
                 'cash_in' => (int) $booking->price_amount,
                 'cash_out' => 0,
                 'created_at' => $booking->booked_at ?? $booking->created_at,
@@ -133,7 +135,7 @@ class CashReportController extends Controller
             ? (clone $timetableDropInQuery)->get()->map(fn ($booking) => [
                 'id' => 'timetable-drop-in-' . $booking->id,
                 'category' => 'TRANSAKSI BOOKING SCHEDULE',
-                'description' => $booking->invoice,
+                'description' => $booking->user?->name ? ($booking->invoice . ' - ' . $booking->user->name) : $booking->invoice,
                 'cash_in' => (int) $booking->price_amount,
                 'cash_out' => 0,
                 'created_at' => $booking->booked_at ?? $booking->created_at,
@@ -165,7 +167,7 @@ class CashReportController extends Controller
                 ->first()
             : (object) ['cash_in_total' => 0, 'cash_out_total' => 0];
         $membershipTotals = $includeMemberships
-            ? (clone $membershipQuery)->get()->sum(fn ($membership) => $membership->payment_method === 'transfer_credits' ? 0 : (float) ($membership->plan?->price ?? 0))
+            ? (clone $membershipQuery)->get()->sum(fn ($membership) => (float) ($membership->plan?->price ?? 0))
             : 0;
         $appointmentDropInTotals = $includeAppointmentDropIns
             ? (float) ((clone $appointmentDropInQuery)->sum('price_amount') ?? 0)
@@ -231,26 +233,28 @@ class CashReportController extends Controller
         $membershipQuery = $this->applyMembershipFilters(
             UserMembership::query()
                 ->whereNotIn('status', ['pending', 'pending_payment', 'cancelled', 'expired'])
-                ->with(['plan:id,price']),
+                ->with(['plan:id,price', 'user:id,name']),
             $filters
         )->orderByDesc('created_at');
         $appointmentDropInQuery = $this->applyAppointmentDropInFilters(
             AppointmentBooking::query()
                 ->where('status', 'confirmed')
-                ->where('payment_type', 'drop_in'),
+                ->where('payment_type', 'drop_in')
+                ->with(['customer:id,name']),
             $filters
         )->orderByDesc('booked_at');
         $timetableDropInQuery = $this->applyTimetableDropInFilters(
             PilatesBooking::query()
                 ->where('status', 'confirmed')
-                ->where('payment_type', 'drop_in'),
+                ->where('payment_type', 'drop_in')
+                ->with(['user:id,name']),
             $filters
         )->orderByDesc('booked_at');
 
         $transactionsList = $includeTransactions
             ? (clone $transactionQuery)->get()->map(fn ($trx) => [
                 'category' => 'TRANSAKSI PENJUALAN PRODUK',
-                'description' => $trx->invoice,
+                'description' => $trx->customer?->name ? ($trx->invoice . ' - ' . $trx->customer->name) : $trx->invoice,
                 'cash_in' => (int) $trx->grand_total,
                 'cash_out' => 0,
                 'created_at' => $trx->created_at,
@@ -269,8 +273,8 @@ class CashReportController extends Controller
         $membershipList = $includeMemberships
             ? (clone $membershipQuery)->get()->map(fn ($membership) => [
                 'category' => 'TRANSAKSI MEMBERSHIP',
-                'description' => $membership->invoice,
-                'cash_in' => $membership->payment_method === 'transfer_credits' ? 0 : (int) ($membership->plan?->price ?? 0),
+                'description' => $membership->user?->name ? ($membership->invoice . ' - ' . $membership->user->name) : $membership->invoice,
+                'cash_in' => (int) ($membership->plan?->price ?? 0),
                 'cash_out' => 0,
                 'created_at' => $membership->created_at,
             ])
@@ -278,7 +282,7 @@ class CashReportController extends Controller
         $appointmentDropInList = $includeAppointmentDropIns
             ? (clone $appointmentDropInQuery)->get()->map(fn ($booking) => [
                 'category' => 'TRANSAKSI APPOINTMENT',
-                'description' => $booking->invoice,
+                'description' => $booking->customer?->name ? ($booking->invoice . ' - ' . $booking->customer->name) : $booking->invoice,
                 'cash_in' => (int) $booking->price_amount,
                 'cash_out' => 0,
                 'created_at' => $booking->booked_at ?? $booking->created_at,
@@ -287,7 +291,7 @@ class CashReportController extends Controller
         $timetableDropInList = $includeTimetableDropIns
             ? (clone $timetableDropInQuery)->get()->map(fn ($booking) => [
                 'category' => 'TRANSAKSI BOOKING SCHEDULE',
-                'description' => $booking->invoice,
+                'description' => $booking->user?->name ? ($booking->invoice . ' - ' . $booking->user->name) : $booking->invoice,
                 'cash_in' => (int) $booking->price_amount,
                 'cash_out' => 0,
                 'created_at' => $booking->booked_at ?? $booking->created_at,
@@ -350,26 +354,28 @@ class CashReportController extends Controller
         $membershipQuery = $this->applyMembershipFilters(
             UserMembership::query()
                 ->whereNotIn('status', ['pending', 'pending_payment', 'cancelled', 'expired'])
-                ->with(['plan:id,price']),
+                ->with(['plan:id,price', 'user:id,name']),
             $filters
         )->orderByDesc('created_at');
         $appointmentDropInQuery = $this->applyAppointmentDropInFilters(
             AppointmentBooking::query()
                 ->where('status', 'confirmed')
-                ->where('payment_type', 'drop_in'),
+                ->where('payment_type', 'drop_in')
+                ->with(['customer:id,name']),
             $filters
         )->orderByDesc('booked_at');
         $timetableDropInQuery = $this->applyTimetableDropInFilters(
             PilatesBooking::query()
                 ->where('status', 'confirmed')
-                ->where('payment_type', 'drop_in'),
+                ->where('payment_type', 'drop_in')
+                ->with(['user:id,name']),
             $filters
         )->orderByDesc('booked_at');
 
         $transactionsList = $includeTransactions
             ? (clone $transactionQuery)->get()->map(fn ($trx) => [
                 'category' => 'TRANSAKSI PENJUALAN PRODUK',
-                'description' => $trx->invoice,
+                'description' => $trx->customer?->name ? ($trx->invoice . ' - ' . $trx->customer->name) : $trx->invoice,
                 'cash_in' => (int) $trx->grand_total,
                 'cash_out' => 0,
             ])
@@ -386,15 +392,15 @@ class CashReportController extends Controller
         $membershipList = $includeMemberships
             ? (clone $membershipQuery)->get()->map(fn ($membership) => [
                 'category' => 'TRANSAKSI MEMBERSHIP',
-                'description' => $membership->invoice,
-                'cash_in' => $membership->payment_method === 'transfer_credits' ? 0 : (int) ($membership->plan?->price ?? 0),
+                'description' => $membership->user?->name ? ($membership->invoice . ' - ' . $membership->user->name) : $membership->invoice,
+                'cash_in' => (int) ($membership->plan?->price ?? 0),
                 'cash_out' => 0,
             ])
             : collect();
         $appointmentDropInList = $includeAppointmentDropIns
             ? (clone $appointmentDropInQuery)->get()->map(fn ($booking) => [
                 'category' => 'TRANSAKSI APPOINTMENT',
-                'description' => $booking->invoice,
+                'description' => $booking->customer?->name ? ($booking->invoice . ' - ' . $booking->customer->name) : $booking->invoice,
                 'cash_in' => (int) $booking->price_amount,
                 'cash_out' => 0,
             ])
@@ -402,7 +408,7 @@ class CashReportController extends Controller
         $timetableDropInList = $includeTimetableDropIns
             ? (clone $timetableDropInQuery)->get()->map(fn ($booking) => [
                 'category' => 'TRANSAKSI BOOKING SCHEDULE',
-                'description' => $booking->invoice,
+                'description' => $booking->user?->name ? ($booking->invoice . ' - ' . $booking->user->name) : $booking->invoice,
                 'cash_in' => (int) $booking->price_amount,
                 'cash_out' => 0,
             ])
@@ -456,7 +462,10 @@ class CashReportController extends Controller
     protected function applyFilters($query, array $filters)
     {
         $query = $query
-            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
+            ->when($filters['invoice'] ?? null, fn ($q, $search) => $q->where(function ($builder) use ($search) {
+                $builder->where('invoice', 'like', '%' . $search . '%')
+                    ->orWhereHas('customer', fn ($cq) => $cq->where('name', 'like', '%' . $search . '%'));
+            }))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashier) => $q->where('cashier_id', $cashier))
             ->when($filters['customer_id'] ?? null, fn ($q, $customer) => $q->where('customer_id', $customer))
             ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('created_at', '>=', $start))
@@ -512,8 +521,16 @@ class CashReportController extends Controller
     protected function applyMembershipFilters($query, array $filters)
     {
         return $query
-            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
+            ->where(function ($q) {
+                $q->whereNull('payment_method')
+                  ->orWhere('payment_method', '!=', 'transfer_credits');
+            })
+            ->when($filters['invoice'] ?? null, fn ($q, $search) => $q->where(function ($builder) use ($search) {
+                $builder->where('invoice', 'like', '%' . $search . '%')
+                    ->orWhereHas('user', fn ($uq) => $uq->where('name', 'like', '%' . $search . '%'));
+            }))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashier) => $q->where('cashier_id', $cashier))
+            ->when($filters['customer_id'] ?? null, fn ($q, $customer) => $q->whereHas('user', fn ($uq) => $uq->whereHas('customer', fn ($cq) => $cq->where('id', $customer))))
             ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('created_at', '>=', $start))
             ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('created_at', '<=', $end))
             ->when(($filters['shift'] ?? null) === 'pagi', fn ($q) => $q->whereTime('created_at', '>=', '06:00:00')->whereTime('created_at', '<', '15:00:00'))
@@ -523,8 +540,12 @@ class CashReportController extends Controller
     protected function applyAppointmentDropInFilters($query, array $filters)
     {
         return $query
-            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
+            ->when($filters['invoice'] ?? null, fn ($q, $search) => $q->where(function ($builder) use ($search) {
+                $builder->where('invoice', 'like', '%' . $search . '%')
+                    ->orWhereHas('customer', fn ($cq) => $cq->where('name', 'like', '%' . $search . '%'));
+            }))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashier) => $q->where('cashier_id', $cashier))
+            ->when($filters['customer_id'] ?? null, fn ($q, $customer) => $q->where('customer_id', $customer))
             ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('booked_at', '>=', $start))
             ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('booked_at', '<=', $end))
             ->when(($filters['shift'] ?? null) === 'pagi', fn ($q) => $q->whereTime('booked_at', '>=', '06:00:00')->whereTime('booked_at', '<', '15:00:00'))
@@ -534,8 +555,12 @@ class CashReportController extends Controller
     protected function applyTimetableDropInFilters($query, array $filters)
     {
         return $query
-            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
+            ->when($filters['invoice'] ?? null, fn ($q, $search) => $q->where(function ($builder) use ($search) {
+                $builder->where('invoice', 'like', '%' . $search . '%')
+                    ->orWhereHas('user', fn ($uq) => $uq->where('name', 'like', '%' . $search . '%'));
+            }))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashier) => $q->where('cashier_id', $cashier))
+            ->when($filters['customer_id'] ?? null, fn ($q, $customer) => $q->whereHas('user', fn ($uq) => $uq->whereHas('customer', fn ($cq) => $cq->where('id', $customer))))
             ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('booked_at', '>=', $start))
             ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('booked_at', '<=', $end))
             ->when(($filters['shift'] ?? null) === 'pagi', fn ($q) => $q->whereTime('booked_at', '>=', '06:00:00')->whereTime('booked_at', '<', '15:00:00'))
