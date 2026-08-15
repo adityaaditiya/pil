@@ -134,9 +134,10 @@ export default function CashEntry() {
                                 }
                                 errors={errors.description}
                                 onChange={(e) =>
-                                    setData("description", e.target.value)
+                                    setData("description", e.target.value.toUpperCase())
                                 }
                                 value={data.description}
+                                className="uppercase"
                             />
                             <Input
                                 type="number"

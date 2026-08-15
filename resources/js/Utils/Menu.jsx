@@ -516,13 +516,13 @@ function Menu() {
                     permissions: hasAnyPermission(["landing-page-settings-access"]),
                 },
                 {
-                    title: "Logout",
+                    title: <span className="text-red-500 hover:text-red-600">Logout</span>,
                     href: route("logout"),
                     method: "post",
                     as: "button",
-                    icon: <IconLogout size={20} strokeWidth={1.5} />,
+                    icon: <IconLogout size={20} strokeWidth={1.5} className="text-red-500" />,
                     permissions: true,
-                },
+                }
             ],
         },
     ];

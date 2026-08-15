@@ -53,7 +53,7 @@ class CashEntryController extends Controller
             'cashier_id' => $request->user()->id,
             'category' => $type,
             'transaction_category' => $validated['transaction_category'],
-            'description' => $validated['description'],
+            'description' => mb_strtoupper($validated['description']),
             'amount' => (int) $validated['amount'],
         ]);
 

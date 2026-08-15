@@ -94,7 +94,7 @@ class CashReportController extends Controller
             ? (clone $transactionQuery)->get()->map(fn ($trx) => [
                 'id' => 'transaction-' . $trx->id,
                 'category' => 'TRANSAKSI PENJUALAN PRODUK',
-                'description' => $trx->customer?->name ? ($trx->invoice . ' - ' . $trx->customer->name) : $trx->invoice,
+                'description' => $trx->customer?->name ? ($trx->invoice . ' - ' . mb_strtoupper($trx->customer->name)) : $trx->invoice,
                 'cash_in' => (int) $trx->grand_total,
                 'cash_out' => 0,
                 'created_at' => $trx->created_at,
@@ -115,7 +115,7 @@ class CashReportController extends Controller
             ? (clone $membershipQuery)->get()->map(fn ($membership) => [
                 'id' => 'membership-' . $membership->id,
                 'category' => 'TRANSAKSI MEMBERSHIP',
-                'description' => $membership->user?->name ? ($membership->invoice . ' - ' . $membership->user->name) : $membership->invoice,
+                'description' => $membership->user?->name ? ($membership->invoice . ' - ' . mb_strtoupper($membership->user->name)) : $membership->invoice,
                 'cash_in' => (int) ($membership->plan?->price ?? 0),
                 'cash_out' => 0,
                 'created_at' => $membership->created_at,
@@ -125,7 +125,7 @@ class CashReportController extends Controller
             ? (clone $appointmentDropInQuery)->get()->map(fn ($booking) => [
                 'id' => 'appointment-drop-in-' . $booking->id,
                 'category' => 'TRANSAKSI APPOINTMENT',
-                'description' => $booking->customer?->name ? ($booking->invoice . ' - ' . $booking->customer->name) : $booking->invoice,
+                'description' => $booking->customer?->name ? ($booking->invoice . ' - ' . mb_strtoupper($booking->customer->name)) : $booking->invoice,
                 'cash_in' => (int) $booking->price_amount,
                 'cash_out' => 0,
                 'created_at' => $booking->booked_at ?? $booking->created_at,
@@ -135,7 +135,7 @@ class CashReportController extends Controller
             ? (clone $timetableDropInQuery)->get()->map(fn ($booking) => [
                 'id' => 'timetable-drop-in-' . $booking->id,
                 'category' => 'TRANSAKSI BOOKING SCHEDULE',
-                'description' => $booking->user?->name ? ($booking->invoice . ' - ' . $booking->user->name) : $booking->invoice,
+                'description' => $booking->user?->name ? ($booking->invoice . ' - ' . mb_strtoupper($booking->user->name)) : $booking->invoice,
                 'cash_in' => (int) $booking->price_amount,
                 'cash_out' => 0,
                 'created_at' => $booking->booked_at ?? $booking->created_at,
@@ -254,7 +254,7 @@ class CashReportController extends Controller
         $transactionsList = $includeTransactions
             ? (clone $transactionQuery)->get()->map(fn ($trx) => [
                 'category' => 'TRANSAKSI PENJUALAN PRODUK',
-                'description' => $trx->customer?->name ? ($trx->invoice . ' - ' . $trx->customer->name) : $trx->invoice,
+                'description' => $trx->customer?->name ? ($trx->invoice . ' - ' . mb_strtoupper($trx->customer->name)) : $trx->invoice,
                 'cash_in' => (int) $trx->grand_total,
                 'cash_out' => 0,
                 'created_at' => $trx->created_at,
@@ -273,7 +273,7 @@ class CashReportController extends Controller
         $membershipList = $includeMemberships
             ? (clone $membershipQuery)->get()->map(fn ($membership) => [
                 'category' => 'TRANSAKSI MEMBERSHIP',
-                'description' => $membership->user?->name ? ($membership->invoice . ' - ' . $membership->user->name) : $membership->invoice,
+                'description' => $membership->user?->name ? ($membership->invoice . ' - ' . mb_strtoupper($membership->user->name)) : $membership->invoice,
                 'cash_in' => (int) ($membership->plan?->price ?? 0),
                 'cash_out' => 0,
                 'created_at' => $membership->created_at,
@@ -282,7 +282,7 @@ class CashReportController extends Controller
         $appointmentDropInList = $includeAppointmentDropIns
             ? (clone $appointmentDropInQuery)->get()->map(fn ($booking) => [
                 'category' => 'TRANSAKSI APPOINTMENT',
-                'description' => $booking->customer?->name ? ($booking->invoice . ' - ' . $booking->customer->name) : $booking->invoice,
+                'description' => $booking->customer?->name ? ($booking->invoice . ' - ' . mb_strtoupper($booking->customer->name)) : $booking->invoice,
                 'cash_in' => (int) $booking->price_amount,
                 'cash_out' => 0,
                 'created_at' => $booking->booked_at ?? $booking->created_at,
@@ -291,7 +291,7 @@ class CashReportController extends Controller
         $timetableDropInList = $includeTimetableDropIns
             ? (clone $timetableDropInQuery)->get()->map(fn ($booking) => [
                 'category' => 'TRANSAKSI BOOKING SCHEDULE',
-                'description' => $booking->user?->name ? ($booking->invoice . ' - ' . $booking->user->name) : $booking->invoice,
+                'description' => $booking->user?->name ? ($booking->invoice . ' - ' . mb_strtoupper($booking->user->name)) : $booking->invoice,
                 'cash_in' => (int) $booking->price_amount,
                 'cash_out' => 0,
                 'created_at' => $booking->booked_at ?? $booking->created_at,
@@ -375,7 +375,7 @@ class CashReportController extends Controller
         $transactionsList = $includeTransactions
             ? (clone $transactionQuery)->get()->map(fn ($trx) => [
                 'category' => 'TRANSAKSI PENJUALAN PRODUK',
-                'description' => $trx->customer?->name ? ($trx->invoice . ' - ' . $trx->customer->name) : $trx->invoice,
+                'description' => $trx->customer?->name ? ($trx->invoice . ' - ' . mb_strtoupper($trx->customer->name)) : $trx->invoice,
                 'cash_in' => (int) $trx->grand_total,
                 'cash_out' => 0,
             ])
@@ -392,7 +392,7 @@ class CashReportController extends Controller
         $membershipList = $includeMemberships
             ? (clone $membershipQuery)->get()->map(fn ($membership) => [
                 'category' => 'TRANSAKSI MEMBERSHIP',
-                'description' => $membership->user?->name ? ($membership->invoice . ' - ' . $membership->user->name) : $membership->invoice,
+                'description' => $membership->user?->name ? ($membership->invoice . ' - ' . mb_strtoupper($membership->user->name)) : $membership->invoice,
                 'cash_in' => (int) ($membership->plan?->price ?? 0),
                 'cash_out' => 0,
             ])
@@ -400,7 +400,7 @@ class CashReportController extends Controller
         $appointmentDropInList = $includeAppointmentDropIns
             ? (clone $appointmentDropInQuery)->get()->map(fn ($booking) => [
                 'category' => 'TRANSAKSI APPOINTMENT',
-                'description' => $booking->customer?->name ? ($booking->invoice . ' - ' . $booking->customer->name) : $booking->invoice,
+                'description' => $booking->customer?->name ? ($booking->invoice . ' - ' . mb_strtoupper($booking->customer->name)) : $booking->invoice,
                 'cash_in' => (int) $booking->price_amount,
                 'cash_out' => 0,
             ])
@@ -408,7 +408,7 @@ class CashReportController extends Controller
         $timetableDropInList = $includeTimetableDropIns
             ? (clone $timetableDropInQuery)->get()->map(fn ($booking) => [
                 'category' => 'TRANSAKSI BOOKING SCHEDULE',
-                'description' => $booking->user?->name ? ($booking->invoice . ' - ' . $booking->user->name) : $booking->invoice,
+                'description' => $booking->user?->name ? ($booking->invoice . ' - ' . mb_strtoupper($booking->user->name)) : $booking->invoice,
                 'cash_in' => (int) $booking->price_amount,
                 'cash_out' => 0,
             ])
