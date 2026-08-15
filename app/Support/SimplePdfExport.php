@@ -43,6 +43,7 @@ class SimplePdfExport
             'rows' => $rows,
             'footer_lines' => $footerLines,
             'column_widths' => $columnWidths,
+            'page_break_before' => ! empty($section['page_break_before']),
         ];
     }
 
@@ -119,8 +120,12 @@ class SimplePdfExport
 
         foreach ($sections as $sectionIndex => $section) {
             if ($sectionIndex > 0) {
-                $ensureSpace($sectionGap);
-                $currentY -= $sectionGap;
+                if (! empty($section['page_break_before'])) {
+                    $newPage();
+                } else {
+                    $ensureSpace($sectionGap);
+                    $currentY -= $sectionGap;
+                }
             }
 
             if ($section['title'] !== '') {

@@ -53,11 +53,14 @@ class CashReportController extends Controller
             'transaction_category' => $request->input('transaction_category'),
         ];
 
-        $includeTransactions = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_SALES;
-        $includeMemberships = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_MEMBERSHIP;
-        $includeAppointmentDropIns = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_APPOINTMENT_DROP_IN;
-        $includeTimetableDropIns = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_TIMETABLE_DROP_IN;
-        $includeCashEntries = empty($filters['transaction_category']) || in_array($filters['transaction_category'], self::CASH_ENTRY_CATEGORIES, true);
+        $selectedCategories = $this->parseCategoryFilter($filters['transaction_category'] ?? null);
+
+        $includeTransactions = empty($selectedCategories) || in_array(self::CATEGORY_SALES, $selectedCategories, true);
+        $includeMemberships = empty($selectedCategories) || in_array(self::CATEGORY_MEMBERSHIP, $selectedCategories, true);
+        $includeAppointmentDropIns = empty($selectedCategories) || in_array(self::CATEGORY_APPOINTMENT_DROP_IN, $selectedCategories, true);
+        $includeTimetableDropIns = empty($selectedCategories) || in_array(self::CATEGORY_TIMETABLE_DROP_IN, $selectedCategories, true);
+        $selectedCashCategories = empty($selectedCategories) ? [] : array_values(array_intersect($selectedCategories, self::CASH_ENTRY_CATEGORIES));
+        $includeCashEntries = empty($selectedCategories) || ! empty($selectedCashCategories);
 
         $transactionQuery = $this->applyFilters(
             Transaction::query()->notCanceled()
@@ -214,11 +217,14 @@ class CashReportController extends Controller
             'transaction_category' => $request->input('transaction_category'),
         ];
 
-        $includeTransactions = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_SALES;
-        $includeMemberships = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_MEMBERSHIP;
-        $includeAppointmentDropIns = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_APPOINTMENT_DROP_IN;
-        $includeTimetableDropIns = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_TIMETABLE_DROP_IN;
-        $includeCashEntries = empty($filters['transaction_category']) || in_array($filters['transaction_category'], self::CASH_ENTRY_CATEGORIES, true);
+        $selectedCategories = $this->parseCategoryFilter($filters['transaction_category'] ?? null);
+
+        $includeTransactions = empty($selectedCategories) || in_array(self::CATEGORY_SALES, $selectedCategories, true);
+        $includeMemberships = empty($selectedCategories) || in_array(self::CATEGORY_MEMBERSHIP, $selectedCategories, true);
+        $includeAppointmentDropIns = empty($selectedCategories) || in_array(self::CATEGORY_APPOINTMENT_DROP_IN, $selectedCategories, true);
+        $includeTimetableDropIns = empty($selectedCategories) || in_array(self::CATEGORY_TIMETABLE_DROP_IN, $selectedCategories, true);
+        $selectedCashCategories = empty($selectedCategories) ? [] : array_values(array_intersect($selectedCategories, self::CASH_ENTRY_CATEGORIES));
+        $includeCashEntries = empty($selectedCategories) || ! empty($selectedCashCategories);
 
         $transactionQuery = $this->applyFilters(
             Transaction::query()->notCanceled()
@@ -306,17 +312,15 @@ class CashReportController extends Controller
             ->sortByDesc('created_at')
             ->values();
 
-        $headers = ['Kategori', 'Deskripsi', 'Uang Masuk', 'Uang Keluar'];
-        $rows = $mergedRows->map(function ($row) {
+        $rekapPerKategori = $mergedRows->groupBy('category')->map(function ($items, $catName) {
             return [
-                $row['category'],
-                $row['description'],
-                $this->formatCurrency((int) ($row['cash_in'] ?? 0)),
-                $this->formatCurrency((int) ($row['cash_out'] ?? 0)),
+                'category' => $catName,
+                'cash_in' => (int) $items->sum('cash_in'),
+                'cash_out' => (int) $items->sum('cash_out'),
             ];
-        })->all();
+        })->values();
 
-        return $this->downloadExcel('laporan-keuangan-cash.xls', $headers, $rows);
+        return $this->downloadExcel('laporan-keuangan-cash.xls', $mergedRows, $rekapPerKategori);
     }
 
     /**
@@ -335,11 +339,14 @@ class CashReportController extends Controller
             'transaction_category' => $request->input('transaction_category'),
         ];
 
-        $includeTransactions = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_SALES;
-        $includeMemberships = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_MEMBERSHIP;
-        $includeAppointmentDropIns = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_APPOINTMENT_DROP_IN;
-        $includeTimetableDropIns = empty($filters['transaction_category']) || $filters['transaction_category'] === self::CATEGORY_TIMETABLE_DROP_IN;
-        $includeCashEntries = empty($filters['transaction_category']) || in_array($filters['transaction_category'], self::CASH_ENTRY_CATEGORIES, true);
+        $selectedCategories = $this->parseCategoryFilter($filters['transaction_category'] ?? null);
+
+        $includeTransactions = empty($selectedCategories) || in_array(self::CATEGORY_SALES, $selectedCategories, true);
+        $includeMemberships = empty($selectedCategories) || in_array(self::CATEGORY_MEMBERSHIP, $selectedCategories, true);
+        $includeAppointmentDropIns = empty($selectedCategories) || in_array(self::CATEGORY_APPOINTMENT_DROP_IN, $selectedCategories, true);
+        $includeTimetableDropIns = empty($selectedCategories) || in_array(self::CATEGORY_TIMETABLE_DROP_IN, $selectedCategories, true);
+        $selectedCashCategories = empty($selectedCategories) ? [] : array_values(array_intersect($selectedCategories, self::CASH_ENTRY_CATEGORIES));
+        $includeCashEntries = empty($selectedCategories) || ! empty($selectedCashCategories);
 
         $transactionQuery = $this->applyFilters(
             Transaction::query()->notCanceled()
@@ -421,6 +428,18 @@ class CashReportController extends Controller
             ->concat($timetableDropInList)
             ->values();
 
+        $rekapPerKategori = $mergedRows->groupBy('category')->map(function ($items, $catName) {
+            return [
+                'category' => $catName,
+                'cash_in' => (int) $items->sum('cash_in'),
+                'cash_out' => (int) $items->sum('cash_out'),
+            ];
+        })->values();
+
+        $totalCashIn = (int) $rekapPerKategori->sum('cash_in');
+        $totalCashOut = (int) $rekapPerKategori->sum('cash_out');
+        $saldoAkhir = $totalCashIn - $totalCashOut;
+
         $headers = ['Kategori', 'Deskripsi', 'Uang Masuk', 'Uang Keluar'];
         $pdfRows = $mergedRows->map(function ($row) {
             return [
@@ -438,21 +457,53 @@ class CashReportController extends Controller
             1.7, // Uang Keluar
         ];
 
-        $sections = [[
+        $section1 = [
             'title' => '',
             'headers' => $headers,
             'rows' => $pdfRows,
             'footer_lines' => [],
             'column_widths' => $columnWidths,
-        ]];
+        ];
+
+        $rekapPdfRows = $rekapPerKategori->map(function ($catRow) {
+            return [
+                $catRow['category'],
+                $this->formatCurrency($catRow['cash_in']),
+                $this->formatCurrency($catRow['cash_out']),
+            ];
+        })->all();
+
+        $rekapPdfRows[] = [
+            'TOTAL KESELURUHAN (GRAND TOTAL)',
+            $this->formatCurrency($totalCashIn),
+            $this->formatCurrency($totalCashOut),
+        ];
+
+        $rekapPdfRows[] = [
+            '',
+            'SALDO AKHIR',
+            $this->formatCurrency($saldoAkhir),
+            
+        ];
+
+        $section2 = [
+            'title' => 'RINGKASAN / REKAPITULASI PER KATEGORI',
+            'headers' => ['Kategori', 'Uang Masuk', 'Uang Keluar'],
+            'rows' => $rekapPdfRows,
+            'footer_lines' => [
+                'Total Uang Masuk  : ' . $this->formatCurrency($totalCashIn),
+                'Total Uang Keluar : ' . $this->formatCurrency($totalCashOut),
+                'Saldo Akhir       : ' . $this->formatCurrency($saldoAkhir),
+            ],
+            'column_widths' => [8, 4, 4],
+            'page_break_before' => true,
+        ];
 
         return $this->downloadPdf(
             'laporan-keuangan-cash.pdf',
             'Laporan Keuangan Cash',
             $this->buildPeriodLabel($filters),
-            $headers,
-            $pdfRows,
-            $columnWidths
+            [$section1, $section2]
         );
     }
 
@@ -495,8 +546,15 @@ class CashReportController extends Controller
             ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('created_at', '>=', $start))
             ->when($filters['end_date'] ?? null, fn ($q, $end) => $q->whereDate('created_at', '<=', $end));
 
-        if (! empty($filters['transaction_category']) && $filters['transaction_category'] !== 'transaksi_penjualan') {
-            $query->where('transaction_category', $filters['transaction_category']);
+        $selectedCategories = $this->parseCategoryFilter($filters['transaction_category'] ?? null);
+
+        if (! empty($selectedCategories)) {
+            $cashCats = array_values(array_intersect($selectedCategories, self::CASH_ENTRY_CATEGORIES));
+            if (! empty($cashCats)) {
+                $query->whereIn('transaction_category', $cashCats);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
         }
 
         if (($filters['shift'] ?? null) === 'pagi') {
@@ -594,22 +652,111 @@ class CashReportController extends Controller
         return 'PERIODE : ' . $startDate . ' s/d ' . $endDate;
     }
 
-    protected function downloadExcel(string $filename, array $headers, array $rows)
+    protected function downloadExcel(string $filename, Collection $mergedRows, Collection $rekapPerKategori)
     {
-        return response()->streamDownload(function () use ($headers, $rows) {
-            echo '<table border="1"><thead><tr>';
-            foreach ($headers as $header) {
-                echo '<th>' . e($header) . '</th>';
-            }
+        return response()->streamDownload(function () use ($mergedRows, $rekapPerKategori) {
+            $mainCount = $mergedRows->count();
+
+            // Baris 1: Header Tabel Utama
+            // Baris 2 s/d mainTableLastRow: Data Transaksi
+            $mainTableLastRow = $mainCount > 0 ? ($mainCount + 1) : 2;
+
+            $rekapTitleRow = $mainTableLastRow + 4;
+            $rekapHeaderRow = $rekapTitleRow + 1;
+
+            $rekapCount = $rekapPerKategori->count();
+            $rekapStartRow = $rekapHeaderRow + 1;
+            $rekapEndRow = $rekapCount > 0 ? ($rekapStartRow + $rekapCount - 1) : $rekapStartRow;
+
+            $totalRow = $rekapEndRow + 1;
+
+            echo '<!DOCTYPE html><html><head><meta charset="utf-8">';
+            echo '<style>';
+            echo 'body { font-family: Arial, sans-serif; font-size: 10pt; }';
+            echo 'table { border-collapse: collapse; width: 100%; }';
+            echo 'th, td { border: 1px solid #cbd5e1; padding: 6px 10px; vertical-align: middle; }';
+            echo '.header-col { background-color: #f1f5f9; color: #0f172a; font-weight: bold; text-align: center; }';
+            echo '.header-rekap { background-color: #1e293b; color: #ffffff; font-weight: bold; font-size: 11pt; text-align: left; }';
+            echo '.num { text-align: right; mso-number-format: \'"Rp "#,##0;[Red]"Rp "-#,##0;"Rp "0\'; }';
+            echo '.total-row { background-color: #f8fafc; font-weight: bold; }';
+            echo '.saldo-row { background-color: #e2e8f0; font-weight: bold; font-size: 11pt; }';
+            echo '</style></head><body>';
+            echo '<table>';
+
+            // Main Table Header
+            echo '<thead><tr class="header-col">';
+            echo '<th>Kategori</th><th>Deskripsi</th><th>Uang Masuk</th><th>Uang Keluar</th>';
             echo '</tr></thead><tbody>';
-            foreach ($rows as $row) {
-                echo '<tr>';
-                foreach ($row as $cell) {
-                    echo '<td>' . e((string) $cell) . '</td>';
+
+            // Main Table Rows
+            if ($mainCount > 0) {
+                foreach ($mergedRows as $row) {
+                    echo '<tr>';
+                    echo '<td>' . e($row['category']) . '</td>';
+                    echo '<td>' . e($row['description']) . '</td>';
+                    echo '<td class="num">' . (int) ($row['cash_in'] ?? 0) . '</td>';
+                    echo '<td class="num">' . (int) ($row['cash_out'] ?? 0) . '</td>';
+                    echo '</tr>';
                 }
+            } else {
+                echo '<tr><td colspan="4" style="text-align:center;">Tidak ada data.</td></tr>';
+            }
+
+            // Main Table Total Row
+            echo '<tr>';
+            echo '<td colspan="2" class="total-row" style="text-align:right;">TOTAL TRANSAKSI</td>';
+            echo '<td class="num total-row">=SUM(C2:C' . $mainTableLastRow . ')</td>';
+            echo '<td class="num total-row">=SUM(D2:D' . $mainTableLastRow . ')</td>';
+            echo '</tr>';
+
+            // 2 Empty Rows as Separator
+            echo '<tr><td colspan="4" style="border:none;">&nbsp;</td></tr>';
+            echo '<tr><td colspan="4" style="border:none;">&nbsp;</td></tr>';
+
+            // Section Header: "RINGKASAN / REKAPITULASI PER KATEGORI"
+            // 1. Baris Judul Rekap (Hanya colspan 4: Kolom A, B, C, D)
+            echo '<tr>';
+            echo '<th colspan="4" class="header-rekap">RINGKASAN / REKAPITULASI PER KATEGORI</th>';
+            echo '</tr>';
+
+            // Rekap Table Column Headers
+            echo '<tr>';
+            echo '<th colspan="2" class="header-col">Kategori</th>';
+            echo '<th class="header-col">Uang Masuk</th>';
+            echo '<th class="header-col">Uang Keluar</th>';
+            echo '</tr>';
+
+            // Rekap Rows
+            if ($rekapCount > 0) {
+                foreach ($rekapPerKategori as $catRow) {
+                    echo '<tr>';
+                    echo '<td colspan="2">' . e($catRow['category']) . '</td>';
+                    echo '<td class="num">' . (int) $catRow['cash_in'] . '</td>';
+                    echo '<td class="num">' . (int) $catRow['cash_out'] . '</td>';
+                    echo '</tr>';
+                }
+            } else {
+                echo '<tr>';
+                echo '<td>Tidak ada data</td><td></td>';
+                echo '<td class="num">0</td>';
+                echo '<td class="num">0</td>';
                 echo '</tr>';
             }
-            echo '</tbody></table>';
+
+            // Total Keseluruhan Row (with Excel SUM formulas)
+            echo '<tr>';
+            echo '<td colspan="2" class="total-row" style="text-align:left;">TOTAL KESELURUHAN (GRAND TOTAL)</td>';
+            echo '<td class="num total-row">=SUM(C' . $rekapStartRow . ':C' . $rekapEndRow . ')</td>';
+            echo '<td class="num total-row">=SUM(D' . $rekapStartRow . ':D' . $rekapEndRow . ')</td>';
+            echo '</tr>';
+
+            // Saldo Akhir Row (with Excel subtraction formula)
+            echo '<tr>';
+            echo '<td colspan="2" class="saldo-row" style="text-align:left;">SALDO AKHIR</td>';
+            echo '<td colspan="2" class="num saldo-row">=C' . $totalRow . '-D' . $totalRow . '</td>';
+            echo '</tr>';
+
+            echo '</tbody></table></body></html>';
         }, $filename, [
             'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
         ]);
@@ -619,18 +766,8 @@ class CashReportController extends Controller
         string $filename,
         string $title,
         string $period,
-        array $headers,
-        array $rows,
-        array $columnWidths = []
+        array $sections
     ) {
-        $sections = [[
-            'title' => '',
-            'headers' => $headers,
-            'rows' => $rows,
-            'footer_lines' => [],
-            'column_widths' => $columnWidths,
-        ]];
-
         $pdfBinary = SimplePdfExport::make(
             $title,
             $period,
@@ -646,5 +783,18 @@ class CashReportController extends Controller
                 'Content-Disposition',
                 'attachment; filename="'.$filename.'"'
             );
+    }
+
+    private function parseCategoryFilter($categoryInput): array
+    {
+        if (empty($categoryInput)) {
+            return [];
+        }
+
+        if (is_array($categoryInput)) {
+            return array_values(array_filter($categoryInput));
+        }
+
+        return array_values(array_filter(explode(',', (string) $categoryInput)));
     }
 }

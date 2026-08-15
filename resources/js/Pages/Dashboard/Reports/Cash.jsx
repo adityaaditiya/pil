@@ -15,6 +15,7 @@ import {
     IconX,
     IconWallet,
 } from "@tabler/icons-react";
+import CategoryDropdown from "@/Components/Dashboard/CategoryDropdown";
 
 const SummaryCard = ({ icon, title, value, description, gradient }) => (
     <div
@@ -325,40 +326,15 @@ const Cash = ({ transactions, summary, filters, cashiers }) => {
                                         <option value="malam">Shift Malam (15:00 - 00:00)</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Kategori Transaksi
-                                    </label>
-                                    <select
-                                        value={filterData.transaction_category}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                "transaction_category",
-                                                e.target.value
-                                            )
-                                        }
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
-                                    >
-                                        <option value="">Semua kategori</option>
-                                        <option value="transaksi_penjualan">
-                                            TRANSAKSI PENJUALAN
-                                        </option>
-                                        <option value="transaksi_membership">
-                                            TRANSAKSI MEMBERSHIP
-                                        </option>
-                                        <option value="transaksi_appointment_drop_in">
-                                            TRANSAKSI APPOINTMENT
-                                        </option>
-                                        <option value="transaksi_timetable_drop_in">
-                                            TRANSAKSI BOOKING SCHEDULE
-                                        </option>
-                                        {cashEntryCategories.map((category) => (
-                                            <option key={category} value={category}>
-                                                {category}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                <CategoryDropdown
+                                    value={filterData.transaction_category}
+                                    onChange={(val) =>
+                                        handleChange(
+                                            "transaction_category",
+                                            val
+                                        )
+                                    }
+                                />
                             </div>
                             <div className="flex justify-end gap-2 mt-4">
                                 {hasActiveFilters && (
