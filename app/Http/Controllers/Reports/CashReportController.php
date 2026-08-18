@@ -487,13 +487,13 @@ class CashReportController extends Controller
         ];
 
         $section2 = [
-            'title' => 'RINGKASAN / REKAPITULASI PER KATEGORI',
+            // 'title' => 'RINGKASAN / REKAPITULASI PER KATEGORI',
             'headers' => ['Kategori', 'Uang Masuk', 'Uang Keluar'],
             'rows' => $rekapPdfRows,
             'footer_lines' => [
-                'Total Uang Masuk  : ' . $this->formatCurrency($totalCashIn),
-                'Total Uang Keluar : ' . $this->formatCurrency($totalCashOut),
-                'Saldo Akhir       : ' . $this->formatCurrency($saldoAkhir),
+                // 'Total Uang Masuk  : ' . $this->formatCurrency($totalCashIn),
+                // 'Total Uang Keluar : ' . $this->formatCurrency($totalCashOut),
+                // 'Saldo Akhir       : ' . $this->formatCurrency($saldoAkhir),
             ],
             'column_widths' => [8, 4, 4],
             'page_break_before' => true,
