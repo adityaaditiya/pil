@@ -151,7 +151,10 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
 
     Route::resource('questions', QuestionController::class)
         ->except(['show'])
-        ->middleware('permission:questions-access');
+        ->middlewareFor(['index'], 'permission:questions-access')
+        ->middlewareFor(['create', 'store'], 'permission:questions-create')
+        ->middlewareFor(['edit', 'update'], 'permission:questions-edit')
+        ->middlewareFor('destroy', 'permission:questions-delete');
 
     Route::get('customers/{customer}/questionnaire', [CustomerQuestionnaireController::class, 'edit'])
         ->middleware('permission:customers-edit')
@@ -178,64 +181,78 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         ->middleware('permission:studio-pages-access');
     Route::resource('classes', PilatesClassController::class)
         ->except(['show'])
-        ->middleware('permission:classes-access');
+        ->middlewareFor(['index'], 'permission:classes-access')
+        ->middlewareFor(['create', 'store'], 'permission:classes-create')
+        ->middlewareFor(['edit', 'update'], 'permission:classes-edit')
+        ->middlewareFor('destroy', 'permission:classes-delete');
+        
     Route::resource('appointment-sessions', AppointmentSessionController::class)
         ->except(['show'])
-        ->middleware('permission:appointment-sessions-access');
+        ->middlewareFor(['index'], 'permission:appointment-sessions-access')
+        ->middlewareFor(['create', 'store'], 'permission:appointment-sessions-create')
+        ->middlewareFor(['edit', 'update'], 'permission:appointment-sessions-edit')
+        ->middlewareFor('destroy', 'permission:appointment-sessions-delete');
+        
     Route::resource('trainers', TrainerController::class)
         ->except(['show'])
-        ->middleware('permission:trainers-access');
+        ->middlewareFor(['index'], 'permission:trainers-access')
+        ->middlewareFor(['create', 'store'], 'permission:trainers-create')
+        ->middlewareFor(['edit', 'update'], 'permission:trainers-edit')
+        ->middlewareFor('destroy', 'permission:trainers-delete');
     Route::get('timetable', [PilatesTimetableController::class, 'index'])
         ->middleware('permission:timetable-access')
         ->name('timetable.index');
     Route::get('timetable/create', [PilatesTimetableController::class, 'create'])
-        ->middleware('permission:timetable-access')
+        ->middleware('permission:timetable-create')
         ->name('timetable.create');
     Route::post('timetable', [PilatesTimetableController::class, 'store'])
-        ->middleware('permission:timetable-access')
+        ->middleware('permission:timetable-create')
         ->name('timetable.store');
     Route::get('timetable/{timetable}/edit', [PilatesTimetableController::class, 'edit'])
-        ->middleware('permission:timetable-access')
+        ->middleware('permission:timetable-edit')
         ->name('timetable.edit');
     Route::put('timetable/{timetable}', [PilatesTimetableController::class, 'update'])
-        ->middleware('permission:timetable-access')
+        ->middleware('permission:timetable-edit')
         ->name('timetable.update');
     Route::patch('timetable/{timetable}/status', [PilatesTimetableController::class, 'updateStatus'])
-        ->middleware('permission:timetable-access')
+        ->middleware('permission:timetable-edit')
         ->name('timetable.status');
     Route::delete('timetable/{timetable}', [PilatesTimetableController::class, 'destroy'])
-        ->middleware('permission:timetable-access')
+        ->middleware('permission:timetable-delete')
         ->name('timetable.destroy');
     Route::patch('timetable/bookings/{booking}/attendance', [PilatesTimetableController::class, 'updateAttendanceStatus'])
-        ->middleware('permission:timetable-access')
+        ->middleware('permission:timetable-edit')
         ->name('timetable.bookings.attendance');
     Route::get('appointments', [PilatesAppointmentController::class, 'index'])
         ->middleware('permission:appointments-access')
         ->name('appointments.index');
     Route::get('appointments/create', [PilatesAppointmentController::class, 'create'])
-        ->middleware('permission:appointments-access')
+        ->middleware('permission:appointments-create')
         ->name('appointments.create');
     Route::post('appointments', [PilatesAppointmentController::class, 'store'])
-        ->middleware('permission:appointments-access')
+        ->middleware('permission:appointments-create')
         ->name('appointments.store');
     Route::get('appointments/{appointment}/edit', [PilatesAppointmentController::class, 'edit'])
-        ->middleware('permission:appointments-access')
+        ->middleware('permission:appointments-edit')
         ->name('appointments.edit');
     Route::put('appointments/{appointment}', [PilatesAppointmentController::class, 'update'])
-        ->middleware('permission:appointments-access')
+        ->middleware('permission:appointments-edit')
         ->name('appointments.update');
+    Route::patch('appointments/{appointment}/status', [PilatesAppointmentController::class, 'updateStatus'])
+        ->middleware('permission:appointments-edit')
+        ->name('appointments.status');
     Route::delete('appointments/{appointment}', [PilatesAppointmentController::class, 'destroy'])
-        ->middleware('permission:appointments-access')
+        ->middleware('permission:appointments-delete')
         ->name('appointments.destroy');
-    Route::get('appointments/{appointment}/booking', [PilatesAppointmentController::class, 'createBooking'])
-        ->middleware('permission:appointments-access')
-        ->name('appointments.booking.create');
-    Route::post('appointments/{appointment}/booking', [PilatesAppointmentController::class, 'storeBooking'])
-        ->middleware('permission:appointments-access')
-        ->name('appointments.booking.store');
     Route::patch('appointments/bookings/{booking}/attendance', [PilatesAppointmentController::class, 'updateAttendanceStatus'])
-        ->middleware('permission:appointments-access')
+        ->middleware('permission:appointments-edit')
         ->name('appointments.bookings.attendance');
+    Route::get('appointments/{appointment}/bookings/create', [PilatesAppointmentController::class, 'createBooking'])
+        ->middleware('permission:appointments-create')
+        ->name('appointments.bookings.create');
+    Route::post('appointments/{appointment}/bookings', [PilatesAppointmentController::class, 'storeBooking'])
+        ->middleware('permission:appointments-create')
+        ->name('appointments.bookings.store');
     
     Route::get('bookings/history', [PilatesBookingHistoryController::class, 'index'])
         ->middleware('permission:bookings-history-access')
@@ -277,12 +294,15 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
 
     Route::resource('membership-plans', MembershipPlanController::class)
         ->except(['show'])
-        ->middleware('permission:membership-plans-access');
+        ->middlewareFor(['index'], 'permission:membership-plans-access')
+        ->middlewareFor(['create', 'store'], 'permission:membership-plans-create')
+        ->middlewareFor(['edit', 'update'], 'permission:membership-plans-edit')
+        ->middlewareFor('destroy', 'permission:membership-plans-delete');
 
     Route::get('memberships/plans', [UserMembershipController::class, 'plans'])->middleware('permission:memberships-access')->name('memberships.plans');
     Route::get('memberships/plans/{membershipPlan}/checkout', [UserMembershipController::class, 'checkout'])->middleware('permission:memberships-access')->name('memberships.checkout');
     Route::get('memberships/customers/search', [UserMembershipController::class, 'searchCustomers'])->middleware('permission:memberships-access')->name('memberships.customers.search');
-    Route::post('memberships/plans/{membershipPlan}/activate', [UserMembershipController::class, 'activate'])->middleware('permission:memberships-access')->name('memberships.activate');
+    Route::post('memberships/plans/{membershipPlan}/activate', [UserMembershipController::class, 'activate'])->middleware('permission:memberships-create')->name('memberships.activate');
     Route::get('memberships/my', [UserMembershipController::class, 'myMemberships'])->middleware('permission:my-memberships-access')->name('memberships.my');
     Route::get('memberships/history', [MembershipHistoryController::class, 'index'])
         ->middleware('permission:memberships-history-access')
@@ -291,7 +311,7 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         ->middleware('permission:memberships-history-access')
         ->name('memberships.print');
     Route::delete('memberships/{userMembership}/cancel', [MembershipHistoryController::class, 'cancel'])
-        ->middleware('permission:memberships-history-access')
+        ->middleware('permission:memberships-delete')
         ->name('memberships.cancel');
     Route::post('memberships/{userMembership}/confirm-payment', [MembershipHistoryController::class, 'confirmPayment'])
         ->middleware('permission:memberships-history-access')
@@ -339,6 +359,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
 
     Route::get('/settings/payments/activation', [PaymentSettingController::class, 'editActivation'])->middleware('permission:payment-activation-access')->name('settings.payment-activation.edit');
     Route::put('/settings/payments/activation', [PaymentSettingController::class, 'updateActivation'])->middleware('permission:payment-activation-access')->name('settings.payment-activation.update');
+    Route::get('/settings/account', [\App\Http\Controllers\AccountSettingController::class, 'edit'])->name('settings.account.edit');
+    Route::put('/settings/account', [\App\Http\Controllers\AccountSettingController::class, 'update'])->name('settings.account.update');
+
     Route::get('/settings/payments', [PaymentSettingController::class, 'edit'])->middleware('permission:payment-settings-access')->name('settings.payments.edit');
     Route::put('/settings/payments', [PaymentSettingController::class, 'update'])->middleware('permission:payment-settings-access')->name('settings.payments.update');
 
@@ -346,45 +369,45 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::put('/settings/landing-page', [LandingPageSettingController::class, 'update'])->middleware('permission:landing-page-settings-access')->name('settings.landing-page.update');
 
     //reports
-    Route::get('/reports/sales', [SalesReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.sales.index');
-    Route::get('/reports/sales/export', [SalesReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.sales.export');
-    Route::get('/reports/sales/export-pdf', [SalesReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.sales.export-pdf');
-    Route::get('/reports/sold-items', [SoldItemsReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.sold-items.index');
-    Route::get('/reports/sold-items/export', [SoldItemsReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.sold-items.export');
-    Route::get('/reports/sold-items/export-pdf', [SoldItemsReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.sold-items.export-pdf');
-    Route::get('/reports/booking', [StudioTransactionReportController::class, 'booking'])->middleware('permission:reports-access')->name('reports.booking.index');
-    Route::get('/reports/booking/export', [StudioTransactionReportController::class, 'bookingExport'])->middleware('permission:reports-access')->name('reports.booking.export');
-    Route::get('/reports/booking/export-pdf', [StudioTransactionReportController::class, 'bookingExportPdf'])->middleware('permission:reports-access')->name('reports.booking.export-pdf');
-    Route::get('/reports/appointment', [StudioTransactionReportController::class, 'appointment'])->middleware('permission:reports-access')->name('reports.appointment.index');
-    Route::get('/reports/appointment/export', [StudioTransactionReportController::class, 'appointmentExport'])->middleware('permission:reports-access')->name('reports.appointment.export');
-    Route::get('/reports/appointment/export-pdf', [StudioTransactionReportController::class, 'appointmentExportPdf'])->middleware('permission:reports-access')->name('reports.appointment.export-pdf');
-    Route::get('/reports/membership', [StudioTransactionReportController::class, 'membership'])->middleware('permission:reports-access')->name('reports.membership.index');
-    Route::get('/reports/membership-extension', [StudioTransactionReportController::class, 'membershipExtension'])->middleware('permission:reports-access')->name('reports.membership-extension.index');
-    Route::get('/reports/membership-extension/export', [StudioTransactionReportController::class, 'membershipExtensionExport'])->middleware('permission:reports-access')->name('reports.membership-extension.export');
-    Route::get('/reports/membership-extension/export-pdf', [StudioTransactionReportController::class, 'membershipExtensionExportPdf'])->middleware('permission:reports-access')->name('reports.membership-extension.export-pdf');
-    Route::get('/reports/membership-validity', [StudioTransactionReportController::class, 'membershipValidity'])->middleware('permission:reports-access')->name('reports.membership-validity.index');
-    Route::get('/reports/membership-validity/export', [StudioTransactionReportController::class, 'membershipValidityExport'])->middleware('permission:reports-access')->name('reports.membership-validity.export');
-    Route::get('/reports/membership-validity/export-pdf', [StudioTransactionReportController::class, 'membershipValidityExportPdf'])->middleware('permission:reports-access')->name('reports.membership-validity.export-pdf');
-    Route::get('/reports/membership/export', [StudioTransactionReportController::class, 'membershipExport'])->middleware('permission:reports-access')->name('reports.membership.export');
-    Route::get('/reports/membership/export-pdf', [StudioTransactionReportController::class, 'membershipExportPdf'])->middleware('permission:reports-access')->name('reports.membership.export-pdf');
-    Route::get('/reports/membership-transfer', [StudioTransactionReportController::class, 'membershipTransfer'])->middleware('permission:reports-access')->name('reports.membership-transfer.index');
-    Route::get('/reports/membership-transfer/export', [StudioTransactionReportController::class, 'membershipTransferExport'])->middleware('permission:reports-access')->name('reports.membership-transfer.export');
-    Route::get('/reports/membership-transfer/export-pdf', [StudioTransactionReportController::class, 'membershipTransferExportPdf'])->middleware('permission:reports-access')->name('reports.membership-transfer.export-pdf');
+    Route::get('/reports/sales', [SalesReportController::class, 'index'])->middleware('permission:report-sales-access')->name('reports.sales.index');
+    Route::get('/reports/sales/export', [SalesReportController::class, 'export'])->middleware('permission:report-sales-access')->name('reports.sales.export');
+    Route::get('/reports/sales/export-pdf', [SalesReportController::class, 'exportPdf'])->middleware('permission:report-sales-access')->name('reports.sales.export-pdf');
+    Route::get('/reports/sold-items', [SoldItemsReportController::class, 'index'])->middleware('permission:report-sold-items-access')->name('reports.sold-items.index');
+    Route::get('/reports/sold-items/export', [SoldItemsReportController::class, 'export'])->middleware('permission:report-sold-items-access')->name('reports.sold-items.export');
+    Route::get('/reports/sold-items/export-pdf', [SoldItemsReportController::class, 'exportPdf'])->middleware('permission:report-sold-items-access')->name('reports.sold-items.export-pdf');
+    Route::get('/reports/booking', [StudioTransactionReportController::class, 'booking'])->middleware('permission:report-booking-access')->name('reports.booking.index');
+    Route::get('/reports/booking/export', [StudioTransactionReportController::class, 'bookingExport'])->middleware('permission:report-booking-access')->name('reports.booking.export');
+    Route::get('/reports/booking/export-pdf', [StudioTransactionReportController::class, 'bookingExportPdf'])->middleware('permission:report-booking-access')->name('reports.booking.export-pdf');
+    Route::get('/reports/appointment', [StudioTransactionReportController::class, 'appointment'])->middleware('permission:report-appointment-access')->name('reports.appointment.index');
+    Route::get('/reports/appointment/export', [StudioTransactionReportController::class, 'appointmentExport'])->middleware('permission:report-appointment-access')->name('reports.appointment.export');
+    Route::get('/reports/appointment/export-pdf', [StudioTransactionReportController::class, 'appointmentExportPdf'])->middleware('permission:report-appointment-access')->name('reports.appointment.export-pdf');
+    Route::get('/reports/membership', [StudioTransactionReportController::class, 'membership'])->middleware('permission:report-membership-access')->name('reports.membership.index');
+    Route::get('/reports/membership-extension', [StudioTransactionReportController::class, 'membershipExtension'])->middleware('permission:report-membership-extension-access')->name('reports.membership-extension.index');
+    Route::get('/reports/membership-extension/export', [StudioTransactionReportController::class, 'membershipExtensionExport'])->middleware('permission:report-membership-extension-access')->name('reports.membership-extension.export');
+    Route::get('/reports/membership-extension/export-pdf', [StudioTransactionReportController::class, 'membershipExtensionExportPdf'])->middleware('permission:report-membership-extension-access')->name('reports.membership-extension.export-pdf');
+    Route::get('/reports/membership-validity', [StudioTransactionReportController::class, 'membershipValidity'])->middleware('permission:report-membership-validity-access')->name('reports.membership-validity.index');
+    Route::get('/reports/membership-validity/export', [StudioTransactionReportController::class, 'membershipValidityExport'])->middleware('permission:report-membership-validity-access')->name('reports.membership-validity.export');
+    Route::get('/reports/membership-validity/export-pdf', [StudioTransactionReportController::class, 'membershipValidityExportPdf'])->middleware('permission:report-membership-validity-access')->name('reports.membership-validity.export-pdf');
+    Route::get('/reports/membership/export', [StudioTransactionReportController::class, 'membershipExport'])->middleware('permission:report-membership-access')->name('reports.membership.export');
+    Route::get('/reports/membership/export-pdf', [StudioTransactionReportController::class, 'membershipExportPdf'])->middleware('permission:report-membership-access')->name('reports.membership.export-pdf');
+    Route::get('/reports/membership-transfer', [StudioTransactionReportController::class, 'membershipTransfer'])->middleware('permission:report-membership-transfer-access')->name('reports.membership-transfer.index');
+    Route::get('/reports/membership-transfer/export', [StudioTransactionReportController::class, 'membershipTransferExport'])->middleware('permission:report-membership-transfer-access')->name('reports.membership-transfer.export');
+    Route::get('/reports/membership-transfer/export-pdf', [StudioTransactionReportController::class, 'membershipTransferExportPdf'])->middleware('permission:report-membership-transfer-access')->name('reports.membership-transfer.export-pdf');
     Route::get('/reports/profits', [ProfitReportController::class, 'index'])->middleware('permission:profits-access')->name('reports.profits.index');
     Route::get('/reports/profits/export', [ProfitReportController::class, 'export'])->middleware('permission:profits-access')->name('reports.profits.export');
     Route::get('/reports/profits/export-pdf', [ProfitReportController::class, 'exportPdf'])->middleware('permission:profits-access')->name('reports.profits.export-pdf');
-    Route::get('/reports/cash', [CashReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.cash.index');
-    Route::get('/reports/cash/export', [CashReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.cash.export');
-    Route::get('/reports/cash/export-pdf', [CashReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.cash.export-pdf');
-    Route::get('/reports/authorizations', [AuthorizationReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.authorizations.index');
-    Route::get('/reports/authorizations/export', [AuthorizationReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.authorizations.export');
-    Route::get('/reports/authorizations/export-pdf', [AuthorizationReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.authorizations.export-pdf');
-    Route::get('/reports/stock-mutations', [StockMutationReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.stock-mutations.index');
-    Route::get('/reports/stock-mutations/export', [StockMutationReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.stock-mutations.export');
-    Route::get('/reports/stock-mutations/export-pdf', [StockMutationReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.stock-mutations.export-pdf');
-    Route::get('/reports/trainers', [TrainerReportController::class, 'index'])->middleware('permission:reports-access')->name('reports.trainers.index');
-    Route::get('/reports/trainers/export', [TrainerReportController::class, 'export'])->middleware('permission:reports-access')->name('reports.trainers.export');
-    Route::get('/reports/trainers/export-pdf', [TrainerReportController::class, 'exportPdf'])->middleware('permission:reports-access')->name('reports.trainers.export-pdf');
+    Route::get('/reports/cash', [CashReportController::class, 'index'])->middleware('permission:report-cash-access')->name('reports.cash.index');
+    Route::get('/reports/cash/export', [CashReportController::class, 'export'])->middleware('permission:report-cash-access')->name('reports.cash.export');
+    Route::get('/reports/cash/export-pdf', [CashReportController::class, 'exportPdf'])->middleware('permission:report-cash-access')->name('reports.cash.export-pdf');
+    Route::get('/reports/authorizations', [AuthorizationReportController::class, 'index'])->middleware('permission:report-authorizations-access')->name('reports.authorizations.index');
+    Route::get('/reports/authorizations/export', [AuthorizationReportController::class, 'export'])->middleware('permission:report-authorizations-access')->name('reports.authorizations.export');
+    Route::get('/reports/authorizations/export-pdf', [AuthorizationReportController::class, 'exportPdf'])->middleware('permission:report-authorizations-access')->name('reports.authorizations.export-pdf');
+    Route::get('/reports/stock-mutations', [StockMutationReportController::class, 'index'])->middleware('permission:report-stock-mutations-access')->name('reports.stock-mutations.index');
+    Route::get('/reports/stock-mutations/export', [StockMutationReportController::class, 'export'])->middleware('permission:report-stock-mutations-access')->name('reports.stock-mutations.export');
+    Route::get('/reports/stock-mutations/export-pdf', [StockMutationReportController::class, 'exportPdf'])->middleware('permission:report-stock-mutations-access')->name('reports.stock-mutations.export-pdf');
+    Route::get('/reports/trainers', [TrainerReportController::class, 'index'])->middleware('permission:report-trainers-access')->name('reports.trainers.index');
+    Route::get('/reports/trainers/export', [TrainerReportController::class, 'export'])->middleware('permission:report-trainers-access')->name('reports.trainers.export');
+    Route::get('/reports/trainers/export-pdf', [TrainerReportController::class, 'exportPdf'])->middleware('permission:report-trainers-access')->name('reports.trainers.export-pdf');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

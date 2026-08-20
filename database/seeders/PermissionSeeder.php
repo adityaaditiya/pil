@@ -39,15 +39,15 @@ class PermissionSeeder extends Seeder
 
             // pilates studio control
             'studio-pages-access',
-            'classes-access',
-            'trainers-access',
-            'appointment-sessions-access',
-            'appointments-access',
+            'classes-access', 'classes-create', 'classes-edit', 'classes-delete',
+            'trainers-access', 'trainers-create', 'trainers-edit', 'trainers-delete',
+            'appointment-sessions-access', 'appointment-sessions-create', 'appointment-sessions-edit', 'appointment-sessions-delete',
+            'appointments-access', 'appointments-create', 'appointments-edit', 'appointments-delete',
             'appointments-history-access',
-            'timetable-access',
+            'timetable-access', 'timetable-create', 'timetable-edit', 'timetable-delete',
             'bookings-history-access',
-            'membership-plans-access',
-            'memberships-access',
+            'membership-plans-access', 'membership-plans-create', 'membership-plans-edit', 'membership-plans-delete',
+            'memberships-access', 'memberships-create', 'memberships-delete',
             'membership-transfer-access',
             'membership-extension-access',
             'my-memberships-access',
@@ -57,13 +57,25 @@ class PermissionSeeder extends Seeder
             'transactions-access', 'my-transactions-access',
 
             // questionnaires
-            'questions-access',
+            'questions-access', 'questions-create', 'questions-edit', 'questions-delete',
 
             // authorizations
             'authorization-cancel-transactions',
 
             // reports
-            'reports-access', 'profits-access',
+            'report-sales-access',
+            'report-sold-items-access',
+            'report-booking-access',
+            'report-appointment-access',
+            'report-membership-access',
+            'report-membership-extension-access',
+            'report-membership-validity-access',
+            'report-membership-transfer-access',
+            'report-cash-access',
+            'report-authorizations-access',
+            'report-stock-mutations-access',
+            'report-trainers-access',
+            'profits-access',
 
             // settings
             'payment-activation-access',

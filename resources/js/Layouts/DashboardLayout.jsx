@@ -3,9 +3,12 @@ import Sidebar from "@/Components/Dashboard/Sidebar";
 import Navbar from "@/Components/Dashboard/Navbar";
 import { Toaster } from "react-hot-toast";
 import { useTheme } from "@/Context/ThemeSwitcherContext";
+import { usePage } from "@inertiajs/react";
+import Swal from "sweetalert2";
 
 export default function AppLayout({ children }) {
     const { darkMode, themeSwitcher } = useTheme();
+    const { flash } = usePage().props;
 
     const [sidebarOpen, setSidebarOpen] = useState(
         localStorage.getItem("sidebarOpen") === "true"
@@ -14,6 +17,18 @@ export default function AppLayout({ children }) {
     useEffect(() => {
         localStorage.setItem("sidebarOpen", sidebarOpen);
     }, [sidebarOpen]);
+
+    useEffect(() => {
+        if (flash?.error) {
+            Swal.fire({
+                icon: "error",
+                title: "Menu Tidak Diizinkan",
+                text: flash.error,
+                confirmButtonColor: "#ef4444",
+                confirmButtonText: "Tutup",
+            });
+        }
+    }, [flash?.error]);
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 

@@ -26,6 +26,7 @@ import {
     IconUserBolt,
     IconUserShield,
     IconUserSquare,
+    IconUserCircle,
     IconUsers,
     IconUsersPlus,
     IconBadge,
@@ -338,7 +339,7 @@ function Menu() {
                 {
                     title: "Laporan Produk",
                     icon: <IconChartArrowsVertical size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["reports-access"]),
+                    permissions: hasAnyPermission(["report-sales-access", "report-sold-items-access", "report-stock-mutations-access", "profits-access"]),
                     subdetails: [
                         {
                             title: "Laporan Penjualan Produk",
@@ -347,21 +348,21 @@ function Menu() {
                             icon: (
                                 <IconChartArrowsVertical size={20} strokeWidth={1.5} />
                             ),
-                            permissions: hasAnyPermission(["reports-access"]),
+                            permissions: hasAnyPermission(["report-sales-access"]),
                         },
                         {
                             title: "Laporan Produk Terjual",
                             href: route("reports.sold-items.index"),
                             active: url.startsWith("/dashboard/reports/sold-items"),
                             icon: <IconBooks size={20} strokeWidth={1.5} />,
-                            permissions: hasAnyPermission(["reports-access"]),
+                            permissions: hasAnyPermission(["report-sold-items-access"]),
                         },
                         {
                             title: "Laporan Kelola Stok",
                             href: route("reports.stock-mutations.index"),
                             active: url.startsWith("/dashboard/reports/stock-mutations"),
                             icon: <IconTable size={20} strokeWidth={1.5} />,
-                            permissions: hasAnyPermission(["reports-access"]),
+                            permissions: hasAnyPermission(["report-stock-mutations-access"]),
                         },
                         {
                             title: "Laporan Profit Produk",
@@ -377,47 +378,47 @@ function Menu() {
                     href: route("reports.booking.index"),
                     active: url.startsWith("/dashboard/reports/booking"),
                     icon: <IconCalendarEvent size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["reports-access"]),
+                    permissions: hasAnyPermission(["report-booking-access"]),
                 },
                 {
                     title: "Laporan Appointment",
                     href: route("reports.appointment.index"),
                     active: url.startsWith("/dashboard/reports/appointment"),
                     icon: <IconCalendarClock size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["reports-access"]),
+                    permissions: hasAnyPermission(["report-appointment-access"]),
                 },
                 {
                     title: "Laporan Membership",
                     icon: <IconBadge size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["reports-access"]),
+                    permissions: hasAnyPermission(["report-membership-access", "report-membership-validity-access", "report-membership-extension-access", "report-membership-transfer-access"]),
                     subdetails: [
                         {
                             title: "Laporan Transaksi Membership",
                             href: route("reports.membership.index"),
                             active: url.startsWith("/dashboard/reports/membership") && !url.startsWith("/dashboard/reports/membership-transfer") && !url.startsWith("/dashboard/reports/membership-extension") && !url.startsWith("/dashboard/reports/membership-validity"),
                             icon: <IconBadge size={20} strokeWidth={1.5} />,
-                            permissions: hasAnyPermission(["reports-access"]),
+                            permissions: hasAnyPermission(["report-membership-access"]),
                         },
                         {
                             title: "Laporan Validity Membership",
                             href: route("reports.membership-validity.index"),
                             active: url.startsWith("/dashboard/reports/membership-validity"),
                             icon: <IconBadge size={20} strokeWidth={1.5} />,
-                            permissions: hasAnyPermission(["reports-access"]),
+                            permissions: hasAnyPermission(["report-membership-validity-access"]),
                         },
                         {
                             title: "Laporan Perpanjang Membership",
                             href: route("reports.membership-extension.index"),
                             active: url.startsWith("/dashboard/reports/membership-extension"),
                             icon: <IconBadge size={20} strokeWidth={1.5} />,
-                            permissions: hasAnyPermission(["reports-access"]),
+                            permissions: hasAnyPermission(["report-membership-extension-access"]),
                         },
                         {
                             title: "Laporan transfer membership",
                             href: route("reports.membership-transfer.index"),
                             active: url.startsWith("/dashboard/reports/membership-transfer"),
                             icon: <IconBadge size={20} strokeWidth={1.5} />,
-                            permissions: hasAnyPermission(["reports-access"]),
+                            permissions: hasAnyPermission(["report-membership-transfer-access"]),
                         },
                     ],
                 },
@@ -426,7 +427,7 @@ function Menu() {
                     href: route("reports.trainers.index"),
                     active: url.startsWith("/dashboard/reports/trainers"),
                     icon: <IconUsers size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["reports-access"]),
+                    permissions: hasAnyPermission(["report-trainers-access"]),
                 },
                 {
                     title: "Laporan Keuangan Cash",
@@ -435,14 +436,14 @@ function Menu() {
                     icon: (
                         <IconChartInfographic size={20} strokeWidth={1.5} />
                     ),
-                    permissions: hasAnyPermission(["reports-access"]),
+                    permissions: hasAnyPermission(["report-cash-access"]),
                 },
                 {
                     title: "Laporan Otorisasi",
                     href: route("reports.authorizations.index"),
                     active: url.startsWith("/dashboard/reports/authorizations"),
                     icon: <IconFileCertificate size={20} strokeWidth={1.5} />,
-                    permissions: hasAnyPermission(["reports-access"]),
+                    permissions: hasAnyPermission(["report-authorizations-access"]),
                 },
             ],
         },
@@ -494,6 +495,13 @@ function Menu() {
         {
             title: "Pengaturan",
             details: [
+                {
+                    title: "Pengaturan Akun",
+                    href: route("settings.account.edit"),
+                    active: url === "/dashboard/settings/account",
+                    icon: <IconUserCircle size={20} strokeWidth={1.5} />,
+                    permissions: true,
+                },
                 {
                     title: "Aktivasi Payment",
                     href: route("settings.payment-activation.edit"),
