@@ -12,12 +12,18 @@ const statusClasses = {
 };
 
 export default function Index({ sessions = [], selectedStartDate, selectedEndDate, canBook }) {
-    const { auth } = usePage().props;
+    const { auth, flash } = usePage().props;
     const canManageTimetable = Boolean(auth?.super || auth?.permissions?.["dashboard-access"]);
     const [startDate, setStartDate] = useState(selectedStartDate);
     const [endDate, setEndDate] = useState(selectedEndDate);
     const [selectedSession, setSelectedSession] = useState(null);
     const [participantSession, setParticipantSession] = useState(null);
+
+    React.useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+    }, [flash]);
 
     const hasSessions = useMemo(() => sessions.length > 0, [sessions]);
 

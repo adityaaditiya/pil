@@ -76,7 +76,7 @@ export default function Booking({ appointment, customers = [], paymentMethods = 
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        post(route("appointments.booking.store", appointment.id));
+        post(route("appointments.bookings.store", appointment.id));
     };
 
     return (

@@ -103,6 +103,7 @@ const CRUD_MODULES = [
 const NON_CRUD_MODULES = {
     "Appointments": [
         "appointments-history-access",
+        "appointments-booking-create",
     ],
     "Memberships": [
         "membership-transfer-access",

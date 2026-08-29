@@ -15,7 +15,7 @@ const matchesCustomerSearch = (customer, search) => {
 
 export default function Transfer({ customers = [], senderMemberships = [] }) {
     const { flash } = usePage().props;
-    const { data, setData, post, processing } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
         from_user_id: "",
         to_user_id: "",
         sender_membership_id: "",
@@ -272,14 +272,18 @@ export default function Transfer({ customers = [], senderMemberships = [] }) {
 
                             {/* Catatan Sesi */}
                             <div>
-                                <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">Notes (Catatan internal)</label>
+                                <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">
+                                    Notes (Catatan internal) <span className="text-red-500">*</span>
+                                </label>
                                 <textarea 
                                     className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 transition-all focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/5" 
                                     rows={3} 
                                     value={data.notes} 
                                     onChange={(e) => setData('notes', e.target.value)} 
-                                    placeholder="Catat alasan transfer credits..." 
+                                    placeholder="Catat alasan transfer credits..."
+                                    required 
                                 />
+                                {errors.notes && <p className="mt-1 text-xs text-red-500">{errors.notes}</p>}
                             </div>
 
                             {/* Action Button */}

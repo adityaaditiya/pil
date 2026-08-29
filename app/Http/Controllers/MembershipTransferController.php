@@ -58,7 +58,7 @@ class MembershipTransferController extends Controller
             'to_user_id' => ['required', 'integer', 'exists:users,id', 'different:from_user_id'],
             'sender_membership_id' => ['required', 'integer', 'exists:user_memberships,id'],
             'credits_amount' => ['required', 'integer', 'min:1'],
-            'notes' => ['nullable', 'string', 'max:500'],
+            'notes' => ['required', 'string', 'max:500'],
         ]);
 
         $result = DB::transaction(function () use ($validated) {
