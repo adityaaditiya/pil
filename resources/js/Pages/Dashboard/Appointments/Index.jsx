@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Modal from "@/Components/Dashboard/Modal";
-import { Head, Link, router, usePage } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import toast from "react-hot-toast";
 import { IconCalendarEvent, IconClock, IconEdit, IconPlus, IconTrash, IconUser, IconBookmark, IconCalendar, IconUserCheck, IconInfoCircle, IconPencil, IconCalendarOff, IconUsers  } from "@tabler/icons-react";
 
@@ -12,8 +12,6 @@ const formatRupiah = (value) => new Intl.NumberFormat("id-ID", {
 }).format(Number(value || 0));
 
 export default function Index({ appointments = [], selectedStartDate, selectedEndDate }) {
-    const { auth } = usePage().props;
-    const canBook = Boolean(auth?.super || auth?.permissions?.["appointments-create"]);
     const [startDate, setStartDate] = useState(selectedStartDate);
     const [endDate, setEndDate] = useState(selectedEndDate);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -281,14 +279,10 @@ export default function Index({ appointments = [], selectedStartDate, selectedEn
                         <button
                             type="button"
                             onClick={() => router.get(route("appointments.booking.create", selectedAppointment.id))}
-                            disabled={!canBook || Boolean(selectedAppointment.has_confirmed_booking)}
-                            className={`w-full rounded-2xl px-4 py-3 text-sm font-semibold text-white transition ${!canBook || selectedAppointment.has_confirmed_booking ? "cursor-not-allowed bg-slate-400" : "bg-primary-600 hover:bg-primary-700"}`}
+                            disabled={Boolean(selectedAppointment.has_confirmed_booking)}
+                            className={`w-full rounded-2xl px-4 py-3 text-sm font-semibold text-white transition ${selectedAppointment.has_confirmed_booking ? "cursor-not-allowed bg-slate-400" : "bg-primary-600 hover:bg-primary-700"}`}
                         >
-                            {!canBook
-                                ? "Booking Not Allowed"
-                                : selectedAppointment.has_confirmed_booking
-                                    ? "Sesi Tidak Tersedia"
-                                    : "Book Now"}
+                            {selectedAppointment.has_confirmed_booking ? "Sesi Tidak Tersedia" : "Book Now"}
                         </button>
                     </div>
                 )}
