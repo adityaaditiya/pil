@@ -299,7 +299,7 @@ class StudioTransactionReportController extends Controller
                 'credits_total' => (int) ($membership->credits_total ?? 0),
                 'credits_remaining' => (int) ($membership->credits_remaining ?? 0),
                 'purchased_at' => $membership->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
-                'starts_at' => $membership->starts_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+                'activated_at' => $membership->activated_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
                 'expires_at' => $membership->expires_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
                 'payment_method' => $membership->payment_method ?? '-',
             ]);
@@ -316,7 +316,7 @@ class StudioTransactionReportController extends Controller
                     ['key' => 'credits_total', 'label' => 'Total Credits', 'type' => 'number'],
                     ['key' => 'credits_remaining', 'label' => 'Sisa Credits', 'type' => 'number'],
                     ['key' => 'purchased_at', 'label' => 'Tanggal Pembelian Credits'],
-                    ['key' => 'starts_at', 'label' => 'Tanggal Mulai Pakai Credits'],
+                    ['key' => 'activated_at', 'label' => 'Tanggal Mulai Pakai Credits'],
                     ['key' => 'expires_at', 'label' => 'Tanggal Expired Credits'],
                     ['key' => 'payment_method', 'label' => 'Metode Pembayaran'],
                 ],
@@ -709,7 +709,7 @@ class StudioTransactionReportController extends Controller
             (int) ($membership->credits_total ?? 0),
             (int) ($membership->credits_remaining ?? 0),
             $membership->created_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
-            $membership->starts_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
+            $membership->activated_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
             $membership->expires_at?->timezone('Asia/Jakarta')->format('d M Y, H:i') ?? '-',
             $membership->payment_method ?? '-',
         ])->all();
@@ -729,10 +729,10 @@ class StudioTransactionReportController extends Controller
             $headers,
             [],
             [[
-                'title' => 'Membership Aktif',
+                'title' => ' ',
                 'headers' => $headers,
                 'rows' => $pdfRows,
-                'column_widths' => [0.35, 1.05, 1.15, 1.0, 0.65, 0.65, 1.05, 1.05, 1.05, 0.9],
+                'column_widths' => [0.35, 1.1, 1.15, 1.2, 0.5, 0.5, 1, 1, 1, 0.9],
                 'footer_lines' => [
                     'Total Membership Aktif: ' . number_format($items->count(), 0, ',', '.'),
                     'Total Sisa Credits: ' . number_format((int) $items->sum('credits_remaining'), 0, ',', '.'),
