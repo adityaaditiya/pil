@@ -12,6 +12,8 @@ const formatRupiah = (value) => new Intl.NumberFormat("id-ID", {
 }).format(Number(value || 0));
 
 export default function Index({ appointments = [], selectedStartDate, selectedEndDate }) {
+    const { auth } = usePage().props;
+    const canBook = Boolean(auth?.super || auth?.permissions?.["appointments-booking-create"]);
     const [startDate, setStartDate] = useState(selectedStartDate);
     const [endDate, setEndDate] = useState(selectedEndDate);
     const [selectedAppointment, setSelectedAppointment] = useState(null);

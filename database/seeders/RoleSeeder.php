@@ -38,6 +38,7 @@ class RoleSeeder extends Seeder
         'trainers-access',
         'appointment-sessions-access',
         'appointments-access',
+        'appointments-booking-create',
         'appointments-history-access',
         'timetable-access',
         'bookings-history-access',

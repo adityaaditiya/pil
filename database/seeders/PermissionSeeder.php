@@ -42,7 +42,7 @@ class PermissionSeeder extends Seeder
             'classes-access', 'classes-create', 'classes-edit', 'classes-delete',
             'trainers-access', 'trainers-create', 'trainers-edit', 'trainers-delete',
             'appointment-sessions-access', 'appointment-sessions-create', 'appointment-sessions-edit', 'appointment-sessions-delete',
-            'appointments-access', 'appointments-create', 'appointments-edit', 'appointments-delete',
+            'appointments-access', 'appointments-create', 'appointments-edit', 'appointments-delete', 'appointments-booking-create',
             'appointments-history-access',
             'timetable-access', 'timetable-create', 'timetable-edit', 'timetable-delete',
             'bookings-history-access',

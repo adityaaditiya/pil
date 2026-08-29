@@ -248,10 +248,10 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         ->middleware('permission:appointments-edit')
         ->name('appointments.bookings.attendance');
     Route::get('appointments/{appointment}/bookings/create', [PilatesAppointmentController::class, 'createBooking'])
-        ->middleware('permission:appointments-create')
+        ->middleware('permission:appointments-booking-create')
         ->name('appointments.bookings.create');
     Route::post('appointments/{appointment}/bookings', [PilatesAppointmentController::class, 'storeBooking'])
-        ->middleware('permission:appointments-create')
+        ->middleware('permission:appointments-booking-create')
         ->name('appointments.bookings.store');
     
     Route::get('bookings/history', [PilatesBookingHistoryController::class, 'index'])
