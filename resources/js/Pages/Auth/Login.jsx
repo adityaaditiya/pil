@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import {
     IconShoppingCart,
     IconMail,
@@ -55,7 +55,7 @@ export default function Login({ status, canResetPassword, redirect = "" }) {
                                     />
                                 </div>
                                 <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                                    ORO Pilates Studio
+                                    {usePage().props.landingPageSetting?.studio_name || "ORO Pilates Studio"}
                                 </span>
                             </Link>
                             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
@@ -252,7 +252,7 @@ export default function Login({ status, canResetPassword, redirect = "" }) {
                             dengan efisien.
                         </p> */}
                         <h2 className="text-3xl font-bold mb-4">
-                            ORO Pilates Studio
+                            {usePage().props.landingPageSetting?.studio_name || "ORO Pilates Studio"}
                         </h2>
                         <p className="text-lg opacity-90">
                             Move Better. Feel Stronger.

@@ -274,8 +274,8 @@ export default function WelcomeSection({
 
     const meta = page || fallbackMeta[pageKey] || {
         name: "Welcome",
-        title: "ORO Pilates Studio",
-        content: "Selamat datang di ORO Pilates Studio.",
+        title: usePage().props.landingPageSetting?.studio_name || "ORO Pilates Studio",
+        content: "Selamat datang di " + (usePage().props.landingPageSetting?.studio_name || "ORO Pilates Studio") + ".",
     };
 
     const shouldShowFilter = pageKey === "classes" || pageKey === "schedule";
@@ -888,7 +888,7 @@ useEffect(() => {
 
     return (
         <>
-            <Head title={`${meta.name} | ORO Pilates Studio`} />
+            <Head title={`${meta.name} | ${usePage().props.landingPageSetting?.studio_name || "ORO Pilates Studio"}`} />
             <Toaster 
                 position="top-right" 
                 toastOptions={{ 
@@ -910,14 +910,14 @@ useEffect(() => {
                     {/* <div className="rounded-3xl border border-primary-100 bg-white p-8 shadow-sm">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>
-                                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">ORO Pilates Studio</p>
+                                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-600">{(usePage().props.landingPageSetting?.studio_name || "ORO Pilates Studio")}</p>
                                 <h1 className="mt-4 text-3xl font-bold md:text-4xl">{meta.title}</h1>
                                 <p className="mt-4 max-w-3xl text-wellness-muted">{meta.content}</p>
                             </div> */}
                     <div className="rounded-3xl border relative bg-gradient-to-br from-slate-950 via-slate-900 to-primary-900 p-8 text-white">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>
-                                    <p className="text-xs uppercase tracking-[0.28em] text-primary-100">ORO Pilates Studio</p>
+                                    <p className="text-xs uppercase tracking-[0.28em] text-primary-100">{(usePage().props.landingPageSetting?.studio_name || "ORO Pilates Studio")}</p>
                                     <h1 className="mt-4 text-3xl font-bold md:text-4xl">{meta.title}</h1>
                                     <p className="mt-2 max-w-3xl text-white">{meta.content}</p>
                             </div>
@@ -1944,7 +1944,7 @@ useEffect(() => {
                                     <div className="">
                                         <div className="">
                                             <iframe
-                                                title="ORO Pilates Studio Location"
+                                                title={(usePage().props.landingPageSetting?.studio_name || "ORO Pilates Studio") + " Location"}
                                                 src={contactInfo.mapsEmbedUrl}
                                                 className="h-[360px] w-full rounded-[20px] border-0 grayscale-[0.15] contrast-125 saturate-[0.9]"
                                                 loading="lazy"

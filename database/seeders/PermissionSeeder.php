@@ -81,6 +81,7 @@ class PermissionSeeder extends Seeder
             'payment-activation-access',
             'payment-settings-access',
             'landing-page-settings-access',
+            'business-profile-settings-access',
         ];
 
         foreach ($permissions as $permission) {

@@ -15,6 +15,7 @@ class LandingPageSetting extends Model
     public const DEFAULT_STUDIO_LOGO = null;
 
     protected $fillable = [
+        'studio_name',
         'hero_background_image',
         'schedule_background_image',
         'classes_background_image',
@@ -24,6 +25,7 @@ class LandingPageSetting extends Model
     public static function defaultAttributes(): array
     {
         return [
+            'studio_name' => 'ORO Pilates Studio',
             'hero_background_image' => self::DEFAULT_HERO_BACKGROUND,
             'schedule_background_image' => self::DEFAULT_SCHEDULE_BACKGROUND,
             'classes_background_image' => self::DEFAULT_CLASSES_BACKGROUND,

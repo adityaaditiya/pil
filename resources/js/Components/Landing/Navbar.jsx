@@ -51,7 +51,7 @@ export default function Navbar({ navItems = defaultNavItems, currentKey = null }
                         </div>
                     )}
                     <div>
-                        <p className="text-base font-semibold">ORO Pilates Studio</p>
+                        <p className="text-base font-semibold">{usePage().props.landingPageSetting?.studio_name || "ORO Pilates Studio"}</p>
                         <p className="text-xs text-wellness-muted">Wellness & Movement</p>
                     </div>
                 </div>

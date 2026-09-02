@@ -198,7 +198,7 @@ export default function Welcome() {
         <div className="w-full overflow-hidden backdrop-blur-sm">
             <img
                 src={heroBackgroundImage}
-                alt="ORO Pilates Studio Building"
+                alt={(landingPageSetting?.studio_name || "ORO Pilates Studio") + " Building"}
                 className="h-auto w-full rounded-[24px] object-cover"
             />
         </div>
@@ -507,7 +507,7 @@ export default function Welcome() {
                 <footer className="bg-primary-600 px-4 py-14 text-primary-50 md:px-6">
                     <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-4">
                         <div className="md:col-span-2">
-                            <p className="text-xl font-semibold text-white">ORO Pilates Studio</p>
+                            <p className="text-xl font-semibold text-white">{(landingPageSetting?.studio_name || "ORO Pilates Studio")}</p>
                             <p className="mt-4 max-w-md text-sm text-primary-100">
                                 Studio pilates modern untuk Anda yang ingin bergerak lebih baik, merasa lebih kuat, dan hidup lebih mindful.
                             </p>
@@ -551,7 +551,7 @@ export default function Welcome() {
                         </div>
                     </div>
                     <div className="mx-auto mt-10 max-w-7xl border-t border-primary-500 pt-6 text-center text-sm text-primary-100">
-                        © {new Date().getFullYear()} ORO Pilates Studio. All rights reserved.
+                        © {new Date().getFullYear()} {(landingPageSetting?.studio_name || "ORO Pilates Studio")}. All rights reserved.
                     </div>
                 </footer>
             </div>

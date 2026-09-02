@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import {
     IconShoppingCart,
     IconUser,
@@ -98,7 +98,7 @@ export default function Register({ redirect = "" }) {
                                     />
                                 </div>
                                 <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                                    ORO Pilates Studio
+                                    {usePage().props.landingPageSetting?.studio_name || "ORO Pilates Studio"}
                                 </span>
                             </Link>
                             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">

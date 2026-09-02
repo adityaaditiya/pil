@@ -7,6 +7,7 @@ import {
     IconCalendarClock,
     IconChartArrowsVertical,
     IconChartBarPopular,
+    IconBuildingStore,
     IconChartInfographic,
     IconCirclePlus,
     IconClockHour6,
@@ -495,6 +496,13 @@ function Menu() {
         {
             title: "Pengaturan",
             details: [
+                {
+                    title: "Profile Bisnis",
+                    href: route("settings.business-profile.edit"),
+                    active: url === "/dashboard/settings/business-profile",
+                    icon: <IconBuildingStore size={20} strokeWidth={1.5} />,
+                    permissions: hasAnyPermission(["business-profile-settings-access"]),
+                },
                 {
                     title: "Pengaturan Akun",
                     href: route("settings.account.edit"),

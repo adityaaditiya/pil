@@ -138,6 +138,7 @@ const NON_CRUD_MODULES = {
         "bookings-history-access",
         "authorization-cancel-transactions",
         "landing-page-settings-access",
+        "business-profile-settings-access",
     ],
 };
 

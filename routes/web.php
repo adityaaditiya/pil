@@ -368,6 +368,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::get('/settings/landing-page', [LandingPageSettingController::class, 'edit'])->middleware('permission:landing-page-settings-access')->name('settings.landing-page.edit');
     Route::put('/settings/landing-page', [LandingPageSettingController::class, 'update'])->middleware('permission:landing-page-settings-access')->name('settings.landing-page.update');
 
+    Route::get('/settings/business-profile', [\App\Http\Controllers\Apps\BusinessProfileController::class, 'edit'])->middleware('permission:business-profile-settings-access')->name('settings.business-profile.edit');
+    Route::put('/settings/business-profile', [\App\Http\Controllers\Apps\BusinessProfileController::class, 'update'])->middleware('permission:business-profile-settings-access')->name('settings.business-profile.update');
+
     //reports
     Route::get('/reports/sales', [SalesReportController::class, 'index'])->middleware('permission:report-sales-access')->name('reports.sales.index');
     Route::get('/reports/sales/export', [SalesReportController::class, 'export'])->middleware('permission:report-sales-access')->name('reports.sales.export');
